@@ -1,0 +1,72 @@
+---
+database:
+  name: baskerville_test
+  user: someuser
+  password: 'verysecret'
+  host: 127.0.0.1
+  port : 5432
+  type: 'postgres'
+  encryption_passphrase: xxx
+  hash_passphrase: xxx
+
+engine:
+  verbose: False
+  datetime_format: '%Y-%m-%d %H:%M:%S'
+  model_dir: 'data/live_models/'
+  model_version: 'novelty-detector_example'
+  data_config:
+    parser: JSONLogSparkParser
+    schema: 'sample_log_schema.json'
+  features:
+    auto_choose: False
+    manual_choose:
+      geo_time: False
+      path_depth_average: True
+      path_depth_variance: True
+      path_max: True
+      path_total: True
+      payload_size_log: True
+      payload_size_average: True
+      query_per_page: True
+      query_total: True
+      ratio2html_css: True
+      ratio2html_image: True
+      ratio2html_js: True
+      request_interval_variance: True
+      request_total: True
+      response_4xx_rate: True
+      response_5xx_rate: False
+      request_set_length: True
+      ua_total: True
+  use_spark: False
+  logpath : 'baskerville.log'
+  log_level: 'INFO'
+  cache_expire_time: 3600   # sec or none
+  cache_lookup: True        # search cache for sessions
+  db_lookup: False          # search database for sessions
+  auto:
+    time_bucket: 15         # seconds
+  manual:
+    save_logs_path: ''
+    is_reference: True
+    host: 'test'
+    start: '2018-06-01 00:00:00'
+    end: '2018-06-01 00:10:00'
+    raw_logs_path: 'test_data.json'
+    chunk_size: 0            # lines
+  simulation:
+    sleep: True
+    verbose: True
+
+spark:
+  master: 'local'
+  parallelism: -1
+  log_conf: 'true'
+  log_level: 'ERROR'
+  jars: ''
+  session_timezone: 'UTC'
+  shuffle_partitions: 14
+  executor_instances: 4
+  executor_cores: 4
+  spark_driver_memory: '2G'
+  db_driver: 'org.postgresql.Driver'

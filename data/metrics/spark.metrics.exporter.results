@@ -1,0 +1,421 @@
+# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# TYPE go_gc_duration_seconds summary
+go_gc_duration_seconds{quantile="0"} 0.0001786
+go_gc_duration_seconds{quantile="0.25"} 0.0004152
+go_gc_duration_seconds{quantile="0.5"} 0.0005869
+go_gc_duration_seconds{quantile="0.75"} 0.0008604
+go_gc_duration_seconds{quantile="1"} 0.0237783
+go_gc_duration_seconds_sum 0.0316253
+go_gc_duration_seconds_count 11
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+go_goroutines 13
+# HELP go_info Information about the Go environment.
+# TYPE go_info gauge
+go_info{version="go1.10.3"} 1
+# HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.
+# TYPE go_memstats_alloc_bytes gauge
+go_memstats_alloc_bytes 3.329168e+06
+# HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
+# TYPE go_memstats_alloc_bytes_total counter
+go_memstats_alloc_bytes_total 2.6401656e+07
+# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table.
+# TYPE go_memstats_buck_hash_sys_bytes gauge
+go_memstats_buck_hash_sys_bytes 1.448699e+06
+# HELP go_memstats_frees_total Total number of frees.
+# TYPE go_memstats_frees_total counter
+go_memstats_frees_total 141703
+# HELP go_memstats_gc_cpu_fraction The fraction of this program's available CPU time used by the GC since the program started.
+# TYPE go_memstats_gc_cpu_fraction gauge
+go_memstats_gc_cpu_fraction 0.00014784461025718027
+# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata.
+# TYPE go_memstats_gc_sys_bytes gauge
+go_memstats_gc_sys_bytes 471040
+# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
+# TYPE go_memstats_heap_alloc_bytes gauge
+go_memstats_heap_alloc_bytes 3.329168e+06
+# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used.
+# TYPE go_memstats_heap_idle_bytes gauge
+go_memstats_heap_idle_bytes 3.448832e+06
+# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use.
+# TYPE go_memstats_heap_inuse_bytes gauge
+go_memstats_heap_inuse_bytes 4.317184e+06
+# HELP go_memstats_heap_objects Number of allocated objects.
+# TYPE go_memstats_heap_objects gauge
+go_memstats_heap_objects 14272
+# HELP go_memstats_heap_released_bytes Number of heap bytes released to OS.
+# TYPE go_memstats_heap_released_bytes gauge
+go_memstats_heap_released_bytes 0
+# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system.
+# TYPE go_memstats_heap_sys_bytes gauge
+go_memstats_heap_sys_bytes 7.766016e+06
+# HELP go_memstats_last_gc_time_seconds Number of seconds since 1970 of last garbage collection.
+# TYPE go_memstats_last_gc_time_seconds gauge
+go_memstats_last_gc_time_seconds 1.5396020423899295e+09
+# HELP go_memstats_lookups_total Total number of pointer lookups.
+# TYPE go_memstats_lookups_total counter
+go_memstats_lookups_total 195
+# HELP go_memstats_mallocs_total Total number of mallocs.
+# TYPE go_memstats_mallocs_total counter
+go_memstats_mallocs_total 155975
+# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures.
+# TYPE go_memstats_mcache_inuse_bytes gauge
+go_memstats_mcache_inuse_bytes 6944
+# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system.
+# TYPE go_memstats_mcache_sys_bytes gauge
+go_memstats_mcache_sys_bytes 16384
+# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures.
+# TYPE go_memstats_mspan_inuse_bytes gauge
+go_memstats_mspan_inuse_bytes 47728
+# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system.
+# TYPE go_memstats_mspan_sys_bytes gauge
+go_memstats_mspan_sys_bytes 65536
+# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place.
+# TYPE go_memstats_next_gc_bytes gauge
+go_memstats_next_gc_bytes 6.193104e+06
+# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations.
+# TYPE go_memstats_other_sys_bytes gauge
+go_memstats_other_sys_bytes 1.281533e+06
+# HELP go_memstats_stack_inuse_bytes Number of bytes in use by the stack allocator.
+# TYPE go_memstats_stack_inuse_bytes gauge
+go_memstats_stack_inuse_bytes 622592
+# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator.
+# TYPE go_memstats_stack_sys_bytes gauge
+go_memstats_stack_sys_bytes 622592
+# HELP go_memstats_sys_bytes Number of bytes obtained from system.
+# TYPE go_memstats_sys_bytes gauge
+go_memstats_sys_bytes 1.16718e+07
+# HELP go_threads Number of OS threads created.
+# TYPE go_threads gauge
+go_threads 10
+# HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
+# TYPE http_request_duration_microseconds summary
+http_request_duration_microseconds{handler="delete",quantile="0.5"} NaN
+http_request_duration_microseconds{handler="delete",quantile="0.9"} NaN
+http_request_duration_microseconds{handler="delete",quantile="0.99"} NaN
+http_request_duration_microseconds_sum{handler="delete"} 0
+http_request_duration_microseconds_count{handler="delete"} 0
+http_request_duration_microseconds{handler="healthy",quantile="0.5"} NaN
+http_request_duration_microseconds{handler="healthy",quantile="0.9"} NaN
+http_request_duration_microseconds{handler="healthy",quantile="0.99"} NaN
+http_request_duration_microseconds_sum{handler="healthy"} 0
+http_request_duration_microseconds_count{handler="healthy"} 0
+http_request_duration_microseconds{handler="prometheus",quantile="0.5"} 5320.2
+http_request_duration_microseconds{handler="prometheus",quantile="0.9"} 16140.9
+http_request_duration_microseconds{handler="prometheus",quantile="0.99"} 37673.6
+http_request_duration_microseconds_sum{handler="prometheus"} 144021.3
+http_request_duration_microseconds_count{handler="prometheus"} 19
+http_request_duration_microseconds{handler="push",quantile="0.5"} 1608.2
+http_request_duration_microseconds{handler="push",quantile="0.9"} 4157.8
+http_request_duration_microseconds{handler="push",quantile="0.99"} 8724.3
+http_request_duration_microseconds_sum{handler="push"} 31125.100000000002
+http_request_duration_microseconds_count{handler="push"} 13
+http_request_duration_microseconds{handler="ready",quantile="0.5"} NaN
+http_request_duration_microseconds{handler="ready",quantile="0.9"} NaN
+http_request_duration_microseconds{handler="ready",quantile="0.99"} NaN
+http_request_duration_microseconds_sum{handler="ready"} 0
+http_request_duration_microseconds_count{handler="ready"} 0
+http_request_duration_microseconds{handler="static",quantile="0.5"} NaN
+http_request_duration_microseconds{handler="static",quantile="0.9"} NaN
+http_request_duration_microseconds{handler="static",quantile="0.99"} NaN
+http_request_duration_microseconds_sum{handler="static"} 0
+http_request_duration_microseconds_count{handler="static"} 0
+http_request_duration_microseconds{handler="status",quantile="0.5"} 2262.6
+http_request_duration_microseconds{handler="status",quantile="0.9"} 42666.1
+http_request_duration_microseconds{handler="status",quantile="0.99"} 42666.1
+http_request_duration_microseconds_sum{handler="status"} 44928.7
+http_request_duration_microseconds_count{handler="status"} 2
+# HELP http_request_size_bytes The HTTP request sizes in bytes.
+# TYPE http_request_size_bytes summary
+http_request_size_bytes{handler="delete",quantile="0.5"} NaN
+http_request_size_bytes{handler="delete",quantile="0.9"} NaN
+http_request_size_bytes{handler="delete",quantile="0.99"} NaN
+http_request_size_bytes_sum{handler="delete"} 0
+http_request_size_bytes_count{handler="delete"} 0
+http_request_size_bytes{handler="healthy",quantile="0.5"} NaN
+http_request_size_bytes{handler="healthy",quantile="0.9"} NaN
+http_request_size_bytes{handler="healthy",quantile="0.99"} NaN
+http_request_size_bytes_sum{handler="healthy"} 0
+http_request_size_bytes_count{handler="healthy"} 0
+http_request_size_bytes{handler="prometheus",quantile="0.5"} 169
+http_request_size_bytes{handler="prometheus",quantile="0.9"} 694
+http_request_size_bytes{handler="prometheus",quantile="0.99"} 694
+http_request_size_bytes_sum{handler="prometheus"} 4786
+http_request_size_bytes_count{handler="prometheus"} 19
+http_request_size_bytes{handler="push",quantile="0.5"} 22574
+http_request_size_bytes{handler="push",quantile="0.9"} 22602
+http_request_size_bytes{handler="push",quantile="0.99"} 22614
+http_request_size_bytes_sum{handler="push"} 293467
+http_request_size_bytes_count{handler="push"} 13
+http_request_size_bytes{handler="ready",quantile="0.5"} NaN
+http_request_size_bytes{handler="ready",quantile="0.9"} NaN
+http_request_size_bytes{handler="ready",quantile="0.99"} NaN
+http_request_size_bytes_sum{handler="ready"} 0
+http_request_size_bytes_count{handler="ready"} 0
+http_request_size_bytes{handler="static",quantile="0.5"} NaN
+http_request_size_bytes{handler="static",quantile="0.9"} NaN
+http_request_size_bytes{handler="static",quantile="0.99"} NaN
+http_request_size_bytes_sum{handler="static"} 0
+http_request_size_bytes_count{handler="static"} 0
+http_request_size_bytes{handler="status",quantile="0.5"} 316
+http_request_size_bytes{handler="status",quantile="0.9"} 316
+http_request_size_bytes{handler="status",quantile="0.99"} 316
+http_request_size_bytes_sum{handler="status"} 632
+http_request_size_bytes_count{handler="status"} 2
+# HELP http_requests_total Total number of HTTP requests made.
+# TYPE http_requests_total counter
+http_requests_total{code="200",handler="prometheus",method="get"} 19
+http_requests_total{code="200",handler="status",method="get"} 2
+http_requests_total{code="202",handler="push",method="post"} 13
+# HELP http_response_size_bytes The HTTP response sizes in bytes.
+# TYPE http_response_size_bytes summary
+http_response_size_bytes{handler="delete",quantile="0.5"} NaN
+http_response_size_bytes{handler="delete",quantile="0.9"} NaN
+http_response_size_bytes{handler="delete",quantile="0.99"} NaN
+http_response_size_bytes_sum{handler="delete"} 0
+http_response_size_bytes_count{handler="delete"} 0
+http_response_size_bytes{handler="healthy",quantile="0.5"} NaN
+http_response_size_bytes{handler="healthy",quantile="0.9"} NaN
+http_response_size_bytes{handler="healthy",quantile="0.99"} NaN
+http_response_size_bytes_sum{handler="healthy"} 0
+http_response_size_bytes_count{handler="healthy"} 0
+http_response_size_bytes{handler="prometheus",quantile="0.5"} 4080
+http_response_size_bytes{handler="prometheus",quantile="0.9"} 4418
+http_response_size_bytes{handler="prometheus",quantile="0.99"} 4424
+http_response_size_bytes_sum{handler="prometheus"} 61941
+http_response_size_bytes_count{handler="prometheus"} 19
+http_response_size_bytes{handler="push",quantile="0.5"} 0
+http_response_size_bytes{handler="push",quantile="0.9"} 0
+http_response_size_bytes{handler="push",quantile="0.99"} 0
+http_response_size_bytes_sum{handler="push"} 0
+http_response_size_bytes_count{handler="push"} 13
+http_response_size_bytes{handler="ready",quantile="0.5"} NaN
+http_response_size_bytes{handler="ready",quantile="0.9"} NaN
+http_response_size_bytes{handler="ready",quantile="0.99"} NaN
+http_response_size_bytes_sum{handler="ready"} 0
+http_response_size_bytes_count{handler="ready"} 0
+http_response_size_bytes{handler="static",quantile="0.5"} NaN
+http_response_size_bytes{handler="static",quantile="0.9"} NaN
+http_response_size_bytes{handler="static",quantile="0.99"} NaN
+http_response_size_bytes_sum{handler="static"} 0
+http_response_size_bytes_count{handler="static"} 0
+http_response_size_bytes{handler="status",quantile="0.5"} 4730
+http_response_size_bytes{handler="status",quantile="0.9"} 72802
+http_response_size_bytes{handler="status",quantile="0.99"} 72802
+http_response_size_bytes_sum{handler="status"} 77532
+http_response_size_bytes_count{handler="status"} 2
+# HELP local_1539601920546_driver_BlockManager_disk_diskSpaceUsed_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.disk.diskSpaceUsed_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_disk_diskSpaceUsed_MB gauge
+local_1539601920546_driver_BlockManager_disk_diskSpaceUsed_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 26
+# HELP local_1539601920546_driver_BlockManager_memory_maxMem_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.maxMem_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_maxMem_MB gauge
+local_1539601920546_driver_BlockManager_memory_maxMem_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 4189
+# HELP local_1539601920546_driver_BlockManager_memory_maxOffHeapMem_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.maxOffHeapMem_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_maxOffHeapMem_MB gauge
+local_1539601920546_driver_BlockManager_memory_maxOffHeapMem_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_BlockManager_memory_maxOnHeapMem_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.maxOnHeapMem_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_maxOnHeapMem_MB gauge
+local_1539601920546_driver_BlockManager_memory_maxOnHeapMem_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 4189
+# HELP local_1539601920546_driver_BlockManager_memory_memUsed_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.memUsed_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_memUsed_MB gauge
+local_1539601920546_driver_BlockManager_memory_memUsed_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 2619
+# HELP local_1539601920546_driver_BlockManager_memory_offHeapMemUsed_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.offHeapMemUsed_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_offHeapMemUsed_MB gauge
+local_1539601920546_driver_BlockManager_memory_offHeapMemUsed_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_BlockManager_memory_onHeapMemUsed_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.onHeapMemUsed_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_onHeapMemUsed_MB gauge
+local_1539601920546_driver_BlockManager_memory_onHeapMemUsed_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 2619
+# HELP local_1539601920546_driver_BlockManager_memory_remainingMem_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.remainingMem_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_remainingMem_MB gauge
+local_1539601920546_driver_BlockManager_memory_remainingMem_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 1569
+# HELP local_1539601920546_driver_BlockManager_memory_remainingOffHeapMem_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.remainingOffHeapMem_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_remainingOffHeapMem_MB gauge
+local_1539601920546_driver_BlockManager_memory_remainingOffHeapMem_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_BlockManager_memory_remainingOnHeapMem_MB Generated from Dropwizard metric import (metric=local-1539601920546.driver.BlockManager.memory.remainingOnHeapMem_MB, type=org.apache.spark.storage.BlockManagerSource$$anon$1)
+# TYPE local_1539601920546_driver_BlockManager_memory_remainingOnHeapMem_MB gauge
+local_1539601920546_driver_BlockManager_memory_remainingOnHeapMem_MB{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 1569
+# HELP local_1539601920546_driver_CodeGenerator_compilationTime Generated from Dropwizard metric import (metric=local-1539601920546.driver.CodeGenerator.compilationTime, type=com.codahale.metrics.Histogram)
+# TYPE local_1539601920546_driver_CodeGenerator_compilationTime summary
+local_1539601920546_driver_CodeGenerator_compilationTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 11
+local_1539601920546_driver_CodeGenerator_compilationTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 20
+local_1539601920546_driver_CodeGenerator_compilationTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 61
+local_1539601920546_driver_CodeGenerator_compilationTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 144
+local_1539601920546_driver_CodeGenerator_compilationTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 214
+local_1539601920546_driver_CodeGenerator_compilationTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 214
+local_1539601920546_driver_CodeGenerator_compilationTime_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_CodeGenerator_compilationTime_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 87
+# HELP local_1539601920546_driver_CodeGenerator_generatedClassSize Generated from Dropwizard metric import (metric=local-1539601920546.driver.CodeGenerator.generatedClassSize, type=com.codahale.metrics.Histogram)
+# TYPE local_1539601920546_driver_CodeGenerator_generatedClassSize summary
+local_1539601920546_driver_CodeGenerator_generatedClassSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 710
+local_1539601920546_driver_CodeGenerator_generatedClassSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 2837
+local_1539601920546_driver_CodeGenerator_generatedClassSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 8298
+local_1539601920546_driver_CodeGenerator_generatedClassSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 9937
+local_1539601920546_driver_CodeGenerator_generatedClassSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 14621
+local_1539601920546_driver_CodeGenerator_generatedClassSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 19530
+local_1539601920546_driver_CodeGenerator_generatedClassSize_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_CodeGenerator_generatedClassSize_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 175
+# HELP local_1539601920546_driver_CodeGenerator_generatedMethodSize Generated from Dropwizard metric import (metric=local-1539601920546.driver.CodeGenerator.generatedMethodSize, type=com.codahale.metrics.Histogram)
+# TYPE local_1539601920546_driver_CodeGenerator_generatedMethodSize summary
+local_1539601920546_driver_CodeGenerator_generatedMethodSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 56
+local_1539601920546_driver_CodeGenerator_generatedMethodSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 228
+local_1539601920546_driver_CodeGenerator_generatedMethodSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 310
+local_1539601920546_driver_CodeGenerator_generatedMethodSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 373
+local_1539601920546_driver_CodeGenerator_generatedMethodSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 621
+local_1539601920546_driver_CodeGenerator_generatedMethodSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 4583
+local_1539601920546_driver_CodeGenerator_generatedMethodSize_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_CodeGenerator_generatedMethodSize_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 919
+# HELP local_1539601920546_driver_CodeGenerator_sourceCodeSize Generated from Dropwizard metric import (metric=local-1539601920546.driver.CodeGenerator.sourceCodeSize, type=com.codahale.metrics.Histogram)
+# TYPE local_1539601920546_driver_CodeGenerator_sourceCodeSize summary
+local_1539601920546_driver_CodeGenerator_sourceCodeSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 2771
+local_1539601920546_driver_CodeGenerator_sourceCodeSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 9073
+local_1539601920546_driver_CodeGenerator_sourceCodeSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 27891
+local_1539601920546_driver_CodeGenerator_sourceCodeSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 37318
+local_1539601920546_driver_CodeGenerator_sourceCodeSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 49145
+local_1539601920546_driver_CodeGenerator_sourceCodeSize{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 49145
+local_1539601920546_driver_CodeGenerator_sourceCodeSize_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_CodeGenerator_sourceCodeSize_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 87
+# HELP local_1539601920546_driver_DAGScheduler_job_activeJobs Generated from Dropwizard metric import (metric=local-1539601920546.driver.DAGScheduler.job.activeJobs, type=org.apache.spark.scheduler.DAGSchedulerSource$$anon$5)
+# TYPE local_1539601920546_driver_DAGScheduler_job_activeJobs gauge
+local_1539601920546_driver_DAGScheduler_job_activeJobs{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 1
+# HELP local_1539601920546_driver_DAGScheduler_job_allJobs Generated from Dropwizard metric import (metric=local-1539601920546.driver.DAGScheduler.job.allJobs, type=org.apache.spark.scheduler.DAGSchedulerSource$$anon$4)
+# TYPE local_1539601920546_driver_DAGScheduler_job_allJobs gauge
+local_1539601920546_driver_DAGScheduler_job_allJobs{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 5
+# HELP local_1539601920546_driver_DAGScheduler_messageProcessingTime Generated from Dropwizard metric import (metric=local-1539601920546.driver.DAGScheduler.messageProcessingTime, type=com.codahale.metrics.Timer)
+# TYPE local_1539601920546_driver_DAGScheduler_messageProcessingTime summary
+local_1539601920546_driver_DAGScheduler_messageProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 0.00018660400000000002
+local_1539601920546_driver_DAGScheduler_messageProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 0.000280219
+local_1539601920546_driver_DAGScheduler_messageProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 0.000812554
+local_1539601920546_driver_DAGScheduler_messageProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 0.01052141
+local_1539601920546_driver_DAGScheduler_messageProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 0.014138317000000001
+local_1539601920546_driver_DAGScheduler_messageProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 0.28209583
+local_1539601920546_driver_DAGScheduler_messageProcessingTime_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_DAGScheduler_messageProcessingTime_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 330
+# HELP local_1539601920546_driver_DAGScheduler_stage_failedStages Generated from Dropwizard metric import (metric=local-1539601920546.driver.DAGScheduler.stage.failedStages, type=org.apache.spark.scheduler.DAGSchedulerSource$$anon$1)
+# TYPE local_1539601920546_driver_DAGScheduler_stage_failedStages gauge
+local_1539601920546_driver_DAGScheduler_stage_failedStages{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_DAGScheduler_stage_runningStages Generated from Dropwizard metric import (metric=local-1539601920546.driver.DAGScheduler.stage.runningStages, type=org.apache.spark.scheduler.DAGSchedulerSource$$anon$2)
+# TYPE local_1539601920546_driver_DAGScheduler_stage_runningStages gauge
+local_1539601920546_driver_DAGScheduler_stage_runningStages{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 1
+# HELP local_1539601920546_driver_DAGScheduler_stage_waitingStages Generated from Dropwizard metric import (metric=local-1539601920546.driver.DAGScheduler.stage.waitingStages, type=org.apache.spark.scheduler.DAGSchedulerSource$$anon$3)
+# TYPE local_1539601920546_driver_DAGScheduler_stage_waitingStages gauge
+local_1539601920546_driver_DAGScheduler_stage_waitingStages{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 1
+# HELP local_1539601920546_driver_HiveExternalCatalog_fileCacheHits Generated from Dropwizard metric import (metric=local-1539601920546.driver.HiveExternalCatalog.fileCacheHits, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_HiveExternalCatalog_fileCacheHits gauge
+local_1539601920546_driver_HiveExternalCatalog_fileCacheHits{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 14
+# HELP local_1539601920546_driver_HiveExternalCatalog_filesDiscovered Generated from Dropwizard metric import (metric=local-1539601920546.driver.HiveExternalCatalog.filesDiscovered, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_HiveExternalCatalog_filesDiscovered gauge
+local_1539601920546_driver_HiveExternalCatalog_filesDiscovered{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 14
+# HELP local_1539601920546_driver_HiveExternalCatalog_hiveClientCalls Generated from Dropwizard metric import (metric=local-1539601920546.driver.HiveExternalCatalog.hiveClientCalls, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_HiveExternalCatalog_hiveClientCalls gauge
+local_1539601920546_driver_HiveExternalCatalog_hiveClientCalls{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_HiveExternalCatalog_parallelListingJobCount Generated from Dropwizard metric import (metric=local-1539601920546.driver.HiveExternalCatalog.parallelListingJobCount, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_HiveExternalCatalog_parallelListingJobCount gauge
+local_1539601920546_driver_HiveExternalCatalog_parallelListingJobCount{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_HiveExternalCatalog_partitionsFetched Generated from Dropwizard metric import (metric=local-1539601920546.driver.HiveExternalCatalog.partitionsFetched, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_HiveExternalCatalog_partitionsFetched gauge
+local_1539601920546_driver_HiveExternalCatalog_partitionsFetched{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.listenerProcessingTime.org.apache.spark.HeartbeatReceiver, type=com.codahale.metrics.Timer)
+# TYPE local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver summary
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 1.8970000000000002e-06
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 2.81e-06
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 7.961e-06
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 1.8125e-05
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 4.4788000000000006e-05
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 0.006561155000000001
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_HeartbeatReceiver_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 444
+# HELP local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.listenerProcessingTime.org.apache.spark.scheduler.EventLoggingListener, type=com.codahale.metrics.Timer)
+# TYPE local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener summary
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 0.000185018
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 0.000524082
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 0.001346146
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 0.006846193
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 0.011447819000000001
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 0.11594019100000001
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_scheduler_EventLoggingListener_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 444
+# HELP local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.listenerProcessingTime.org.apache.spark.status.AppStatusListener, type=com.codahale.metrics.Timer)
+# TYPE local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener summary
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 0.00012086400000000001
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 0.000198108
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 0.0014947270000000002
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 0.004454248
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 0.006421894
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 0.029531639000000002
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_LiveListenerBus_listenerProcessingTime_org_apache_spark_status_AppStatusListener_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 444
+# HELP local_1539601920546_driver_LiveListenerBus_numEventsPosted Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.numEventsPosted, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_LiveListenerBus_numEventsPosted gauge
+local_1539601920546_driver_LiveListenerBus_numEventsPosted{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 444
+# HELP local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.appStatus.listenerProcessingTime, type=com.codahale.metrics.Timer)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime summary
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 0.00018524100000000002
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 0.000248424
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 0.001578659
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 0.005406492000000001
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 0.007451956
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 0.030983683
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_listenerProcessingTime_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 444
+# HELP local_1539601920546_driver_LiveListenerBus_queue_appStatus_numDroppedEvents Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.appStatus.numDroppedEvents, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_appStatus_numDroppedEvents gauge
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_numDroppedEvents{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_LiveListenerBus_queue_appStatus_size Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.appStatus.size, type=org.apache.spark.scheduler.AsyncEventQueue$$anon$2)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_appStatus_size gauge
+local_1539601920546_driver_LiveListenerBus_queue_appStatus_size{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.eventLog.listenerProcessingTime, type=com.codahale.metrics.Timer)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime summary
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 0.00020118700000000002
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 0.000531524
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 0.0013566510000000002
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 0.006858316000000001
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 0.011481922
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 0.115993735
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_listenerProcessingTime_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 444
+# HELP local_1539601920546_driver_LiveListenerBus_queue_eventLog_numDroppedEvents Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.eventLog.numDroppedEvents, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_eventLog_numDroppedEvents gauge
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_numDroppedEvents{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_LiveListenerBus_queue_eventLog_size Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.eventLog.size, type=org.apache.spark.scheduler.AsyncEventQueue$$anon$2)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_eventLog_size gauge
+local_1539601920546_driver_LiveListenerBus_queue_eventLog_size{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.executorManagement.listenerProcessingTime, type=com.codahale.metrics.Timer)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime summary
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.5"} 1.1494e-05
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.75"} 1.8485e-05
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.95"} 4.9803000000000004e-05
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.98"} 8.546000000000001e-05
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.99"} 0.00011175300000000001
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver",quantile="0.999"} 0.008237986000000001
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime_sum{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_listenerProcessingTime_count{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 444
+# HELP local_1539601920546_driver_LiveListenerBus_queue_executorManagement_numDroppedEvents Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.executorManagement.numDroppedEvents, type=com.codahale.metrics.Counter)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_executorManagement_numDroppedEvents gauge
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_numDroppedEvents{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP local_1539601920546_driver_LiveListenerBus_queue_executorManagement_size Generated from Dropwizard metric import (metric=local-1539601920546.driver.LiveListenerBus.queue.executorManagement.size, type=org.apache.spark.scheduler.AsyncEventQueue$$anon$2)
+# TYPE local_1539601920546_driver_LiveListenerBus_queue_executorManagement_size gauge
+local_1539601920546_driver_LiveListenerBus_queue_executorManagement_size{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 0
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 0.42
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 1.048576e+06
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 9
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 1.3611008e+07
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.53960180868e+09
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 2.0443136e+07
+# HELP push_time_seconds Last Unix time when this group was changed in the Pushgateway.
+# TYPE push_time_seconds gauge
+push_time_seconds{app_name="Baskerville+Spark",instance="local-1539601920546",job="local-1539601920546",role="driver"} 1.5396020507501733e+09
+# HELP pushgateway_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which pushgateway was built.
+# TYPE pushgateway_build_info gauge
+pushgateway_build_info{branch="HEAD",goversion="go1.10.3",revision="231071b3e0a57b58df717bba5f4e5d88cac95389",version="0.5.2"} 1

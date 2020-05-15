@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>baskerville.db.data_archive API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>baskerville.db.data_archive</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from datetime import datetime
+
+import dateutil
+from baskerville.db.base import GeneratorBase
+from baskerville.db.temporal_partition import TemporalPartitionedTable, \
+    TimePeriod
+from baskerville.util.enums import PartitionByEnum
+from baskerville.util.helpers import get_default_data_path, get_days_in_year
+
+
+class Archiver(GeneratorBase):
+    &#34;&#34;&#34;
+    Generates the data to be used in the archive template to generate the
+    necessary sql for data archive
+    &#34;&#34;&#34;
+    def __init__(
+            self,
+            partitioned_table_name,
+            partition_field,
+            archive_table_name=None,
+            template_path=get_default_data_path(),
+            template_name=&#39;data_archiving.jinja2&#39;
+    ):
+        super().__init__(template_path, template_name)
+        self.partitioned_table_name = partitioned_table_name
+        self.partition_field = partition_field
+        self.archive_table_name = archive_table_name
+
+    def get_name(self):
+        return f&#39;{self.partitioned_table_name}_archive&#39;
+
+    def to_dict(self):
+        return {
+            &#39;name&#39;: self.name,
+            &#39;parent_table&#39;: self.parent_table,
+            &#39;partitions_to_detach&#39;: self.partitions_to_detach,
+        }
+
+    def __str__(self):
+        self.template.globals[&#39;now&#39;] = datetime.utcnow
+        return super().__str__()
+
+
+class TemporalArchiver(Archiver):
+    &#34;&#34;&#34;
+    The temporal archiver must check for partitions to archive within the
+    archive period (TimePeriod), detach them from the partitioned table and
+    either attach them to the archive table as partitions or delete them.
+    The on before insert trigger of the partitioned table must be modified to
+    include the non archived period - but this is not part of the archiver,
+    please, run the data partition process separately.
+    &#34;&#34;&#34;
+    def __init__(
+            self,
+            partitioned_table_name,
+            partition_field,
+            archive_period,
+            archive_table_name=None,
+            partition_by=PartitionByEnum.w,
+            index_by=None,
+            template_path=get_default_data_path(),
+            template_name=&#39;data_archiving.jinja2&#39;,
+    ):
+        super().__init__(
+            partitioned_table_name,
+            partition_field,
+            archive_table_name,
+            template_path,
+            template_name
+        )
+
+        self.archive_period = archive_period
+        self.archive_table_name = archive_table_name or self.get_name()
+        self.index_by = index_by
+        self.retention_period = get_days_in_year(self.archive_period.start.year)
+
+        self.partitioned_table = TemporalPartitionedTable(
+            self.partitioned_table_name,
+            self.archive_period,
+            partition_field,
+            partitioned_by=partition_by,
+            index_by=index_by
+        )
+        self.partitioned_table.catch_all_partition_name = \
+            f&#39;{self.archive_table_name}_catch_all&#39;
+        self.partitioned_table.partition()
+
+    def get_name(self):
+        &#34;&#34;&#34;
+        Returns the archive table name, e.g. tablename_archive_2017_to_2018
+        :return:
+        &#34;&#34;&#34;
+        if self.archive_period.start.year == self.archive_period.end.year:
+            return f&#39;{self.partitioned_table_name}_archive_&#39; \
+                f&#39;y{self.archive_period.start.year}&#39;
+        return f&#39;{self.partitioned_table_name}_archive_&#39; \
+                f&#39;y{self.archive_period.start.year}_to_&#39; \
+            f&#39;y{self.archive_period.end.year}&#39;
+
+    def to_dict(self):
+        d = self.partitioned_table.to_dict()
+        d[&#39;parent_table&#39;] = self.partitioned_table_name
+        d[&#39;name&#39;] = self.archive_table_name
+        return d
+
+
+def get_archive_script(since, until, parent_table=&#39;request_sets&#39;):
+    &#34;&#34;&#34;
+    Creates an Archiver based on the configuration and returns the parsed sql
+    for the archive table creation and the partition detachment/ re-attachment
+    to the archive table
+    :param datetime.datetime since: since when to archive
+    :param datetime.datetime until: until when to archive
+    :param str parent_table:
+    :return: the string representation of the sql archive script to be executed
+    &#34;&#34;&#34;
+    archiver = TemporalArchiver(
+        parent_table,
+        &#39;created_at&#39;,
+        TimePeriod(
+                since,
+                until,
+            ),
+        )
+
+    return str(archiver)
+
+
+if __name__ == &#39;__main__&#39;:
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        &#39;parentname&#39;, help=&#39;The name of the table to be partitioned&#39;
+    )
+    parser.add_argument(&#39;field&#39;, help=&#39;The table field to partition by&#39;)
+    parser.add_argument(
+        &#39;splitby&#39;, help=&#39;Split the data by either week or month&#39;
+    )
+    parser.add_argument(
+        &#39;-s&#39;, &#39;--since&#39;,
+        help=&#39;Start date of archive period&#39;,
+        type=dateutil.parser.parse
+    )
+    parser.add_argument(
+        &#39;-u&#39;, &#39;--until&#39;,
+        help=&#39;End date of archive period&#39;,
+        type=dateutil.parser.parse
+    )
+
+    parser.add_argument(
+        &#39;-i&#39;, &#39;--indexby&#39;, help=&#39;Index the data&#39;, dest=&#39;indexby&#39;,
+        type=lambda s: [str(item) for item in s.split(&#39;,&#39;)]
+    )
+    args = parser.parse_args()
+
+    if not args.since or not args.until:
+        raise ValueError(
+            &#39;Archiver needs since and until&#39;
+        )
+    if args.splitby not in [&#39;week&#39;, &#39;month&#39;]:
+        raise NotImplementedError()
+
+    tp = TemporalArchiver(
+        args.parentname,
+        args.field,
+        archive_period=TimePeriod(args.since, args.until),
+        partition_by=args.splitby,
+        index_by=args.indexby
+    )
+
+    with open(&#39;archive_test.sql&#39;, &#39;w&#39;) as f:
+        f.write(str(tp))</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="baskerville.db.data_archive.get_archive_script"><code class="name flex">
+<span>def <span class="ident">get_archive_script</span></span>(<span>since, until, parent_table='request_sets')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates an Archiver based on the configuration and returns the parsed sql
+for the archive table creation and the partition detachment/ re-attachment
+to the archive table
+:param datetime.datetime since: since when to archive
+:param datetime.datetime until: until when to archive
+:param str parent_table:
+:return: the string representation of the sql archive script to be executed</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_archive_script(since, until, parent_table=&#39;request_sets&#39;):
+    &#34;&#34;&#34;
+    Creates an Archiver based on the configuration and returns the parsed sql
+    for the archive table creation and the partition detachment/ re-attachment
+    to the archive table
+    :param datetime.datetime since: since when to archive
+    :param datetime.datetime until: until when to archive
+    :param str parent_table:
+    :return: the string representation of the sql archive script to be executed
+    &#34;&#34;&#34;
+    archiver = TemporalArchiver(
+        parent_table,
+        &#39;created_at&#39;,
+        TimePeriod(
+                since,
+                until,
+            ),
+        )
+
+    return str(archiver)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="baskerville.db.data_archive.Archiver"><code class="flex name class">
+<span>class <span class="ident">Archiver</span></span>
+<span>(</span><span>partitioned_table_name, partition_field, archive_table_name=None, template_path='/Users/mariakaranasou/Projects/EQualitie/baskerville/src/baskerville/util/../../../data', template_name='data_archiving.jinja2')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Generates the data to be used in the archive template to generate the
+necessary sql for data archive</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Archiver(GeneratorBase):
+    &#34;&#34;&#34;
+    Generates the data to be used in the archive template to generate the
+    necessary sql for data archive
+    &#34;&#34;&#34;
+    def __init__(
+            self,
+            partitioned_table_name,
+            partition_field,
+            archive_table_name=None,
+            template_path=get_default_data_path(),
+            template_name=&#39;data_archiving.jinja2&#39;
+    ):
+        super().__init__(template_path, template_name)
+        self.partitioned_table_name = partitioned_table_name
+        self.partition_field = partition_field
+        self.archive_table_name = archive_table_name
+
+    def get_name(self):
+        return f&#39;{self.partitioned_table_name}_archive&#39;
+
+    def to_dict(self):
+        return {
+            &#39;name&#39;: self.name,
+            &#39;parent_table&#39;: self.parent_table,
+            &#39;partitions_to_detach&#39;: self.partitions_to_detach,
+        }
+
+    def __str__(self):
+        self.template.globals[&#39;now&#39;] = datetime.utcnow
+        return super().__str__()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="baskerville.db.base.GeneratorBase" href="base.html#baskerville.db.base.GeneratorBase">GeneratorBase</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="baskerville.db.data_archive.TemporalArchiver" href="#baskerville.db.data_archive.TemporalArchiver">TemporalArchiver</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.db.data_archive.Archiver.get_name"><code class="name flex">
+<span>def <span class="ident">get_name</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_name(self):
+    return f&#39;{self.partitioned_table_name}_archive&#39;</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.data_archive.Archiver.to_dict"><code class="name flex">
+<span>def <span class="ident">to_dict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_dict(self):
+    return {
+        &#39;name&#39;: self.name,
+        &#39;parent_table&#39;: self.parent_table,
+        &#39;partitions_to_detach&#39;: self.partitions_to_detach,
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="baskerville.db.data_archive.TemporalArchiver"><code class="flex name class">
+<span>class <span class="ident">TemporalArchiver</span></span>
+<span>(</span><span>partitioned_table_name, partition_field, archive_period, archive_table_name=None, partition_by=week, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/baskerville/src/baskerville/util/../../../data', template_name='data_archiving.jinja2')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The temporal archiver must check for partitions to archive within the
+archive period (TimePeriod), detach them from the partitioned table and
+either attach them to the archive table as partitions or delete them.
+The on before insert trigger of the partitioned table must be modified to
+include the non archived period - but this is not part of the archiver,
+please, run the data partition process separately.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TemporalArchiver(Archiver):
+    &#34;&#34;&#34;
+    The temporal archiver must check for partitions to archive within the
+    archive period (TimePeriod), detach them from the partitioned table and
+    either attach them to the archive table as partitions or delete them.
+    The on before insert trigger of the partitioned table must be modified to
+    include the non archived period - but this is not part of the archiver,
+    please, run the data partition process separately.
+    &#34;&#34;&#34;
+    def __init__(
+            self,
+            partitioned_table_name,
+            partition_field,
+            archive_period,
+            archive_table_name=None,
+            partition_by=PartitionByEnum.w,
+            index_by=None,
+            template_path=get_default_data_path(),
+            template_name=&#39;data_archiving.jinja2&#39;,
+    ):
+        super().__init__(
+            partitioned_table_name,
+            partition_field,
+            archive_table_name,
+            template_path,
+            template_name
+        )
+
+        self.archive_period = archive_period
+        self.archive_table_name = archive_table_name or self.get_name()
+        self.index_by = index_by
+        self.retention_period = get_days_in_year(self.archive_period.start.year)
+
+        self.partitioned_table = TemporalPartitionedTable(
+            self.partitioned_table_name,
+            self.archive_period,
+            partition_field,
+            partitioned_by=partition_by,
+            index_by=index_by
+        )
+        self.partitioned_table.catch_all_partition_name = \
+            f&#39;{self.archive_table_name}_catch_all&#39;
+        self.partitioned_table.partition()
+
+    def get_name(self):
+        &#34;&#34;&#34;
+        Returns the archive table name, e.g. tablename_archive_2017_to_2018
+        :return:
+        &#34;&#34;&#34;
+        if self.archive_period.start.year == self.archive_period.end.year:
+            return f&#39;{self.partitioned_table_name}_archive_&#39; \
+                f&#39;y{self.archive_period.start.year}&#39;
+        return f&#39;{self.partitioned_table_name}_archive_&#39; \
+                f&#39;y{self.archive_period.start.year}_to_&#39; \
+            f&#39;y{self.archive_period.end.year}&#39;
+
+    def to_dict(self):
+        d = self.partitioned_table.to_dict()
+        d[&#39;parent_table&#39;] = self.partitioned_table_name
+        d[&#39;name&#39;] = self.archive_table_name
+        return d</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="baskerville.db.data_archive.Archiver" href="#baskerville.db.data_archive.Archiver">Archiver</a></li>
+<li><a title="baskerville.db.base.GeneratorBase" href="base.html#baskerville.db.base.GeneratorBase">GeneratorBase</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.db.data_archive.TemporalArchiver.get_name"><code class="name flex">
+<span>def <span class="ident">get_name</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the archive table name, e.g. tablename_archive_2017_to_2018
+:return:</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_name(self):
+    &#34;&#34;&#34;
+    Returns the archive table name, e.g. tablename_archive_2017_to_2018
+    :return:
+    &#34;&#34;&#34;
+    if self.archive_period.start.year == self.archive_period.end.year:
+        return f&#39;{self.partitioned_table_name}_archive_&#39; \
+            f&#39;y{self.archive_period.start.year}&#39;
+    return f&#39;{self.partitioned_table_name}_archive_&#39; \
+            f&#39;y{self.archive_period.start.year}_to_&#39; \
+        f&#39;y{self.archive_period.end.year}&#39;</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.data_archive.TemporalArchiver.to_dict"><code class="name flex">
+<span>def <span class="ident">to_dict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_dict(self):
+    d = self.partitioned_table.to_dict()
+    d[&#39;parent_table&#39;] = self.partitioned_table_name
+    d[&#39;name&#39;] = self.archive_table_name
+    return d</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="baskerville.db" href="index.html">baskerville.db</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="baskerville.db.data_archive.get_archive_script" href="#baskerville.db.data_archive.get_archive_script">get_archive_script</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="baskerville.db.data_archive.Archiver" href="#baskerville.db.data_archive.Archiver">Archiver</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.data_archive.Archiver.get_name" href="#baskerville.db.data_archive.Archiver.get_name">get_name</a></code></li>
+<li><code><a title="baskerville.db.data_archive.Archiver.to_dict" href="#baskerville.db.data_archive.Archiver.to_dict">to_dict</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.data_archive.TemporalArchiver" href="#baskerville.db.data_archive.TemporalArchiver">TemporalArchiver</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.data_archive.TemporalArchiver.get_name" href="#baskerville.db.data_archive.TemporalArchiver.get_name">get_name</a></code></li>
+<li><code><a title="baskerville.db.data_archive.TemporalArchiver.to_dict" href="#baskerville.db.data_archive.TemporalArchiver.to_dict">to_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

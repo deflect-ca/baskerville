@@ -1,0 +1,31 @@
+version: '3'
+services:
+    baskerville:
+        build:
+          context: container
+          dockerfile: Dockerfile
+          args:
+            - GITLAB_USER=${GITLAB_USER}
+            - GITLAB_KEY=${GITLAB_KEY}
+            - BASKERVILLE_BRANCH=${BASKERVILLE_BRANCH}
+            - DB_USER=${DB_USER}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+            - ELK_USER=${ELK_USER}
+            - ELK_PASSWORD=${ELK_PASSWORD}
+            - ELK_HOST=${ELK_HOST}
+            - KAFKA_HOST=${KAFKA_HOST}
+        env_file:
+          - .env
+        command: python ./main.py -c /app/baskerville/conf/baskerville.yaml rawlog -e -t
+        # command: spark-submit --packages com.banzaicloud:spark-metrics_2.11:2.3-1.1.0,io.prometheus:simpleclient:0.3.0,io.prometheus:simpleclient_dropwizard:0.3.0,io.prometheus:simpleclient_pushgateway:0.3.0,io.dropwizard.metrics:metrics-core:3.1.2 --repositories https://raw.github.com/banzaicloud/spark-metrics/master/maven-repo/releases ./main.py -c /app/baskerville/conf/baskerville.yaml rawlog -t
+        ports:
+          - "8998:8998"
+          - "4040:4040"
+          - "4041:4041"
+        volumes:
+        - data-volume:/app/baskerville/data
+
+volumes:
+  data-volume:

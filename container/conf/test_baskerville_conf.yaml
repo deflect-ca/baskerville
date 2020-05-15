@@ -1,0 +1,101 @@
+---
+database:
+  name: test_baskerville
+  user: !ENV ${DB_USER}
+  password: !ENV ${DB_PASSWORD}
+  host: !ENV ${DB_HOST}
+  port : !ENV ${DB_PORT}
+  type: 'postgres'
+  maintenance:
+    template_folder: !ENV '${BASKERVILLE_ROOT}/data/templates'
+    partition_table: 'request_sets' # default value
+    partition_by: week              # partition by week or month, default value is week
+    partition_field: created_at     # which field to use for the partitioning, this is the default value, can be omitted
+    data_partition:
+      since: 2020-01-01             # when to start partitioning
+      until: "2020-12-31 23:59:59"  # when to stop partitioning
+
+elastic:
+    user: !ENV ${ELK_USER}
+    password: !ENV ${ELK_PASSWORD}
+    host: !ENV '${ELK_HOST}'
+    base_index: 'web.log'
+    index_type: 'web_access'
+
+engine:
+  storage_path: !ENV '${BASKERVILLE_ROOT}/data'
+  model_id: -1             # optional: -1 load the latest
+  datetime_format: '%Y-%m-%d %H:%M:%S'
+  training:
+    classifier: 'pyspark_iforest.ml.iforest.IForest'
+    scaler: 'pyspark.ml.feature.StandardScaler'
+    data_parameters:
+      training_days: 30
+      from_date: '2020-05-01 20:59:59'
+      to_date: '2020-05-30 13:01:01'
+    classifier_parameters:
+      maxSamples: 0.8
+      contamination: 0.1
+      numTrees: 100
+      maxFeatures: 0.8
+    threshold: 0.5
+  extra_features:
+      - css_to_html_ratio
+  data_config:
+    schema: !ENV '${BASKERVILLE_ROOT}/data/samples/log_schema.json'
+  logpath: !ENV '${BASKERVILLE_ROOT}/src/baskerville/logs/baskerville.log'
+  log_level: 'DEBUG'
+  cache_expire_time: 604800           # sec (604800 = 1 week)
+  es_log:
+    host: somehost                    # Optional
+    start: 2018-01-01 00:00:00        # Optional
+    stop: 2018-01-02 00:00:00         # Optional
+    batch_length: 30                  # minutes - split start and stop in batch_length periods to avoid overloading the es cluster
+    save_logs_dir: !ENV '${BASKERVILLE_ROOT}/data' # optional
+  raw_log:
+    paths:
+      - !ENV '${BASKERVILLE_ROOT}/data/samples/test_data_1k.json' # 1k randomized logs
+  metrics:
+    port: 8998
+    exported_dashboard_file: !ENV '${BASKERVILLE_ROOT}/data/metrics/Baskerville-metrics-dashboard.json'
+    performance:
+      pipeline:
+        - 'get_data'
+        - 'feature_extraction'
+        - 'group_by'
+        - 'predict'
+        - 'save'
+        - 'clean_cache'
+        - 'update'
+        - 'instantiate_spark_session'
+      request_set_cache:
+        - 'instantiate_cache'
+        - '__getitem__'
+        - '__contains__'
+        - 'clean'
+      features: True
+    progress: True
+  simulation:
+    sleep: True
+    verbose: True
+    log_file: !ENV '${BASKERVILLE_ROOT}/data/samples/test_data_1k.json' # 1k randomized logs
+
+kafka:
+  bootstrap_servers: !ENV '${KAFKA_HOST}'
+  zookeeper: !ENV '${ZOOKEEPER_HOST}'
+  consume_topic: 'deflect.logs'
+  consume_group: 'baskerville'
+
+spark:
+  master: 'local'
+  parallelism: -1
+  log_conf: 'true'
+  log_level: 'ERROR'
+  jars: !ENV '${BASKERVILLE_ROOT}/data/jars/postgresql-42.2.4.jar,${BASKERVILLE_ROOT}/data/jars/spark-iforest-2.4.0.jar,${BASKERVILLE_ROOT}/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.4.jar,${BASKERVILLE_ROOT}/data/jars/elasticsearch-spark-20_2.11-5.6.5.jar'
+  spark_driver_memory: '2G'
+  db_driver: 'org.postgresql.Driver'
+  storage_level: 'OFF_HEAP'
+  event_log: True
+  serializer: 'org.apache.spark.serializer.KryoSerializer'
+  kryoserializer_buffer_max: '2024m'
+  kryoserializer_buffer: '1024k'

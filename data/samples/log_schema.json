@@ -1,0 +1,99 @@
+{
+   "name": "DeflectLogs",
+   "properties": {
+      "@timestamp": {
+         "type": "string",
+         "format": "date",
+         "pattern": "(\\d\\d\\d\\d-([0-2])?\\d-([0-3])?\\dT?([0-2])?\\d:([0-5])?\\d:([0-5])?\\d\\.\\d?\\d?\\d?Z?)",
+         "required": true
+      },
+      "ISP": {
+         "type": "string"
+      },
+      "cache_result": {
+         "type": "string"
+      },
+      "client_ip": {
+         "type": "string",
+         "pattern": "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}"
+      },
+      "client_request_host": {
+         "type": "string"
+      },
+      "client_request_method": {
+         "type": "string",
+         "default": ""
+      },
+      "client_ua": {
+         "type": "string"
+      },
+      "client_url": {
+         "type": "string"
+      },
+      "client_user": {
+         "type": "string"
+      },
+      "content_type": {
+        "type": "string"
+      },
+      "device": {
+        "type": "string"
+      },
+      "dnet": {
+         "type": "string"
+      },
+      "host": {
+         "type": "string"
+      },
+      "http_request_scheme": {
+         "type": "string"
+      },
+      "http_request_version": {
+         "type": "string"
+      },
+      "http_response_code": {
+         "type": "string",
+         "pattern": "[1-5][0-9][0-9]"
+      },
+      "major": {
+         "type": "string",
+         "format": "number"
+      },
+      "os": {
+         "type": "string"
+      },
+      "os_name": {
+         "type": "string"
+      },
+      "querystring": {
+         "type": "string"
+      },
+      "reply_length_bytes": {
+         "type": "string",
+         "format": "integer"
+      },
+      "ts_process_time": {
+         "type": "string",
+         "format": "integer"
+      },
+      "ts_timestamp": {
+         "type": "string"
+      },
+      "type": {
+         "type": "string"
+      },
+      "ua_name": {
+         "type": "string"
+      },
+      "geoip.location.lat": {
+         "type": "string",
+         "format": "number"
+      },
+      "geoip.location.lon": {
+         "type": "string",
+         "format": "number"
+      }
+   },
+   "required": ["@timestamp", "client_ip", "client_request_host", "client_ua", "client_url", "content_type", "http_response_code", "querystring", "reply_length_bytes", "geoip.location.lat", "geoip.location.lon"],
+   "additionalProperties": false
+}

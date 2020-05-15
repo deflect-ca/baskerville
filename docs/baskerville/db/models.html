@@ -1,0 +1,2955 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>baskerville.db.models API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>baskerville.db.models</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from sqlalchemy import (
+    Table, Column, Integer, String, Boolean, DateTime, ForeignKey, TEXT, Float,
+    JSON, LargeBinary, Index, func)
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import expression
+
+from baskerville.db import Base
+
+
+LONG_TEXT_LEN = 4294000000
+
+
+# https://docs.sqlalchemy.org/en/latest/core/compiler.html#utc-timestamp-function
+class utcnow(expression.FunctionElement):
+    type = DateTime()
+
+
+@compiles(utcnow, &#39;postgresql&#39;)
+def pg_utcnow(element, compiler, **kw):
+    return &#34;TIMEZONE(&#39;utc&#39;, CURRENT_TIMESTAMP)&#34;
+
+
+class SerializableMixin(object):
+    def as_dict(self, extra_cols=(), remove=()):
+        &#34;&#34;&#34;
+
+        :param set extra_cols:
+        :param set remove:
+        :return:
+        :rtype: dict[str, T]
+        &#34;&#34;&#34;
+        basic_attrs = {c.name: getattr(self, c.name)
+                       for c in self.__table__.columns
+                       if c not in remove}
+        extra_attrs = {}
+        if len(extra_cols) &gt; 0:
+            for attr in extra_cols:
+                d = getattr(self, attr)
+                if d is None:
+                    continue
+                if isinstance(d, list):
+                    extra_attrs[attr] = [each.as_dict() for each in d]
+                else:
+                    extra_attrs[attr] = d.as_dict()
+            basic_attrs.update(extra_attrs)
+
+        return basic_attrs
+
+
+class Encryption(Base, SerializableMixin):
+    __tablename__ = &#39;encryption&#39;
+
+    id = Column(Integer, primary_key=True)
+    keyhash = Column(TEXT())
+    comment = Column(TEXT())
+    runtimes = relationship(&#39;Runtime&#39;, back_populates=&#39;encryption&#39;)
+
+
+class Runtime(Base, SerializableMixin):
+    __tablename__ = &#39;runtimes&#39;
+
+    id = Column(Integer, primary_key=True)
+    id_encryption = Column(Integer, ForeignKey(&#39;encryption.id&#39;))
+    start = Column(DateTime(timezone=True))
+    stop = Column(DateTime(timezone=True))
+    target = Column(TEXT(), nullable=True)
+    dt_bucket = Column(Float)
+    file_name = Column(TEXT())
+    processed = Column(Boolean)
+    n_request_sets = Column(Integer)
+    comment = Column(TEXT())
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    config = Column(JSON)
+
+    # a runtime can have more than one request_set
+    request_sets = relationship(
+        &#39;RequestSet&#39;, uselist=False, back_populates=&#39;runtimes&#39;
+    )
+    # runtimes * - 1 encryption
+    encryption = relationship(
+        &#39;Encryption&#39;,
+        foreign_keys=id_encryption, back_populates=&#39;runtimes&#39;
+    )
+
+
+class RequestSet(Base, SerializableMixin):
+    __tablename__ = &#39;request_sets&#39;
+
+    id = Column(Integer, primary_key=True)
+    id_runtime = Column(Integer, ForeignKey(&#39;runtimes.id&#39;), nullable=True)
+    target = Column(TEXT())
+    ip = Column(String(45))
+    ip_encrypted = Column(TEXT())
+    ip_iv = Column(TEXT())
+    ip_tag = Column(TEXT())
+    start = Column(DateTime(timezone=True))
+    stop = Column(DateTime(timezone=True))
+    total_seconds = Column(Float)
+    subset_count = Column(Integer)
+    num_requests = Column(Integer)
+    time_bucket = Column(Integer)
+    label = Column(Integer)
+    id_attribute = Column(Integer, ForeignKey(&#39;attributes.id&#39;), nullable=True)
+    id_banjax = Column(Integer, ForeignKey(&#39;banjax_bans.id&#39;), nullable=True)
+    process_flag = Column(Boolean, default=True)
+    prediction = Column(Integer)
+    r = Column(Float)
+    row_num = Column(Integer)
+    features = Column(JSON)
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    updated_at = Column(
+        DateTime(timezone=True), nullable=True, onupdate=utcnow()
+    )
+    model_version = Column(Integer, ForeignKey(&#39;models.id&#39;))
+
+    runtimes = relationship(
+        &#39;Runtime&#39;, uselist=False, back_populates=&#39;request_sets&#39;
+    )
+    models = relationship(
+        &#39;Model&#39;, uselist=False, back_populates=&#39;request_sets&#39;
+    )
+    model_training_sets_link = relationship(
+        &#39;Model&#39;, secondary=&#39;model_training_sets_link&#39;,
+        back_populates=&#39;request_sets&#39;
+    )
+    attacks = relationship(
+        &#39;Attack&#39;, secondary=&#39;requestset_attack_link&#39;,
+        back_populates=&#39;request_sets&#39;
+    )
+    attributes = relationship(
+        &#39;Attribute&#39;, foreign_keys=id_attribute, uselist=False,
+        back_populates=&#39;request_sets&#39;
+    )
+    banjax_bans = relationship(
+        &#39;BanjaxBan&#39;, foreign_keys=id_banjax, uselist=False,
+        back_populates=&#39;request_sets&#39;
+    )
+
+    columns = [
+        &#39;ip&#39;,
+        &#39;target&#39;,
+        &#39;subset_count&#39;,
+        &#39;num_requests&#39;,
+        &#39;start&#39;,
+        &#39;stop&#39;,
+        &#39;prediction&#39;,
+        &#39;r&#39;,
+        &#39;label&#39;,
+        &#39;id_attribute&#39;,
+        &#39;features&#39;,
+        &#39;id_runtime&#39;,
+        &#39;time_bucket&#39;,
+        &#39;total_seconds&#39;,
+        &#39;model_version&#39;,
+        &#39;updated_at&#39;
+    ]
+
+    def prediction_str(self):
+        from baskerville.util.enums import LabelEnum
+        return &#34;malicious&#34; if self.prediction == LabelEnum.malicious \
+            else &#34;benign&#34; if self.prediction == LabelEnum.benign else &#34;unknown&#34;
+
+    def __repr__(self):
+        return f&#39;&lt;{self.__class__.__name__} from: {self.start} to: {self.stop} &#39; \
+            f&#39;num_requests: {self.num_requests} &#39; \
+            f&#39;created_at: {self.created_at} &#39; \
+            f&#39;prediction: {self.prediction_str()}&gt;&#39;
+
+
+class Model(Base, SerializableMixin):
+    __tablename__ = &#39;models&#39;
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    features = Column(JSON)
+    algorithm = Column(TEXT())
+    parameters = Column(TEXT())
+    recall = Column(Float)
+    precision = Column(Float)
+    f1_score = Column(Float)
+    classifier = Column(LargeBinary)
+    scaler = Column(LargeBinary)
+    n_training = Column(Integer)
+    n_testing = Column(Integer)
+    notes = Column(TEXT)
+    analysis_notebook = Column(TEXT)
+
+    request_sets = relationship(
+        &#39;RequestSet&#39;, secondary=&#39;model_training_sets_link&#39;,
+        back_populates=&#39;models&#39;
+    )
+
+
+class ModelTrainingSetLink(Base, SerializableMixin):
+    __tablename__ = &#39;model_training_sets_link&#39;
+
+    id_request_set = Column(Integer,
+                            ForeignKey(&#39;request_sets.id&#39;), primary_key=True)
+    id_model = Column(Integer,
+                      ForeignKey(&#39;models.id&#39;), primary_key=True)
+
+
+class Attack(Base, SerializableMixin):
+    __tablename__ = &#39;attacks&#39;
+
+    id = Column(Integer, primary_key=True)
+    id_misp = Column(Integer)
+    date = Column(DateTime(timezone=True))
+    start = Column(DateTime(timezone=True))
+    stop = Column(DateTime(timezone=True))
+    target = Column(TEXT())
+    attack_type = Column(TEXT())
+    attack_tool = Column(TEXT())
+    attack_source = Column(TEXT())
+    ip_count = Column(Integer)
+    sync_start = Column(DateTime(timezone=True))
+    sync_stop = Column(DateTime(timezone=True))
+    processed = Column(Integer)
+    notes = Column(TEXT)
+    analysis_notebook = Column(TEXT)
+
+    request_sets = relationship(
+        &#39;RequestSet&#39;, secondary=&#39;requestset_attack_link&#39;,
+        back_populates=&#39;attacks&#39;
+    )
+    attributes = relationship(
+        &#39;Attribute&#39;, secondary=&#39;attribute_attack_link&#39;,
+        back_populates=&#39;attacks&#39;
+    )
+
+
+class Attribute(Base, SerializableMixin):
+    __tablename__ = &#39;attributes&#39;
+
+    id = Column(Integer, primary_key=True)
+    value = Column(TEXT())
+
+    request_sets = relationship(
+        &#39;RequestSet&#39;, back_populates=&#39;attributes&#39;
+    )
+    attacks = relationship(
+        &#39;Attack&#39;, secondary=&#39;attribute_attack_link&#39;,
+        back_populates=&#39;attributes&#39;
+    )
+
+
+class BanjaxBan(Base, SerializableMixin):
+    __tablename__ = &#39;banjax_bans&#39;
+
+    id = Column(Integer, primary_key=True)
+    sync_start = Column(DateTime(timezone=True))
+    sync_stop = Column(DateTime(timezone=True))
+    ip = Column(TEXT())
+
+    request_sets = relationship(
+        &#39;RequestSet&#39;, back_populates=&#39;banjax_bans&#39;
+    )
+
+
+class RequestSetAttackLink(Base, SerializableMixin):
+    __tablename__ = &#39;requestset_attack_link&#39;
+
+    id_request_set = Column(Integer,
+                            ForeignKey(&#39;request_sets.id&#39;), primary_key=True)
+    id_attack = Column(Integer,
+                       ForeignKey(&#39;attacks.id&#39;), primary_key=True)
+
+
+class AttributeAttackLink(Base, SerializableMixin):
+    __tablename__ = &#39;attribute_attack_link&#39;
+
+    id_attack = Column(Integer,
+                            ForeignKey(&#39;attacks.id&#39;), primary_key=True)
+    id_attribute = Column(Integer,
+                          ForeignKey(&#39;attributes.id&#39;), primary_key=True)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="baskerville.db.models.pg_utcnow"><code class="name flex">
+<span>def <span class="ident">pg_utcnow</span></span>(<span>element, compiler, **kw)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@compiles(utcnow, &#39;postgresql&#39;)
+def pg_utcnow(element, compiler, **kw):
+    return &#34;TIMEZONE(&#39;utc&#39;, CURRENT_TIMESTAMP)&#34;</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="baskerville.db.models.Attack"><code class="flex name class">
+<span>class <span class="ident">Attack</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Attack(Base, SerializableMixin):
+    __tablename__ = &#39;attacks&#39;
+
+    id = Column(Integer, primary_key=True)
+    id_misp = Column(Integer)
+    date = Column(DateTime(timezone=True))
+    start = Column(DateTime(timezone=True))
+    stop = Column(DateTime(timezone=True))
+    target = Column(TEXT())
+    attack_type = Column(TEXT())
+    attack_tool = Column(TEXT())
+    attack_source = Column(TEXT())
+    ip_count = Column(Integer)
+    sync_start = Column(DateTime(timezone=True))
+    sync_stop = Column(DateTime(timezone=True))
+    processed = Column(Integer)
+    notes = Column(TEXT)
+    analysis_notebook = Column(TEXT)
+
+    request_sets = relationship(
+        &#39;RequestSet&#39;, secondary=&#39;requestset_attack_link&#39;,
+        back_populates=&#39;attacks&#39;
+    )
+    attributes = relationship(
+        &#39;Attribute&#39;, secondary=&#39;attribute_attack_link&#39;,
+        back_populates=&#39;attacks&#39;
+    )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.Attack.analysis_notebook"><code class="name">var <span class="ident">analysis_notebook</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.attack_source"><code class="name">var <span class="ident">attack_source</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.attack_tool"><code class="name">var <span class="ident">attack_tool</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.attack_type"><code class="name">var <span class="ident">attack_type</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.attributes"><code class="name">var <span class="ident">attributes</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.date"><code class="name">var <span class="ident">date</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.id_misp"><code class="name">var <span class="ident">id_misp</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.ip_count"><code class="name">var <span class="ident">ip_count</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.notes"><code class="name">var <span class="ident">notes</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.processed"><code class="name">var <span class="ident">processed</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.request_sets"><code class="name">var <span class="ident">request_sets</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.stop"><code class="name">var <span class="ident">stop</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.sync_start"><code class="name">var <span class="ident">sync_start</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.sync_stop"><code class="name">var <span class="ident">sync_stop</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attack.target"><code class="name">var <span class="ident">target</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.Attribute"><code class="flex name class">
+<span>class <span class="ident">Attribute</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Attribute(Base, SerializableMixin):
+    __tablename__ = &#39;attributes&#39;
+
+    id = Column(Integer, primary_key=True)
+    value = Column(TEXT())
+
+    request_sets = relationship(
+        &#39;RequestSet&#39;, back_populates=&#39;attributes&#39;
+    )
+    attacks = relationship(
+        &#39;Attack&#39;, secondary=&#39;attribute_attack_link&#39;,
+        back_populates=&#39;attributes&#39;
+    )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.Attribute.attacks"><code class="name">var <span class="ident">attacks</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attribute.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attribute.request_sets"><code class="name">var <span class="ident">request_sets</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Attribute.value"><code class="name">var <span class="ident">value</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.AttributeAttackLink"><code class="flex name class">
+<span>class <span class="ident">AttributeAttackLink</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AttributeAttackLink(Base, SerializableMixin):
+    __tablename__ = &#39;attribute_attack_link&#39;
+
+    id_attack = Column(Integer,
+                            ForeignKey(&#39;attacks.id&#39;), primary_key=True)
+    id_attribute = Column(Integer,
+                          ForeignKey(&#39;attributes.id&#39;), primary_key=True)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.AttributeAttackLink.id_attack"><code class="name">var <span class="ident">id_attack</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.AttributeAttackLink.id_attribute"><code class="name">var <span class="ident">id_attribute</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.BanjaxBan"><code class="flex name class">
+<span>class <span class="ident">BanjaxBan</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BanjaxBan(Base, SerializableMixin):
+    __tablename__ = &#39;banjax_bans&#39;
+
+    id = Column(Integer, primary_key=True)
+    sync_start = Column(DateTime(timezone=True))
+    sync_stop = Column(DateTime(timezone=True))
+    ip = Column(TEXT())
+
+    request_sets = relationship(
+        &#39;RequestSet&#39;, back_populates=&#39;banjax_bans&#39;
+    )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.BanjaxBan.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.BanjaxBan.ip"><code class="name">var <span class="ident">ip</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.BanjaxBan.request_sets"><code class="name">var <span class="ident">request_sets</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.BanjaxBan.sync_start"><code class="name">var <span class="ident">sync_start</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.BanjaxBan.sync_stop"><code class="name">var <span class="ident">sync_stop</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.Encryption"><code class="flex name class">
+<span>class <span class="ident">Encryption</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Encryption(Base, SerializableMixin):
+    __tablename__ = &#39;encryption&#39;
+
+    id = Column(Integer, primary_key=True)
+    keyhash = Column(TEXT())
+    comment = Column(TEXT())
+    runtimes = relationship(&#39;Runtime&#39;, back_populates=&#39;encryption&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.Encryption.comment"><code class="name">var <span class="ident">comment</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Encryption.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Encryption.keyhash"><code class="name">var <span class="ident">keyhash</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Encryption.runtimes"><code class="name">var <span class="ident">runtimes</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.Model"><code class="flex name class">
+<span>class <span class="ident">Model</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Model(Base, SerializableMixin):
+    __tablename__ = &#39;models&#39;
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    features = Column(JSON)
+    algorithm = Column(TEXT())
+    parameters = Column(TEXT())
+    recall = Column(Float)
+    precision = Column(Float)
+    f1_score = Column(Float)
+    classifier = Column(LargeBinary)
+    scaler = Column(LargeBinary)
+    n_training = Column(Integer)
+    n_testing = Column(Integer)
+    notes = Column(TEXT)
+    analysis_notebook = Column(TEXT)
+
+    request_sets = relationship(
+        &#39;RequestSet&#39;, secondary=&#39;model_training_sets_link&#39;,
+        back_populates=&#39;models&#39;
+    )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.Model.algorithm"><code class="name">var <span class="ident">algorithm</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.analysis_notebook"><code class="name">var <span class="ident">analysis_notebook</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.classifier"><code class="name">var <span class="ident">classifier</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.created_at"><code class="name">var <span class="ident">created_at</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.f1_score"><code class="name">var <span class="ident">f1_score</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.features"><code class="name">var <span class="ident">features</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.n_testing"><code class="name">var <span class="ident">n_testing</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.n_training"><code class="name">var <span class="ident">n_training</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.notes"><code class="name">var <span class="ident">notes</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.parameters"><code class="name">var <span class="ident">parameters</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.precision"><code class="name">var <span class="ident">precision</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.recall"><code class="name">var <span class="ident">recall</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.request_sets"><code class="name">var <span class="ident">request_sets</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Model.scaler"><code class="name">var <span class="ident">scaler</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.ModelTrainingSetLink"><code class="flex name class">
+<span>class <span class="ident">ModelTrainingSetLink</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ModelTrainingSetLink(Base, SerializableMixin):
+    __tablename__ = &#39;model_training_sets_link&#39;
+
+    id_request_set = Column(Integer,
+                            ForeignKey(&#39;request_sets.id&#39;), primary_key=True)
+    id_model = Column(Integer,
+                      ForeignKey(&#39;models.id&#39;), primary_key=True)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.ModelTrainingSetLink.id_model"><code class="name">var <span class="ident">id_model</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.ModelTrainingSetLink.id_request_set"><code class="name">var <span class="ident">id_request_set</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.RequestSet"><code class="flex name class">
+<span>class <span class="ident">RequestSet</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RequestSet(Base, SerializableMixin):
+    __tablename__ = &#39;request_sets&#39;
+
+    id = Column(Integer, primary_key=True)
+    id_runtime = Column(Integer, ForeignKey(&#39;runtimes.id&#39;), nullable=True)
+    target = Column(TEXT())
+    ip = Column(String(45))
+    ip_encrypted = Column(TEXT())
+    ip_iv = Column(TEXT())
+    ip_tag = Column(TEXT())
+    start = Column(DateTime(timezone=True))
+    stop = Column(DateTime(timezone=True))
+    total_seconds = Column(Float)
+    subset_count = Column(Integer)
+    num_requests = Column(Integer)
+    time_bucket = Column(Integer)
+    label = Column(Integer)
+    id_attribute = Column(Integer, ForeignKey(&#39;attributes.id&#39;), nullable=True)
+    id_banjax = Column(Integer, ForeignKey(&#39;banjax_bans.id&#39;), nullable=True)
+    process_flag = Column(Boolean, default=True)
+    prediction = Column(Integer)
+    r = Column(Float)
+    row_num = Column(Integer)
+    features = Column(JSON)
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    updated_at = Column(
+        DateTime(timezone=True), nullable=True, onupdate=utcnow()
+    )
+    model_version = Column(Integer, ForeignKey(&#39;models.id&#39;))
+
+    runtimes = relationship(
+        &#39;Runtime&#39;, uselist=False, back_populates=&#39;request_sets&#39;
+    )
+    models = relationship(
+        &#39;Model&#39;, uselist=False, back_populates=&#39;request_sets&#39;
+    )
+    model_training_sets_link = relationship(
+        &#39;Model&#39;, secondary=&#39;model_training_sets_link&#39;,
+        back_populates=&#39;request_sets&#39;
+    )
+    attacks = relationship(
+        &#39;Attack&#39;, secondary=&#39;requestset_attack_link&#39;,
+        back_populates=&#39;request_sets&#39;
+    )
+    attributes = relationship(
+        &#39;Attribute&#39;, foreign_keys=id_attribute, uselist=False,
+        back_populates=&#39;request_sets&#39;
+    )
+    banjax_bans = relationship(
+        &#39;BanjaxBan&#39;, foreign_keys=id_banjax, uselist=False,
+        back_populates=&#39;request_sets&#39;
+    )
+
+    columns = [
+        &#39;ip&#39;,
+        &#39;target&#39;,
+        &#39;subset_count&#39;,
+        &#39;num_requests&#39;,
+        &#39;start&#39;,
+        &#39;stop&#39;,
+        &#39;prediction&#39;,
+        &#39;r&#39;,
+        &#39;label&#39;,
+        &#39;id_attribute&#39;,
+        &#39;features&#39;,
+        &#39;id_runtime&#39;,
+        &#39;time_bucket&#39;,
+        &#39;total_seconds&#39;,
+        &#39;model_version&#39;,
+        &#39;updated_at&#39;
+    ]
+
+    def prediction_str(self):
+        from baskerville.util.enums import LabelEnum
+        return &#34;malicious&#34; if self.prediction == LabelEnum.malicious \
+            else &#34;benign&#34; if self.prediction == LabelEnum.benign else &#34;unknown&#34;
+
+    def __repr__(self):
+        return f&#39;&lt;{self.__class__.__name__} from: {self.start} to: {self.stop} &#39; \
+            f&#39;num_requests: {self.num_requests} &#39; \
+            f&#39;created_at: {self.created_at} &#39; \
+            f&#39;prediction: {self.prediction_str()}&gt;&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="baskerville.db.models.RequestSet.columns"><code class="name">var <span class="ident">columns</span></code></dt>
+<dd>
+<section class="desc"><p>list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items</p></section>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.RequestSet.attacks"><code class="name">var <span class="ident">attacks</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.attributes"><code class="name">var <span class="ident">attributes</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.banjax_bans"><code class="name">var <span class="ident">banjax_bans</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.created_at"><code class="name">var <span class="ident">created_at</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.features"><code class="name">var <span class="ident">features</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.id_attribute"><code class="name">var <span class="ident">id_attribute</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.id_banjax"><code class="name">var <span class="ident">id_banjax</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.id_runtime"><code class="name">var <span class="ident">id_runtime</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.ip"><code class="name">var <span class="ident">ip</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.ip_encrypted"><code class="name">var <span class="ident">ip_encrypted</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.ip_iv"><code class="name">var <span class="ident">ip_iv</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.ip_tag"><code class="name">var <span class="ident">ip_tag</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.label"><code class="name">var <span class="ident">label</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.model_training_sets_link"><code class="name">var <span class="ident">model_training_sets_link</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.model_version"><code class="name">var <span class="ident">model_version</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.models"><code class="name">var <span class="ident">models</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.num_requests"><code class="name">var <span class="ident">num_requests</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.prediction"><code class="name">var <span class="ident">prediction</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.process_flag"><code class="name">var <span class="ident">process_flag</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.r"><code class="name">var <span class="ident">r</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.row_num"><code class="name">var <span class="ident">row_num</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.runtimes"><code class="name">var <span class="ident">runtimes</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.stop"><code class="name">var <span class="ident">stop</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.subset_count"><code class="name">var <span class="ident">subset_count</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.target"><code class="name">var <span class="ident">target</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.time_bucket"><code class="name">var <span class="ident">time_bucket</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.total_seconds"><code class="name">var <span class="ident">total_seconds</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSet.updated_at"><code class="name">var <span class="ident">updated_at</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.db.models.RequestSet.prediction_str"><code class="name flex">
+<span>def <span class="ident">prediction_str</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prediction_str(self):
+    from baskerville.util.enums import LabelEnum
+    return &#34;malicious&#34; if self.prediction == LabelEnum.malicious \
+        else &#34;benign&#34; if self.prediction == LabelEnum.benign else &#34;unknown&#34;</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.RequestSetAttackLink"><code class="flex name class">
+<span>class <span class="ident">RequestSetAttackLink</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RequestSetAttackLink(Base, SerializableMixin):
+    __tablename__ = &#39;requestset_attack_link&#39;
+
+    id_request_set = Column(Integer,
+                            ForeignKey(&#39;request_sets.id&#39;), primary_key=True)
+    id_attack = Column(Integer,
+                       ForeignKey(&#39;attacks.id&#39;), primary_key=True)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.RequestSetAttackLink.id_attack"><code class="name">var <span class="ident">id_attack</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.RequestSetAttackLink.id_request_set"><code class="name">var <span class="ident">id_request_set</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.Runtime"><code class="flex name class">
+<span>class <span class="ident">Runtime</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The most base type</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code>kwargs</code>.</p>
+<p>Only keys that are present as
+attributes of the instance's class are allowed. These could be,
+for example, any mapped columns or relationships.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Runtime(Base, SerializableMixin):
+    __tablename__ = &#39;runtimes&#39;
+
+    id = Column(Integer, primary_key=True)
+    id_encryption = Column(Integer, ForeignKey(&#39;encryption.id&#39;))
+    start = Column(DateTime(timezone=True))
+    stop = Column(DateTime(timezone=True))
+    target = Column(TEXT(), nullable=True)
+    dt_bucket = Column(Float)
+    file_name = Column(TEXT())
+    processed = Column(Boolean)
+    n_request_sets = Column(Integer)
+    comment = Column(TEXT())
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    config = Column(JSON)
+
+    # a runtime can have more than one request_set
+    request_sets = relationship(
+        &#39;RequestSet&#39;, uselist=False, back_populates=&#39;runtimes&#39;
+    )
+    # runtimes * - 1 encryption
+    encryption = relationship(
+        &#39;Encryption&#39;,
+        foreign_keys=id_encryption, back_populates=&#39;runtimes&#39;
+    )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.ext.declarative.api.Base</li>
+<li><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.db.models.Runtime.comment"><code class="name">var <span class="ident">comment</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.config"><code class="name">var <span class="ident">config</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.created_at"><code class="name">var <span class="ident">created_at</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.dt_bucket"><code class="name">var <span class="ident">dt_bucket</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.encryption"><code class="name">var <span class="ident">encryption</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.file_name"><code class="name">var <span class="ident">file_name</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.id_encryption"><code class="name">var <span class="ident">id_encryption</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.n_request_sets"><code class="name">var <span class="ident">n_request_sets</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.processed"><code class="name">var <span class="ident">processed</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.request_sets"><code class="name">var <span class="ident">request_sets</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.start"><code class="name">var <span class="ident">start</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.stop"><code class="name">var <span class="ident">stop</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.models.Runtime.target"><code class="name">var <span class="ident">target</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, owner):
+    if instance is None:
+        return self
+
+    dict_ = instance_dict(instance)
+    if self._supports_population and self.key in dict_:
+        return dict_[self.key]
+    else:
+        return self.impl.get(instance_state(instance), dict_)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.db.models.SerializableMixin"><code class="flex name class">
+<span>class <span class="ident">SerializableMixin</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SerializableMixin(object):
+    def as_dict(self, extra_cols=(), remove=()):
+        &#34;&#34;&#34;
+
+        :param set extra_cols:
+        :param set remove:
+        :return:
+        :rtype: dict[str, T]
+        &#34;&#34;&#34;
+        basic_attrs = {c.name: getattr(self, c.name)
+                       for c in self.__table__.columns
+                       if c not in remove}
+        extra_attrs = {}
+        if len(extra_cols) &gt; 0:
+            for attr in extra_cols:
+                d = getattr(self, attr)
+                if d is None:
+                    continue
+                if isinstance(d, list):
+                    extra_attrs[attr] = [each.as_dict() for each in d]
+                else:
+                    extra_attrs[attr] = d.as_dict()
+            basic_attrs.update(extra_attrs)
+
+        return basic_attrs</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="baskerville.db.models.Encryption" href="#baskerville.db.models.Encryption">Encryption</a></li>
+<li><a title="baskerville.db.models.Runtime" href="#baskerville.db.models.Runtime">Runtime</a></li>
+<li><a title="baskerville.db.models.RequestSet" href="#baskerville.db.models.RequestSet">RequestSet</a></li>
+<li><a title="baskerville.db.models.Model" href="#baskerville.db.models.Model">Model</a></li>
+<li><a title="baskerville.db.models.ModelTrainingSetLink" href="#baskerville.db.models.ModelTrainingSetLink">ModelTrainingSetLink</a></li>
+<li><a title="baskerville.db.models.Attack" href="#baskerville.db.models.Attack">Attack</a></li>
+<li><a title="baskerville.db.models.Attribute" href="#baskerville.db.models.Attribute">Attribute</a></li>
+<li><a title="baskerville.db.models.BanjaxBan" href="#baskerville.db.models.BanjaxBan">BanjaxBan</a></li>
+<li><a title="baskerville.db.models.RequestSetAttackLink" href="#baskerville.db.models.RequestSetAttackLink">RequestSetAttackLink</a></li>
+<li><a title="baskerville.db.models.AttributeAttackLink" href="#baskerville.db.models.AttributeAttackLink">AttributeAttackLink</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.db.models.SerializableMixin.as_dict"><code class="name flex">
+<span>def <span class="ident">as_dict</span></span>(<span>self, extra_cols=(), remove=())</span>
+</code></dt>
+<dd>
+<section class="desc"><p>:param set extra_cols:
+:param set remove:
+:return:
+:rtype: dict[str, T]</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def as_dict(self, extra_cols=(), remove=()):
+    &#34;&#34;&#34;
+
+    :param set extra_cols:
+    :param set remove:
+    :return:
+    :rtype: dict[str, T]
+    &#34;&#34;&#34;
+    basic_attrs = {c.name: getattr(self, c.name)
+                   for c in self.__table__.columns
+                   if c not in remove}
+    extra_attrs = {}
+    if len(extra_cols) &gt; 0:
+        for attr in extra_cols:
+            d = getattr(self, attr)
+            if d is None:
+                continue
+            if isinstance(d, list):
+                extra_attrs[attr] = [each.as_dict() for each in d]
+            else:
+                extra_attrs[attr] = d.as_dict()
+        basic_attrs.update(extra_attrs)
+
+    return basic_attrs</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="baskerville.db.models.utcnow"><code class="flex name class">
+<span>class <span class="ident">utcnow</span></span>
+<span>(</span><span>*clauses, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Base for SQL function-oriented constructs.</p>
+<div class="admonition seealso">
+<p class="admonition-title">Seealso</p>
+<p>:class:<code>.Function</code> - named SQL function.</p>
+<p>:data:<code>.func</code> - namespace which produces registered or ad-hoc
+:class:<code>.Function</code> instances.</p>
+<p>:class:<code>.GenericFunction</code> - allows creation of registered function
+types.</p>
+</div>
+<p>Construct a :class:<code>.FunctionElement</code>.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class utcnow(expression.FunctionElement):
+    type = DateTime()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sqlalchemy.sql.functions.FunctionElement</li>
+<li>sqlalchemy.sql.base.Executable</li>
+<li>sqlalchemy.sql.base.Generative</li>
+<li>sqlalchemy.sql.elements.ColumnElement</li>
+<li>sqlalchemy.sql.operators.ColumnOperators</li>
+<li>sqlalchemy.sql.operators.Operators</li>
+<li>sqlalchemy.sql.selectable.FromClause</li>
+<li>sqlalchemy.sql.selectable.Selectable</li>
+<li>sqlalchemy.sql.elements.ClauseElement</li>
+<li>sqlalchemy.sql.visitors.Visitable</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="baskerville.db.models.utcnow.type"><code class="name">var <span class="ident">type</span></code></dt>
+<dd>
+<section class="desc"><p>A type for <code>datetime.datetime()</code> objects.</p>
+<p>Date and time types return objects from the Python <code>datetime</code>
+module.
+Most DBAPIs have built in support for the datetime
+module, with the noted exception of SQLite.
+In the case of
+SQLite, date and time types are stored as strings which are then
+converted back to datetime objects when rows are returned.</p>
+<p>For the time representation within the datetime type, some
+backends include additional options, such as timezone support and
+fractional seconds support.
+For fractional seconds, use the
+dialect-specific datatype, such as :class:<code>.mysql.TIME</code>.
+For
+timezone support, use at least the :class:<code>~.types.TIMESTAMP</code> datatype,
+if not the dialect-specific datatype object.</p></section>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="baskerville.db" href="index.html">baskerville.db</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="baskerville.db.models.pg_utcnow" href="#baskerville.db.models.pg_utcnow">pg_utcnow</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="baskerville.db.models.Attack" href="#baskerville.db.models.Attack">Attack</a></code></h4>
+<ul class="two-column">
+<li><code><a title="baskerville.db.models.Attack.analysis_notebook" href="#baskerville.db.models.Attack.analysis_notebook">analysis_notebook</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.attack_source" href="#baskerville.db.models.Attack.attack_source">attack_source</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.attack_tool" href="#baskerville.db.models.Attack.attack_tool">attack_tool</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.attack_type" href="#baskerville.db.models.Attack.attack_type">attack_type</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.attributes" href="#baskerville.db.models.Attack.attributes">attributes</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.date" href="#baskerville.db.models.Attack.date">date</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.id" href="#baskerville.db.models.Attack.id">id</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.id_misp" href="#baskerville.db.models.Attack.id_misp">id_misp</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.ip_count" href="#baskerville.db.models.Attack.ip_count">ip_count</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.notes" href="#baskerville.db.models.Attack.notes">notes</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.processed" href="#baskerville.db.models.Attack.processed">processed</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.request_sets" href="#baskerville.db.models.Attack.request_sets">request_sets</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.start" href="#baskerville.db.models.Attack.start">start</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.stop" href="#baskerville.db.models.Attack.stop">stop</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.sync_start" href="#baskerville.db.models.Attack.sync_start">sync_start</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.sync_stop" href="#baskerville.db.models.Attack.sync_stop">sync_stop</a></code></li>
+<li><code><a title="baskerville.db.models.Attack.target" href="#baskerville.db.models.Attack.target">target</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.Attribute" href="#baskerville.db.models.Attribute">Attribute</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.Attribute.attacks" href="#baskerville.db.models.Attribute.attacks">attacks</a></code></li>
+<li><code><a title="baskerville.db.models.Attribute.id" href="#baskerville.db.models.Attribute.id">id</a></code></li>
+<li><code><a title="baskerville.db.models.Attribute.request_sets" href="#baskerville.db.models.Attribute.request_sets">request_sets</a></code></li>
+<li><code><a title="baskerville.db.models.Attribute.value" href="#baskerville.db.models.Attribute.value">value</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.AttributeAttackLink" href="#baskerville.db.models.AttributeAttackLink">AttributeAttackLink</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.AttributeAttackLink.id_attack" href="#baskerville.db.models.AttributeAttackLink.id_attack">id_attack</a></code></li>
+<li><code><a title="baskerville.db.models.AttributeAttackLink.id_attribute" href="#baskerville.db.models.AttributeAttackLink.id_attribute">id_attribute</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.BanjaxBan" href="#baskerville.db.models.BanjaxBan">BanjaxBan</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.BanjaxBan.id" href="#baskerville.db.models.BanjaxBan.id">id</a></code></li>
+<li><code><a title="baskerville.db.models.BanjaxBan.ip" href="#baskerville.db.models.BanjaxBan.ip">ip</a></code></li>
+<li><code><a title="baskerville.db.models.BanjaxBan.request_sets" href="#baskerville.db.models.BanjaxBan.request_sets">request_sets</a></code></li>
+<li><code><a title="baskerville.db.models.BanjaxBan.sync_start" href="#baskerville.db.models.BanjaxBan.sync_start">sync_start</a></code></li>
+<li><code><a title="baskerville.db.models.BanjaxBan.sync_stop" href="#baskerville.db.models.BanjaxBan.sync_stop">sync_stop</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.Encryption" href="#baskerville.db.models.Encryption">Encryption</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.Encryption.comment" href="#baskerville.db.models.Encryption.comment">comment</a></code></li>
+<li><code><a title="baskerville.db.models.Encryption.id" href="#baskerville.db.models.Encryption.id">id</a></code></li>
+<li><code><a title="baskerville.db.models.Encryption.keyhash" href="#baskerville.db.models.Encryption.keyhash">keyhash</a></code></li>
+<li><code><a title="baskerville.db.models.Encryption.runtimes" href="#baskerville.db.models.Encryption.runtimes">runtimes</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.Model" href="#baskerville.db.models.Model">Model</a></code></h4>
+<ul class="two-column">
+<li><code><a title="baskerville.db.models.Model.algorithm" href="#baskerville.db.models.Model.algorithm">algorithm</a></code></li>
+<li><code><a title="baskerville.db.models.Model.analysis_notebook" href="#baskerville.db.models.Model.analysis_notebook">analysis_notebook</a></code></li>
+<li><code><a title="baskerville.db.models.Model.classifier" href="#baskerville.db.models.Model.classifier">classifier</a></code></li>
+<li><code><a title="baskerville.db.models.Model.created_at" href="#baskerville.db.models.Model.created_at">created_at</a></code></li>
+<li><code><a title="baskerville.db.models.Model.f1_score" href="#baskerville.db.models.Model.f1_score">f1_score</a></code></li>
+<li><code><a title="baskerville.db.models.Model.features" href="#baskerville.db.models.Model.features">features</a></code></li>
+<li><code><a title="baskerville.db.models.Model.id" href="#baskerville.db.models.Model.id">id</a></code></li>
+<li><code><a title="baskerville.db.models.Model.n_testing" href="#baskerville.db.models.Model.n_testing">n_testing</a></code></li>
+<li><code><a title="baskerville.db.models.Model.n_training" href="#baskerville.db.models.Model.n_training">n_training</a></code></li>
+<li><code><a title="baskerville.db.models.Model.notes" href="#baskerville.db.models.Model.notes">notes</a></code></li>
+<li><code><a title="baskerville.db.models.Model.parameters" href="#baskerville.db.models.Model.parameters">parameters</a></code></li>
+<li><code><a title="baskerville.db.models.Model.precision" href="#baskerville.db.models.Model.precision">precision</a></code></li>
+<li><code><a title="baskerville.db.models.Model.recall" href="#baskerville.db.models.Model.recall">recall</a></code></li>
+<li><code><a title="baskerville.db.models.Model.request_sets" href="#baskerville.db.models.Model.request_sets">request_sets</a></code></li>
+<li><code><a title="baskerville.db.models.Model.scaler" href="#baskerville.db.models.Model.scaler">scaler</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.ModelTrainingSetLink" href="#baskerville.db.models.ModelTrainingSetLink">ModelTrainingSetLink</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.ModelTrainingSetLink.id_model" href="#baskerville.db.models.ModelTrainingSetLink.id_model">id_model</a></code></li>
+<li><code><a title="baskerville.db.models.ModelTrainingSetLink.id_request_set" href="#baskerville.db.models.ModelTrainingSetLink.id_request_set">id_request_set</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.RequestSet" href="#baskerville.db.models.RequestSet">RequestSet</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.RequestSet.attacks" href="#baskerville.db.models.RequestSet.attacks">attacks</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.attributes" href="#baskerville.db.models.RequestSet.attributes">attributes</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.banjax_bans" href="#baskerville.db.models.RequestSet.banjax_bans">banjax_bans</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.columns" href="#baskerville.db.models.RequestSet.columns">columns</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.created_at" href="#baskerville.db.models.RequestSet.created_at">created_at</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.features" href="#baskerville.db.models.RequestSet.features">features</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.id" href="#baskerville.db.models.RequestSet.id">id</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.id_attribute" href="#baskerville.db.models.RequestSet.id_attribute">id_attribute</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.id_banjax" href="#baskerville.db.models.RequestSet.id_banjax">id_banjax</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.id_runtime" href="#baskerville.db.models.RequestSet.id_runtime">id_runtime</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.ip" href="#baskerville.db.models.RequestSet.ip">ip</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.ip_encrypted" href="#baskerville.db.models.RequestSet.ip_encrypted">ip_encrypted</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.ip_iv" href="#baskerville.db.models.RequestSet.ip_iv">ip_iv</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.ip_tag" href="#baskerville.db.models.RequestSet.ip_tag">ip_tag</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.label" href="#baskerville.db.models.RequestSet.label">label</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.model_training_sets_link" href="#baskerville.db.models.RequestSet.model_training_sets_link">model_training_sets_link</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.model_version" href="#baskerville.db.models.RequestSet.model_version">model_version</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.models" href="#baskerville.db.models.RequestSet.models">models</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.num_requests" href="#baskerville.db.models.RequestSet.num_requests">num_requests</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.prediction" href="#baskerville.db.models.RequestSet.prediction">prediction</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.prediction_str" href="#baskerville.db.models.RequestSet.prediction_str">prediction_str</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.process_flag" href="#baskerville.db.models.RequestSet.process_flag">process_flag</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.r" href="#baskerville.db.models.RequestSet.r">r</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.row_num" href="#baskerville.db.models.RequestSet.row_num">row_num</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.runtimes" href="#baskerville.db.models.RequestSet.runtimes">runtimes</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.start" href="#baskerville.db.models.RequestSet.start">start</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.stop" href="#baskerville.db.models.RequestSet.stop">stop</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.subset_count" href="#baskerville.db.models.RequestSet.subset_count">subset_count</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.target" href="#baskerville.db.models.RequestSet.target">target</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.time_bucket" href="#baskerville.db.models.RequestSet.time_bucket">time_bucket</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.total_seconds" href="#baskerville.db.models.RequestSet.total_seconds">total_seconds</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSet.updated_at" href="#baskerville.db.models.RequestSet.updated_at">updated_at</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.RequestSetAttackLink" href="#baskerville.db.models.RequestSetAttackLink">RequestSetAttackLink</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.RequestSetAttackLink.id_attack" href="#baskerville.db.models.RequestSetAttackLink.id_attack">id_attack</a></code></li>
+<li><code><a title="baskerville.db.models.RequestSetAttackLink.id_request_set" href="#baskerville.db.models.RequestSetAttackLink.id_request_set">id_request_set</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.Runtime" href="#baskerville.db.models.Runtime">Runtime</a></code></h4>
+<ul class="two-column">
+<li><code><a title="baskerville.db.models.Runtime.comment" href="#baskerville.db.models.Runtime.comment">comment</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.config" href="#baskerville.db.models.Runtime.config">config</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.created_at" href="#baskerville.db.models.Runtime.created_at">created_at</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.dt_bucket" href="#baskerville.db.models.Runtime.dt_bucket">dt_bucket</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.encryption" href="#baskerville.db.models.Runtime.encryption">encryption</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.file_name" href="#baskerville.db.models.Runtime.file_name">file_name</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.id" href="#baskerville.db.models.Runtime.id">id</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.id_encryption" href="#baskerville.db.models.Runtime.id_encryption">id_encryption</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.n_request_sets" href="#baskerville.db.models.Runtime.n_request_sets">n_request_sets</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.processed" href="#baskerville.db.models.Runtime.processed">processed</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.request_sets" href="#baskerville.db.models.Runtime.request_sets">request_sets</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.start" href="#baskerville.db.models.Runtime.start">start</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.stop" href="#baskerville.db.models.Runtime.stop">stop</a></code></li>
+<li><code><a title="baskerville.db.models.Runtime.target" href="#baskerville.db.models.Runtime.target">target</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.SerializableMixin" href="#baskerville.db.models.SerializableMixin">SerializableMixin</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.SerializableMixin.as_dict" href="#baskerville.db.models.SerializableMixin.as_dict">as_dict</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.db.models.utcnow" href="#baskerville.db.models.utcnow">utcnow</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.db.models.utcnow.type" href="#baskerville.db.models.utcnow.type">type</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

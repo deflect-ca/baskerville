@@ -1,0 +1,14 @@
+---
+database:
+  name: baskerville_test
+  user: user
+  password: 'pass'
+  host: 127.0.0.1
+  port : 3306
+  encryption_passphrase: xxx
+  hash_passphrase: xxx
+
+elastic:
+    user: 'elastic'
+    password: 'changeme'
+    host: http://localhost:9200

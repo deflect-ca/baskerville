@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>baskerville.db API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>baskerville.db</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import traceback
+
+import sqlalchemy
+from baskerville.db.data_partitioning import get_temporal_partitions
+
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy_utils import database_exists, create_database
+
+Base = declarative_base()
+
+defaults = {
+    &#39;mysql&#39;: &#39;master&#39;,
+    &#39;postgres&#39;: &#39;postgres&#39;,
+}
+
+DATA_PARTITION_TABLES = [&#39;request_sets&#39;]
+
+
+def get_table_inheritance_script_for(table_name):
+    return f&#34;&#34;&#34;
+        DO
+        $do$
+        DECLARE
+          table_name text;
+          month text;
+          target_month  TEXT ARRAY  DEFAULT  ARRAY[&#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;, &#39;5&#39;, &#39;6&#39;, &#39;7&#39;, &#39;8&#39;, &#39;9&#39;, &#39;10&#39;, &#39;11&#39;, &#39;12&#39;];
+        BEGIN
+          FOREACH month IN ARRAY target_month LOOP
+            table_name = &#39;{table_name}_&#39; || month;
+            EXECUTE format(&#39;DROP TABLE IF EXISTS %I CASCADE&#39;, table_name);
+            EXECUTE format(&#39;CREATE TABLE %I (CHECK ( extract(month from created_at) = &#39; || quote_literal(month) ||&#39; )) INHERITS (public.{table_name})&#39;, table_name) USING month;
+          END LOOP;
+        END;
+        $do$;
+    &#34;&#34;&#34;
+
+
+def get_f_request_sets_insert_by_month():
+    return &#34;&#34;&#34;
+        CREATE OR REPLACE FUNCTION insert_by_month_trigger()
+        RETURNS TRIGGER AS $$
+        DECLARE
+          target_month text;
+          table_name text;
+        BEGIN
+            SELECT cast(extract(month from NEW.created_at) AS TEXT) INTO target_month;
+            table_name = TG_ARGV[0] || target_month;
+            raise notice &#39;% &#39;, table_name;
+            EXECUTE &#39;INSERT INTO &#39; || table_name || &#39; VALUES ($1.*)&#39; USING NEW;
+        
+            RETURN NULL;
+        exception when others then
+          raise notice &#39;% %&#39;, SQLERRM, SQLSTATE;
+          raise notice &#39;Insert failed &#39;;
+          RETURN NULL;
+        END;
+        $$
+        LANGUAGE plpgsql;
+    &#34;&#34;&#34;
+
+
+def get_before_insert_trigger(table_name):
+    return f&#34;&#34;&#34;
+    DROP TRIGGER IF EXISTS insert_{table_name}_trigger
+      ON {table_name};
+    CREATE TRIGGER insert_{table_name}_trigger
+    BEFORE INSERT ON {table_name}
+    FOR EACH ROW EXECUTE PROCEDURE insert_by_month_trigger(&#39;public.{table_name}_&#39;);
+    &#34;&#34;&#34;
+
+
+def get_db_connection_str(conf, default_db=False):
+    &#34;&#34;&#34;
+
+    :param conf:
+    :return:
+    &#34;&#34;&#34;
+    connection_str = &#39;{db_dependent}{user}:{password}@{host}:{port}/{db}&#39;
+
+    db_type = conf.get(&#39;type&#39;, None)
+    if db_type == &#39;mysql&#39;:
+        db_dependent = &#39;mysql+pymysql://&#39;
+    elif db_type == &#39;postgres&#39;:
+        db_dependent = &#39;postgresql+psycopg2://&#39;
+    else:
+        raise NotImplementedError(
+            &#39;{} not implemented yet&#39;.format(db_type)
+        )
+
+    return connection_str.format(
+        db_dependent=db_dependent,
+        user=conf.get(&#39;user&#39;),
+        password=conf.get(&#39;password&#39;),
+        host=conf.get(&#39;host&#39;),
+        port=conf.get(&#39;port&#39;),
+        db=conf.get(&#39;name&#39;) if not default_db else defaults.get(conf[&#39;type&#39;])
+    )
+
+
+def get_jdbc_url(conf):
+    &#34;&#34;&#34;
+    Returns the formatted jdbc connection string
+    :param DatabaseConfig conf: the database configuration
+    :return:
+    :rtype: str
+    &#34;&#34;&#34;
+    if conf.type == &#39;mysql&#39;:
+        return &#39;jdbc:{}://{}:{}/{}?&#39; \
+               &#39;rewriteBatchedStatements=true&amp;&#39; \
+               &#39;reWriteBatchedInserts=true&#39;.format(
+                    conf.type,
+                    conf.host,
+                    conf.port,
+                    conf.name,
+                )
+    elif conf.type == &#39;postgres&#39;:
+        return &#39;jdbc:{}://{}:{}/{}?&#39; \
+               &#39;user={}&amp;&#39; \
+               &#39;password={}&amp;&#39; \
+               &#39;rewriteBatchedStatements=true&amp;&#39; \
+               &#39;reWriteBatchedInserts=true&#39;.format(
+                    &#39;postgresql&#39;,
+                    conf.host,
+                    conf.port,
+                    conf.name,
+                    conf.user,
+                    conf.password
+                )
+
+
+def set_up_db(conf, create=True):
+    &#34;&#34;&#34;
+    Create database tables and session object
+    :param dict conf: the database configuration
+    :param bool create: if True, try to create the database, else, assume
+    database exists and connect directly to it.
+    :return: a session and an engine instance
+    :rtype: tuple(session, engine)
+    &#34;&#34;&#34;
+    if conf.get(&#39;type&#39;) == &#39;postgres&#39;:
+        if create:
+            try:
+                # with contextlib.suppress(ProgrammingError) as e:
+                with create_engine(
+                        get_db_connection_str(conf, default_db=True),
+                        isolation_level=&#39;AUTOCOMMIT&#39;,
+                        **conf.get(&#39;db_conn_args&#39;, {})
+                ).connect() as connection:
+                    connection.execute(f&#39;CREATE DATABASE {conf.get(&#34;name&#34;)}&#39;)
+                    connection.execute(
+                        &#39;CREATE CAST (VARCHAR AS JSON) &#39;
+                        &#39;WITHOUT FUNCTION AS IMPLICIT&#39;
+                    )
+            except ProgrammingError:
+                pass
+
+        engine = create_engine(
+            get_db_connection_str(conf),
+            client_encoding=&#39;utf8&#39;,
+            use_batch_mode=True,
+            pool_recycle=120,
+            **conf.get(&#39;db_conn_args&#39;, {})
+        )
+
+    else:
+        engine = create_engine(
+            get_db_connection_str(conf),
+            pool_recycle=120,
+            **conf.get(&#39;db_conn_args&#39;, {})
+        )
+
+        if not database_exists(engine.url):
+            create_database(engine.url)
+
+    Session = scoped_session(sessionmaker(bind=engine))
+    Base.metadata.create_all(bind=engine)
+    # session = Session()
+
+    # create data partition
+    maintenance_conf = conf.get(&#39;maintenance&#39;)
+    if (maintenance_conf and maintenance_conf[&#39;data_partition&#39;]) and create:
+        Session.execute(text(get_temporal_partitions(maintenance_conf)))
+        print(&#39;Partitioning done...&#39;)
+
+    return Session, engine</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="baskerville.db.base" href="base.html">baskerville.db.base</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="baskerville.db.data_archive" href="data_archive.html">baskerville.db.data_archive</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="baskerville.db.data_partitioning" href="data_partitioning.html">baskerville.db.data_partitioning</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="baskerville.db.database_maintenance" href="database_maintenance.html">baskerville.db.database_maintenance</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="baskerville.db.models" href="models.html">baskerville.db.models</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt><code class="name"><a title="baskerville.db.temporal_partition" href="temporal_partition.html">baskerville.db.temporal_partition</a></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="baskerville.db.get_before_insert_trigger"><code class="name flex">
+<span>def <span class="ident">get_before_insert_trigger</span></span>(<span>table_name)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_before_insert_trigger(table_name):
+    return f&#34;&#34;&#34;
+    DROP TRIGGER IF EXISTS insert_{table_name}_trigger
+      ON {table_name};
+    CREATE TRIGGER insert_{table_name}_trigger
+    BEFORE INSERT ON {table_name}
+    FOR EACH ROW EXECUTE PROCEDURE insert_by_month_trigger(&#39;public.{table_name}_&#39;);
+    &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.get_db_connection_str"><code class="name flex">
+<span>def <span class="ident">get_db_connection_str</span></span>(<span>conf, default_db=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>:param conf:
+:return:</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_db_connection_str(conf, default_db=False):
+    &#34;&#34;&#34;
+
+    :param conf:
+    :return:
+    &#34;&#34;&#34;
+    connection_str = &#39;{db_dependent}{user}:{password}@{host}:{port}/{db}&#39;
+
+    db_type = conf.get(&#39;type&#39;, None)
+    if db_type == &#39;mysql&#39;:
+        db_dependent = &#39;mysql+pymysql://&#39;
+    elif db_type == &#39;postgres&#39;:
+        db_dependent = &#39;postgresql+psycopg2://&#39;
+    else:
+        raise NotImplementedError(
+            &#39;{} not implemented yet&#39;.format(db_type)
+        )
+
+    return connection_str.format(
+        db_dependent=db_dependent,
+        user=conf.get(&#39;user&#39;),
+        password=conf.get(&#39;password&#39;),
+        host=conf.get(&#39;host&#39;),
+        port=conf.get(&#39;port&#39;),
+        db=conf.get(&#39;name&#39;) if not default_db else defaults.get(conf[&#39;type&#39;])
+    )</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.get_f_request_sets_insert_by_month"><code class="name flex">
+<span>def <span class="ident">get_f_request_sets_insert_by_month</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_f_request_sets_insert_by_month():
+    return &#34;&#34;&#34;
+        CREATE OR REPLACE FUNCTION insert_by_month_trigger()
+        RETURNS TRIGGER AS $$
+        DECLARE
+          target_month text;
+          table_name text;
+        BEGIN
+            SELECT cast(extract(month from NEW.created_at) AS TEXT) INTO target_month;
+            table_name = TG_ARGV[0] || target_month;
+            raise notice &#39;% &#39;, table_name;
+            EXECUTE &#39;INSERT INTO &#39; || table_name || &#39; VALUES ($1.*)&#39; USING NEW;
+        
+            RETURN NULL;
+        exception when others then
+          raise notice &#39;% %&#39;, SQLERRM, SQLSTATE;
+          raise notice &#39;Insert failed &#39;;
+          RETURN NULL;
+        END;
+        $$
+        LANGUAGE plpgsql;
+    &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.get_jdbc_url"><code class="name flex">
+<span>def <span class="ident">get_jdbc_url</span></span>(<span>conf)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the formatted jdbc connection string
+:param DatabaseConfig conf: the database configuration
+:return:
+:rtype: str</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_jdbc_url(conf):
+    &#34;&#34;&#34;
+    Returns the formatted jdbc connection string
+    :param DatabaseConfig conf: the database configuration
+    :return:
+    :rtype: str
+    &#34;&#34;&#34;
+    if conf.type == &#39;mysql&#39;:
+        return &#39;jdbc:{}://{}:{}/{}?&#39; \
+               &#39;rewriteBatchedStatements=true&amp;&#39; \
+               &#39;reWriteBatchedInserts=true&#39;.format(
+                    conf.type,
+                    conf.host,
+                    conf.port,
+                    conf.name,
+                )
+    elif conf.type == &#39;postgres&#39;:
+        return &#39;jdbc:{}://{}:{}/{}?&#39; \
+               &#39;user={}&amp;&#39; \
+               &#39;password={}&amp;&#39; \
+               &#39;rewriteBatchedStatements=true&amp;&#39; \
+               &#39;reWriteBatchedInserts=true&#39;.format(
+                    &#39;postgresql&#39;,
+                    conf.host,
+                    conf.port,
+                    conf.name,
+                    conf.user,
+                    conf.password
+                )</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.get_table_inheritance_script_for"><code class="name flex">
+<span>def <span class="ident">get_table_inheritance_script_for</span></span>(<span>table_name)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_table_inheritance_script_for(table_name):
+    return f&#34;&#34;&#34;
+        DO
+        $do$
+        DECLARE
+          table_name text;
+          month text;
+          target_month  TEXT ARRAY  DEFAULT  ARRAY[&#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;, &#39;5&#39;, &#39;6&#39;, &#39;7&#39;, &#39;8&#39;, &#39;9&#39;, &#39;10&#39;, &#39;11&#39;, &#39;12&#39;];
+        BEGIN
+          FOREACH month IN ARRAY target_month LOOP
+            table_name = &#39;{table_name}_&#39; || month;
+            EXECUTE format(&#39;DROP TABLE IF EXISTS %I CASCADE&#39;, table_name);
+            EXECUTE format(&#39;CREATE TABLE %I (CHECK ( extract(month from created_at) = &#39; || quote_literal(month) ||&#39; )) INHERITS (public.{table_name})&#39;, table_name) USING month;
+          END LOOP;
+        END;
+        $do$;
+    &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.set_up_db"><code class="name flex">
+<span>def <span class="ident">set_up_db</span></span>(<span>conf, create=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create database tables and session object
+:param dict conf: the database configuration
+:param bool create: if True, try to create the database, else, assume
+database exists and connect directly to it.
+:return: a session and an engine instance
+:rtype: tuple(session, engine)</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_up_db(conf, create=True):
+    &#34;&#34;&#34;
+    Create database tables and session object
+    :param dict conf: the database configuration
+    :param bool create: if True, try to create the database, else, assume
+    database exists and connect directly to it.
+    :return: a session and an engine instance
+    :rtype: tuple(session, engine)
+    &#34;&#34;&#34;
+    if conf.get(&#39;type&#39;) == &#39;postgres&#39;:
+        if create:
+            try:
+                # with contextlib.suppress(ProgrammingError) as e:
+                with create_engine(
+                        get_db_connection_str(conf, default_db=True),
+                        isolation_level=&#39;AUTOCOMMIT&#39;,
+                        **conf.get(&#39;db_conn_args&#39;, {})
+                ).connect() as connection:
+                    connection.execute(f&#39;CREATE DATABASE {conf.get(&#34;name&#34;)}&#39;)
+                    connection.execute(
+                        &#39;CREATE CAST (VARCHAR AS JSON) &#39;
+                        &#39;WITHOUT FUNCTION AS IMPLICIT&#39;
+                    )
+            except ProgrammingError:
+                pass
+
+        engine = create_engine(
+            get_db_connection_str(conf),
+            client_encoding=&#39;utf8&#39;,
+            use_batch_mode=True,
+            pool_recycle=120,
+            **conf.get(&#39;db_conn_args&#39;, {})
+        )
+
+    else:
+        engine = create_engine(
+            get_db_connection_str(conf),
+            pool_recycle=120,
+            **conf.get(&#39;db_conn_args&#39;, {})
+        )
+
+        if not database_exists(engine.url):
+            create_database(engine.url)
+
+    Session = scoped_session(sessionmaker(bind=engine))
+    Base.metadata.create_all(bind=engine)
+    # session = Session()
+
+    # create data partition
+    maintenance_conf = conf.get(&#39;maintenance&#39;)
+    if (maintenance_conf and maintenance_conf[&#39;data_partition&#39;]) and create:
+        Session.execute(text(get_temporal_partitions(maintenance_conf)))
+        print(&#39;Partitioning done...&#39;)
+
+    return Session, engine</code></pre>
+</details>
+</dd>
+<dt id="baskerville.db.text"><code class="name flex">
+<span>def <span class="ident">text</span></span>(<span>text, bind=None, bindparams=None, typemap=None, autocommit=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Construct a new :class:<code>.TextClause</code> clause, representing
+a textual SQL string directly.</p>
+<p>E.g.::</p>
+<pre><code>from sqlalchemy import text
+
+t = text("SELECT * FROM users")
+result = connection.execute(t)
+</code></pre>
+<p>The advantages :func:<code>.text</code> provides over a plain string are
+backend-neutral support for bind parameters, per-statement
+execution options, as well as
+bind parameter and result-column typing behavior, allowing
+SQLAlchemy type constructs to play a role when executing
+a statement that is specified literally.
+The construct can also
+be provided with a <code>.c</code> collection of column elements, allowing
+it to be embedded in other SQL expression constructs as a subquery.</p>
+<p>Bind parameters are specified by name, using the format <code>:name</code>.
+E.g.::</p>
+<pre><code>t = text("SELECT * FROM users WHERE id=:user_id")
+result = connection.execute(t, user_id=12)
+</code></pre>
+<p>For SQL statements where a colon is required verbatim, as within
+an inline string, use a backslash to escape::</p>
+<pre><code>t = text("SELECT * FROM users WHERE name='\:username'")
+</code></pre>
+<p>The :class:<code>.TextClause</code> construct includes methods which can
+provide information about the bound parameters as well as the column
+values which would be returned from the textual statement, assuming
+it's an executable SELECT type of statement.
+The
+:meth:<code>.TextClause.bindparams</code> method is used to provide bound
+parameter detail, and :meth:<code>.TextClause.columns</code> method allows
+specification of return columns including names and types::</p>
+<pre><code>t = text("SELECT * FROM users WHERE id=:user_id").\
+        bindparams(user_id=7).\
+        columns(id=Integer, name=String)
+
+for id, name in connection.execute(t):
+    print(id, name)
+</code></pre>
+<p>The :func:<code>.text</code> construct is used in cases when
+a literal string SQL fragment is specified as part of a larger query,
+such as for the WHERE clause of a SELECT statement::</p>
+<pre><code>s = select([users.c.id, users.c.name]).where(text("id=:user_id"))
+result = connection.execute(s, user_id=12)
+</code></pre>
+<p>:func:<code>.text</code> is also used for the construction
+of a full, standalone statement using plain text.
+As such, SQLAlchemy refers
+to it as an :class:<code>.Executable</code> object, and it supports
+the :meth:<code>Executable.execution_options</code> method.
+For example,
+a :func:<code>.text</code> construct that should be subject to "autocommit"
+can be set explicitly so using the
+:paramref:<code>.Connection.execution_options.autocommit</code> option::</p>
+<pre><code>t = text("EXEC my_procedural_thing()").\
+        execution_options(autocommit=True)
+</code></pre>
+<p>Note that SQLAlchemy's usual "autocommit" behavior applies to
+:func:<code>.text</code> constructs implicitly - that is, statements which begin
+with a phrase such as <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>,
+or a variety of other phrases specific to certain backends, will
+be eligible for autocommit if no transaction is in progress.</p>
+<p>:param text:
+the text of the SQL statement to be created.
+use <code>:&lt;param&gt;</code>
+to specify bind parameters; they will be compiled to their
+engine-specific format.</p>
+<p>:param autocommit:
+Deprecated.
+Use .execution_options(autocommit=<True|False>)
+to set the autocommit option.</p>
+<p>:param bind:
+an optional connection or engine to be used for this text query.</p>
+<p>:param bindparams:
+Deprecated.
+A list of :func:<code>.bindparam</code> instances used to
+provide information about parameters embedded in the statement.
+This argument now invokes the :meth:<code>.TextClause.bindparams</code>
+method on the construct before returning it.
+E.g.::</p>
+<pre><code>  stmt = text("SELECT * FROM table WHERE id=:id",
+            bindparams=[bindparam('id', value=5, type_=Integer)])
+</code></pre>
+<p>Is equivalent to::</p>
+<pre><code>  stmt = text("SELECT * FROM table WHERE id=:id").\
+            bindparams(bindparam('id', value=5, type_=Integer))
+</code></pre>
+<p>!!! deprecated "Deprecated since version:&ensp;0.9.0 the :meth:<code>.TextClause.bindparams</code> method"
+supersedes the <code>bindparams</code> argument to :func:<code>.text</code>.</p>
+<p>:param typemap:
+Deprecated.
+A dictionary mapping the names of columns
+represented in the columns clause of a <code>SELECT</code> statement
+to type objects,
+which will be used to perform post-processing on columns within
+the result set.
+This parameter now invokes the
+:meth:<code>.TextClause.columns</code> method, which returns a
+:class:<code>.TextAsFrom</code> construct that gains a <code>.c</code> collection and
+can be embedded in other expressions.
+E.g.::</p>
+<pre><code>  stmt = text("SELECT * FROM table",
+                typemap={'id': Integer, 'name': String},
+            )
+</code></pre>
+<p>Is equivalent to::</p>
+<pre><code>  stmt = text("SELECT * FROM table").columns(id=Integer,
+                                             name=String)
+</code></pre>
+<p>Or alternatively::</p>
+<pre><code>  from sqlalchemy.sql import column
+  stmt = text("SELECT * FROM table").columns(
+                        column('id', Integer),
+                        column('name', String)
+                    )
+</code></pre>
+<p>!!! deprecated "Deprecated since version:&ensp;0.9.0 the :meth:<code>.TextClause.columns</code> method"
+supersedes the <code>typemap</code> argument to :func:<code>.text</code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">Seealso</p>
+<p>:ref:<code>sqlexpression_text</code> - in the Core tutorial</p>
+<p>:ref:<code>orm_tutorial_literal_sql</code> - in the ORM tutorial</p>
+</div></section>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="baskerville" href="../index.html">baskerville</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="baskerville.db.base" href="base.html">baskerville.db.base</a></code></li>
+<li><code><a title="baskerville.db.data_archive" href="data_archive.html">baskerville.db.data_archive</a></code></li>
+<li><code><a title="baskerville.db.data_partitioning" href="data_partitioning.html">baskerville.db.data_partitioning</a></code></li>
+<li><code><a title="baskerville.db.database_maintenance" href="database_maintenance.html">baskerville.db.database_maintenance</a></code></li>
+<li><code><a title="baskerville.db.models" href="models.html">baskerville.db.models</a></code></li>
+<li><code><a title="baskerville.db.temporal_partition" href="temporal_partition.html">baskerville.db.temporal_partition</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="baskerville.db.get_before_insert_trigger" href="#baskerville.db.get_before_insert_trigger">get_before_insert_trigger</a></code></li>
+<li><code><a title="baskerville.db.get_db_connection_str" href="#baskerville.db.get_db_connection_str">get_db_connection_str</a></code></li>
+<li><code><a title="baskerville.db.get_f_request_sets_insert_by_month" href="#baskerville.db.get_f_request_sets_insert_by_month">get_f_request_sets_insert_by_month</a></code></li>
+<li><code><a title="baskerville.db.get_jdbc_url" href="#baskerville.db.get_jdbc_url">get_jdbc_url</a></code></li>
+<li><code><a title="baskerville.db.get_table_inheritance_script_for" href="#baskerville.db.get_table_inheritance_script_for">get_table_inheritance_script_for</a></code></li>
+<li><code><a title="baskerville.db.set_up_db" href="#baskerville.db.set_up_db">set_up_db</a></code></li>
+<li><code><a title="baskerville.db.text" href="#baskerville.db.text">text</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

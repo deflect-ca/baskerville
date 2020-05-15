@@ -1,0 +1,52 @@
+---
+database:
+  name: baskerville                   # the database name
+  user: !ENV ${DB_USER}
+  password: !ENV '${DB_PASS}'
+  type: 'postgres'
+  host: !ENV ${DB_HOST}
+  port: !ENV ${DB_PORT}
+  maintenance:                        # Optional, for data partitioning and archiving
+    partition_table: 'request_sets'   # default value
+    partition_by: week                # partition by week or month, default value is week
+    partition_field: created_at       # which field to use for the partitioning, this is the default value, can be omitted
+    strict: False                     # if False, then for the week partition the start and end date will be changed to the start and end of the respective weeks. If true, then the dates will remain unchanged. Be careful to be consistent with this.
+    data_partition:                   # Optional: Define the period to create partitions for
+      since: 2020-01-01               # when to start partitioning
+      until: "2020-12-31 23:59:59"    # when to stop partitioning
+      index_by:                       # which fields to index in the partitions that will be created (only one index is supported currently), default value, can be omitted
+        - target
+        - ip
+
+engine:
+  raw_log:
+    paths:                    # optional, a list of logs to parse - they will be parsed subsequently
+      - !ENV '${BASKERVILLE_ROOT}/data/samples/test_data_1k.json'  # sample data to run baskerville raw log pipeline with
+  cache_expire_time: 604800       # sec (604800 = 1 week)
+  model_id: -1                    # optional, -1 returns the latest model in the database
+  extra_features:                 # useful when we need to calculate more features than the model requests or when there is no model
+      - css_to_html_ratio         # feature names have the following convention: class FeatureCssToHtmlRatio --> 'css_to_html_ratio'
+      - image_to_html_ratio
+      - js_to_html_ratio
+      - minutes_total
+      - path_depth_average
+      - path_depth_variance
+      - payload_size_average
+  data_config:
+    schema: !ENV '${BASKERVILLE_ROOT}/data/samples/sample_log_schema.json'
+  logpath: !ENV '${BASKERVILLE_ROOT}/baskerville.log'
+  log_level: 'ERROR'
+
+spark:
+  app_name: 'Baskerville'   # the application name - can be changed for two different runs - used by the spark UI
+  master: 'local'           # the ip:port of the master node, e.g. spark://someip:7077 to submit to a cluster
+  parallelism: -1           # controls the number of tasks, -1 means use all cores - used for local master
+  log_level: 'INFO'         # spark logs level
+  storage_level: 'OFF_HEAP' # which strategy to use for storing dfs - valid values are the ones found here: https://spark.apache.org/docs/2.4.0/api/python/_modules/pyspark/storagelevel.html default: OFF_HEAP
+  jars: !ENV '${BASKERVILLE_ROOT}/data/jars/postgresql-42.2.4.jar,${BASKERVILLE_ROOT}/data/spark-iforest-2.4.0.jar' # or /path/to/jars/mysql-connector-java-8.0.11.jar
+  spark_driver_memory: '6G' # depends on your dataset and the available ram you have. If running locally 6 - 8 GB should be a good choice, depending on the amount of data you need to process
+  metrics_conf: !ENV '${BASKERVILLE_ROOT}/data/spark.metrics'  # Optional: required only  to export spark metrics
+  jar_packages: 'com.banzaicloud:spark-metrics_2.11:2.3-2.0.4,io.prometheus:simpleclient:0.3.0,io.prometheus:simpleclient_dropwizard:0.3.0,io.prometheus:simpleclient_pushgateway:0.3.0,io.dropwizard.metrics:metrics-core:3.1.2'  # required to export spark metrics
+  jar_repositories: 'https://raw.github.com/banzaicloud/spark-metrics/master/maven-repo/releases' # Optional: Required only to export spark metrics
+  event_log: True
+  serializer: 'org.apache.spark.serializer.KryoSerializer'
