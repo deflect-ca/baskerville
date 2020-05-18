@@ -269,7 +269,7 @@ export HADOOP_HOME=c:\hadoop
 cp $HOME\Downloads\winutils.exe $HADOOP_HOME\bin
 ```
 ##### Necessary services/ components for each pipeline:
-``
+
 For Baskerville `kafka` you'll need:
   - Kafka
   - Zookeeper
@@ -355,7 +355,7 @@ The simplest way is to check the database.
 ```sql
 -- Give baskerville is the database name defined in thec configuration:
 SELECT count(id) from request_sets where id_runtime in (select max(id) from runtimes); -- if you used the test data, it should be 1000 after a full successful execution
-SELECT * FROM baskerville.request_sets;  -- fields should be complete, e.g. features should be something like the following
+SELECT * FROM baskerville.request_sets limit 10;  -- fields should be complete, e.g. features should be something like the following
 ```
 
 Request_set features example:
@@ -399,7 +399,7 @@ Besides the spark ui - which usually is under `http://localhost:4040`, there is 
 include the `-e` flag and go to the configured localhost port (`http:// localhost:8998/metrics` by default). You will need a configured Prometheus instance and a Grafana instance to be able to
 visualize them using the auto generated [baskerville dashboard](data/metrics/Baskerville-metrics-dashboard.json), which is saved in the data directory, and can
 be imported in Grafana.
-There is also an [Anomalies Dashboard](/data/metrics/anomalies-dashboard.json) and a [Kafka Dashboard](/data/metrics/kafka-dashboard.json) under `data/metrics`.
+There is also an [Anomalies Dashboard](/data/metrics/anomalies-dashboard.json) and a [Kafka Dashboard](/data/metrics/kafka-dashboard.json) under [`data/metrics`](data/metrics).
 
 ![Baskerville's Anomalies Dashboard](data/img/anomalies_dashboard.png?raw=true "Baskerville's Anomalies Dashboard")
 
