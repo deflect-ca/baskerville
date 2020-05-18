@@ -27,7 +27,7 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io
 sudo usermod -aG docker $USER
 ```
-* install [docker-compose(https://docs.docker.com/compose/install/)
+* install [docker-compose](https://docs.docker.com/compose/install/)
 ```
 sudo curl -L "https://github.com/docker/compose/releases/download/1.25.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
@@ -35,12 +35,10 @@ docker-compose --version
 ```
 
 ## Server 3. Postgres, Graphana, Prometheus
-* clone Baskerville ecosystem from [gitlab](https://gitlab.internal.equalit.ie/mkaranasou/deflect-analytics-ecosystem)
+* clone Baskerville ecosystem from [github](https://github.com/equalitie/deflect-analytics-ecosystem)
 ```
-git clone git@gitlab.internal.equalit.ie:mkaranasou/deflect-analytics-ecosystem.git
+git clone https://github.com/equalitie/deflect-analytics-ecosystem.git
 cd deflect-analytics-ecosystem
-git checkout anton
-git pull
 ```
 * goto Baskerville ecosystem folder `cd deflect-analytics-ecosystem`
 * generate a new strong password and replace the default 'secret' postgres password everywhere in `docker-compose.yaml`
@@ -69,7 +67,7 @@ chown -R root:root /etc/grafana && \
   chown -R grafana:grafana /usr/share/grafana
 ```
 * make sure postgres is up and running on port 5432 and you can connect from psql or any other client using username `postgres` and the new password
-* make sure grafana is up and running on port 3000 and you can login using username `adming` and the new password 
+* make sure grafana is up and running on port 3000 and you can login using username `admin` and the new password 
 
 ## Server 2. Kafka.
 * install dockerized single node Kafka cluster [...](https://docs.confluent.io/current/quickstart/ce-docker-quickstart.html)
@@ -520,21 +518,19 @@ spark-shell --master spark://server1_ip:7077
 
 ## Baskerville for Server 1 and Server 2
 * login as user spark
-* clone and install [Esretriever](https://gitlab.internal.equalit.ie/mkaranasou/esretriever) 
+* clone and install [Esretriever](https://github.com/equalitie/esretriever) 
 ```
-git clone git@gitlab.internal.equalit.ie:mkaranasou/esretriever.git
+git clone https://github.com/equalitie/esretriever.git
 cd esretriever
 git checkout issue_17_dockerize
 git pull
 sudo pip install -e .
 cd ..
 ```
-* clone and install [Basekrville](https://gitlab.internal.equalit.ie/deflect/baskerville)
+* clone and install [Basekrville](https://github.com/equalitie/baskerville)
 ```
-git clone git@gitlab.internal.equalit.ie:deflect/baskerville.git
+git clone https://github.com/equalitie/baskerville.git
 cd baskerville
-git checkout anton152
-git pull
 sudo pip install -e .
 ```
 * set up a cron job for Java GC memory leak workaround
@@ -552,15 +548,22 @@ mkdir /home/spark/baserville/src/baskerville/logs
 * modify `~/baskerville/conf/baskerville.yaml`:
 ```
 database:
+	name: baskerville                   # the database name
+	user: !ENV ${DB_USER}
+	password: !ENV '${DB_PASS}'
+	type: 'postgres'
 	host: server3_ip
-	password: the password 
+	port: !ENV ${DB_PORT}
+	maintenance:                        # Optional, for data partitioning and archiving
+		partition_table: 'request_sets'   # default value
+		partition_by: week                # partition by week or month, default value is week
+		partition_field: created_at       # which field to use for the partitioning, this is the default value, can be omitted
+		strict: False                     # if False, then for the week partition the start and end date will be changed to the start and end of the respective weeks. If true, then the dates will remain unchanged. Be careful to be consistent with this.
+		data_partition:                   # Optional: Define the period to create partitions for
+			since: 2020-01-01               # when to start partitioning
+			until: "2020-12-31 23:59:59"    # when to stop partitioning
 kafka:
 	url: server2_ip:9092
-maintenance:
-    template_folder: '/home/spark/baskerville/data'
-	data_partition:
-      	since: 2020-01-01 
-      	until: "2020-12-31 23:59:59"
 engine:
 	training:
 	    train_global_model: False
@@ -721,7 +724,3 @@ sudo server logstash start
 ```
 $KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server kafka_server_ip:9092 --topic deflect.logs --consumer.config client-ssl.properties
 ```
-
-
-
-
