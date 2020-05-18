@@ -22,7 +22,6 @@
 - [Configuration](#configuration)
 - [How to run](#how-to-run)
 - [Testing](#testing)
-
 - [Docs](#docs)
 - [TODO](#todo)
 - [Contributing](#contributing)
@@ -269,14 +268,6 @@ mkdir c:\hadoop\bin
 export HADOOP_HOME=c:\hadoop
 cp $HOME\Downloads\winutils.exe $HADOOP_HOME\bin
 ```
-
-#### How to check if running smoothly:
-- Check the Spark UI: http://localhost:4040
-- Check Postgres:
-```sql
-SELECT count(id) from request_sets where id_runtime in (select max(id) from runtimes); # if you used the test data, it should be 1000 after a full successful execution
-```
-
 ##### Necessary services/ components for each pipeline:
 ``
 For Baskerville `kafka` you'll need:
@@ -363,7 +354,7 @@ export DOCKER_KAFKA_HOST=currentl-local-ip or $(ipconfig getifaddr en0) # where 
 The simplest way is to check the database.
 ```sql
 -- Give baskerville is the database name defined in thec configuration:
-SELECT count(id) FROM baskerville.request_sets;  -- in the case of the test 1k sample file there should be 1000 request sets
+SELECT count(id) from request_sets where id_runtime in (select max(id) from runtimes); -- if you used the test data, it should be 1000 after a full successful execution
 SELECT * FROM baskerville.request_sets;  -- fields should be complete, e.g. features should be something like the following
 ```
 
@@ -443,7 +434,7 @@ We use `pydoc` to generate docs for Baskerville under `baskerville/docs` folder.
 # use --force to overwrite docs
  pdoc --html --force --output-dir docs baskerville
 ```
-Then open `docs/baskerville/index.html` or `docs/offline_analysis/index.html` with a browser.
+Then open (`docs/baskerville/index.html`)[docs/baskerville/index.html] with a browser.
 
 ### Useful Definitions
 
@@ -519,7 +510,7 @@ The output of the prediction process is the prediction and an anomaly score to h
 Note: Isolation Forest was preferred to OneClassSVM because of speed and better accuracy.
 
 ##### Features
-Under [`baskerville/src/baskerville/features`](baskerville/src/baskerville/features) you can find all the currently implemented features, like:
+Under [`src/baskerville/features`](src/baskerville/features) you can find all the currently implemented features, like:
 - Css to html ratio
 - Image to html ratio
 - Js to html ratio
@@ -540,7 +531,7 @@ Under [`baskerville/src/baskerville/features`](baskerville/src/baskerville/featu
 
 and many more.
 
-Most of the features are `updateable`, wich means, they **take the past into consideration**. For this purpose, we keep a **request set cache** for a predefined amount of time (1 week by default), where we store the details and feature vectors for previous request sets, in order to be used in the updating process. This cache is a two layer cache, one layer has all the unique request sets (unique ip-host pairs) for the week and the other one has only the unique ip-host pairs and their respective details for the current time window. More on feature updating [here](https://github.com/equalitie/baskerville/blob/develop/data/feature_overview/feature_overview.md).
+Most of the features are `updateable`, wich means, they **take the past into consideration**. For this purpose, we keep a **request set cache** for a predefined amount of time (1 week by default), where we store the details and feature vectors for previous request sets, in order to be used in the updating process. This cache is a two layer cache, one layer has all the unique request sets (unique ip-host pairs) for the week and the other one has only the unique ip-host pairs and their respective details for the current time window. More on feature updating [here](data/feature_overview/feature_overview.md).
 
 ![Baskerville's Request Set Cache](data/img/request_set_cache.png?raw=true "Baskerville's Request Set Cache")
 
