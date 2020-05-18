@@ -1,4 +1,4 @@
-# Contents
+## Contents
 
 - [What is Baskerville](#what-is-baskerville)
     - [Overview](#overview)
@@ -28,7 +28,7 @@
 - [Contributing](#contributing)
   - [Contributors](#contributors)
 
-# What is Baskerville
+## What is Baskerville
 
 Manual identification and mitigation of (DDoS) attacks on websites is a difficult and time-consuming task with many challenges. This is why Baskerville was created, to identify the attacks directed to Deflect protected 
 websites as they happen and give the infrastructure the time to respond properly. Baskerville is an analytics engine that leverages Machine Learning to distinguish between normal and abnormal web traffic behavior.
@@ -95,7 +95,6 @@ For the Machine Learning:
 - Tests need `pytest`, `mock` and `spark-testing-base`
 - For the Elastic Search pipeline: access to the [esretriever](https://github.com/equalitie/esretriever.git)
 repository 
-todo: optional installation `baskerville[es]`
 - Optionally: access to the [Deflect analytics ecosystem](https://github.com/equalitie/deflect-analytics-ecosystem)
 repository (to run Baskerville dockerized components like Postgres, Kafka, Prometheus, Grafana etc).
 
@@ -127,11 +126,11 @@ Since it is good practice to use environment variables for the configuration, th
 
 ```bash
 cd baskerville
-export BASKERVILLE_ROOT=$(pwd)
 # must be set:
+export BASKERVILLE_ROOT=$(pwd)  # full path to baskerville folder
 export DB_HOST=the db host (docker ip if local)
 export DB_PORT=5432
-export DB_USER=postgres
+export DB_USER=postgres user
 export DB_PASSWORD=secret
 
 # optional - pipeline dependent
@@ -141,7 +140,7 @@ export ELK_HOST=the elasticsearch host:port (localhost:9200)
 export KAFKA_HOST=kafka host:port (localhost:9092)
 ```
 
-A basic configuration for running the raw log pipeline is the following - rename [`baskerville/conf/conf_rawlog_example_baskerville.yaml`]() to `baskerville/conf/baskerville.yaml`:
+A basic configuration for running the raw log pipeline is the following - rename [`baskerville/conf/conf_rawlog_example_baskerville.yaml`](conf/conf_rawlog_example_baskerville.yaml) to `baskerville/conf/baskerville.yaml`:
 ```yaml
 ---
 database:
@@ -195,12 +194,12 @@ spark:
   serializer: 'org.apache.spark.serializer.KryoSerializer'
 ```
 
-In [`baskerville/conf/conf_example_baskerville.yaml`]() you can see all the possible configuration options.
+In [`baskerville/conf/conf_example_baskerville.yaml`](conf/conf_example_baskerville.yaml) you can see all the possible configuration options.
 
 Example of configurations for the other pipelines:
-- kafka: [`baskerville/conf/conf_kafka_example_baskerville.yaml`]()
-- es: [`baskerville/conf/conf_es_example_baskerville.yaml.yaml`]()
-- training: [`baskerville/conf/conf_training_example_baskerville.yaml`]()
+- kafka: [`baskerville/conf/conf_kafka_example_baskerville.yaml`](conf/conf_kafka_example_baskerville.yaml)
+- es: [`baskerville/conf/conf_es_example_baskerville.yaml`](conf/conf_es_example_baskerville.yaml)
+- training: [`baskerville/conf/conf_training_example_baskerville.yaml`](conf/conf_training_example_baskerville.yaml)
 
 ## How to run
 In general, there are two ways to run Baskerville, a pure python one or using `spark-submit`, both are detailed below.
@@ -264,12 +263,19 @@ The paths in spark-submit must be absolute and accessible from all the workers.
 
 Note for Windows:
 In Winows Spark might not initialize. If so, set $HADOOP_HOME as follows and download the appropriate `winutils.exe` from [https://github.com/steveloughran/winutils](https://github.com/steveloughran/winutils)
+
 ```bash
 mkdir c:\hadoop\bin
 export HADOOP_HOME=c:\hadoop
 cp $HOME\Downloads\winutils.exe $HADOOP_HOME\bin
 ```
 
+#### How to check if running smoothly:
+- Check the Spark UI: http://localhost:4040
+- Check Postgres:
+```sql
+SELECT count(id) from request_sets where id_runtime in (select max(id) from runtimes); # if you used the test data, it should be 1000 after a full successful execution
+```
 
 ##### Necessary services/ components for each pipeline:
 ``
@@ -400,11 +406,10 @@ display several dashboards with charts, raise alerts when metric crosses a user 
 Prometheus is the metric storage and aggregator that provides Grafana with the charts data.
 Besides the spark ui - which usually is under `http://localhost:4040`, there is a set of metrics for the Baskerville engine set up, using the Python Prometheus library. To see those metrics,
 include the `-e` flag and go to the configured localhost port (`http:// localhost:8998/metrics` by default). You will need a configured Prometheus instance and a Grafana instance to be able to
-visualize them using the auto generated [baskerville dashboard](https://github.com/equalitie/baskerville/blob/develop/data/metrics/Baskerville-metrics-dashboard.json), which is saved in the data directory, and can
+visualize them using the auto generated [baskerville dashboard](data/metrics/Baskerville-metrics-dashboard.json), which is saved in the data directory, and can
 be imported in Grafana.
-There is also an [Anomalies Dashboard]() and a [Kafka Dashboard]() under `data/metrics`.
+There is also an [Anomalies Dashboard](/data/metrics/anomalies-dashboard.json) and a [Kafka Dashboard](/data/metrics/kafka-dashboard.json) under `data/metrics`.
 
-anomalies_dashboard.png
 ![Baskerville's Anomalies Dashboard](data/img/anomalies_dashboard.png?raw=true "Baskerville's Anomalies Dashboard")
 
 ![Kafka Dashboard](data/img/kafka_dashboard.png?raw=true "Baskerville's Kafka Dashboard")
@@ -416,7 +421,7 @@ To view the spark generated metrics, you have to include the configuration for t
   jars_repositories: 'https://raw.github.com/banzaicloud/spark-metrics/master/maven-repo/releases'
 ```
 
-And also have a prometheus push gateway set up. You can use [the deflect-analytics-ecosystem's docker-compose for that](https://github.com/equalitie/deflect-analytics-ecosystem/blob/master/docker-compose.yaml#L11). 
+And also have a prometheus push gateway set up. You can use [the deflect-analytics-ecosystem's docker-compose for that](https://github.com/equalitie/deflect-analytics-ecosystem/blob/master/docker-compose.yaml#L44). 
 
 ## Testing
 
@@ -471,7 +476,7 @@ label (known malicious or known benign) can be applied to the request set.
 Each request-set is divided into *subsets*.
 Subsets have a two-minute length (configurable), and the request set
 features (and prediction) are updated at the end of each subset using a feature-specific update method (discussed
-[here](https://github.com/equalitie/baskerville/blob/develop/data/feature_overview/feature_overview.md)).
+[here](data/feature_overview/feature_overview.md)).
 
 For nonlinear features, the feature value will be dependent on the subset
 length, so for this reason, logs are processed in two-minute subsets even when
@@ -514,7 +519,7 @@ The output of the prediction process is the prediction and an anomaly score to h
 Note: Isolation Forest was preferred to OneClassSVM because of speed and better accuracy.
 
 ##### Features
-Under `baskerville/src/baskerville/features` you can find all the currently implemented features, like:
+Under [`baskerville/src/baskerville/features`](baskerville/src/baskerville/features) you can find all the currently implemented features, like:
 - Css to html ratio
 - Image to html ratio
 - Js to html ratio
