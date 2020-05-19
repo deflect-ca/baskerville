@@ -401,7 +401,7 @@ visualize them using the auto generated [baskerville dashboard](data/metrics/Bas
 be imported in Grafana.
 There is also an [Anomalies Dashboard](/data/metrics/anomalies-dashboard.json) and a [Kafka Dashboard](/data/metrics/kafka-dashboard.json) under [`data/metrics`](data/metrics).
 
-![Baskerville's Anomalies Dashboard](data/img/anomalies_dashboard.png?raw=true "Baskerville's Anomalies Dashboard")
+![Baskerville's Anomalies Dashboard](data/img/anomalies_dashboard.jpg?raw=true "Baskerville's Anomalies Dashboard")
 
 ![Kafka Dashboard](data/img/kafka_dashboard.png?raw=true "Baskerville's Kafka Dashboard")
 
