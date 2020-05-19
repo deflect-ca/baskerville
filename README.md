@@ -30,7 +30,8 @@
 ## What is Baskerville
 
 Manual identification and mitigation of (DDoS) attacks on websites is a difficult and time-consuming task with many challenges. This is why Baskerville was created, to identify the attacks directed to Deflect protected 
-websites as they happen and give the infrastructure the time to respond properly. Baskerville is an analytics engine that leverages Machine Learning to distinguish between normal and abnormal web traffic behavior.
+websites as they happen and give the infrastructure the time to respond properly. Baskerville is an analytics engine that leverages Machine Learning to distinguish between normal and abnormal web traffic behavior. 
+In short, Baskerville is a Layer 7(application layer) DDoS attack mitigation tool.
 
 The challenges:
 - Be fast enough  to make it count

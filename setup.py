@@ -19,8 +19,8 @@ tests_require = [
 ]
 
 setup(name='baskerville',
-      version='0.3.1',
-      description='',
+      version='1.0.0',
+      description='Baskerville is a Security Analytics Engine for DDoS attacks mitigation',
       long_description=long_description,
       tests_require=tests_require,
       extras_require={
