@@ -1,0 +1,58 @@
+-- File generated at: {{ now() }}
+
+DO
+$$
+BEGIN
+CREATE TABLE IF NOT EXISTS {{ name }} AS SELECT * FROM {{ parent_table }} WHERE false;
+
+{% if index  %}
+{{ index.create }}
+{% endif %}
+
+{% if partitions %}
+{% for partition in partitions %}
+    {% if partition.is_catch_all %}
+CREATE TABLE IF NOT EXISTS {{ partition.name }} (
+    CHECK ({{ partition.constraint_check }})
+) INHERITS ({{name}});
+{% for index in partition.indexes  %}
+{{ index.create }}
+{% endfor %}
+    {% else %}
+IF (SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = '{{ partition.name }}'))
+THEN ALTER TABLE {{ parent_table }} DETACH PARTITION {{ partition.name }};
+ALTER TABLE {{ name }} ATTACH PARTITION {{ partition.name }} FOR VALUES FROM ('{{ partition.start }}') TO ('{{ partition.end }}');
+END IF;
+    {% endif %}
+{% endfor %}
+{% endif %}
+END;
+$$
+LANGUAGE plpgsql;
+----- Create the insert trigger function ---------------------------------------
+CREATE OR REPLACE FUNCTION {{ name }}_insert_trigger()
+RETURNS TRIGGER AS $$
+DECLARE
+  target_partitioned_by text;
+  table_name text;
+BEGIN
+    SELECT {{ field_value }} INTO target_partitioned_by;
+    table_name = '{{ partition_prefix }}' || target_partitioned_by;
+
+    -- RAISE NOTICE 'Table name %', table_name;
+
+    IF ({{ self_check }}) THEN EXECUTE 'INSERT INTO ' || table_name || ' SELECT * FROM (SELECT $1.*) AS t' USING NEW;
+    ELSE
+        INSERT INTO {{ catch_all_partition_name }} VALUES (NEW.*);
+        RAISE NOTICE 'Date out of range. Inserting into the catch all partition...';
+    END IF;
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
+
+----- Attach before insert trigger to table --------
+DROP TRIGGER IF EXISTS before_insert_{{ name }}_trigger on {{ name }};
+CREATE TRIGGER before_insert_{{ name }}_trigger
+BEFORE INSERT ON {{ name }}
+FOR EACH ROW EXECUTE PROCEDURE {{ name }}_insert_trigger();

@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>baskerville.models.log_parsers API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>baskerville.models.log_parsers</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import abc
+import warnings
+
+import warlock
+import pyspark.sql.types as T
+import pyspark.sql.functions as F
+from baskerville.util.helpers import SerializableMixin
+
+
+class LogParser(object, metaclass=abc.ABCMeta):
+
+    def __init__(self, schema, drop_row_if_missing):
+        self.__schema = schema
+        self.drop_row_if_missing = drop_row_if_missing
+
+    @property
+    def schema(self):
+        return self.__schema
+
+    @schema.setter
+    def schema(self, value):
+        self.__schema = value
+
+    @property
+    @abc.abstractmethod
+    def schema_class(self):
+        pass
+
+    @abc.abstractmethod
+    def fill_missing_values(self, df):
+        pass
+
+    @abc.abstractmethod
+    def check_for_missing_columns(self, df):
+        pass
+
+    @abc.abstractmethod
+    def add_missing_columns(self, df, missing):
+        pass
+
+    @abc.abstractmethod
+    def drop_if_missing_filter(self):
+        &#34;&#34;&#34;
+        Filter out not null
+        :return:
+        &#34;&#34;&#34;
+        pass
+
+
+class JSONLogParser(LogParser, SerializableMixin):
+
+    def __init__(
+            self,
+            schema,
+            drop_row_if_missing=None
+    ):
+        super(JSONLogParser, self).__init__(schema, drop_row_if_missing)
+        self.__schema_class = warlock.model_factory(self.schema)
+        self.required = self.schema[&#39;required&#39;]
+
+    @property
+    def schema_class(self):
+        return self.__schema_class
+
+    def fill_missing_values(self, df, required_only=False):
+        &#34;&#34;&#34;
+        Checks the columns in a dataframe, if any column is missing, add it and
+        fill it with the default value. If no default value specified, nulls
+        will remain the same.
+        :param pandas.DataFrame df: the dataframe to fill missing values for
+        :param boolean required_only: if True, only the values of the required
+        columns will be filled in. Defaults to False, all missing values are
+        filled in.
+        :return: df with specified default values filled in
+        :rtype: pandas.DataFrame
+        &#34;&#34;&#34;
+        for c in df.columns:
+            if c in self.schema[&#39;properties&#39;]:
+                default = self.schema[&#39;properties&#39;][c].get(&#39;default&#39;)
+                if default:
+                    df[c].fillna(default, inplace=True)
+                else:
+                    warnings.warn(f&#39;No default value specified for {c}.&#39;)
+
+        return df
+
+    def check_for_missing_columns(self, df, required_only=True):
+        &#34;&#34;&#34;
+
+        :param df:
+        :param boolean required_only: look only for missing required columns
+        :return:
+        &#34;&#34;&#34;
+        cols = self.schema[&#39;properties&#39;].keys()
+        if required_only:
+            cols = self.required
+
+        if not cols or set(cols).issubset(set(df.columns)):
+            return []
+
+        return list(set(cols) - set(df.columns))
+
+    def add_missing_columns(self, df, missing):
+        &#34;&#34;&#34;
+
+        :param df:
+        :param missing:
+        :return:
+        &#34;&#34;&#34;
+        for c in missing:
+            default = self.schema[&#39;properties&#39;][c].get(&#39;default&#39;)
+            df[c] = df.apply(lambda row: default)
+
+        return df
+
+    def drop_if_missing_filter(self):
+        pass
+
+
+class JSONLogSparkParser(JSONLogParser, SerializableMixin):
+
+    def __init__(self, schema, drop_row_if_missing=None, sample=None):
+
+        self.str_to_type = {
+            &#39;string&#39;: (lambda sample: T.StringType()),
+            &#39;number&#39;: (lambda sample: T.FloatType()),
+            &#39;integer&#39;: (lambda sample: T.IntegerType()),
+        }
+        self.sample = sample
+
+        super().__init__(schema, drop_row_if_missing)
+
+        # back up json schema
+        self.__json_schema = self.schema
+        self.__schema = T.StructType([
+            T.StructField(
+                name,
+                self.str_to_type[v[&#39;type&#39;]](v.get(&#39;default&#39;)),
+                not v.get(&#39;required&#39;, False)
+            )
+            for name, v in self.__json_schema[&#39;properties&#39;].items()
+            ]
+        )
+        self.schema = self.__schema
+        self.__schema_class = self.__json_schema
+
+    @property
+    def schema_class(self):
+        return self.__schema_class
+
+    def fill_missing_values(self, df, required_only=False):
+        &#34;&#34;&#34;
+
+        :param pyspark.sql.DataFrame df: the dataframe to fill missing values
+        for
+        :param boolean required_only: if True, only the values of the required
+        columns will be filled in. Defaults to False, all missing values are
+        filled in.
+        :return:
+        &#34;&#34;&#34;
+        properties = self.__json_schema[&#39;properties&#39;]
+        fill = lambda c: (required_only and c in self.required) \
+                         or not required_only
+
+        for c in df.columns:
+            if c in properties:
+                if fill(c):
+                    default = properties[c].get(&#39;default&#39;, None)
+                    if default is not None:
+                        df = df.fillna(default, subset=[c])
+                    else:
+                        warnings.warn(f&#39;Default value for {c} is None.&#39;)
+                else:
+                    # required flag is set and c not in required
+                    warnings.warn(
+                        f&#39;Skip field {c} null value filling.&#39;
+                    )
+        return df
+
+    def add_missing_columns(self, df, missing):
+        from pyspark.sql import functions as F
+        for c in missing:
+            if c not in df.columns:
+                default = self.__json_schema[&#39;properties&#39;][c].get(
+                    &#39;default&#39;, None
+                )
+                df = df.withColumn(c, F.lit(default))
+            else:
+                warnings.warn(
+                    f&#39;{c} was declared as a missing column, &#39;
+                    f&#39;but it exists in df.&#39;
+                )
+
+        return df
+
+    def check_for_missing_columns(self, df, required_only=True):
+        &#34;&#34;&#34;
+
+        :param df:
+        :param boolean required_only: look only for missing required columns
+        :return:
+        &#34;&#34;&#34;
+        cols = self.__json_schema[&#39;properties&#39;].keys()
+        if required_only:
+            cols = self.required
+
+        if not cols or set(cols).issubset(set(df.columns)):
+            return []
+
+        return list(set(cols) - set(df.columns))
+
+    def drop_if_missing_filter(self):
+        &#34;&#34;&#34;
+        Filter out not null
+        :return:
+        &#34;&#34;&#34;
+        if self.drop_row_if_missing:
+            filter_ = F.col(self.drop_row_if_missing[0]).isNotNull()
+
+            for c in self.drop_row_if_missing:
+                filter_ = filter_ &amp; F.col(c).isNotNull()
+        else:
+            filter_ = None
+
+        return filter_
+
+
+LOG_PARSERS = {
+    JSONLogParser.__name__: JSONLogParser,
+    JSONLogSparkParser.__name__: JSONLogSparkParser
+}</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="baskerville.models.log_parsers.JSONLogParser"><code class="flex name class">
+<span>class <span class="ident">JSONLogParser</span></span>
+<span>(</span><span>schema, drop_row_if_missing=None)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class JSONLogParser(LogParser, SerializableMixin):
+
+    def __init__(
+            self,
+            schema,
+            drop_row_if_missing=None
+    ):
+        super(JSONLogParser, self).__init__(schema, drop_row_if_missing)
+        self.__schema_class = warlock.model_factory(self.schema)
+        self.required = self.schema[&#39;required&#39;]
+
+    @property
+    def schema_class(self):
+        return self.__schema_class
+
+    def fill_missing_values(self, df, required_only=False):
+        &#34;&#34;&#34;
+        Checks the columns in a dataframe, if any column is missing, add it and
+        fill it with the default value. If no default value specified, nulls
+        will remain the same.
+        :param pandas.DataFrame df: the dataframe to fill missing values for
+        :param boolean required_only: if True, only the values of the required
+        columns will be filled in. Defaults to False, all missing values are
+        filled in.
+        :return: df with specified default values filled in
+        :rtype: pandas.DataFrame
+        &#34;&#34;&#34;
+        for c in df.columns:
+            if c in self.schema[&#39;properties&#39;]:
+                default = self.schema[&#39;properties&#39;][c].get(&#39;default&#39;)
+                if default:
+                    df[c].fillna(default, inplace=True)
+                else:
+                    warnings.warn(f&#39;No default value specified for {c}.&#39;)
+
+        return df
+
+    def check_for_missing_columns(self, df, required_only=True):
+        &#34;&#34;&#34;
+
+        :param df:
+        :param boolean required_only: look only for missing required columns
+        :return:
+        &#34;&#34;&#34;
+        cols = self.schema[&#39;properties&#39;].keys()
+        if required_only:
+            cols = self.required
+
+        if not cols or set(cols).issubset(set(df.columns)):
+            return []
+
+        return list(set(cols) - set(df.columns))
+
+    def add_missing_columns(self, df, missing):
+        &#34;&#34;&#34;
+
+        :param df:
+        :param missing:
+        :return:
+        &#34;&#34;&#34;
+        for c in missing:
+            default = self.schema[&#39;properties&#39;][c].get(&#39;default&#39;)
+            df[c] = df.apply(lambda row: default)
+
+        return df
+
+    def drop_if_missing_filter(self):
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="baskerville.models.log_parsers.LogParser" href="#baskerville.models.log_parsers.LogParser">LogParser</a></li>
+<li><a title="baskerville.util.helpers.SerializableMixin" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="baskerville.models.log_parsers.JSONLogSparkParser" href="#baskerville.models.log_parsers.JSONLogSparkParser">JSONLogSparkParser</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.models.log_parsers.JSONLogParser.schema_class"><code class="name">var <span class="ident">schema_class</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def schema_class(self):
+    return self.__schema_class</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.models.log_parsers.JSONLogParser.add_missing_columns"><code class="name flex">
+<span>def <span class="ident">add_missing_columns</span></span>(<span>self, df, missing)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>:param df:
+:param missing:
+:return:</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_missing_columns(self, df, missing):
+    &#34;&#34;&#34;
+
+    :param df:
+    :param missing:
+    :return:
+    &#34;&#34;&#34;
+    for c in missing:
+        default = self.schema[&#39;properties&#39;][c].get(&#39;default&#39;)
+        df[c] = df.apply(lambda row: default)
+
+    return df</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.log_parsers.JSONLogParser.check_for_missing_columns"><code class="name flex">
+<span>def <span class="ident">check_for_missing_columns</span></span>(<span>self, df, required_only=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>:param df:
+:param boolean required_only: look only for missing required columns
+:return:</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_for_missing_columns(self, df, required_only=True):
+    &#34;&#34;&#34;
+
+    :param df:
+    :param boolean required_only: look only for missing required columns
+    :return:
+    &#34;&#34;&#34;
+    cols = self.schema[&#39;properties&#39;].keys()
+    if required_only:
+        cols = self.required
+
+    if not cols or set(cols).issubset(set(df.columns)):
+        return []
+
+    return list(set(cols) - set(df.columns))</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.log_parsers.JSONLogParser.fill_missing_values"><code class="name flex">
+<span>def <span class="ident">fill_missing_values</span></span>(<span>self, df, required_only=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Checks the columns in a dataframe, if any column is missing, add it and
+fill it with the default value. If no default value specified, nulls
+will remain the same.
+:param pandas.DataFrame df: the dataframe to fill missing values for
+:param boolean required_only: if True, only the values of the required
+columns will be filled in. Defaults to False, all missing values are
+filled in.
+:return: df with specified default values filled in
+:rtype: pandas.DataFrame</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fill_missing_values(self, df, required_only=False):
+    &#34;&#34;&#34;
+    Checks the columns in a dataframe, if any column is missing, add it and
+    fill it with the default value. If no default value specified, nulls
+    will remain the same.
+    :param pandas.DataFrame df: the dataframe to fill missing values for
+    :param boolean required_only: if True, only the values of the required
+    columns will be filled in. Defaults to False, all missing values are
+    filled in.
+    :return: df with specified default values filled in
+    :rtype: pandas.DataFrame
+    &#34;&#34;&#34;
+    for c in df.columns:
+        if c in self.schema[&#39;properties&#39;]:
+            default = self.schema[&#39;properties&#39;][c].get(&#39;default&#39;)
+            if default:
+                df[c].fillna(default, inplace=True)
+            else:
+                warnings.warn(f&#39;No default value specified for {c}.&#39;)
+
+    return df</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.models.log_parsers.LogParser" href="#baskerville.models.log_parsers.LogParser">LogParser</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.models.log_parsers.LogParser.drop_if_missing_filter" href="#baskerville.models.log_parsers.LogParser.drop_if_missing_filter">drop_if_missing_filter</a></code></li>
+</ul>
+</li>
+<li><code><b><a title="baskerville.util.helpers.SerializableMixin" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin">SerializableMixin</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.util.helpers.SerializableMixin.to_dict" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin.to_dict">to_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.models.log_parsers.JSONLogSparkParser"><code class="flex name class">
+<span>class <span class="ident">JSONLogSparkParser</span></span>
+<span>(</span><span>schema, drop_row_if_missing=None, sample=None)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class JSONLogSparkParser(JSONLogParser, SerializableMixin):
+
+    def __init__(self, schema, drop_row_if_missing=None, sample=None):
+
+        self.str_to_type = {
+            &#39;string&#39;: (lambda sample: T.StringType()),
+            &#39;number&#39;: (lambda sample: T.FloatType()),
+            &#39;integer&#39;: (lambda sample: T.IntegerType()),
+        }
+        self.sample = sample
+
+        super().__init__(schema, drop_row_if_missing)
+
+        # back up json schema
+        self.__json_schema = self.schema
+        self.__schema = T.StructType([
+            T.StructField(
+                name,
+                self.str_to_type[v[&#39;type&#39;]](v.get(&#39;default&#39;)),
+                not v.get(&#39;required&#39;, False)
+            )
+            for name, v in self.__json_schema[&#39;properties&#39;].items()
+            ]
+        )
+        self.schema = self.__schema
+        self.__schema_class = self.__json_schema
+
+    @property
+    def schema_class(self):
+        return self.__schema_class
+
+    def fill_missing_values(self, df, required_only=False):
+        &#34;&#34;&#34;
+
+        :param pyspark.sql.DataFrame df: the dataframe to fill missing values
+        for
+        :param boolean required_only: if True, only the values of the required
+        columns will be filled in. Defaults to False, all missing values are
+        filled in.
+        :return:
+        &#34;&#34;&#34;
+        properties = self.__json_schema[&#39;properties&#39;]
+        fill = lambda c: (required_only and c in self.required) \
+                         or not required_only
+
+        for c in df.columns:
+            if c in properties:
+                if fill(c):
+                    default = properties[c].get(&#39;default&#39;, None)
+                    if default is not None:
+                        df = df.fillna(default, subset=[c])
+                    else:
+                        warnings.warn(f&#39;Default value for {c} is None.&#39;)
+                else:
+                    # required flag is set and c not in required
+                    warnings.warn(
+                        f&#39;Skip field {c} null value filling.&#39;
+                    )
+        return df
+
+    def add_missing_columns(self, df, missing):
+        from pyspark.sql import functions as F
+        for c in missing:
+            if c not in df.columns:
+                default = self.__json_schema[&#39;properties&#39;][c].get(
+                    &#39;default&#39;, None
+                )
+                df = df.withColumn(c, F.lit(default))
+            else:
+                warnings.warn(
+                    f&#39;{c} was declared as a missing column, &#39;
+                    f&#39;but it exists in df.&#39;
+                )
+
+        return df
+
+    def check_for_missing_columns(self, df, required_only=True):
+        &#34;&#34;&#34;
+
+        :param df:
+        :param boolean required_only: look only for missing required columns
+        :return:
+        &#34;&#34;&#34;
+        cols = self.__json_schema[&#39;properties&#39;].keys()
+        if required_only:
+            cols = self.required
+
+        if not cols or set(cols).issubset(set(df.columns)):
+            return []
+
+        return list(set(cols) - set(df.columns))
+
+    def drop_if_missing_filter(self):
+        &#34;&#34;&#34;
+        Filter out not null
+        :return:
+        &#34;&#34;&#34;
+        if self.drop_row_if_missing:
+            filter_ = F.col(self.drop_row_if_missing[0]).isNotNull()
+
+            for c in self.drop_row_if_missing:
+                filter_ = filter_ &amp; F.col(c).isNotNull()
+        else:
+            filter_ = None
+
+        return filter_</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="baskerville.models.log_parsers.JSONLogParser" href="#baskerville.models.log_parsers.JSONLogParser">JSONLogParser</a></li>
+<li><a title="baskerville.models.log_parsers.LogParser" href="#baskerville.models.log_parsers.LogParser">LogParser</a></li>
+<li><a title="baskerville.util.helpers.SerializableMixin" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin">SerializableMixin</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.models.log_parsers.JSONLogSparkParser.schema_class"><code class="name">var <span class="ident">schema_class</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def schema_class(self):
+    return self.__schema_class</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.models.log_parsers.JSONLogSparkParser.fill_missing_values"><code class="name flex">
+<span>def <span class="ident">fill_missing_values</span></span>(<span>self, df, required_only=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>:param pyspark.sql.DataFrame df: the dataframe to fill missing values
+for
+:param boolean required_only: if True, only the values of the required
+columns will be filled in. Defaults to False, all missing values are
+filled in.
+:return:</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fill_missing_values(self, df, required_only=False):
+    &#34;&#34;&#34;
+
+    :param pyspark.sql.DataFrame df: the dataframe to fill missing values
+    for
+    :param boolean required_only: if True, only the values of the required
+    columns will be filled in. Defaults to False, all missing values are
+    filled in.
+    :return:
+    &#34;&#34;&#34;
+    properties = self.__json_schema[&#39;properties&#39;]
+    fill = lambda c: (required_only and c in self.required) \
+                     or not required_only
+
+    for c in df.columns:
+        if c in properties:
+            if fill(c):
+                default = properties[c].get(&#39;default&#39;, None)
+                if default is not None:
+                    df = df.fillna(default, subset=[c])
+                else:
+                    warnings.warn(f&#39;Default value for {c} is None.&#39;)
+            else:
+                # required flag is set and c not in required
+                warnings.warn(
+                    f&#39;Skip field {c} null value filling.&#39;
+                )
+    return df</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.models.log_parsers.JSONLogParser" href="#baskerville.models.log_parsers.JSONLogParser">JSONLogParser</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.models.log_parsers.JSONLogParser.add_missing_columns" href="#baskerville.models.log_parsers.JSONLogParser.add_missing_columns">add_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.JSONLogParser.check_for_missing_columns" href="#baskerville.models.log_parsers.JSONLogParser.check_for_missing_columns">check_for_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.JSONLogParser.drop_if_missing_filter" href="#baskerville.models.log_parsers.LogParser.drop_if_missing_filter">drop_if_missing_filter</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.JSONLogParser.to_dict" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin.to_dict">to_dict</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.models.log_parsers.LogParser"><code class="flex name class">
+<span>class <span class="ident">LogParser</span></span>
+<span>(</span><span>schema, drop_row_if_missing)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LogParser(object, metaclass=abc.ABCMeta):
+
+    def __init__(self, schema, drop_row_if_missing):
+        self.__schema = schema
+        self.drop_row_if_missing = drop_row_if_missing
+
+    @property
+    def schema(self):
+        return self.__schema
+
+    @schema.setter
+    def schema(self, value):
+        self.__schema = value
+
+    @property
+    @abc.abstractmethod
+    def schema_class(self):
+        pass
+
+    @abc.abstractmethod
+    def fill_missing_values(self, df):
+        pass
+
+    @abc.abstractmethod
+    def check_for_missing_columns(self, df):
+        pass
+
+    @abc.abstractmethod
+    def add_missing_columns(self, df, missing):
+        pass
+
+    @abc.abstractmethod
+    def drop_if_missing_filter(self):
+        &#34;&#34;&#34;
+        Filter out not null
+        :return:
+        &#34;&#34;&#34;
+        pass</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="baskerville.models.log_parsers.JSONLogParser" href="#baskerville.models.log_parsers.JSONLogParser">JSONLogParser</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="baskerville.models.log_parsers.LogParser.schema"><code class="name">var <span class="ident">schema</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def schema(self):
+    return self.__schema</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.log_parsers.LogParser.schema_class"><code class="name">var <span class="ident">schema_class</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+@abc.abstractmethod
+def schema_class(self):
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.models.log_parsers.LogParser.add_missing_columns"><code class="name flex">
+<span>def <span class="ident">add_missing_columns</span></span>(<span>self, df, missing)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def add_missing_columns(self, df, missing):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.log_parsers.LogParser.check_for_missing_columns"><code class="name flex">
+<span>def <span class="ident">check_for_missing_columns</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def check_for_missing_columns(self, df):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.log_parsers.LogParser.drop_if_missing_filter"><code class="name flex">
+<span>def <span class="ident">drop_if_missing_filter</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Filter out not null
+:return:</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def drop_if_missing_filter(self):
+    &#34;&#34;&#34;
+    Filter out not null
+    :return:
+    &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.log_parsers.LogParser.fill_missing_values"><code class="name flex">
+<span>def <span class="ident">fill_missing_values</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def fill_missing_values(self, df):
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="baskerville.models" href="index.html">baskerville.models</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="baskerville.models.log_parsers.JSONLogParser" href="#baskerville.models.log_parsers.JSONLogParser">JSONLogParser</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.models.log_parsers.JSONLogParser.add_missing_columns" href="#baskerville.models.log_parsers.JSONLogParser.add_missing_columns">add_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.JSONLogParser.check_for_missing_columns" href="#baskerville.models.log_parsers.JSONLogParser.check_for_missing_columns">check_for_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.JSONLogParser.fill_missing_values" href="#baskerville.models.log_parsers.JSONLogParser.fill_missing_values">fill_missing_values</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.JSONLogParser.schema_class" href="#baskerville.models.log_parsers.JSONLogParser.schema_class">schema_class</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.models.log_parsers.JSONLogSparkParser" href="#baskerville.models.log_parsers.JSONLogSparkParser">JSONLogSparkParser</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.models.log_parsers.JSONLogSparkParser.fill_missing_values" href="#baskerville.models.log_parsers.JSONLogSparkParser.fill_missing_values">fill_missing_values</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.JSONLogSparkParser.schema_class" href="#baskerville.models.log_parsers.JSONLogSparkParser.schema_class">schema_class</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.models.log_parsers.LogParser" href="#baskerville.models.log_parsers.LogParser">LogParser</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.models.log_parsers.LogParser.add_missing_columns" href="#baskerville.models.log_parsers.LogParser.add_missing_columns">add_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.LogParser.check_for_missing_columns" href="#baskerville.models.log_parsers.LogParser.check_for_missing_columns">check_for_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.LogParser.drop_if_missing_filter" href="#baskerville.models.log_parsers.LogParser.drop_if_missing_filter">drop_if_missing_filter</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.LogParser.fill_missing_values" href="#baskerville.models.log_parsers.LogParser.fill_missing_values">fill_missing_values</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.LogParser.schema" href="#baskerville.models.log_parsers.LogParser.schema">schema</a></code></li>
+<li><code><a title="baskerville.models.log_parsers.LogParser.schema_class" href="#baskerville.models.log_parsers.LogParser.schema_class">schema_class</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

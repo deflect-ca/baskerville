@@ -1,0 +1,48 @@
+-- File generated at: {{ now() }}
+
+{% for partition in partitions %}
+-- {{ partition.name }}--------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS {{ partition.name }} (
+    CHECK ({{ partition.constraint_check }})
+) INHERITS ({{name}});
+ALTER TABLE {{ partition.name }} DROP CONSTRAINT IF EXISTS {{ partition.name }}_pkey;
+ALTER TABLE {{ partition.name }} ADD PRIMARY KEY (id);
+{% for index in partition.indexes  %}
+{{ index.drop}}
+{{ index.create }}
+{% endfor %}
+{% endfor %}
+
+
+----- Create the insert trigger function ---------------------------------------
+CREATE OR REPLACE FUNCTION {{ name }}_insert_trigger()
+RETURNS TRIGGER AS $$
+DECLARE
+  target_partitioned_by text;
+  table_name text;
+BEGIN
+    SELECT {{ field_value }} INTO target_partitioned_by;
+    table_name = '{{ partition_prefix }}' || target_partitioned_by;
+
+    -- RAISE NOTICE 'Table name %', table_name;
+
+    IF ({{ self_check }}) THEN EXECUTE 'INSERT INTO ' || table_name || ' SELECT * FROM (SELECT $1.*) AS t' USING NEW;
+    ELSE
+        INSERT INTO {{ catch_all_partition_name }} VALUES (NEW.*);
+        RAISE NOTICE 'Date out of range. Inserting into the catch all partition...';
+    END IF;
+    RETURN NULL;
+-- EXCEPTION
+    -- RAISE NOTICE 'Failed to insert row';
+    -- WHEN check_violation THEN RAISE NOTICE 'Check violation for %I.%I', target_partitioned_by, table_name
+    -- RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
+
+----- Attach before insert trigger to table --------
+DROP TRIGGER IF EXISTS before_insert_{{ name }}_trigger on {{ name }};
+CREATE TRIGGER before_insert_{{ name }}_trigger
+BEFORE INSERT ON {{ name }}
+FOR EACH ROW EXECUTE PROCEDURE {{ name }}_insert_trigger();

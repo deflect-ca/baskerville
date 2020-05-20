@@ -1,0 +1,21 @@
+{
+   "name": "CustomLogs",
+   "properties": {
+     "timestamp": {
+       "type": "string",
+       "format": "date",
+       "pattern": "(\\d\\d\\d\\d-([0-2])?\\d-([0-3])?\\dT?([0-2])?\\d:([0-5])?\\d:([0-5])?\\d\\.\\d?\\d?\\d?Z?)"
+     },
+     "client_ip": {
+       "type": "string"
+     },
+     "client_request_host": {
+       "type": "string"
+     },
+     "drop_if_null": {
+       "type": "number"
+     }
+   },
+  "required": ["client_ip", "client_request_host", "drop_if_null"],
+   "additionalProperties": true
+}

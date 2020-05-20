@@ -1,0 +1,1377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>baskerville.models.pipelines API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>baskerville.models.pipelines</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import json
+import traceback
+from datetime import timedelta, datetime
+import math
+
+from baskerville.models.base_spark import SparkPipelineBase
+from pyspark.streaming import StreamingContext
+from pyspark.streaming.kafka import KafkaUtils
+from pyspark.sql import functions as F
+
+
+class ElasticsearchPipeline(SparkPipelineBase):
+    &#34;&#34;&#34;
+    A pipeline for processing data directly from an ElasticSearch instance.
+    &#34;&#34;&#34;
+
+    def __init__(
+            self, db_conf, els_conf, engine_conf, spark_conf, clean_up=True
+    ):
+        super(ElasticsearchPipeline, self).__init__(
+            db_conf, engine_conf, spark_conf, clean_up
+        )
+
+        self.els_conf = els_conf
+        self.manual_conf = engine_conf.manual_es
+        self.start = self.manual_conf.start
+        self.stop = self.manual_conf.stop
+        self.batch_length = self.manual_conf.batch_length
+        self.batch_timedelta = timedelta(minutes=int(self.batch_length))
+        self.hosts = None
+        if self.manual_conf.hosts:
+            self.hosts = &#39;, &#39;.join(self.manual_conf.hosts)
+        self.save_logs_dir = self.manual_conf.save_logs_dir
+        self.batch_start = self.start
+        self.batch_stop = self.batch_start + self.batch_timedelta
+        self.batch_i = 1
+        self.batch_n = math.ceil(
+            float((self.stop - self.start).total_seconds()) /
+            (self.batch_length*60.)
+        )
+
+    def initialize(self):
+        &#34;&#34;&#34;
+        Start sessions, initialize cache/features/model/dfs.
+        :return:
+        &#34;&#34;&#34;
+        super().initialize()
+        self.set_up_es()
+
+    def run(self):
+
+        while self.batch_start &lt; self.stop:
+            self.batch_stop = self.batch_start + self.batch_timedelta
+
+            self.create_runtime()
+            self.get_data()
+            self.process_data()
+            self.reset()
+            self.batch_start = self.batch_stop
+            self.batch_i += 1
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            start=self.batch_start,
+            stop=self.batch_stop,
+            target_site=self.hosts,
+            conf=self.engine_conf,
+            comment=f&#39;batch runtime {self.batch_i} of {self.batch_n}&#39;
+        )
+
+    def get_data(self):
+        from pyspark.sql import functions as F
+
+        filter_condition = (F.col(&#39;@timestamp&#39;) &gt;= self.runtime.start) &amp; \
+                           (F.col(&#39;@timestamp&#39;) &lt; self.runtime.stop)
+
+        if self.hosts is not None:
+            host_filter = (F.col(&#39;client_request_host&#39;)
+                           == self.manual_conf.hosts[0])
+            if len(self.manual_conf.hosts) &gt; 1:
+                for h in self.manual_conf.hosts[1:]:
+                    host_filter = host_filter | \
+                                  (F.col(&#39;client_request_host&#39;) == h)
+            filter_condition = filter_condition &amp; (host_filter)
+
+        self.logs_df = self.es_storage.get(
+            self.runtime.start,
+            self.runtime.stop,
+            filter_condition=filter_condition,
+            extra_config={
+                &#39;es.mapping.include&#39;: &#39;,&#39;.join(
+                    self.group_by_cols + self.active_columns
+                )
+            },
+            columns_to_keep=list(self.group_by_cols + self.active_columns)
+        ).select(
+            *self.group_by_cols, *self.active_columns
+        ).persist(self.spark_conf.storage_level)
+
+        self.logger.info(&#39;Will be retrieving {} rows&#39;.format(
+            self.logs_df.count()
+        )
+        )
+
+        if self.save_logs_dir:
+            log_name = f&#39;/{self.runtime.start.strftime(&#34;%Y-%m-%d-%H%M%S&#34;)}_&#39; + \
+                       f&#39;{self.runtime.stop.strftime(&#34;%Y-%m-%d-%H%M%S&#34;)}&#39;
+            if self.runtime.target:
+                log_name += f&#39;_{&#34;_&#34;.join(self.runtime.target)}&#39; \
+                    if isinstance(self.runtime.target, list) \
+                    else f&#39;_{self.runtime.target}&#39;
+            self.save_logs(self.logs_df, self.save_logs_dir + log_name)
+
+    def set_up_es(self):
+
+        from es_retriever.es.storage import EsStorage
+        from es_retriever.config import Config
+
+        self.es_config = Config(
+            es_url=self.els_conf.host,
+            es_user=self.els_conf.user,
+            es_pass=self.els_conf.password,
+            es_base_index=self.els_conf.base_index,
+            es_index_type=self.els_conf.index_type,
+        )
+        # todo: fix this in es-retriever: fix setup to include jars
+        conf = self.es_config.spark_conf.copy()
+        conf[&#39;spark.jars&#39;] = self.spark_conf.jars
+        self.es_config.spark_conf = conf
+        self.es_storage = EsStorage(self.es_config, init_session=False)
+        self.es_storage.spark_conf = conf
+        self.es_storage.session_getter = self.es_session_getter
+        self.es_storage.session_getter()
+
+    def es_session_getter(self):
+        from pyspark.sql import SparkSession
+        from pyspark import SparkConf
+
+        conf = SparkConf()
+        conf.set(&#39;spark.logConf&#39;, self.spark_conf.log_conf)
+        conf.set(&#39;spark.jars&#39;, self.spark_conf.jars)
+        conf.set(&#39;spark.driver.memory&#39;, &#39;6G&#39;)
+        conf.set(
+            &#39;spark.sql.session.timeZone&#39;, self.spark_conf.session_timezone
+        )
+        conf.set(&#39;spark.sql.shuffle.partitions&#39;,
+                 self.spark_conf.shuffle_partitions)
+
+        spark = SparkSession.builder \
+            .config(conf=conf) \
+            .appName(&#39;Baskerville Spark&#39;) \
+            .getOrCreate()
+
+        if self.spark_conf.log_conf:
+            spark.sparkContext.setLogLevel(self.spark_conf.log_level)
+
+        spark.conf.set(&#39;spark.jars&#39;, self.spark_conf.jars)
+
+        for k, v in self.es_config.es_read_conf.items():
+            spark.conf.set(k, v)
+        spark.conf.set(&#34;es.port&#34;, &#34;9200&#34;)
+        return spark
+
+    def save_logs(self, spark_df, save_logs_path):
+        spark_df.coalesce(1).write.mode(&#39;overwrite&#39;).format(&#39;json&#39;).save(
+            save_logs_path)
+
+
+class RawLogPipeline(SparkPipelineBase):
+    &#34;&#34;&#34;
+    A pipeline that processes a list of raw files.
+    &#34;&#34;&#34;
+    log_paths: list
+
+    def __init__(self, db_conf, engine_conf, spark_conf, clean_up=True):
+        self.log_paths = engine_conf.manual_rawlog.raw_logs_paths
+        super(RawLogPipeline, self).__init__(
+            db_conf, engine_conf, spark_conf, clean_up
+        )
+        self.log_paths = engine_conf.manual_rawlog.raw_logs_paths
+        self.batch_i = 1
+        self.batch_n = len(self.log_paths)
+        self.current_log_path = None
+
+    def run(self):
+        for log in self.log_paths:
+            self.logger.info(f&#39;Processing {log}...&#39;)
+            self.current_log_path = log
+
+            self.create_runtime()
+            self.get_data()
+            self.process_data()
+            self.reset()
+
+            self.batch_i += 1
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            file_name=self.current_log_path,
+            conf=self.engine_conf,
+            comment=f&#39;batch runtime {self.batch_i} of {self.batch_n}&#39;
+        )
+        self.logger.info(&#39;Created runtime {}&#39;.format(self.runtime.id))
+
+    def get_data(self):
+        &#34;&#34;&#34;
+        Gets the dataframe according to the configuration
+        :return: None
+        &#34;&#34;&#34;
+
+        self.logs_df = self.spark.read.json(
+            self.current_log_path
+        ).persist(self.spark_conf.storage_level)  # .repartition(*self.group_by_cols)
+
+        self.logger.info(&#39;Got dataframe of #{} records&#39;.format(
+            self.logs_df.count())
+        )
+        self.load_test()
+
+
+class KafkaPipeline(SparkPipelineBase):
+    &#34;&#34;&#34;
+    A pipeline that processes data from a Kafka instance every x seconds.
+    &#34;&#34;&#34;
+    def __init__(
+            self,
+            db_conf,
+            engine_conf,
+            kafka_conf,
+            spark_conf,
+            clean_up=True
+    ):
+        super(KafkaPipeline, self).__init__(
+            db_conf, engine_conf, spark_conf, clean_up=clean_up,
+        )
+
+        self.kafka_conf = kafka_conf
+        self.start = None
+        self.ssc = None
+
+    def initialize(self):
+        super().initialize()
+        self.ssc = StreamingContext(
+            self.spark.sparkContext, self.engine_conf.time_bucket
+        )
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            start=self.start,
+            conf=self.engine_conf
+        )
+
+    def get_data(self):
+        self.logs_df = self.logs_df.map(lambda l: json.loads(l[1])).toDF(
+            self.data_parser.schema
+        ).repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
+
+        self.load_test()
+
+    def run(self):
+        self.create_runtime()
+
+        kafkaStream = KafkaUtils.createDirectStream(
+            self.ssc,
+            [self.kafka_conf.consume_topic],
+            {
+                &#39;metadata.broker.list&#39;: self.kafka_conf.url,
+                &#39;group.id&#39;: self.kafka_conf.consume_group,
+                &#39;auto.create.topics.enable&#39;: &#39;true&#39;
+            }
+        )
+        # from pympler import muppy, summary, tracker
+        # tr = tracker.SummaryTracker()
+
+        def process_subsets(time, rdd):
+            global CLIENT_PREDICTION_ACCUMULATOR, CLIENT_REQUEST_SET_COUNT
+
+            self.logger.info(&#39;Data until {}&#39;.format(time))
+            if not rdd.isEmpty():
+                # print(&#39;*-&#39; * 25, &#39;BEFORE&#39;, &#39;*-&#39; * 25)
+                # all_objects = muppy.get_objects()
+                # self.logger.debug(f&#39;**** Length of all objects BEFORE: {len(all_objects)}&#39;)
+                # tr.print_diff()
+                try:
+                    # set dataframe to process later on
+                    # todo: handle edge cases
+                    # todo: what happens if we have a missing column here?
+                    # todo: does the time this takes to complete affects the
+                    # kafka messages consumption?
+                    self.logs_df = rdd
+                    self.get_data()
+                    self.remaining_steps = list(self.step_to_action.keys())
+
+                    for step, action in self.step_to_action.items():
+                        self.logger.info(&#39;Starting step {}&#39;.format(step))
+                        action()
+                        self.logger.info(&#39;Completed step {}&#39;.format(step))
+                        self.remaining_steps.remove(step)
+                    # print(&#39;*&#39;*50, &#39;AFTER&#39;, &#39;*&#39;*50)
+                    # all_objects = muppy.get_objects()
+                    # self.logger.debug(
+                    #     f&#39;**** Length of all objects AFTER: {len(all_objects)}&#39;)
+                    # tr.print_diff()
+                    self.logger.info(f&#39;self.spark.sparkContext._jsc.getPersistentRDDs().items() {len(self.spark.sparkContext._jsc.getPersistentRDDs().items())}&#39;)
+                    rdd.unpersist()
+                    del rdd
+                except Exception as e:
+                    traceback.print_exc()
+                    self.logger.error(e)
+                finally:
+                    self.reset()
+            else:
+                self.logger.info(&#39;Empty RDD...&#39;)
+
+        kafkaStream.foreachRDD(process_subsets)
+
+        self.ssc.start()
+        self.ssc.awaitTermination()
+
+
+class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
+    def __init__(
+            self,
+            db_conf,
+            engine_conf,
+            kafka_conf,
+            spark_conf,
+            clean_up=True
+    ):
+        super(SparkStructuredStreamingRealTimePipeline, self).__init__(
+            db_conf,
+            engine_conf,
+            spark_conf,
+            clean_up=clean_up,
+        )
+        self.engine_conf = engine_conf
+        self.features_conf = engine_conf.features
+        self.kafka_conf = kafka_conf
+        self.log_parser = self.engine_conf.data_config.parser
+        self.start = None
+
+        self.ssc = StreamingContext(
+            self.spark.sparkContext, self.engine_conf.time_bucket
+        )
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            start=self.start,
+            dt_bucket=self.engine_conf.time_bucket
+        )
+
+    def get_data(self):
+        self.logs_df = self.logs_df.map(lambda l: json.loads(l[1])).toDF(
+            self.log_parser.schema
+        )
+        # since filtering is done in a next step, do not use actions here,
+        # because it will cause calculations with the whole dataset
+        # self.logger.info(&#39;Got dataframe of #{} records&#39;.format(
+        #     self.logs_df.count())
+        # )
+
+    def run(self):
+        self.start = datetime.utcnow()
+        self.create_runtime()
+
+        # Subscribe to a pattern, read from the end of the stream:
+        kafkaStream = self.spark \
+            .read \
+            .format(&#34;kafka&#34;) \
+            .option(&#34;startingOffsets&#34;, &#34;earliest&#34;) \
+            .option(&#34;kafka.bootstrap.servers&#34;, &#34;0.0.0.0:9092&#34;) \
+            .option(&#34;subscribe&#34;, self.kafka_conf.consume_topic) \
+            .option(&#34;auto.offset.reset&#34;, &#34;earliest&#34;) \
+            .load()
+
+        # .option(&#34;kafka.partition.assignment.strategy&#34;, &#34;range&#34;) \
+            # .option(&#34;security.protocol&#34;, &#34;SSL&#34;) \
+            # .option(&#34;ssl.truststore.location&#34;, &#34;/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/client.truststore.jks&#34;) \
+            # .option(&#34;ssl.truststore.password&#34;, &#34;kafkadocker&#34;) \
+            # .option(&#34;ssl.keystore.location&#34;, &#34;/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/kafka.server.keystore.jks&#34;) \
+            # .option(&#34;ssl.keystore.password&#34;, &#34;kafkadocker&#34;) \
+            # .option(&#34;ssl.key.password&#34;, &#34;kafkadocker&#34;) \
+            # .load()
+
+        # .option(&#34;subscribePattern&#34;, self.kafka_conf.consume_topic) \
+
+        # kafkaStream = self.spark \
+        #     .readStream \
+        #     .format(&#34;kafka&#34;) \
+        #     .option(&#34;kafka.bootstrap.servers&#34;, self.kafka_conf.zookeeper) \
+        #     .option(&#34;startingOffsets&#34;, &#34;earliest&#34;) \
+        #     .option(&#34;subscribe&#34;, self.kafka_conf.consume_topic) \
+        #     .option(&#34;auto.offset.reset&#34;, &#34;earliest&#34;) \
+        #     .option(&#34;security.protocol&#34;, &#34;SSL&#34;) \
+        #     .option(&#34;ssl.truststore.location&#34;,
+        #             &#34;/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/client.truststore.jks&#34;) \
+        #     .option(&#34;ssl.truststore.password&#34;, &#34;kafkadocker&#34;) \
+        #     .option(&#34;ssl.keystore.location&#34;,
+        #             &#34;/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/kafka.server.keystore.jks&#34;) \
+        #     .option(&#34;ssl.keystore.password&#34;, &#34;kafkadocker&#34;) \
+        #     .option(&#34;ssl.key.password&#34;, &#34;kafkadocker&#34;) \
+        #     .load()
+        #
+        # import pyspark.sql.functions as F
+        # df1 = kafkaStream.selectExpr(&#34;CAST(value AS STRING)&#34;,
+        #                     &#34;CAST(timestamp AS TIMESTAMP)&#34;).select(F.from_json(&#34;value&#34;, self.data_parser.schema))
+        #
+        # q = df1.writeStream.format(&#34;console&#34;) \
+        #         .option(&#34;truncate&#34;,&#34;false&#34;)\
+        #         .start()\
+        #         .awaitTermination()
+        # # .option(&#34;kafka.partition.assignment.strategy&#34;, &#34;range&#34;) \
+        #
+        # # NOTE: make sure kafka 8 jar is in the spark.jars, won&#39;t work with 10
+        # # https://elephant.tech/spark-2-0-streaming-from-ssl-kafka-with-hdp-2-4/
+        # kafkaStream = KafkaUtils.createDirectStream(
+        #     self.ssc,
+        #     [self.kafka_conf.consume_topic],
+        #     {
+        #         &#39;bootstrap.servers&#39;: self.kafka_conf.zookeeper,
+        #         &#39;metadata.broker.list&#39;: self.kafka_conf.url,
+        #         # &#34;kafka.sasl.kerberos.service.name&#34;: &#34;kafka&#34;,
+        #         # &#34;kafka.sasl.kerberos.service.name&#34;: &#34;/usr/lib/jvm/jdk1.8.0_162/jre/lib/security/cacerts&#34;,
+        #         &#39;group.id&#39;: self.kafka_conf.consume_group,
+        #         &#39;auto.offset.reset&#39;: &#39;largest&#39;,
+        #         &#39;security.protocol&#39;: self.kafka_conf.security_protocol,
+        #         &#34;kafka.ssl.truststore.location&#34;: self.kafka_conf.ssl_truststore_location,
+        #         &#34;kafka.ssl.truststore.password&#34;: self.kafka_conf.ssl_truststore_password
+        #     }
+        # )
+        readDF = kafkaStream.selectExpr(&#34;CAST(key AS STRING)&#34;,
+                                   &#34;CAST(value AS STRING)&#34;)
+
+        readDF.show()
+
+        # query = readDF.writeStream.format(&#34;console&#34;).start()
+        # import time
+        # time.sleep(10)  # sleep 10 seconds
+        # query.stop()
+        # windowed_stream = kafkaStream.withWatermark(&#34;@timestamp&#34;, f&#34;{self.engine_conf.time_bucket} seconds&#34;).selectExpr(&#34;CAST(value AS STRING)&#34;, &#34;CAST(timestamp AS TIMESTAMP)&#34;).toDF(&#39;log&#39;, &#39;timestamp&#39;)
+        #
+        # q = kafkaStream.writeStream \
+        #     .format(&#34;console&#34;) \
+        #     .option(&#34;truncate&#34;, &#34;false&#34;)
+
+        # q = windowed_stream.count()
+        # print(q)
+        #
+        # windowed_stream.start().awaitTermination()
+
+        def process_subsets(time, rdd):
+            self.logger.info(&#39;Data until {}&#39;.format(time))
+            if not rdd.isEmpty():
+                # set dataframe to process later on
+                self.logs_df = rdd
+                self._get_df()
+                self.remaining_steps = list(self.step_to_action.keys())
+
+                for step, action in self.step_to_action.items():
+                    self.logger.info(&#39;Starting step {}&#39;.format(step))
+                    action()
+                    self.logger.info(&#39;Completed step {}&#39;.format(step))
+                    self.remaining_steps.remove(step)
+            else:
+                self.logger.info(&#39;Empty RDD...&#39;)
+
+        kafkaStream.foreachRDD(process_subsets)
+
+        self.ssc.start()
+
+        self.ssc.awaitTermination()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="baskerville.models.pipelines.ElasticsearchPipeline"><code class="flex name class">
+<span>class <span class="ident">ElasticsearchPipeline</span></span>
+<span>(</span><span>db_conf, els_conf, engine_conf, spark_conf, clean_up=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A pipeline for processing data directly from an ElasticSearch instance.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ElasticsearchPipeline(SparkPipelineBase):
+    &#34;&#34;&#34;
+    A pipeline for processing data directly from an ElasticSearch instance.
+    &#34;&#34;&#34;
+
+    def __init__(
+            self, db_conf, els_conf, engine_conf, spark_conf, clean_up=True
+    ):
+        super(ElasticsearchPipeline, self).__init__(
+            db_conf, engine_conf, spark_conf, clean_up
+        )
+
+        self.els_conf = els_conf
+        self.manual_conf = engine_conf.manual_es
+        self.start = self.manual_conf.start
+        self.stop = self.manual_conf.stop
+        self.batch_length = self.manual_conf.batch_length
+        self.batch_timedelta = timedelta(minutes=int(self.batch_length))
+        self.hosts = None
+        if self.manual_conf.hosts:
+            self.hosts = &#39;, &#39;.join(self.manual_conf.hosts)
+        self.save_logs_dir = self.manual_conf.save_logs_dir
+        self.batch_start = self.start
+        self.batch_stop = self.batch_start + self.batch_timedelta
+        self.batch_i = 1
+        self.batch_n = math.ceil(
+            float((self.stop - self.start).total_seconds()) /
+            (self.batch_length*60.)
+        )
+
+    def initialize(self):
+        &#34;&#34;&#34;
+        Start sessions, initialize cache/features/model/dfs.
+        :return:
+        &#34;&#34;&#34;
+        super().initialize()
+        self.set_up_es()
+
+    def run(self):
+
+        while self.batch_start &lt; self.stop:
+            self.batch_stop = self.batch_start + self.batch_timedelta
+
+            self.create_runtime()
+            self.get_data()
+            self.process_data()
+            self.reset()
+            self.batch_start = self.batch_stop
+            self.batch_i += 1
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            start=self.batch_start,
+            stop=self.batch_stop,
+            target_site=self.hosts,
+            conf=self.engine_conf,
+            comment=f&#39;batch runtime {self.batch_i} of {self.batch_n}&#39;
+        )
+
+    def get_data(self):
+        from pyspark.sql import functions as F
+
+        filter_condition = (F.col(&#39;@timestamp&#39;) &gt;= self.runtime.start) &amp; \
+                           (F.col(&#39;@timestamp&#39;) &lt; self.runtime.stop)
+
+        if self.hosts is not None:
+            host_filter = (F.col(&#39;client_request_host&#39;)
+                           == self.manual_conf.hosts[0])
+            if len(self.manual_conf.hosts) &gt; 1:
+                for h in self.manual_conf.hosts[1:]:
+                    host_filter = host_filter | \
+                                  (F.col(&#39;client_request_host&#39;) == h)
+            filter_condition = filter_condition &amp; (host_filter)
+
+        self.logs_df = self.es_storage.get(
+            self.runtime.start,
+            self.runtime.stop,
+            filter_condition=filter_condition,
+            extra_config={
+                &#39;es.mapping.include&#39;: &#39;,&#39;.join(
+                    self.group_by_cols + self.active_columns
+                )
+            },
+            columns_to_keep=list(self.group_by_cols + self.active_columns)
+        ).select(
+            *self.group_by_cols, *self.active_columns
+        ).persist(self.spark_conf.storage_level)
+
+        self.logger.info(&#39;Will be retrieving {} rows&#39;.format(
+            self.logs_df.count()
+        )
+        )
+
+        if self.save_logs_dir:
+            log_name = f&#39;/{self.runtime.start.strftime(&#34;%Y-%m-%d-%H%M%S&#34;)}_&#39; + \
+                       f&#39;{self.runtime.stop.strftime(&#34;%Y-%m-%d-%H%M%S&#34;)}&#39;
+            if self.runtime.target:
+                log_name += f&#39;_{&#34;_&#34;.join(self.runtime.target)}&#39; \
+                    if isinstance(self.runtime.target, list) \
+                    else f&#39;_{self.runtime.target}&#39;
+            self.save_logs(self.logs_df, self.save_logs_dir + log_name)
+
+    def set_up_es(self):
+
+        from es_retriever.es.storage import EsStorage
+        from es_retriever.config import Config
+
+        self.es_config = Config(
+            es_url=self.els_conf.host,
+            es_user=self.els_conf.user,
+            es_pass=self.els_conf.password,
+            es_base_index=self.els_conf.base_index,
+            es_index_type=self.els_conf.index_type,
+        )
+        # todo: fix this in es-retriever: fix setup to include jars
+        conf = self.es_config.spark_conf.copy()
+        conf[&#39;spark.jars&#39;] = self.spark_conf.jars
+        self.es_config.spark_conf = conf
+        self.es_storage = EsStorage(self.es_config, init_session=False)
+        self.es_storage.spark_conf = conf
+        self.es_storage.session_getter = self.es_session_getter
+        self.es_storage.session_getter()
+
+    def es_session_getter(self):
+        from pyspark.sql import SparkSession
+        from pyspark import SparkConf
+
+        conf = SparkConf()
+        conf.set(&#39;spark.logConf&#39;, self.spark_conf.log_conf)
+        conf.set(&#39;spark.jars&#39;, self.spark_conf.jars)
+        conf.set(&#39;spark.driver.memory&#39;, &#39;6G&#39;)
+        conf.set(
+            &#39;spark.sql.session.timeZone&#39;, self.spark_conf.session_timezone
+        )
+        conf.set(&#39;spark.sql.shuffle.partitions&#39;,
+                 self.spark_conf.shuffle_partitions)
+
+        spark = SparkSession.builder \
+            .config(conf=conf) \
+            .appName(&#39;Baskerville Spark&#39;) \
+            .getOrCreate()
+
+        if self.spark_conf.log_conf:
+            spark.sparkContext.setLogLevel(self.spark_conf.log_level)
+
+        spark.conf.set(&#39;spark.jars&#39;, self.spark_conf.jars)
+
+        for k, v in self.es_config.es_read_conf.items():
+            spark.conf.set(k, v)
+        spark.conf.set(&#34;es.port&#34;, &#34;9200&#34;)
+        return spark
+
+    def save_logs(self, spark_df, save_logs_path):
+        spark_df.coalesce(1).write.mode(&#39;overwrite&#39;).format(&#39;json&#39;).save(
+            save_logs_path)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="baskerville.models.base_spark.SparkPipelineBase" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase">SparkPipelineBase</a></li>
+<li><a title="baskerville.models.base.PipelineBase" href="base.html#baskerville.models.base.PipelineBase">PipelineBase</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.models.pipelines.ElasticsearchPipeline.es_session_getter"><code class="name flex">
+<span>def <span class="ident">es_session_getter</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def es_session_getter(self):
+    from pyspark.sql import SparkSession
+    from pyspark import SparkConf
+
+    conf = SparkConf()
+    conf.set(&#39;spark.logConf&#39;, self.spark_conf.log_conf)
+    conf.set(&#39;spark.jars&#39;, self.spark_conf.jars)
+    conf.set(&#39;spark.driver.memory&#39;, &#39;6G&#39;)
+    conf.set(
+        &#39;spark.sql.session.timeZone&#39;, self.spark_conf.session_timezone
+    )
+    conf.set(&#39;spark.sql.shuffle.partitions&#39;,
+             self.spark_conf.shuffle_partitions)
+
+    spark = SparkSession.builder \
+        .config(conf=conf) \
+        .appName(&#39;Baskerville Spark&#39;) \
+        .getOrCreate()
+
+    if self.spark_conf.log_conf:
+        spark.sparkContext.setLogLevel(self.spark_conf.log_level)
+
+    spark.conf.set(&#39;spark.jars&#39;, self.spark_conf.jars)
+
+    for k, v in self.es_config.es_read_conf.items():
+        spark.conf.set(k, v)
+    spark.conf.set(&#34;es.port&#34;, &#34;9200&#34;)
+    return spark</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.pipelines.ElasticsearchPipeline.initialize"><code class="name flex">
+<span>def <span class="ident">initialize</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Start sessions, initialize cache/features/model/dfs.
+:return:</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def initialize(self):
+    &#34;&#34;&#34;
+    Start sessions, initialize cache/features/model/dfs.
+    :return:
+    &#34;&#34;&#34;
+    super().initialize()
+    self.set_up_es()</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.pipelines.ElasticsearchPipeline.save_logs"><code class="name flex">
+<span>def <span class="ident">save_logs</span></span>(<span>self, spark_df, save_logs_path)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_logs(self, spark_df, save_logs_path):
+    spark_df.coalesce(1).write.mode(&#39;overwrite&#39;).format(&#39;json&#39;).save(
+        save_logs_path)</code></pre>
+</details>
+</dd>
+<dt id="baskerville.models.pipelines.ElasticsearchPipeline.set_up_es"><code class="name flex">
+<span>def <span class="ident">set_up_es</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_up_es(self):
+
+    from es_retriever.es.storage import EsStorage
+    from es_retriever.config import Config
+
+    self.es_config = Config(
+        es_url=self.els_conf.host,
+        es_user=self.els_conf.user,
+        es_pass=self.els_conf.password,
+        es_base_index=self.els_conf.base_index,
+        es_index_type=self.els_conf.index_type,
+    )
+    # todo: fix this in es-retriever: fix setup to include jars
+    conf = self.es_config.spark_conf.copy()
+    conf[&#39;spark.jars&#39;] = self.spark_conf.jars
+    self.es_config.spark_conf = conf
+    self.es_storage = EsStorage(self.es_config, init_session=False)
+    self.es_storage.spark_conf = conf
+    self.es_storage.session_getter = self.es_session_getter
+    self.es_storage.session_getter()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.models.base_spark.SparkPipelineBase" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase">SparkPipelineBase</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_cache_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_cache_columns">add_cache_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_calc_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_calc_columns">add_calc_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_post_groupby_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_post_groupby_columns">add_post_groupby_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.create_runtime" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.create_runtime">create_runtime</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.cross_reference" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.cross_reference">cross_reference</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_calculation" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_calculation">feature_calculation</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_extraction" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_extraction">feature_extraction</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_update" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_update">feature_update</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.features_to_dict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.features_to_dict">features_to_dict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.filter_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.filter_cache">filter_cache</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.filter_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.filter_columns">filter_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.finish_up" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.finish_up">finish_up</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_columns_to_filter_by" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_columns_to_filter_by">get_columns_to_filter_by</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_data" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_data">get_data</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_group_by_aggs" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_group_by_aggs">get_group_by_aggs</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_post_group_by_calculations" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_post_group_by_calculations">get_post_group_by_calculations</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.group_by" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.group_by">group_by</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.handle_missing_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.handle_missing_columns">handle_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.instantiate_spark_session" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.instantiate_spark_session">instantiate_spark_session</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.label_or_predict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.label_or_predict">label_or_predict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.load_test" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.load_test">load_test</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.normalize_host_names" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.normalize_host_names">normalize_host_names</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.predict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.predict">predict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.preprocessing" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.preprocessing">preprocessing</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.process_data" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.process_data">process_data</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.refresh_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.refresh_cache">refresh_cache</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.register_metrics" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.register_metrics">register_metrics</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.rename_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.rename_columns">rename_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.reset" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.reset">reset</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.run" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.run">run</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.save" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.save">save</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.save_df_to_table" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.save_df_to_table">save_df_to_table</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache">set_up_request_set_cache</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.models.pipelines.KafkaPipeline"><code class="flex name class">
+<span>class <span class="ident">KafkaPipeline</span></span>
+<span>(</span><span>db_conf, engine_conf, kafka_conf, spark_conf, clean_up=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A pipeline that processes data from a Kafka instance every x seconds.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class KafkaPipeline(SparkPipelineBase):
+    &#34;&#34;&#34;
+    A pipeline that processes data from a Kafka instance every x seconds.
+    &#34;&#34;&#34;
+    def __init__(
+            self,
+            db_conf,
+            engine_conf,
+            kafka_conf,
+            spark_conf,
+            clean_up=True
+    ):
+        super(KafkaPipeline, self).__init__(
+            db_conf, engine_conf, spark_conf, clean_up=clean_up,
+        )
+
+        self.kafka_conf = kafka_conf
+        self.start = None
+        self.ssc = None
+
+    def initialize(self):
+        super().initialize()
+        self.ssc = StreamingContext(
+            self.spark.sparkContext, self.engine_conf.time_bucket
+        )
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            start=self.start,
+            conf=self.engine_conf
+        )
+
+    def get_data(self):
+        self.logs_df = self.logs_df.map(lambda l: json.loads(l[1])).toDF(
+            self.data_parser.schema
+        ).repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
+
+        self.load_test()
+
+    def run(self):
+        self.create_runtime()
+
+        kafkaStream = KafkaUtils.createDirectStream(
+            self.ssc,
+            [self.kafka_conf.consume_topic],
+            {
+                &#39;metadata.broker.list&#39;: self.kafka_conf.url,
+                &#39;group.id&#39;: self.kafka_conf.consume_group,
+                &#39;auto.create.topics.enable&#39;: &#39;true&#39;
+            }
+        )
+        # from pympler import muppy, summary, tracker
+        # tr = tracker.SummaryTracker()
+
+        def process_subsets(time, rdd):
+            global CLIENT_PREDICTION_ACCUMULATOR, CLIENT_REQUEST_SET_COUNT
+
+            self.logger.info(&#39;Data until {}&#39;.format(time))
+            if not rdd.isEmpty():
+                # print(&#39;*-&#39; * 25, &#39;BEFORE&#39;, &#39;*-&#39; * 25)
+                # all_objects = muppy.get_objects()
+                # self.logger.debug(f&#39;**** Length of all objects BEFORE: {len(all_objects)}&#39;)
+                # tr.print_diff()
+                try:
+                    # set dataframe to process later on
+                    # todo: handle edge cases
+                    # todo: what happens if we have a missing column here?
+                    # todo: does the time this takes to complete affects the
+                    # kafka messages consumption?
+                    self.logs_df = rdd
+                    self.get_data()
+                    self.remaining_steps = list(self.step_to_action.keys())
+
+                    for step, action in self.step_to_action.items():
+                        self.logger.info(&#39;Starting step {}&#39;.format(step))
+                        action()
+                        self.logger.info(&#39;Completed step {}&#39;.format(step))
+                        self.remaining_steps.remove(step)
+                    # print(&#39;*&#39;*50, &#39;AFTER&#39;, &#39;*&#39;*50)
+                    # all_objects = muppy.get_objects()
+                    # self.logger.debug(
+                    #     f&#39;**** Length of all objects AFTER: {len(all_objects)}&#39;)
+                    # tr.print_diff()
+                    self.logger.info(f&#39;self.spark.sparkContext._jsc.getPersistentRDDs().items() {len(self.spark.sparkContext._jsc.getPersistentRDDs().items())}&#39;)
+                    rdd.unpersist()
+                    del rdd
+                except Exception as e:
+                    traceback.print_exc()
+                    self.logger.error(e)
+                finally:
+                    self.reset()
+            else:
+                self.logger.info(&#39;Empty RDD...&#39;)
+
+        kafkaStream.foreachRDD(process_subsets)
+
+        self.ssc.start()
+        self.ssc.awaitTermination()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="baskerville.models.base_spark.SparkPipelineBase" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase">SparkPipelineBase</a></li>
+<li><a title="baskerville.models.base.PipelineBase" href="base.html#baskerville.models.base.PipelineBase">PipelineBase</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.models.base_spark.SparkPipelineBase" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase">SparkPipelineBase</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_cache_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_cache_columns">add_cache_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_calc_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_calc_columns">add_calc_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_post_groupby_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_post_groupby_columns">add_post_groupby_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.create_runtime" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.create_runtime">create_runtime</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.cross_reference" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.cross_reference">cross_reference</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_calculation" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_calculation">feature_calculation</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_extraction" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_extraction">feature_extraction</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_update" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_update">feature_update</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.features_to_dict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.features_to_dict">features_to_dict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.filter_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.filter_cache">filter_cache</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.filter_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.filter_columns">filter_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.finish_up" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.finish_up">finish_up</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_columns_to_filter_by" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_columns_to_filter_by">get_columns_to_filter_by</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_data" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_data">get_data</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_group_by_aggs" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_group_by_aggs">get_group_by_aggs</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_post_group_by_calculations" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_post_group_by_calculations">get_post_group_by_calculations</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.group_by" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.group_by">group_by</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.handle_missing_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.handle_missing_columns">handle_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.initialize" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.initialize">initialize</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.instantiate_spark_session" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.instantiate_spark_session">instantiate_spark_session</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.label_or_predict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.label_or_predict">label_or_predict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.load_test" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.load_test">load_test</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.normalize_host_names" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.normalize_host_names">normalize_host_names</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.predict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.predict">predict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.preprocessing" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.preprocessing">preprocessing</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.process_data" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.process_data">process_data</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.refresh_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.refresh_cache">refresh_cache</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.register_metrics" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.register_metrics">register_metrics</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.rename_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.rename_columns">rename_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.reset" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.reset">reset</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.run" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.run">run</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.save" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.save">save</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.save_df_to_table" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.save_df_to_table">save_df_to_table</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache">set_up_request_set_cache</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.models.pipelines.RawLogPipeline"><code class="flex name class">
+<span>class <span class="ident">RawLogPipeline</span></span>
+<span>(</span><span>db_conf, engine_conf, spark_conf, clean_up=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A pipeline that processes a list of raw files.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RawLogPipeline(SparkPipelineBase):
+    &#34;&#34;&#34;
+    A pipeline that processes a list of raw files.
+    &#34;&#34;&#34;
+    log_paths: list
+
+    def __init__(self, db_conf, engine_conf, spark_conf, clean_up=True):
+        self.log_paths = engine_conf.manual_rawlog.raw_logs_paths
+        super(RawLogPipeline, self).__init__(
+            db_conf, engine_conf, spark_conf, clean_up
+        )
+        self.log_paths = engine_conf.manual_rawlog.raw_logs_paths
+        self.batch_i = 1
+        self.batch_n = len(self.log_paths)
+        self.current_log_path = None
+
+    def run(self):
+        for log in self.log_paths:
+            self.logger.info(f&#39;Processing {log}...&#39;)
+            self.current_log_path = log
+
+            self.create_runtime()
+            self.get_data()
+            self.process_data()
+            self.reset()
+
+            self.batch_i += 1
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            file_name=self.current_log_path,
+            conf=self.engine_conf,
+            comment=f&#39;batch runtime {self.batch_i} of {self.batch_n}&#39;
+        )
+        self.logger.info(&#39;Created runtime {}&#39;.format(self.runtime.id))
+
+    def get_data(self):
+        &#34;&#34;&#34;
+        Gets the dataframe according to the configuration
+        :return: None
+        &#34;&#34;&#34;
+
+        self.logs_df = self.spark.read.json(
+            self.current_log_path
+        ).persist(self.spark_conf.storage_level)  # .repartition(*self.group_by_cols)
+
+        self.logger.info(&#39;Got dataframe of #{} records&#39;.format(
+            self.logs_df.count())
+        )
+        self.load_test()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="baskerville.models.base_spark.SparkPipelineBase" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase">SparkPipelineBase</a></li>
+<li><a title="baskerville.models.base.PipelineBase" href="base.html#baskerville.models.base.PipelineBase">PipelineBase</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="baskerville.models.pipelines.RawLogPipeline.get_data"><code class="name flex">
+<span>def <span class="ident">get_data</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Gets the dataframe according to the configuration
+:return: None</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_data(self):
+    &#34;&#34;&#34;
+    Gets the dataframe according to the configuration
+    :return: None
+    &#34;&#34;&#34;
+
+    self.logs_df = self.spark.read.json(
+        self.current_log_path
+    ).persist(self.spark_conf.storage_level)  # .repartition(*self.group_by_cols)
+
+    self.logger.info(&#39;Got dataframe of #{} records&#39;.format(
+        self.logs_df.count())
+    )
+    self.load_test()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.models.base_spark.SparkPipelineBase" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase">SparkPipelineBase</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_cache_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_cache_columns">add_cache_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_calc_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_calc_columns">add_calc_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_post_groupby_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_post_groupby_columns">add_post_groupby_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.create_runtime" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.create_runtime">create_runtime</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.cross_reference" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.cross_reference">cross_reference</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_calculation" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_calculation">feature_calculation</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_extraction" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_extraction">feature_extraction</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_update" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_update">feature_update</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.features_to_dict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.features_to_dict">features_to_dict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.filter_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.filter_cache">filter_cache</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.filter_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.filter_columns">filter_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.finish_up" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.finish_up">finish_up</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_columns_to_filter_by" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_columns_to_filter_by">get_columns_to_filter_by</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_group_by_aggs" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_group_by_aggs">get_group_by_aggs</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_post_group_by_calculations" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_post_group_by_calculations">get_post_group_by_calculations</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.group_by" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.group_by">group_by</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.handle_missing_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.handle_missing_columns">handle_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.initialize" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.initialize">initialize</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.instantiate_spark_session" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.instantiate_spark_session">instantiate_spark_session</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.label_or_predict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.label_or_predict">label_or_predict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.load_test" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.load_test">load_test</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.normalize_host_names" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.normalize_host_names">normalize_host_names</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.predict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.predict">predict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.preprocessing" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.preprocessing">preprocessing</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.process_data" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.process_data">process_data</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.refresh_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.refresh_cache">refresh_cache</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.register_metrics" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.register_metrics">register_metrics</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.rename_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.rename_columns">rename_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.reset" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.reset">reset</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.run" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.run">run</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.save" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.save">save</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.save_df_to_table" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.save_df_to_table">save_df_to_table</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache">set_up_request_set_cache</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="baskerville.models.pipelines.SparkStructuredStreamingRealTimePipeline"><code class="flex name class">
+<span>class <span class="ident">SparkStructuredStreamingRealTimePipeline</span></span>
+<span>(</span><span>db_conf, engine_conf, kafka_conf, spark_conf, clean_up=True)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>The base class for all pipelines that use spark. It initializes spark
+session and provides basic implementation for some of the main methods</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
+    def __init__(
+            self,
+            db_conf,
+            engine_conf,
+            kafka_conf,
+            spark_conf,
+            clean_up=True
+    ):
+        super(SparkStructuredStreamingRealTimePipeline, self).__init__(
+            db_conf,
+            engine_conf,
+            spark_conf,
+            clean_up=clean_up,
+        )
+        self.engine_conf = engine_conf
+        self.features_conf = engine_conf.features
+        self.kafka_conf = kafka_conf
+        self.log_parser = self.engine_conf.data_config.parser
+        self.start = None
+
+        self.ssc = StreamingContext(
+            self.spark.sparkContext, self.engine_conf.time_bucket
+        )
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            start=self.start,
+            dt_bucket=self.engine_conf.time_bucket
+        )
+
+    def get_data(self):
+        self.logs_df = self.logs_df.map(lambda l: json.loads(l[1])).toDF(
+            self.log_parser.schema
+        )
+        # since filtering is done in a next step, do not use actions here,
+        # because it will cause calculations with the whole dataset
+        # self.logger.info(&#39;Got dataframe of #{} records&#39;.format(
+        #     self.logs_df.count())
+        # )
+
+    def run(self):
+        self.start = datetime.utcnow()
+        self.create_runtime()
+
+        # Subscribe to a pattern, read from the end of the stream:
+        kafkaStream = self.spark \
+            .read \
+            .format(&#34;kafka&#34;) \
+            .option(&#34;startingOffsets&#34;, &#34;earliest&#34;) \
+            .option(&#34;kafka.bootstrap.servers&#34;, &#34;0.0.0.0:9092&#34;) \
+            .option(&#34;subscribe&#34;, self.kafka_conf.consume_topic) \
+            .option(&#34;auto.offset.reset&#34;, &#34;earliest&#34;) \
+            .load()
+
+        # .option(&#34;kafka.partition.assignment.strategy&#34;, &#34;range&#34;) \
+            # .option(&#34;security.protocol&#34;, &#34;SSL&#34;) \
+            # .option(&#34;ssl.truststore.location&#34;, &#34;/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/client.truststore.jks&#34;) \
+            # .option(&#34;ssl.truststore.password&#34;, &#34;kafkadocker&#34;) \
+            # .option(&#34;ssl.keystore.location&#34;, &#34;/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/kafka.server.keystore.jks&#34;) \
+            # .option(&#34;ssl.keystore.password&#34;, &#34;kafkadocker&#34;) \
+            # .option(&#34;ssl.key.password&#34;, &#34;kafkadocker&#34;) \
+            # .load()
+
+        # .option(&#34;subscribePattern&#34;, self.kafka_conf.consume_topic) \
+
+        # kafkaStream = self.spark \
+        #     .readStream \
+        #     .format(&#34;kafka&#34;) \
+        #     .option(&#34;kafka.bootstrap.servers&#34;, self.kafka_conf.zookeeper) \
+        #     .option(&#34;startingOffsets&#34;, &#34;earliest&#34;) \
+        #     .option(&#34;subscribe&#34;, self.kafka_conf.consume_topic) \
+        #     .option(&#34;auto.offset.reset&#34;, &#34;earliest&#34;) \
+        #     .option(&#34;security.protocol&#34;, &#34;SSL&#34;) \
+        #     .option(&#34;ssl.truststore.location&#34;,
+        #             &#34;/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/client.truststore.jks&#34;) \
+        #     .option(&#34;ssl.truststore.password&#34;, &#34;kafkadocker&#34;) \
+        #     .option(&#34;ssl.keystore.location&#34;,
+        #             &#34;/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/kafka.server.keystore.jks&#34;) \
+        #     .option(&#34;ssl.keystore.password&#34;, &#34;kafkadocker&#34;) \
+        #     .option(&#34;ssl.key.password&#34;, &#34;kafkadocker&#34;) \
+        #     .load()
+        #
+        # import pyspark.sql.functions as F
+        # df1 = kafkaStream.selectExpr(&#34;CAST(value AS STRING)&#34;,
+        #                     &#34;CAST(timestamp AS TIMESTAMP)&#34;).select(F.from_json(&#34;value&#34;, self.data_parser.schema))
+        #
+        # q = df1.writeStream.format(&#34;console&#34;) \
+        #         .option(&#34;truncate&#34;,&#34;false&#34;)\
+        #         .start()\
+        #         .awaitTermination()
+        # # .option(&#34;kafka.partition.assignment.strategy&#34;, &#34;range&#34;) \
+        #
+        # # NOTE: make sure kafka 8 jar is in the spark.jars, won&#39;t work with 10
+        # # https://elephant.tech/spark-2-0-streaming-from-ssl-kafka-with-hdp-2-4/
+        # kafkaStream = KafkaUtils.createDirectStream(
+        #     self.ssc,
+        #     [self.kafka_conf.consume_topic],
+        #     {
+        #         &#39;bootstrap.servers&#39;: self.kafka_conf.zookeeper,
+        #         &#39;metadata.broker.list&#39;: self.kafka_conf.url,
+        #         # &#34;kafka.sasl.kerberos.service.name&#34;: &#34;kafka&#34;,
+        #         # &#34;kafka.sasl.kerberos.service.name&#34;: &#34;/usr/lib/jvm/jdk1.8.0_162/jre/lib/security/cacerts&#34;,
+        #         &#39;group.id&#39;: self.kafka_conf.consume_group,
+        #         &#39;auto.offset.reset&#39;: &#39;largest&#39;,
+        #         &#39;security.protocol&#39;: self.kafka_conf.security_protocol,
+        #         &#34;kafka.ssl.truststore.location&#34;: self.kafka_conf.ssl_truststore_location,
+        #         &#34;kafka.ssl.truststore.password&#34;: self.kafka_conf.ssl_truststore_password
+        #     }
+        # )
+        readDF = kafkaStream.selectExpr(&#34;CAST(key AS STRING)&#34;,
+                                   &#34;CAST(value AS STRING)&#34;)
+
+        readDF.show()
+
+        # query = readDF.writeStream.format(&#34;console&#34;).start()
+        # import time
+        # time.sleep(10)  # sleep 10 seconds
+        # query.stop()
+        # windowed_stream = kafkaStream.withWatermark(&#34;@timestamp&#34;, f&#34;{self.engine_conf.time_bucket} seconds&#34;).selectExpr(&#34;CAST(value AS STRING)&#34;, &#34;CAST(timestamp AS TIMESTAMP)&#34;).toDF(&#39;log&#39;, &#39;timestamp&#39;)
+        #
+        # q = kafkaStream.writeStream \
+        #     .format(&#34;console&#34;) \
+        #     .option(&#34;truncate&#34;, &#34;false&#34;)
+
+        # q = windowed_stream.count()
+        # print(q)
+        #
+        # windowed_stream.start().awaitTermination()
+
+        def process_subsets(time, rdd):
+            self.logger.info(&#39;Data until {}&#39;.format(time))
+            if not rdd.isEmpty():
+                # set dataframe to process later on
+                self.logs_df = rdd
+                self._get_df()
+                self.remaining_steps = list(self.step_to_action.keys())
+
+                for step, action in self.step_to_action.items():
+                    self.logger.info(&#39;Starting step {}&#39;.format(step))
+                    action()
+                    self.logger.info(&#39;Completed step {}&#39;.format(step))
+                    self.remaining_steps.remove(step)
+            else:
+                self.logger.info(&#39;Empty RDD...&#39;)
+
+        kafkaStream.foreachRDD(process_subsets)
+
+        self.ssc.start()
+
+        self.ssc.awaitTermination()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="baskerville.models.base_spark.SparkPipelineBase" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase">SparkPipelineBase</a></li>
+<li><a title="baskerville.models.base.PipelineBase" href="base.html#baskerville.models.base.PipelineBase">PipelineBase</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="baskerville.models.base_spark.SparkPipelineBase" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase">SparkPipelineBase</a></b></code>:
+<ul class="hlist">
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_cache_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_cache_columns">add_cache_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_calc_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_calc_columns">add_calc_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.add_post_groupby_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.add_post_groupby_columns">add_post_groupby_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.create_runtime" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.create_runtime">create_runtime</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.cross_reference" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.cross_reference">cross_reference</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_calculation" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_calculation">feature_calculation</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_extraction" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_extraction">feature_extraction</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.feature_update" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.feature_update">feature_update</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.features_to_dict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.features_to_dict">features_to_dict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.filter_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.filter_cache">filter_cache</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.filter_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.filter_columns">filter_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.finish_up" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.finish_up">finish_up</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_columns_to_filter_by" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_columns_to_filter_by">get_columns_to_filter_by</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_data" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_data">get_data</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_group_by_aggs" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_group_by_aggs">get_group_by_aggs</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.get_post_group_by_calculations" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.get_post_group_by_calculations">get_post_group_by_calculations</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.group_by" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.group_by">group_by</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.handle_missing_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.handle_missing_columns">handle_missing_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.initialize" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.initialize">initialize</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.instantiate_spark_session" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.instantiate_spark_session">instantiate_spark_session</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.label_or_predict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.label_or_predict">label_or_predict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.load_test" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.load_test">load_test</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.normalize_host_names" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.normalize_host_names">normalize_host_names</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.predict" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.predict">predict</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.preprocessing" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.preprocessing">preprocessing</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.process_data" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.process_data">process_data</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.refresh_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.refresh_cache">refresh_cache</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.register_metrics" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.register_metrics">register_metrics</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.rename_columns" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.rename_columns">rename_columns</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.reset" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.reset">reset</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.run" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.run">run</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.save" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.save">save</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.save_df_to_table" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.save_df_to_table">save_df_to_table</a></code></li>
+<li><code><a title="baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache" href="base_spark.html#baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache">set_up_request_set_cache</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="baskerville.models" href="index.html">baskerville.models</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="baskerville.models.pipelines.ElasticsearchPipeline" href="#baskerville.models.pipelines.ElasticsearchPipeline">ElasticsearchPipeline</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.models.pipelines.ElasticsearchPipeline.es_session_getter" href="#baskerville.models.pipelines.ElasticsearchPipeline.es_session_getter">es_session_getter</a></code></li>
+<li><code><a title="baskerville.models.pipelines.ElasticsearchPipeline.initialize" href="#baskerville.models.pipelines.ElasticsearchPipeline.initialize">initialize</a></code></li>
+<li><code><a title="baskerville.models.pipelines.ElasticsearchPipeline.save_logs" href="#baskerville.models.pipelines.ElasticsearchPipeline.save_logs">save_logs</a></code></li>
+<li><code><a title="baskerville.models.pipelines.ElasticsearchPipeline.set_up_es" href="#baskerville.models.pipelines.ElasticsearchPipeline.set_up_es">set_up_es</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.models.pipelines.KafkaPipeline" href="#baskerville.models.pipelines.KafkaPipeline">KafkaPipeline</a></code></h4>
+</li>
+<li>
+<h4><code><a title="baskerville.models.pipelines.RawLogPipeline" href="#baskerville.models.pipelines.RawLogPipeline">RawLogPipeline</a></code></h4>
+<ul class="">
+<li><code><a title="baskerville.models.pipelines.RawLogPipeline.get_data" href="#baskerville.models.pipelines.RawLogPipeline.get_data">get_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="baskerville.models.pipelines.SparkStructuredStreamingRealTimePipeline" href="#baskerville.models.pipelines.SparkStructuredStreamingRealTimePipeline">SparkStructuredStreamingRealTimePipeline</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+---
+database:                             # Mandatory configuration
+  name: baskerville                   # the database name
+  user: user
+  password: 'pass'
+  type: 'postgres'
+  host: 127.0.0.1
+  port: 5432
+  maintenance:                        # Optional, for data partitioning and archiving
+    template_folder: '/path/to/template/folder/'  # Optional: by default the data folder, can be omitted
+    partition_table: 'request_sets'   # default value
+    partition_by: week                # partition by week or month, default value is week
+    partition_field: created_at       # which field to use for the partitioning, this is the default value, can be omitted
+    strict: False                     # if False, then for the week partition the start and end date will be changed to the start and end of the respective weeks. If true, then the dates will remain unchanged. Be careful to be consistent with this.
+    data_partition:                   # Optional: Define the period to create partitions for
+      since: 2018-01-01               # when to start partitioning
+      until: "2018-12-31 23:59:59"    # when to stop partitioning
+      index_by:                       # which fields to index in the partitions that will be created (only one index is supported currently), default value, can be omitted
+        - target
+        - ip
+      template: 'data_partitioning.jinja2'  # Optional: the template name, default value, can be omitted
+    data_archive:                       # Optional: define the period to archive
+      since: 2017-02-01                 # which dates to archive - in a non-strict mode, the start date will be modified to the start date of the week
+      until: 2017-12-31                 # this is also true for the end date. If a strict mode is requested then the end date will be modified to the end of the week the until date belongs to.
+      template: 'data_archiving.jinja2' # Optional: the template name, default value, can be omitted
+
+# Optional: used only by the Elastic pipeline
+elastic:
+  user: 'elastic'
+  password: 'changeme'
+  host: 'url to ES instance'
+  base_index: 'some.log'
+  index_type: 'some_type'
+
+# Optional: used only by the off-line tools
+misp:
+  misp_url: 'https://misp.internal.equalit.ie/'
+  misp_key: 'private-key'
+  misp_verifycert: True
+
+engine:
+  time_bucket: 120  # seconds: NOTE: this is the default value, model training is dependent upon this, this should not be set under normal circumstances
+  load_test: 10     # multiply the dataset x times and add random ips - only used for load testing, default false, can be omitted.
+  es_log:
+    host: somehost                    # Optional
+    start: 2018-01-01 00:00:00        # Optional
+    stop: 2018-01-02 00:00:00         # Optional
+    batch_length: 30                  # minutes - split start and stop in batch_length periods to avoid overloading the es cluster
+    save_logs_dir: path/to/directory/to/save/logs  # optional
+  raw_log:
+    paths:                            # optional, a list of logs to parse - they will be parsed subsequently
+      - 'path1/log1.json'
+      - 'path2/log2.json'
+      - 'path/to/somename*/*'         # use * to match folder names and files, spark will load them all in one dataframe if they are of the same format
+  training:                           # Optional: only for the Training pipeline
+    model_name: 'test_model'          # how to name the model
+    scaler_name: 'test_scaler'        # how to name the scaler
+    path: '/full/path/to/baskerville/data/models'     # where to save
+    classifier: 'pyspark_iforest.ml.iforest.IForest'  # which classifier to use, see baskerville.util.enums.AlgorithmEnum
+    scaler: 'pyspark.ml.feature.StandardScaler'       # which scaler to use, see baskerville.util.enums.ScalerEnum
+    data_parameters:                  # to define the training period, either use training_days or from/ to date
+      training_days: 30               # today - training_days
+      from_date: '2020-03-01 20:59:59'
+      to_date: '2020-03-05 13:01:01'
+    classifier_parameters:        # depending on the algorithm chosen, provide the training parameters, as you would to instantiate the class
+      maxSamples: 100
+      contamination: 0.1
+      numTrees: 100
+      threshold: 0.5              # if applicable to the classifier
+  simulation:                     # Optional: used only to test the kafka pipeline
+    sleep: True
+    verbose: True
+    log_file: '/path/to/log.json' # the file to chunk and send to kafka
+  datetime_format: '%Y-%m-%d %H:%M:%S'
+  cache_expire_time: 604800       # sec (604800 = 1 week)
+  cache_load_past: False          # todo: Load past request sets in the cache or not - by default, for every runtime, we use a clean slate for the cache
+  cross_reference: False          # search MISP for IPs
+  model_version_id: n             # optional
+  extra_features:                 # useful when we need to calculate more features than the model requests or when there is no model
+    - 'example_feature_average'
+  metrics:
+    port: 8998
+    performance:
+      pipeline:   # list the name of the methods you want to time for performance
+        - 'preprocessing'
+        - 'group_by'
+        - 'feature_calculation'
+        - 'label_or_predict'
+        - 'save'
+      request_set_cache: # list the name of the methods you want to time for performance
+        - 'instantiate_cache'
+        - '__getitem__'
+        - '__contains__'
+        - 'clean'
+      features: True     # add a metric to time the features
+    progress: True       # add a metric to watch the pipeline progress
+  data_config:
+    parser: JSONLogParser
+    schema: '/path/to/data/samples/sample_log_schema.json'
+    group_by_cols:
+    - 'client_request_host'
+    - 'client_ip'
+    timestamp_column: '@timestamp'
+  logpath: /where/to/save/logs.log
+  log_level: 'ERROR'
+
+# Optional: used only by the Kafka Pipeline
+kafka:
+  bootstrap_servers: '0.0.0.0:9092'       # ip: port for kafka
+  zookeeper: 'localhost:2181'             # ip: port for zookeeper
+  consume_topic: 'incoming.logs'          # which should baskerville consume
+  consume_group: 'baskerville'            # a name for the consume group
+
+spark:
+  app_name: 'Baskerville'   # the application name - can be changed for two different runs - used by the spark UI
+  master: 'local'           # the ip:port of the master node, e.g. spark://someip:7077 to submit to a cluster
+  parallelism: -1           # controls the number of tasks, -1 means use all cores - used for local master
+  log_level: 'INFO'         # spark logs level
+  storage_level: 'OFF_HEAP' # which strategy to use for storing dfs - valid values are the ones found here: https://spark.apache.org/docs/2.4.0/api/python/_modules/pyspark/storagelevel.html default: OFF_HEAP
+  jars: '/path/to/jars/postgresql-42.2.4.jar,/path/to/spark-iforest-2.4.0.jar,/path/to/other/jars' # or /path/to/jars/mysql-connector-java-8.0.11.jar
+  session_timezone: 'UTC'
+  shuffle_partitions: 14    # depends on your dataset and your hardware, usually ~ 2 * number of cores is a good choice
+  executor_instances: 4     # omitted when running locally
+  executor_cores: 4         # omitted when running locally
+  spark_driver_memory: '6G' # depends on your dataset and the available ram you have. If running locally 6 - 8 GB should be a good choice, depending on the amount of data you need to process
+  db_driver: 'org.postgresql.Driver'  # or for mysql: 'com.mysql.cj.jdbc.Driver'
+  metrics_conf: /path/to/data/spark.metrics  # Optional: required only  to export spark metrics
+  jar_packages: 'com.banzaicloud:spark-metrics_2.11:2.3-2.0.4,io.prometheus:simpleclient:0.3.0,io.prometheus:simpleclient_dropwizard:0.3.0,io.prometheus:simpleclient_pushgateway:0.3.0,io.dropwizard.metrics:metrics-core:3.1.2'  # required to export spark metrics
+  jar_repositories: 'https://raw.github.com/banzaicloud/spark-metrics/master/maven-repo/releases' # Optional: Required only to export spark metrics
+  event_log: True
+  serializer: 'org.apache.spark.serializer.KryoSerializer'
+  kryoserializer_buffer_max: '2024m'          # 2024m and 1024k are the max values the KryoSerializer can handle
+  kryoserializer_buffer: '1024k'              # It is suggested that you omit setting kryoserializer_buffer_max and kryoserializer_buffer and only set them if you get serialization errors.
+  driver_java_options: '-verbose:gc'          # Optional. When on a local machine with less than 36GB of ram -XX:+UseCompressedOops
+  executor_extra_java_options: '-verbose:gc'  # Optional. When on a local machine with less than 36GB of ram -XX:+UseCompressedOops
+  # to connect to the jvm for memory profiling and deugging (remove the -Dcom.sun.management.jmxremote.port=1098 if more than one executors because it will cause the other executors to fail):
+  # -XX:+PrintFlagsFinal -XX:+PrintReferenceGC -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps  -XX:+UnlockDiagnosticVMOptions -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1098
+  # depending on your configuration and resources:
+  # -Dio.netty.noPreferDirect=true -Dio.netty.allocator.type=unpooled -XX:+UseCompressedOops -XX:G1HeapRegionSize=10 -XX:+UseG1GC -XX:ParallelGCThreads=8 -XX:ConcGCThreads=2 -XX:InitiatingHeapOccupancyPercent=25
+  # UseG1GC is usually the best option
+  # number of ParallelGCThreads cannot go above the number of cores
+  # ConcGCThreads=2 : two per core is a reasonable option that works well on most cases
+  # InitiatingHeapOccupancyPercent=25: allocate 25% for heap - this has to be tested on your machine to see which percentage works well

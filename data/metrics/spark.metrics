@@ -1,0 +1,12 @@
+# Enable Prometheus for all instances by class name
+*.sink.prometheus.class=com.banzaicloud.spark.metrics.sink.PrometheusSink
+# Prometheus pushgateway address
+*.sink.prometheus.pushgateway-address-protocol=http
+*.sink.prometheus.pushgateway-address=prometheus_push_gw:9091
+*.sink.prometheus.period=10
+# *.sink.prometheus.unit=< unit> - defaults to seconds (TimeUnit.SECONDS)
+# *.sink.prometheus.pushgateway-enable-timestamp=<enable/disable metrics timestamp> - defaults to false
+# Metrics name processing (version 2.3-1.1.0 +)
+# *.sink.prometheus.metrics-name-capture-regex=<regular expression to capture sections metric name sections to be replaces>
+# *.sink.prometheus.metrics-name-replacement=<replacement captured sections to be replaced with>
+# *.sink.prometheus.labels=<labels in label=value format separated by comma>
