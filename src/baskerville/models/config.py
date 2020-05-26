@@ -5,7 +5,7 @@ from datetime import datetime
 from functools import wraps
 
 import dateutil
-from baskerville.util.enums import AlgorithmEnum, ScalerEnum
+from baskerville.util.enums import ModelEnum
 from baskerville.util.helpers import get_logger, get_default_data_path, \
     SerializableMixin
 from dateutil.tz import tzutc
@@ -439,41 +439,26 @@ class TrainingConfig(Config):
         - training days
         - from - to date
         - other filters, like hosts
-    Classifier Parameters:  (optional)
-        - max_samples
-        - contamination
-        - n_estimators
-    Scaler Parameters       (optional)
+    Model Parameters:  (optional)
+        -
     """
     classifier: str
     scaler: str
-    data_parameters: dict
-    classifier_parameters: dict
-    scaler_parameters: dict
-    model_options: dict
-    host_feature: list = []
+    model_parameters: dict
     n_jobs: int = -1
-    use_host_feature: bool = False
     max_number_of_records_to_read_from_db: int = None
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
-        self.allowed_algorithms = list(vars(AlgorithmEnum)['_value2member_map_'].keys())
-        self.allowed_scalers = list(vars(ScalerEnum)['_value2member_map_'].keys())
+        self.allowed_models = list(vars(ModelEnum)['_value2member_map_'].keys())
 
     def validate(self):
         logger.debug('Validating TrainingConfig...')
-        if self.classifier:
-            if self.classifier not in self.allowed_algorithms:
+        if self.model:
+            if self.model not in self.allowed_models:
                 raise ValueError(
-                    f'{self.classifier} is not in allowed algorithms: '
-                    f'{",".join(self.allowed_algorithms)}'
-                )
-        if self.scaler:
-            if self.scaler not in self.allowed_scalers:
-                raise ValueError(
-                    f'{self.scaler} is not in allowed algorithms: '
-                    f'{",".join(self.allowed_scalers)}'
+                    f'{self.model} is not in allowed models: '
+                    f'{",".join(self.allowed_models)}'
                 )
 
         if self.data_parameters:
@@ -484,11 +469,8 @@ class TrainingConfig(Config):
                     f'Either training days or from-to date should be specified'
                 )
 
-        if not self.classifier_parameters:
-            self.classifier_parameters = {}
-
-        if not self.scaler_parameters:
-            self.scaler_parameters = {}
+        if not self.model_parameters:
+            self.model_parameters = {}
 
         self._is_validated = True
         return self

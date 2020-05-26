@@ -13,23 +13,6 @@ prediction_schema = T.StructType([
 ])
 
 
-def get_models_schema():
-    return T.StructType([
-                T.StructField("features", T.ArrayType(T.StringType()), True),
-                T.StructField("algorithm", T.StringType(), True),
-                T.StructField("scaler_type", T.StringType(), True),
-                T.StructField("parameters", T.StringType(), True),
-                T.StructField("recall", T.DoubleType(), True),
-                T.StructField("precision", T.DoubleType(), True),
-                T.StructField("f1_score", T.DoubleType(), True),
-                T.StructField("classifier", T.BinaryType(), True),
-                T.StructField("scaler", T.BinaryType(), True),
-                T.StructField("n_training", T.IntegerType(), True),
-                T.StructField("n_testing", T.IntegerType(), True),
-                T.StructField("threshold", T.DoubleType(), True)
-            ])
-
-
 def get_cache_schema():
     return T.StructType([
                 T.StructField("id", T.IntegerType(), False),

@@ -1,0 +1,24 @@
+{
+   "name": "CustomLogs",
+   "properties": {
+     "timestamp": {
+       "type": "string",
+       "format": "date",
+       "pattern": "(\\d\\d\\d\\d-([0-2])?\\d-([0-3])?\\dT?([0-2])?\\d:([0-5])?\\d:([0-5])?\\d\\.\\d?\\d?\\d?Z?)"
+     },
+     "some_property": {
+       "type": "string"
+     },
+     "some_other_property": {
+       "type": "string"
+     },
+     "an_integer_property": {
+       "type": "integer"
+     },
+     "a_numeric_property": {
+       "type": "string"
+     }
+   },
+  "required": ["timestamp", "some_property"],
+   "additionalProperties": false
+}
