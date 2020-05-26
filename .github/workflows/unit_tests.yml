@@ -34,4 +34,4 @@ jobs:
     - name: Test with pytest
       run: |
         export PYTHONPATH=./src
-        pytest ./tests/unit
+        pytest ./tests/unit --ignore=tests/unit/baskerville_tests/db_tests
