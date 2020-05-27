@@ -34,6 +34,7 @@ jobs:
         cd esretriever
         sudo pip install -e .
         cd ..
+        mrdir ./src/baskerville/logs/
 #     - name: Lint with flake8
 #       run: |
 #         # stop the build if there are Python syntax errors or undefined names
