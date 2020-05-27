@@ -38,8 +38,6 @@ class TestFeatureManager(SQLTestCaseLatestSpark):
             v.assert_called_once()
 
     def test_initialize(self):
-        mock_model_manager = mock.MagicMock()
-        mock_model_manager.ml_model = None
         mock_features = self._helper_get_mock_features()
         for k, f in mock_features.items():
             mock_features[k].DEPENDENCIES = []
@@ -60,11 +58,11 @@ class TestFeatureManager(SQLTestCaseLatestSpark):
 
         self.mock_engine_conf.extra_features = list(mock_features.keys())
         self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
+            self.mock_engine_conf
         )
         self.feature_manager.all_features = mock_features
 
-        self.feature_manager.initialize(mock_model_manager)
+        self.feature_manager.initialize()
 
         self.assertTrue(
             len(self.feature_manager.active_features),
@@ -91,11 +89,9 @@ class TestFeatureManager(SQLTestCaseLatestSpark):
         )
 
     def test_get_active_features_no_ml_model(self):
-        mock_model_manager = mock.MagicMock()
-        mock_model_manager.ml_model = None
         mock_features = self._helper_get_mock_features()
         self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
+            self.mock_engine_conf
         )
         self.feature_manager.all_features = mock_features
         self.feature_manager.extra_features = mock_features.keys()
@@ -109,11 +105,9 @@ class TestFeatureManager(SQLTestCaseLatestSpark):
         )
 
     def test_get_active_features_no_ml_model_unknown_features(self):
-        mock_model_manager = mock.MagicMock()
-        mock_model_manager.ml_model = None
         mock_features = self._helper_get_mock_features()
         self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
+            self.mock_engine_conf
         )
         self.feature_manager.all_features = mock_features
         self.feature_manager.extra_features = list(mock_features.keys()) + [
@@ -121,44 +115,6 @@ class TestFeatureManager(SQLTestCaseLatestSpark):
         ]
 
         # todo: with self.assertWarns(Warning):
-        actual_active_features = self.feature_manager.get_active_features()
-
-        self._helper_check_features_instantiated_once(mock_features)
-        self.assertEqual(
-            len(actual_active_features),
-            4
-        )
-
-    def test_get_active_features_all_features(self):
-        mock_model_manager = mock.MagicMock()
-        mock_features = self._helper_get_mock_features()
-        mock_model_manager.ml_model.features = ['mock_feature1']
-
-        self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
-        )
-        self.feature_manager.all_features = mock_features
-        self.feature_manager.extra_features = list(mock_features.keys())
-
-        actual_active_features = self.feature_manager.get_active_features()
-
-        self._helper_check_features_instantiated_once(mock_features)
-        self.assertEqual(
-            len(actual_active_features),
-            4
-        )
-
-    def test_get_active_features_extra_features(self):
-        mock_model_manager = mock.MagicMock()
-        mock_features = self._helper_get_mock_features()
-        mock_model_manager.ml_model.features = ['mock_feature1']
-
-        self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
-        )
-        self.feature_manager.all_features = mock_features
-        self.feature_manager.extra_features = list(mock_features.keys())[1:]
-
         actual_active_features = self.feature_manager.get_active_features()
 
         self._helper_check_features_instantiated_once(mock_features)
@@ -233,105 +189,43 @@ class TestFeatureManager(SQLTestCaseLatestSpark):
         self.assertEqual(feature_columns, [])
 
     def test_feature_config_is_valid_true(self):
-        mock_model_manager = mock.MagicMock()
         mock_features = self._helper_get_mock_features()
         for k, f in mock_features.items():
             f.feature_name_from_class.return_value = k
             f.dependencies = list(mock_features.values())
 
         self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
+            self.mock_engine_conf
         )
         self.feature_manager.active_features = mock_features.values()
         self.feature_manager.active_feature_names = list(mock_features.keys())
-        mock_model_manager.ml_model.features = list(mock_features.keys())
-
-        is_config_valid = self.feature_manager.feature_config_is_valid()
-        self.assertEqual(is_config_valid, True)
-
-    def test_feature_config_is_valid_true_no_ml_model(self):
-        mock_model_manager = mock.MagicMock()
-        mock_model_manager.ml_model = None
-        self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
-        )
 
         is_config_valid = self.feature_manager.feature_config_is_valid()
         self.assertEqual(is_config_valid, True)
 
     def test_feature_config_is_valid_false_feature_dependencies_not_met(self):
-        mock_model_manager = mock.MagicMock()
         mock_features = self._helper_get_mock_features()
         for k, f in mock_features.items():
             f.feature_name_from_class.return_value = 'test'
             f.dependencies = list(mock_features.values())
 
         self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
-        )
-        self.feature_manager.active_features = mock_features.values()
-        self.feature_manager.active_feature_names = list(mock_features.keys())
-        mock_model_manager.ml_model.features = list(mock_features.keys())
-
-        is_config_valid = self.feature_manager.feature_config_is_valid()
-        self.assertEqual(is_config_valid, False)
-
-    def test_feature_config_is_valid_false_feature_different_ml_features(self):
-        mock_model_manager = mock.MagicMock()
-        mock_features = self._helper_get_mock_features()
-        for k, f in mock_features.items():
-            f.feature_name_from_class.return_value = k
-            f.dependencies = list(mock_features.values())
-
-        mock_model_manager.ml_model.features = list(mock_features.keys()) + [
-            'unknown_feature']
-
-        self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
+            self.mock_engine_conf
         )
         self.feature_manager.active_features = mock_features.values()
         self.feature_manager.active_feature_names = list(mock_features.keys())
 
         is_config_valid = self.feature_manager.feature_config_is_valid()
         self.assertEqual(is_config_valid, False)
-
-    def test_features_subset_of_model_features_true(self):
-        mock_model_manager = mock.MagicMock()
-        mock_features = self._helper_get_mock_features()
-        mock_model_manager.ml_model.features = list(mock_features.keys())
-        self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
-        )
-        self.feature_manager.active_features = mock_features.values()
-        self.feature_manager.active_feature_names = list(mock_features.keys())
-
-        is_subset = self.feature_manager.features_subset_of_model_features()
-        self.assertEqual(is_subset, True)
-
-    def test_features_subset_of_model_features_true_false(self):
-        mock_model_manager = mock.MagicMock()
-        mock_features = self._helper_get_mock_features()
-        mock_model_manager.ml_model.features = list(mock_features.keys()) + [
-            'unknown_feature']
-
-        self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
-        )
-        self.feature_manager.active_features = mock_features.values()
-        self.feature_manager.active_feature_names = list(mock_features.keys())
-
-        is_subset = self.feature_manager.features_subset_of_model_features()
-        self.assertEqual(is_subset, False)
 
     def test_feature_dependencies_met_true(self):
-        mock_model_manager = mock.MagicMock()
         mock_features = self._helper_get_mock_features()
         for k, f in mock_features.items():
             f.feature_name_from_class.return_value = k
             f.dependencies = list(mock_features.values())
 
         self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
+            self.mock_engine_conf
         )
         self.feature_manager.active_features = mock_features.values()
         self.feature_manager.active_feature_names = list(mock_features.keys())
@@ -340,14 +234,13 @@ class TestFeatureManager(SQLTestCaseLatestSpark):
         self.assertEqual(is_config_valid, True)
 
     def test_feature_dependencies_met_false(self):
-        mock_model_manager = mock.MagicMock()
         mock_features = self._helper_get_mock_features()
         for k, f in mock_features.items():
             f.feature_name_from_class.return_value = 'other feature'
             f.dependencies = list(mock_features.values())
 
         self.feature_manager = FeatureManager(
-            self.mock_engine_conf, mock_model_manager
+            self.mock_engine_conf
         )
         self.feature_manager.active_features = mock_features.values()
         self.feature_manager.active_feature_names = list(mock_features.keys())

@@ -9,7 +9,6 @@ import yaml
 
 FOLDER_MODELS = 'models'
 FOLDER_CACHE = 'cache'
-RANDOM_SEED = 42
 
 
 def parse_config(path=None, data=None, tag='!ENV'):
@@ -254,12 +253,7 @@ def get_default_data_path() -> str:
     Returns the absolute path to the data folder
     :return:
     """
-    baskerville_root = os.environ.get('BASKERVILLE_ROOT')
-    if baskerville_root:
-        return os.path.join(baskerville_root, 'data')
-    return os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data'
-    )
+    return f'{os.path.dirname(os.path.realpath(__file__))}/../../../data'
 
 
 def get_days_in_year(year):
@@ -407,10 +401,3 @@ def get_model_path(storage_path, model_name='model'):
                         FOLDER_MODELS,
                         f'{model_name}__{get_timestamp()}')
 
-
-def get_classifier_load_path(path):
-    return os.path.join(path, 'classifier')
-
-
-def get_scaler_load_path(path):
-    return os.path.join(path, 'scaler')
