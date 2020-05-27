@@ -26,9 +26,12 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements_unit_tests.txt ]; then pip install -r requirements_unit_tests.txt; fi
         git clone https://github.com/titicaca/spark-iforest.git
+        cd spark-iforest/python
+        python setup.py sdist
+        pip install dist/pyspark-iforest-2.4.0.tar.gz
+        cd ../../
         git clone https://github.com/equalitie/esretriever.git
         cd esretriever
-        git checkout issue_17_dockerize
         sudo pip install -e .
         cd ..
 #     - name: Lint with flake8
