@@ -25,7 +25,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements_unit_tests.txt ]; then pip install -r requirements_unit_tests.txt; fi
-        git clone git@github.com:equalitie/esretriever.git
+        git clone https://github.com/titicaca/spark-iforest.git
+        git clone https://github.com/equalitie/esretriever.git
         cd esretriever
         git checkout issue_17_dockerize
         sudo pip install -e .
@@ -40,4 +41,4 @@ jobs:
     - name: Test with pytest
       run: |
         export PYTHONPATH=./src
-        pytest ./tests/unit --ignore=tests/unit/baskerville_tests/db_tests
+        pytest ./tests/unit
