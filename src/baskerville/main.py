@@ -62,20 +62,6 @@ def run_simulation(conf, spark=None):
     print('Set up Simulation...')
 
 
-def populate_with_test_data(database_config):
-    """
-    Load the test data and save them in the database
-    :param dict[str, T] database_config:
-    :return:
-    """
-    global logger
-    from baskerville.util.model_serialization import import_pickled_model
-    path = os.path.join(get_default_data_path(), 'samples', 'sample_model')
-    test_model_path = os.path.join(get_default_data_path(), 'samples', 'test_model')
-    logger.info(f'Loading test model from: {test_model_path}')
-    import_pickled_model(database_config, path, test_model_path)
-
-
 def main():
     """
     Baskerville commandline arguments
@@ -97,13 +83,6 @@ def main():
         action="store_true",
         help="Start the Baskerville Prometheus exporter at the specified "
              "in the configuration port",
-    )
-
-    parser.add_argument(
-        "-t", "--testmodel", dest="test_model",
-        help="Add a test model in the models table",
-        default=False,
-        action="store_true"
     )
 
     parser.add_argument(
@@ -142,10 +121,6 @@ def main():
         start_http_server(port)
         logger.info(f'Starting Baskerville Exporter at '
                     f'http://localhost:{port}')
-
-    # populate with test data if specified
-    if args.test_model:
-        populate_with_test_data(conf['database'])
 
     for p in PROCESS_LIST[::-1]:
         print(f"{p.name} starting...")

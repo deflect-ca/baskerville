@@ -86,7 +86,7 @@ class BaskervilleDBTools(object):
         return self.session.query(Model).order_by(Model.id.desc()).first()
 
     def get_ml_model_from_db(self, model_id):
-        if model_id <= 0:
+        if model_id < 0:
             return self.get_latest_ml_model_from_db()
 
         return self.session.query(Model).filter(Model.id == model_id).first()

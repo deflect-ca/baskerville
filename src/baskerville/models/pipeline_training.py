@@ -125,6 +125,7 @@ class TrainingPipeline(PipelineBase):
         if not self.model.features:
             self.model.features = self.active_features
         self.model.train(self.data)
+        self.data.unpersist()
 
     def test(self):
         """

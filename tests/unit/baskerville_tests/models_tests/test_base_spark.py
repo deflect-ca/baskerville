@@ -18,7 +18,7 @@ from pyspark.sql import functions as F
 from baskerville.models.config import (
     Config, DatabaseConfig, SparkConfig, DataParsingConfig
 )
-from baskerville.util.enums import Step
+from baskerville.util.enums import Step, LabelEnum
 from pyspark.sql.types import (StructType, StructField, IntegerType,
                                StringType, TimestampType)
 
@@ -770,6 +770,49 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.assertListEqual(actual_call[0].columns, request_sets_df.columns)
 
         self.spark_pipeline.refresh_cache.assert_called_once()
+
+    @mock.patch('baskerville.models.base_spark.F.udf')
+    def test_predict_no_ml_model(self, mock_udf):
+        logs = [
+            {
+                'ip': '1',
+                'target': 'testhost',
+                'afeature': 0.1,
+            },
+            {
+                'ip': '1',
+                'target': 'testhost',
+                'afeature': 1.,
+            }
+        ]
+        mock_udf_predict_dict = mock_udf.return_value
+
+        mock_udf_predict_dict.return_value = F.struct(
+            [
+                F.lit(0.).cast('float').alias('prediction'),
+                F.lit(1.).cast('float').alias('score'),
+                F.lit(1.).cast('float').alias('threshold')
+            ]
+        )
+        df = self.session.createDataFrame(logs[1:])
+
+        # set cache
+        self.spark_pipeline.request_sets_df = df
+        self.spark_pipeline.logs_df = df.withColumn(
+            'features', F.lit(0)
+        )
+        self.spark_pipeline.predict()
+
+        df = df.withColumn('features', F.lit(0))
+        df = df.withColumn('prediction', F.lit(LabelEnum.unknown.value).cast('int'))
+        df = df.withColumn('score', F.lit(LabelEnum.unknown.value).cast('float'))
+        df = self.fix_schema(
+            df,
+            self.spark_pipeline.logs_df.schema,
+            self.spark_pipeline.logs_df.columns
+        )
+
+        self.assertDataFrameEqual(df, self.spark_pipeline.logs_df)
 
     def test_feature_extraction(self):
         mock_feature1 = mock.MagicMock()

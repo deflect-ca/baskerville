@@ -93,6 +93,7 @@ class SparkPipelineBase(PipelineBase):
         self.time_bucket = TimeBucket(self.engine_conf.time_bucket)
         self.feature_manager = FeatureManager(self.engine_conf)
         self.model_index = None
+        self.model = None
 
     def load_test(self):
         """
