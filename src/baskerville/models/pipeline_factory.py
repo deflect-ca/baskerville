@@ -1,8 +1,6 @@
-from baskerville.models.pipeline_training import TrainingPipeline, \
-    TrainingSparkMLPipeline
-from baskerville.models.pipelines import RawLogPipeline, ElasticsearchPipeline, \
-    KafkaPipeline
-from baskerville.util.enums import RunType, SPARK_ML_MODELS, SKLEARN_MODELS
+from baskerville.models.pipeline_training import TrainingPipeline
+from baskerville.models.pipelines import RawLogPipeline, ElasticsearchPipeline, KafkaPipeline
+from baskerville.util.enums import RunType
 
 
 class PipelineFactory(object):
@@ -28,19 +26,11 @@ class PipelineFactory(object):
                 config.spark
             )
         elif run_type == RunType.training:
-            if config.engine.training.classifier in SPARK_ML_MODELS:
-                return TrainingSparkMLPipeline(
-                    config.database,
-                    config.engine,
-                    config.spark
-                )
-            elif config.engine.training.classifier in SKLEARN_MODELS:
-
-                return TrainingPipeline(
-                    config.database,
-                    config.engine,
-                    config.spark
-                )
+            return TrainingPipeline(
+                config.database,
+                config.engine,
+                config.spark
+            )
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'
         )

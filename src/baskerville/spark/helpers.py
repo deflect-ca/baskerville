@@ -187,7 +187,7 @@ def save_model(model, path, mode='overwrite'):
     writer.save(path)
 
 
-def set_unknown_prediction(df, columns=('prediction', 'score')):
+def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
     """
     Sets the preset unknown value for prediction and score
     :param pyspark.sql.Dataframe df:

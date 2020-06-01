@@ -117,30 +117,6 @@ class PartitionByEnum(BaseStrEnum):
     m = 'month'
 
 
-class AlgorithmEnum(BaseStrEnum):
-    isolation_forest_sklearn = "sklearn.ensemble.IsolationForest"
-    isolation_forest_pyspark = "pyspark_iforest.ml.iforest.IForest"
-
-
-class ScalerEnum(BaseStrEnum):
-    scaler_sklearn = "sklearn.preprocessing.StandardScaler"
-    scaler_pyspark = "pyspark.ml.feature.StandardScaler"
-
-
-SPARK_ML_MODELS = {
-    AlgorithmEnum.isolation_forest_pyspark,
-    ScalerEnum.scaler_pyspark
-}
-SKLEARN_MODELS = {
-    AlgorithmEnum.isolation_forest_sklearn,
-    ScalerEnum.scaler_sklearn
-}
-
-anomaly_detector_root = 'baskerville.models.anomaly_detector'
-
-ANOMALY_MODEL_MANAGER = {
-    AlgorithmEnum.isolation_forest_sklearn: f'{anomaly_detector_root}.'
-                                            f'ScikitAnomalyDetectorManager',
-    AlgorithmEnum.isolation_forest_pyspark: f'{anomaly_detector_root}.'
-                                            f'SparkAnomalyDetectorManager',
-}
+class ModelEnum(BaseStrEnum):
+    isolation_forest_sklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
+    isolation_forest = "baskerville.models.anomaly_model.AnomalyModel"

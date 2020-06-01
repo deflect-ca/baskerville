@@ -9,7 +9,6 @@ import yaml
 
 FOLDER_MODELS = 'models'
 FOLDER_CACHE = 'cache'
-RANDOM_SEED = 42
 
 
 def parse_config(path=None, data=None, tag='!ENV'):
@@ -261,7 +260,6 @@ def get_default_data_path() -> str:
         os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data'
     )
 
-
 def get_days_in_year(year):
     """
     Returns the number of days in a specific year
@@ -407,10 +405,3 @@ def get_model_path(storage_path, model_name='model'):
                         FOLDER_MODELS,
                         f'{model_name}__{get_timestamp()}')
 
-
-def get_classifier_load_path(path):
-    return os.path.join(path, 'classifier')
-
-
-def get_scaler_load_path(path):
-    return os.path.join(path, 'scaler')
