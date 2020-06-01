@@ -100,7 +100,7 @@ class TrainingPipeline(PipelineBase):
         targets = self.data.select("target").distinct().collect()
         fractions = {}
         for row in targets:
-            fractions[row['target']] = 0.1
+            fractions[row['target']] = 0.2
         self.data = self.data.sampleBy('target', fractions, 777)
 
         # since features are stored as json, we need to expand them to create
