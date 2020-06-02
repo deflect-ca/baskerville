@@ -97,11 +97,18 @@ class TrainingPipeline(PipelineBase):
         """
         self.data = self.load().persist(self.spark_conf.storage_level)
 
-        targets = self.data.select("target").distinct().collect()
-        fractions = {}
-        for row in targets:
-            fractions[row['target']] = 0.2
+        minimum_count = 50000
+        counts = self.data.groupby('target').count()
+        counts = counts.withColumn('fraction', minimum_count / F.col('count'))
+        counts = counts.filter((F.col('fraction') < 1.0))
+        fractions = dict(counts.select('target', 'fraction').collect())
         self.data = self.data.sampleBy('target', fractions, 777)
+
+        # targets = self.data.select("target").distinct().collect()
+        # fractions = {}
+        # for row in targets:
+        #     fractions[row['target']] = 0.2
+        # self.data = self.data.sampleBy('target', fractions, 777)
 
         # since features are stored as json, we need to expand them to create
         # vectors
