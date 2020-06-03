@@ -702,6 +702,7 @@ class KafkaConfig(Config):
     publish_logs = 'baskerville.logs'
     publish_stats = 'baskerville.stats'
     publish_predictions = 'baskerville.predictions'
+    prediction_reply_topic = 'baskerville.predictions.reply'
     security_protocol = ''
     ssl_truststore_location = ''
     ssl_truststore_password = ''

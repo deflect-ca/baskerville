@@ -200,16 +200,17 @@ class TrainingPipeline(PipelineBase):
         to_date = data_params.get('to_date')
         training_days = data_params.get('training_days')
 
-        if training_days:
-            to_date = datetime.datetime.utcnow()
-            from_date = str(to_date - datetime.timedelta(
-                days=training_days
-            ))
-            to_date = str(to_date)
-        if not training_days and (not from_date or not to_date):
-            raise ValueError(
-                'Please specify either from-to dates or training days'
-            )
+        if not from_date or not to_date:
+            if training_days:
+                to_date = datetime.datetime.utcnow()
+                from_date = str(to_date - datetime.timedelta(
+                    days=training_days
+                ))
+                to_date = str(to_date)
+            else:
+                raise ValueError(
+                    'Please specify either from-to dates or training days'
+                )
 
         bounds = self.get_bounds(from_date, to_date).collect()[0]
         self.logger.debug(

@@ -53,7 +53,6 @@ class SparkPipelineBase(PipelineBase):
         self.request_set_cache = None
         self.spark = None
         self.tools = None
-        self.metrics_registry = None
         self.spark_conf = spark_conf
         self.data_parser = self.engine_conf.data_config.parser
         self.group_by_cols = list(set(group_by_cols))
