@@ -97,7 +97,7 @@ class TrainingPipeline(PipelineBase):
         """
         self.data = self.load().persist(self.spark_conf.storage_level)
 
-        minimum_count = 200000
+        minimum_count = 10000
         counts = self.data.groupby('target').count()
         counts = counts.withColumn('fraction', minimum_count / F.col('count'))
         #counts = counts.filter((F.col('fraction') < 1.0))
