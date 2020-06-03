@@ -38,6 +38,13 @@ class PipelineFactory(object):
                 config.engine,
                 config.spark
             )
+        elif run_type == RunType.client:
+            from baskerville.client_pipeline import set_up_client_processing_pipeline
+            return set_up_client_processing_pipeline(config)
+        elif run_type == RunType.irawlog:
+            from baskerville.rawlog_pipeline import set_up_irawlog_pipeline
+            return set_up_irawlog_pipeline(config)
+
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'
         )

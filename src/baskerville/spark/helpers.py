@@ -9,6 +9,7 @@ from typing import T, Any, Mapping
 
 from baskerville.spark import get_spark_session
 from baskerville.util.enums import LabelEnum
+from baskerville.util.helpers import class_from_str, TimeBucket
 from pyspark import AccumulatorParam
 from pyspark import StorageLevel
 from pyspark.sql import functions as F
@@ -175,3 +176,77 @@ def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
     for c in columns:
         df = df.withColumn(c, F.lit(LabelEnum.unknown.value))
     return df
+
+
+def load_test(df, load_test_num, storage_level):
+    """
+    If the user has set the load_test configuration, then multiply the
+    traffic by `EngineConfig.load_test` times to do load testing.
+    :return:
+    """
+    if load_test_num > 0:
+        df = df.persist(storage_level)
+
+        for i in range(load_test_num - 1):
+            temp_df = df.withColumn(
+                'client_ip', F.round(F.rand(42)).cast('string')
+            )
+            df = df.union(temp_df).persist(storage_level)
+
+        print(f'---- Count after multiplication: {df.count()}')
+    return df
+
+
+def columns_to_dict(df, col_name, columns_to_gather):
+    """
+    Convert the columns to dictionary
+    :param string column: the name of the column to use as output
+    :return: None
+    """
+    import itertools
+    from pyspark.sql import functions as F
+
+    return df.withColumn(
+        col_name,
+        F.create_map(
+            *list(
+                itertools.chain(
+                    *[
+                        (F.lit(f), F.col(f))
+                        for f in columns_to_gather
+                    ]
+                )
+            ))
+    )
+
+
+def get_window(df, time_bucket: TimeBucket, storage_level: str):
+    df = df.withColumn(
+        'timestamp', F.col('@timestamp').cast('timestamp')
+    )
+    df = df.sort('timestamp')
+    current_window_start = df.agg({"timestamp": "min"}).collect()[0][0]
+    stop = df.agg({"timestamp": "max"}).collect()[0][0]
+    window_df = None
+    current_end = current_window_start + time_bucket.td
+
+    while True:
+        if window_df:
+            window_df.unpersist(blocking=True)
+            del window_df
+        filter_ = (
+                (F.col('timestamp') >= current_window_start) &
+                (F.col('timestamp') < current_end)
+        )
+        window_df = df.where(filter_).persist(storage_level)
+        if not window_df.rdd.isEmpty():
+            print(f'# Request sets = {window_df.count()}')
+            yield window_df
+        else:
+            print(f'Empty window df for {str(filter_._jc)}')
+        current_window_start = current_window_start + time_bucket.td
+        current_end = current_window_start + time_bucket.td
+        if current_window_start >= stop:
+            window_df.unpersist(blocking=True)
+            del window_df
+            break
