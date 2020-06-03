@@ -63,10 +63,10 @@ class TrainingPipeline(PipelineBase):
         self.testing_row_n = 0
         self.db_tools = None
         self.conn_properties = {
-                'user': self.db_conf.user,
-                'password': self.db_conf.password,
-                'driver': self.spark_conf.db_driver,
-            }
+            'user': self.db_conf.user,
+            'password': self.db_conf.password,
+            'driver': self.spark_conf.db_driver,
+        }
 
         self.remaining_steps = list(self.step_to_action.keys())
 
@@ -145,7 +145,8 @@ class TrainingPipeline(PipelineBase):
         Save the models on disc and add a baskerville.db.Model in the database
         :return: None
         """
-        model_path = get_model_path(self.engine_conf.storage_path, self.model.__class__.__name__)
+        model_path = get_model_path(
+            self.engine_conf.storage_path, self.model.__class__.__name__)
         self.model.save(path=model_path, spark_session=self.spark)
 
         db_model = Model()

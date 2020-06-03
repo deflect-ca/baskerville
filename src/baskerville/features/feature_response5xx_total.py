@@ -1,8 +1,6 @@
 from baskerville.features.updateable_features import UpdaterTotal
-from baskerville.util.enums import FeatureComputeType
 from pyspark.sql import functions as F
 
-from baskerville.features.base_feature import BaseFeature
 from baskerville.features.helpers import update_total
 
 

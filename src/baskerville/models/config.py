@@ -18,6 +18,7 @@ class ConfigError(Exception, SerializableMixin):
     """
     Custom Error to be used in the configuration error report
     """
+
     def __init__(self, message, fields, exception_type=ValueError):
         if isinstance(fields, str):
             fields = [fields]
@@ -33,6 +34,7 @@ class ConfigErrorReport(object):
     Singleton configuration report - gathers all the errors from all the
     configuration instances
     """
+
     def __init__(self):
         self._errors = []
 
@@ -50,7 +52,7 @@ class ConfigErrorReport(object):
 
     @property
     def errors(self):
-        return self._errors    \
+        return self._errors
 
     @property
     def serialized_errors(self):
@@ -102,9 +104,9 @@ class Config(SerializableMixin):
 
     def __init__(self, config_dict, parent=None):
         self.__dict__.update(**{
-                k: v for k, v in self.__class__.__dict__.items()
-                if '__' not in k and not callable(v)
-            })
+            k: v for k, v in self.__class__.__dict__.items()
+            if '__' not in k and not callable(v)
+        })
         self.__dict__.update(**config_dict)
         self.parent = parent
         self._is_validated = False
@@ -133,7 +135,7 @@ class Config(SerializableMixin):
 
     @property
     def errors(self):
-        return self._configuration_error_report.errors    \
+        return self._configuration_error_report.errors
 
     @property
     def serialized_errors(self):
@@ -272,7 +274,8 @@ class EngineConfig(Config):
             (f.feature_name_from_class(), f) for f in FEATURES
         )
         if not self.storage_path:
-            self.storage_path = os.path.join(get_default_data_path(), 'storage')
+            self.storage_path = os.path.join(
+                get_default_data_path(), 'storage')
 
     def validate(self):
         logger.debug('Validating EngineConfig...')
@@ -323,7 +326,8 @@ class EngineConfig(Config):
             for f in self.extra_features:
                 if f not in self.all_features:
                     self.add_error(
-                        ConfigError(f'Unknown feature {f}.', ['extra_features'])
+                        ConfigError(f'Unknown feature {f}.', [
+                                    'extra_features'])
                     )
 
         self._is_validated = True
@@ -450,7 +454,8 @@ class TrainingConfig(Config):
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
-        self.allowed_models = list(vars(ModelEnum)['_value2member_map_'].keys())
+        self.allowed_models = list(
+            vars(ModelEnum)['_value2member_map_'].keys())
 
     def validate(self):
         logger.debug('Validating TrainingConfig...')
@@ -466,7 +471,7 @@ class TrainingConfig(Config):
                     (self.data_parameters.get('from_date') and
                      self.data_parameters.get('to_date')):
                 raise ValueError(
-                    f'Either training days or from-to date should be specified'
+                    'Either training days or from-to date should be specified'
                 )
 
         if not self.model_parameters:
@@ -557,7 +562,6 @@ class MaintenanceConfig(Config):
                 raise ValueError(
                     f'Wrong value for \'keep_data_for\':{self.keep_data_for}'
                 )
-            num = int(split_kdf[0])
             unit = split_kdf[1]
 
             if unit not in ['year', 'years', 'month', 'months', 'week',
@@ -888,7 +892,7 @@ class MetricsConfig(Config):
     def validate(self):
         logger.debug('Validating MetricsConfig...')
         if not self.performance and not self.progress:
-            raise ValueError(f'Metrics configuration is missing.')
+            raise ValueError('Metrics configuration is missing.')
 
         if not self.port:
             self.port = 8998
@@ -918,7 +922,8 @@ class DataParsingConfig(Config):
         from baskerville.models.log_parsers import LOG_PARSERS
 
         if not self.schema or not os.path.isfile(self.schema):
-            self.add_error(ConfigError('Please provide a valid schema', 'schema'))
+            self.add_error(ConfigError(
+                'Please provide a valid schema', 'schema'))
         else:
             with open(self.schema) as sc:
                 self.schema_obj = json.load(sc)

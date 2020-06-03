@@ -12,7 +12,8 @@ class ModelInterface(object):
         param_names = self.get_param_names()
         for key, value in params.items():
             if key not in param_names:
-                raise RuntimeError(f'Class {self.__class__.__name__} does not have {key} attribute')
+                raise RuntimeError(
+                    f'Class {self.__class__.__name__} does not have {key} attribute')
             setattr(self, key, value)
 
     def get_params(self):
@@ -35,5 +36,3 @@ class ModelInterface(object):
 
     def load(self, path, spark_session=None):
         pass
-
-

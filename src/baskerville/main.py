@@ -71,7 +71,8 @@ def populate_with_test_data(database_config):
     global logger
     from baskerville.util.model_serialization import import_pickled_model
     path = os.path.join(get_default_data_path(), 'samples', 'sample_model')
-    test_model_path = os.path.join(get_default_data_path(), 'samples', 'test_model')
+    test_model_path = os.path.join(
+        get_default_data_path(), 'samples', 'test_model')
     logger.info(f'Loading test model from: {test_model_path}')
     import_pickled_model(database_config, path, test_model_path)
 
@@ -89,7 +90,7 @@ def main():
         help="Pipeline to use: es, rawlog, or kafka",
     )
     parser.add_argument(
-        "-s", "--simulate", dest="simulate",  action="store_true",
+        "-s", "--simulate", dest="simulate", action="store_true",
         help="Simulate real-time run using kafka",
     )
     parser.add_argument(
@@ -137,7 +138,7 @@ def main():
     # start baskerville prometheus exporter if specified
     if args.start_exporter:
         if not baskerville_engine.config.engine.metrics:
-            raise RuntimeError(f'Cannot start exporter without metrics config')
+            raise RuntimeError('Cannot start exporter without metrics config')
         port = baskerville_engine.config.engine.metrics.port
         start_http_server(port)
         logger.info(f'Starting Baskerville Exporter at '

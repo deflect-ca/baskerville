@@ -48,10 +48,10 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         self.assertTrue(isinstance(rsc.group_by_fields, tuple))
 
     def test__get_load_q(self):
-        expected_q = f'''(SELECT * 
-                    from {self.test_table_name} 
-                    where id in (select max(id) 
-                    from {self.test_table_name} 
+        expected_q = f'''(SELECT *
+                    from {self.test_table_name}
+                    where id in (select max(id)
+                    from {self.test_table_name}
                     group by {', '.join(self.test_groupby_fields)} )
                     ) as {self.test_table_name}'''
 
@@ -79,7 +79,6 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
 
         rsc._load = mock.MagicMock()
         persist = rsc._load.return_value.persist
-        actual_rsc = rsc.load()
 
         persist.assert_called_once()
         rsc._load.assert_called_once_with(
@@ -103,8 +102,8 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         extra_filters = (F.col('a') > 0)
         expected_where = str((
             ((F.col("updated_at") >= F.lit(update_date)) |
-                (F.col("created_at") >= F.lit(update_date)))
-                & extra_filters
+             (F.col("created_at") >= F.lit(update_date)))
+            & extra_filters
         )._jc)
         rsc = RequestSetSparkCache(
             self.test_cache_config,
@@ -120,10 +119,7 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         where = load.return_value.where
         select = where.return_value.select
         join = select.return_value.join
-        filter_ = join.return_value.filter
-        cache = filter_.return_value.cache
         mock_broadcast.return_value = hosts
-        df = rsc._load(update_date, hosts, extra_filters)
 
         format.assert_called_once_with('jdbc')
         options.assert_called_once_with(
@@ -181,7 +177,8 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
 
         returned_rsc = rsc.refresh(update_date, hosts)
         self.assertTrue(isinstance(returned_rsc, RequestSetSparkCache))
-        rsc._load.assert_called_once_with(extra_filters=None, update_date=update_date, hosts=hosts)
+        rsc._load.assert_called_once_with(
+            extra_filters=None, update_date=update_date, hosts=hosts)
         rsc.append.assert_called_once_with(42)
         rsc.append.return_value.deduplicate.assert_called_once()
 
@@ -271,8 +268,8 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         test_expire_longer_than = 60
         update_date = now - timedelta(seconds=test_expire_longer_than)
         filter_ = str((
-                (F.col("updated_at") >= F.lit(update_date)) |
-                (F.col("created_at") >= F.lit(update_date))
+            (F.col("updated_at") >= F.lit(update_date)) |
+            (F.col("created_at") >= F.lit(update_date))
         )._jc)
         rsc = RequestSetSparkCache(
             self.test_cache_config,
@@ -303,5 +300,3 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         rsc._RequestSetSparkCache__cache = mock.MagicMock()
         rsc.empty()
         self.assertTrue(rsc.cache is None)
-
-

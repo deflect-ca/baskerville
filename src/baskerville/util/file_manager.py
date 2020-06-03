@@ -21,17 +21,19 @@ class FileManager(object):
 
         if path.startswith('hdfs://'):
             if not self.spark_session:
-                raise RuntimeError('You must pass a valid spark session if you use distributed storage')
+                raise RuntimeError(
+                    'You must pass a valid spark session if you use distributed storage')
 
             # find the third occurrence of '/'
             slash = path.find('/', path.find('/', path.find('/') + 1) + 1)
             if slash == -1:
                 raise RuntimeError(f'Path "{path}" must contain at least one folder. '
                                    f'For example "hdfs://xxx:8020/baskerville"). ')
-            connection_URI= path[:slash]
+            connection_URI = path[:slash]
             self.jvm_path_class = self.spark_session._sc._gateway.jvm.org.apache.hadoop.fs.Path
             self.jvm_file_system = self.spark_session._sc._gateway.jvm.org.apache.hadoop.fs.FileSystem.get(
-                self.spark_session._sc._gateway.jvm.java.net.URI(connection_URI),
+                self.spark_session._sc._gateway.jvm.java.net.URI(
+                    connection_URI),
                 self.spark_session._sc._jsc.hadoopConfiguration())
         else:
             self.jvm_path = None
@@ -52,7 +54,7 @@ class FileManager(object):
             else:
                 os.remove(path)
             return True
-        except OSError as exc:
+        except OSError:
             return False
 
     def rename_path(self, source, destination):
@@ -113,4 +115,3 @@ class FileManager(object):
                 self.jvm_path_class(path),
                 self.jvm_path_class(f.name))
             return self._load_from_local_file(f, format=format)
-

@@ -19,8 +19,8 @@ class FeatureCssToHtmlRatio(UpdaterRatio):
     def __init__(self):
         super(FeatureCssToHtmlRatio, self).__init__()
         self.group_by_aggs = {
-            'html_count':  F.count(F.when(F.col('is_html') == True,  # noqa
-                                          F.col('is_html'))),
+            'html_count': F.count(F.when(F.col('is_html') == True,  # noqa
+                                         F.col('is_html'))),
             'css_count': F.count(F.when(F.col('is_css') == True,  # noqa
                                         F.col('is_css')))
         }
@@ -48,11 +48,11 @@ class FeatureCssToHtmlRatio(UpdaterRatio):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_ratio(
-                    past.get(FeatureCssTotal.feature_name_from_class()),
-                    past.get(FeatureHtmlTotal.feature_name_from_class()),
-                    current[FeatureCssTotal.feature_name_from_class()],
-                    current[FeatureHtmlTotal.feature_name_from_class()]
-                )
+            past.get(FeatureCssTotal.feature_name_from_class()),
+            past.get(FeatureHtmlTotal.feature_name_from_class()),
+            current[FeatureCssTotal.feature_name_from_class()],
+            current[FeatureHtmlTotal.feature_name_from_class()]
+        )
 
     def update(self, df, feat_column='features', old_feat_column='old_features'):
         return super().update(

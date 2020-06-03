@@ -1,7 +1,5 @@
 from baskerville.features.updateable_features import UpdaterTotal
 from pyspark.sql import functions as F
-
-from baskerville.features.base_feature import BaseFeature
 from baskerville.features.helpers import update_total
 
 
@@ -21,7 +19,6 @@ class FeatureUniqueQueryTotal(UpdaterTotal):
         }
 
     def compute(self, df):
-
         df = df.withColumn(
             self.feature_name,
             F.col('num_unique_queries').cast('float')
@@ -35,4 +32,3 @@ class FeatureUniqueQueryTotal(UpdaterTotal):
             current[cls.feature_name_from_class()],
             past.get(cls.feature_name_from_class())
         )
-

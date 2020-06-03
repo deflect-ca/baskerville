@@ -134,12 +134,12 @@ def update_request_set_by_id(
 
     stop = stop.replace(tzinfo=tzutc())
     values = {
-               "stop": stop,
-               "features": features,
-               "prediction": prediction,
-               "subset_count": subset_count,
-               "num_requests": num_requests,
-            }
+        "stop": stop,
+        "features": features,
+        "prediction": prediction,
+        "subset_count": subset_count,
+        "num_requests": num_requests,
+    }
     try:
         # with engine.connect() as conn:
         #     stmt = RequestSet.__table__.update(). \
@@ -222,7 +222,7 @@ def cross_reference_misp(ip, db_conf):
     session, engine = set_up_db(db_conf, False)
 
     attribute = session.query(Attribute).filter(
-      Attribute.value == ip).first()
+        Attribute.value == ip).first()
 
     label = None
     id_attribute = None

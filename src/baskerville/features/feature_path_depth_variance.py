@@ -15,13 +15,13 @@ class FeaturePathDepthVariance(UpdaterVariance):
     def __init__(self):
         super(FeaturePathDepthVariance, self).__init__()
         self.group_by_aggs = {
-            'client_url_slash_count_variance':  F.variance(
+            'client_url_slash_count_variance': F.variance(
                 F.col('client_url_slash_count')
             )
         }
         self.pre_group_by_calcs = {
             'client_url_slash_count': (
-                    F.size(F.split(F.col('client_url'), '/')) - 1
+                F.size(F.split(F.col('client_url'), '/')) - 1
             )
         }
 
@@ -58,4 +58,3 @@ class FeaturePathDepthVariance(UpdaterVariance):
             FeatureRequestTotal.feature_name_from_class(),
             FeaturePathDepthAverage.feature_name_from_class()
         )
-

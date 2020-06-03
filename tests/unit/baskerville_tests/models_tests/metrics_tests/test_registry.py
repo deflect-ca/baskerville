@@ -86,7 +86,7 @@ class TestMetricsRegistry(unittest.TestCase):
         mr.registry[name] = StatsHook(
             metric=mock_metric,
             wrapped_func_name=name,
-           hooks_to_callbacks={'before': lambda m, s: print(m, s)}
+            hooks_to_callbacks={'before': lambda m, s: print(m, s)}
         )
 
         wrapped_fn = mr.before_wrapper(test_fn, name)
@@ -106,7 +106,7 @@ class TestMetricsRegistry(unittest.TestCase):
         mr.registry[name] = StatsHook(
             metric=mock_metric,
             wrapped_func_name=name,
-           hooks_to_callbacks={'after': lambda m, s: print(m, s)}
+            hooks_to_callbacks={'after': lambda m, s: print(m, s)}
         )
 
         wrapped_fn = mr.after_wrapper(test_fn, name)
@@ -145,5 +145,3 @@ class TestMetricsRegistry(unittest.TestCase):
 
         self.assertTrue(actual, expected)
         mock_metric.state.assert_called_once_with(test_state)
-
-

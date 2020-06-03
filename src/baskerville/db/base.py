@@ -107,4 +107,3 @@ class Partition(object):
         self.partition_field = partition_field
         self.index_by = index_by
         self.is_catch_all = is_catch_all
-

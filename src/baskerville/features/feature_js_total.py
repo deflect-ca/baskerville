@@ -1,7 +1,6 @@
 from baskerville.features.updateable_features import UpdaterTotal
 from pyspark.sql import functions as F
 
-from baskerville.features.base_feature import BaseFeature
 from baskerville.features.helpers import update_total
 
 
@@ -18,7 +17,7 @@ class FeatureJsTotal(UpdaterTotal):
 
         self.group_by_aggs = {
             'js_count': F.count(F.when(F.col('is_js') == True,  # noqa
-                                        F.col('is_js')))
+                                       F.col('is_js')))
         }
         self.pre_group_by_calcs = {
             'is_js': F.array_contains(F.split(F.col(
@@ -39,6 +38,6 @@ class FeatureJsTotal(UpdaterTotal):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_total(
-                    past.get(cls.feature_name_from_class()),
-                    current[cls.feature_name_from_class()]
-                )
+            past.get(cls.feature_name_from_class()),
+            current[cls.feature_name_from_class()]
+        )

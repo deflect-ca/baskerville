@@ -40,7 +40,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.mock_spark_session = self.spark_patcher.start()
         self.mock_request_set_cache = self.request_set_cache_patcher.start()
         self.dummy_conf = Config({})
-        self.db_conf = DatabaseConfig({'user': 'postgres', 'password': '***', 'host': 'localhost'})
+        self.db_conf = DatabaseConfig(
+            {'user': 'postgres', 'password': '***', 'host': 'localhost'})
         self.engine_conf = mock.MagicMock()
         self.engine_conf.log_level = 'DEBUG'
         self.engine_conf.time_bucket = 10
@@ -75,16 +76,22 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.assertTrue(hasattr(self.spark_pipeline, 'db_conf'))
         self.assertTrue(hasattr(self.spark_pipeline, 'clean_up'))
         self.assertTrue(hasattr(self.spark_pipeline, 'group_by_cols'))
-        self.assertTrue(hasattr(self.spark_pipeline.feature_manager, 'active_features'))
-        self.assertTrue(hasattr(self.spark_pipeline.feature_manager, 'active_feature_names'))
-        self.assertTrue(hasattr(self.spark_pipeline.feature_manager, 'active_columns'))
+        self.assertTrue(
+            hasattr(self.spark_pipeline.feature_manager, 'active_features'))
+        self.assertTrue(
+            hasattr(self.spark_pipeline.feature_manager, 'active_feature_names'))
+        self.assertTrue(
+            hasattr(self.spark_pipeline.feature_manager, 'active_columns'))
         self.assertTrue(hasattr(self.spark_pipeline, 'logs_df'))
         self.assertTrue(hasattr(self.spark_pipeline, 'request_set_cache'))
 
-        self.assertTrue(Step.preprocessing in self.spark_pipeline.step_to_action)
+        self.assertTrue(
+            Step.preprocessing in self.spark_pipeline.step_to_action)
         self.assertTrue(Step.group_by in self.spark_pipeline.step_to_action)
-        self.assertTrue(Step.feature_calculation in self.spark_pipeline.step_to_action)
-        self.assertTrue(Step.label_or_predict in self.spark_pipeline.step_to_action)
+        self.assertTrue(
+            Step.feature_calculation in self.spark_pipeline.step_to_action)
+        self.assertTrue(
+            Step.label_or_predict in self.spark_pipeline.step_to_action)
         self.assertTrue(Step.save in self.spark_pipeline.step_to_action)
 
     @mock.patch('baskerville.spark.get_or_create_spark_session')
@@ -94,7 +101,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                                                         'spark instance'
         importlib.reload(baskerville.models.base_spark)
         from baskerville.models.base_spark import SparkPipelineBase
-        spark = SparkPipelineBase.instantiate_spark_session(self.spark_pipeline)
+        spark = SparkPipelineBase.instantiate_spark_session(
+            self.spark_pipeline)
         self.assertTrue(spark is not None)
         self.assertEqual(spark, 'This should be the spark instance')
         mock_get_or_create_spark_session.assert_called_once_with(
@@ -148,10 +156,14 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             'count(@timestamp) AS `num_requests`'
         )
 
-        self.assertEqual(len(self.spark_pipeline.feature_manager.column_renamings), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_features), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_feature_names), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_columns), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.column_renamings), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_features), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_feature_names), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_columns), 0)
         self.assertEqual(len(self.spark_pipeline.columns_to_filter_by), 3)
         self.assertSetEqual(
             self.spark_pipeline.columns_to_filter_by,
@@ -256,10 +268,14 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             'count(@timestamp) AS `num_requests`'
         )
 
-        self.assertEqual(len(self.spark_pipeline.feature_manager.column_renamings), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_features), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_feature_names), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_columns), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.column_renamings), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_features), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_feature_names), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_columns), 0)
         self.assertEqual(len(self.spark_pipeline.columns_to_filter_by), 3)
         self.assertSetEqual(
             self.spark_pipeline.columns_to_filter_by,
@@ -388,7 +404,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         columns = self.spark_pipeline.logs_df.columns
 
         self.spark_pipeline.logs_df.select(columns).show()
-        df = self.fix_schema(df.select(columns), self.spark_pipeline.logs_df.schema)
+        df = self.fix_schema(df.select(columns),
+                             self.spark_pipeline.logs_df.schema)
         df.show()
 
         self.assertTrue(df.schema == self.spark_pipeline.logs_df.schema)
@@ -398,7 +415,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             self.spark_pipeline.logs_df,
             df
         )
-
 
     @mock.patch('baskerville.models.base_spark.instantiate_from_str')
     @mock.patch('baskerville.models.base_spark.bytes')
@@ -480,7 +496,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         columns = self.spark_pipeline.logs_df.columns
 
         self.spark_pipeline.logs_df.select(columns).show()
-        df = self.fix_schema(df.select(columns), self.spark_pipeline.logs_df.schema)
+        df = self.fix_schema(df.select(columns),
+                             self.spark_pipeline.logs_df.schema)
         df.show()
 
         self.assertTrue(df.schema == self.spark_pipeline.logs_df.schema)
@@ -527,7 +544,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         mock_feature.columns = []
 
         self.spark_pipeline.feature_manager.get_active_features = mock.MagicMock()
-        self.spark_pipeline.feature_manager.get_active_features.return_value = [mock_feature]
+        self.spark_pipeline.feature_manager.get_active_features.return_value = [
+            mock_feature]
         self.spark_pipeline.add_post_groupby_columns = mock.MagicMock()
         self.spark_pipeline.feature_manager.active_features = [mock_feature]
         self.spark_pipeline.model = None
@@ -752,7 +770,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         request_sets_df = df.select(
             RequestSet.columns
         ).withColumnRenamed(
-                'id_request_set', 'id'
+            'id_request_set', 'id'
         ).withColumnRenamed(
             'request_set_prediction', 'prediction'
         )
@@ -814,7 +832,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             df, test_table, json_cols=json_cols, mode=mode_param
         )
 
-        persist.assert_called_once_with(StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
+        persist.assert_called_once_with(
+            StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
         format.assert_called_once_with('jdbc')
         options.assert_called_once_with(
             url=self.spark_pipeline.db_url,
@@ -964,8 +983,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
 
         self.spark_pipeline.logs_df.show()
         df.select(*self.spark_pipeline.logs_df.columns).where(
-                F.col('drop_if_null').isNotNull()
-            ).show()
+            F.col('drop_if_null').isNotNull()
+        ).show()
 
         self.assertEqual(self.spark_pipeline.logs_df.count(), 1)
         self.assertListEqual(sorted(self.spark_pipeline.logs_df.columns),

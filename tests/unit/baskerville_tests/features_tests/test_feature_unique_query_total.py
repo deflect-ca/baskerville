@@ -81,7 +81,7 @@ class TestSparkUniqueQueryTotal(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -131,7 +131,7 @@ class TestSparkUniqueQueryTotal(FeatureSparkTestCase):
                 second_ats_record,
                 third_ats_record,
                 fourth_ats_record
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 

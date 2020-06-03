@@ -1,7 +1,6 @@
 from baskerville.features.updateable_features import UpdaterMean
 from pyspark.sql import functions as F
 
-from baskerville.util.enums import FeatureComputeType
 from baskerville.features.helpers import update_mean
 from baskerville.features.feature_request_total import FeatureRequestTotal
 

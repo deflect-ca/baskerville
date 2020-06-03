@@ -49,11 +49,11 @@ class FeatureGeoTimeAverage(UpdaterMean):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_mean(
-                    past.get(cls.feature_name_from_class()),
-                    current[cls.feature_name_from_class()],
-                    past.get(FeatureRequestTotal.feature_name_from_class()),
-                    current[FeatureRequestTotal.feature_name_from_class()]
-                )
+            past.get(cls.feature_name_from_class()),
+            current[cls.feature_name_from_class()],
+            past.get(FeatureRequestTotal.feature_name_from_class()),
+            current[FeatureRequestTotal.feature_name_from_class()]
+        )
 
     def update(self, df, feat_column='features', old_feat_column='old_features'):
         return super().update(
@@ -61,4 +61,3 @@ class FeatureGeoTimeAverage(UpdaterMean):
             self.feature_name,
             FeatureRequestTotal.feature_name_from_class()
         )
-

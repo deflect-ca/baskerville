@@ -83,7 +83,7 @@ class TestTableTools(unittest.TestCase):
             partition_field, start, end, new=False, condition='AND'
         )
         expected = f'some_partition >= \'{start.strftime("%Y-%m-%d %H:%M:%S")}\'' \
-            f' AND some_partition <= \'{end.strftime("%Y-%m-%d %H:%M:%S.%f")}\' '
+                   f' AND some_partition <= \'{end.strftime("%Y-%m-%d %H:%M:%S.%f")}\' '
 
         self.assertEqual(result, expected)
 
@@ -95,7 +95,7 @@ class TestTableTools(unittest.TestCase):
             partition_field, start, end, new=False, condition='OR'
         )
         expected = f'some_partition >= \'{start.strftime("%Y-%m-%d %H:%M:%S")}\'' \
-            f' OR some_partition <= \'{end.strftime("%Y-%m-%d %H:%M:%S.%f")}\' '
+                   f' OR some_partition <= \'{end.strftime("%Y-%m-%d %H:%M:%S.%f")}\' '
 
         self.assertEqual(result, expected)
 
@@ -107,7 +107,7 @@ class TestTableTools(unittest.TestCase):
             partition_field, start, end, new=True, condition='AND'
         )
         expected = f'NEW.some_partition >= \'{start.strftime("%Y-%m-%d %H:%M:%S")}\'' \
-            f' AND NEW.some_partition <= \'{end.strftime("%Y-%m-%d %H:%M:%S.%f")}\' '
+                   f' AND NEW.some_partition <= \'{end.strftime("%Y-%m-%d %H:%M:%S.%f")}\' '
 
         self.assertEqual(result, expected)
 

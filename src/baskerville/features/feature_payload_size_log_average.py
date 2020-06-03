@@ -47,4 +47,3 @@ class FeaturePayloadSizeLogAverage(UpdaterMean):
             self.feature_name,
             FeatureRequestTotal.feature_name_from_class()
         )
-

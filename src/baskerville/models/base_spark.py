@@ -165,9 +165,11 @@ class SparkPipelineBase(PipelineBase):
         ).difference(RequestSet.columns)
 
         if self.engine_conf.model_id:
-            self.model_index = self.tools.get_ml_model_from_db(self.engine_conf.model_id)
+            self.model_index = self.tools.get_ml_model_from_db(
+                self.engine_conf.model_id)
             self.model = instantiate_from_str(self.model_index.algorithm)
-            self.model.load(bytes.decode(self.model_index.classifier, 'utf8'), self.spark)
+            self.model.load(bytes.decode(
+                self.model_index.classifier, 'utf8'), self.spark)
         else:
             self.model = None
 
@@ -372,8 +374,8 @@ class SparkPipelineBase(PipelineBase):
                 window_df.unpersist(blocking=True)
                 del window_df
             filter_ = (
-                    (F.col('timestamp') >= current_window_start) &
-                    (F.col('timestamp') < current_end)
+                (F.col('timestamp') >= current_window_start) &
+                (F.col('timestamp') < current_end)
             )
             window_df = df.where(filter_).persist(
                 self.spark_conf.storage_level
@@ -603,7 +605,7 @@ class SparkPipelineBase(PipelineBase):
                     )
                 ).replace(tzinfo=tzutc()),
                 extra_filters=(
-                        F.col('time_bucket') == self.time_bucket.sec
+                    F.col('time_bucket') == self.time_bucket.sec
                 )  # todo: & (F.col("id_runtime") == self.runtime.id)?
             )
         else:
@@ -891,7 +893,7 @@ class SparkPipelineBase(PipelineBase):
         options
         :return: None
         """
-        #todo: mostly duplicated code, refactor
+        # todo: mostly duplicated code, refactor
         self.db_conf.conn_str = self.db_url
         save_df_to_table(
             df,

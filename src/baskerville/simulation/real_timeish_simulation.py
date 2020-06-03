@@ -104,14 +104,15 @@ def simulation(
         try:
             while True:
                 filter_ = (
-                        (F.col('timestamp') >= current_window) &
-                        (F.col('timestamp') <= current_window + time_window)
+                    (F.col('timestamp') >= current_window) &
+                    (F.col('timestamp') <= current_window + time_window)
                 )
                 if verbose:
                     logger.info(f'Current window: {current_window}, '
                                 f'Max window: {max_window}')
                     logger.info(f'Running for {str(filter_._jc)}')
-                window_df = df.select(*common_active_cols).where(filter_).cache()
+                window_df = df.select(
+                    *common_active_cols).where(filter_).cache()
                 pandas_df = window_df.toPandas()
                 if not pandas_df.empty:
                     publish_df_split_in_time_windows(

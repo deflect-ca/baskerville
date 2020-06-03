@@ -4,7 +4,7 @@ from baskerville.util.enums import RunType
 
 
 class PipelineFactory(object):
-    def get_pipeline(self, run_type,  config):
+    def get_pipeline(self, run_type, config):
         if run_type == RunType.es:
             return ElasticsearchPipeline(
                 config.database,
@@ -14,10 +14,10 @@ class PipelineFactory(object):
             )
         elif run_type == RunType.rawlog:
             return RawLogPipeline(
-                    config.database,
-                    config.engine,
-                    config.spark
-                )
+                config.database,
+                config.engine,
+                config.spark
+            )
         elif run_type == RunType.kafka:
             return KafkaPipeline(
                 config.database,

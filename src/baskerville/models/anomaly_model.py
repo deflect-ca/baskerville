@@ -128,14 +128,16 @@ class AnomalyModel(ModelInterface):
         df = self.build_features_vectors(df)
         df = self.scaler_model.transform(df)
         if len(self.categorical_features):
-            df = self._add_categorical_features(df, self.features_values_scaled)
+            df = self._add_categorical_features(
+                df, self.features_values_scaled)
         df = self.iforest_model.transform(df)
         df = df.withColumnRenamed('anomalyScore', self.score_column)
         return df
 
     def save(self, path, spark_session=None):
         file_manager = FileManager(path, spark_session)
-        file_manager.save_to_file(self.get_params(), os.path.join(path, 'params.json'), format='json')
+        file_manager.save_to_file(self.get_params(), os.path.join(
+            path, 'params.json'), format='json')
         self.iforest_model.write().overwrite().save(os.path.join(path, 'iforest'))
         self.scaler_model.write().overwrite().save(os.path.join(path, 'scaler'))
 
@@ -148,9 +150,11 @@ class AnomalyModel(ModelInterface):
         self.scaler_model = StandardScalerModel().load(os.path.join(path, 'scaler'))
 
         file_manager = FileManager(path, spark_session)
-        params = file_manager.load_from_file(os.path.join(path, 'params.json'), format='json')
+        params = file_manager.load_from_file(
+            os.path.join(path, 'params.json'), format='json')
         self.set_params(**params)
 
         self.indexes = []
         for feature in self.categorical_features:
-            self.indexes.append(StringIndexerModel.load(os.path.join(path, 'indexes', feature)))
+            self.indexes.append(StringIndexerModel.load(
+                os.path.join(path, 'indexes', feature)))

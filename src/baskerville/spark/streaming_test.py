@@ -20,15 +20,14 @@ if __name__ == '__main__':
 
     interval = 5  # seconds
     spark = SparkSession.builder \
-            .config(conf=conf) \
-            .appName('Test') \
-            .getOrCreate()
+        .config(conf=conf) \
+        .appName('Test') \
+        .getOrCreate()
     ssc = StreamingContext(spark.sparkContext, interval)
 
     kafkaStream = KafkaUtils.createStream(
         ssc, 'localhost:2181', groupId='baskerville', topics={'deflect.logs': 1}
     )
-
 
     def process_requests(time, rdd):
         print('Data until {}'.format(time))

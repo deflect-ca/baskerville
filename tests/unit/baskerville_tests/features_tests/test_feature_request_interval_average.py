@@ -22,7 +22,8 @@ class TestSparkRequestIntervalAverage(FeatureSparkTestCase):
         self.assertTrue(hasattr(self.feature, 'DEFAULT_VALUE'))
         self.assertTrue(hasattr(self.feature, 'compute_type'))
 
-        self.assertTrue(self.feature.feature_name == 'request_interval_average')
+        self.assertTrue(self.feature.feature_name ==
+                        'request_interval_average')
         self.assertTrue(
             self.feature.columns == ['@timestamp'])
         self.assertTrue(self.feature.dependencies == [FeatureRequestTotal])
@@ -92,7 +93,7 @@ class TestSparkRequestIntervalAverage(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 

@@ -36,11 +36,11 @@ class FeatureUniqueQueryToUniquePathRatio(UpdaterRatio):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_ratio(
-                    past.get(FeatureUniqueQueryTotal.feature_name_from_class()),
-                    past.get(FeatureUniquePathTotal.feature_name_from_class()),
-                    current[FeatureUniqueQueryTotal.feature_name_from_class()],
-                    current[FeatureUniquePathTotal.feature_name_from_class()]
-                )
+            past.get(FeatureUniqueQueryTotal.feature_name_from_class()),
+            past.get(FeatureUniquePathTotal.feature_name_from_class()),
+            current[FeatureUniqueQueryTotal.feature_name_from_class()],
+            current[FeatureUniquePathTotal.feature_name_from_class()]
+        )
 
     def update(self, df, feat_column='features', old_feat_column='old_features'):
         return super().update(

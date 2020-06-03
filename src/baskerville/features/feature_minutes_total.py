@@ -17,7 +17,6 @@ class FeatureMinutesTotal(TimeBasedFeature, UpdaterReplace):
         super(FeatureMinutesTotal, self).__init__()
 
     def compute(self, df):
-
         df = df.withColumn(
             self.feature_name,
             F.col('dt').cast('float')
@@ -27,5 +26,5 @@ class FeatureMinutesTotal(TimeBasedFeature, UpdaterReplace):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_replace(
-                    current[cls.feature_name_from_class()]
-                )
+            current[cls.feature_name_from_class()]
+        )

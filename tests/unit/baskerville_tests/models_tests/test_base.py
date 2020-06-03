@@ -13,8 +13,10 @@ class TestBaskervilleBase(unittest.TestCase):
         with self.assertRaises(TypeError) as terr:
             BaskervilleBase(self.dummy_conf)
         self.assertTrue(
-            'Can\'t instantiate abstract class BaskervilleBase with abstract methods run' in str(terr.exception)
+            'Can\'t instantiate abstract class BaskervilleBase with abstract methods run' in str(
+                terr.exception)
         )
+
 
 class TestPipelineBase(unittest.TestCase):
 
@@ -22,6 +24,6 @@ class TestPipelineBase(unittest.TestCase):
         with self.assertRaises(TypeError) as terr:
             PipelineBase(None, None, None)
         self.assertTrue(
-            'Can\'t instantiate abstract class PipelineBase with abstract methods finish_up, initialize, run'\
+            'Can\'t instantiate abstract class PipelineBase with abstract methods finish_up, initialize, run'
             in str(terr.exception)
         )

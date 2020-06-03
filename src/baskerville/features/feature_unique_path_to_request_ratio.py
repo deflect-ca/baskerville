@@ -19,7 +19,7 @@ class FeatureUniquePathToRequestRatio(UpdaterRatio):
         super(FeatureUniquePathToRequestRatio, self).__init__()
 
         self.group_by_aggs = {
-            'unique_urls':  F.countDistinct(F.col('client_url')),
+            'unique_urls': F.countDistinct(F.col('client_url')),
             'num_requests': F.count(F.col('@timestamp')).cast('float'),
         }
 
@@ -37,11 +37,11 @@ class FeatureUniquePathToRequestRatio(UpdaterRatio):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_ratio(
-                    past.get(FeatureUniquePathTotal.feature_name_from_class()),
-                    past.get(FeatureRequestTotal.feature_name_from_class()),
-                    current[FeatureUniquePathTotal.feature_name_from_class()],
-                    current[FeatureRequestTotal.feature_name_from_class()]
-                )
+            past.get(FeatureUniquePathTotal.feature_name_from_class()),
+            past.get(FeatureRequestTotal.feature_name_from_class()),
+            current[FeatureUniquePathTotal.feature_name_from_class()],
+            current[FeatureRequestTotal.feature_name_from_class()]
+        )
 
     def update(self, df, feat_column='features', old_feat_column='old_features'):
         return super().update(
@@ -49,4 +49,3 @@ class FeatureUniquePathToRequestRatio(UpdaterRatio):
             FeatureUniquePathTotal.feature_name_from_class(),
             FeatureRequestTotal.feature_name_from_class(),
         )
-

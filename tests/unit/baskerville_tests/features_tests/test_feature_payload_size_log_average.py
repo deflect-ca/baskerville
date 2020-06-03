@@ -22,7 +22,8 @@ class TestSparkPayloadSizeLogAverage(FeatureSparkTestCase):
         self.assertTrue(hasattr(self.feature, 'DEFAULT_VALUE'))
         self.assertTrue(hasattr(self.feature, 'compute_type'))
 
-        self.assertTrue(self.feature.feature_name == 'payload_size_log_average')
+        self.assertTrue(self.feature.feature_name ==
+                        'payload_size_log_average')
         self.assertTrue(
             self.feature.columns == ['reply_length_bytes'])
         self.assertTrue(self.feature.dependencies == [FeatureRequestTotal])
