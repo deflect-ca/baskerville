@@ -97,11 +97,14 @@ class TrainingPipeline(PipelineBase):
         """
         self.data = self.load().persist(self.spark_conf.storage_level)
 
-        minimum_count = 50000
+        minimum_count = 200000
         counts = self.data.groupby('target').count()
         counts = counts.withColumn('fraction', minimum_count / F.col('count'))
-        counts = counts.filter((F.col('fraction') < 1.0))
+        #counts = counts.filter((F.col('fraction') < 1.0))
         fractions = dict(counts.select('target', 'fraction').collect())
+        for key, value in fractions.items():
+            if value > 1.0:
+                fractions[key] = 1.0
         self.data = self.data.sampleBy('target', fractions, 777)
 
         # targets = self.data.select("target").distinct().collect()
