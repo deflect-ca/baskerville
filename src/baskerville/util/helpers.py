@@ -257,6 +257,7 @@ def get_default_data_path() -> str:
         os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data'
     )
 
+
 def get_days_in_year(year):
     """
     Returns the number of days in a specific year

@@ -78,20 +78,16 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         )
 
         rsc._load = mock.MagicMock()
-        persist = rsc._load.return_value.persist
-
-        persist.assert_called_once()
-        rsc._load.assert_called_once_with(
-            update_date=None,
-            hosts=None,
-            extra_filters=None)
-
         rsc._load = mock.MagicMock()
         persist = rsc._load.return_value.persist
         persist.return_value = {}
         rsc.write = mock.MagicMock()
         returned_rsc = rsc.load(update_date, hosts, extra_filters)
-
+        rsc._load.assert_called_once_with(
+            update_date=update_date,
+            hosts=hosts,
+            extra_filters={})
+        persist.assert_called_once()
         self.assertTrue(isinstance(returned_rsc.cache, dict))
         self.assertTrue(isinstance(rsc.cache, dict))
 
@@ -120,8 +116,8 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         select = where.return_value.select
         join = select.return_value.join
         mock_broadcast.return_value = hosts
+        rsc.load(update_date, hosts, extra_filters)
 
-        format.assert_called_once_with('jdbc')
         options.assert_called_once_with(
             url=self.test_cache_config['db_url'],
             driver=self.test_cache_config['db_driver'],

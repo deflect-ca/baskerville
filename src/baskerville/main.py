@@ -11,8 +11,7 @@ from prometheus_client import start_http_server
 from baskerville import src_dir
 from baskerville.models.engine import BaskervilleAnalyticsEngine
 from baskerville.simulation.real_timeish_simulation import simulation
-from baskerville.util.helpers import get_logger, parse_config, \
-    get_default_data_path
+from baskerville.util.helpers import get_logger, parse_config
 
 # Main baskerville script
 
