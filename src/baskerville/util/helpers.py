@@ -250,8 +250,12 @@ def get_default_data_path() -> str:
     Returns the absolute path to the data folder
     :return:
     """
-    return f'{os.path.dirname(os.path.realpath(__file__))}/../../../data'
-
+    baskerville_root = os.environ.get('BASKERVILLE_ROOT')
+    if baskerville_root:
+        return os.path.join(baskerville_root, 'data')
+    return os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data'
+    )
 
 def get_days_in_year(year):
     """

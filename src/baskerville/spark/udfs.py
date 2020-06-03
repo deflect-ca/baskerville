@@ -8,6 +8,7 @@ from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from tzwhere import tzwhere
+import numpy as np
 
 
 def normalize_host_name(host):
@@ -251,4 +252,5 @@ udf_update_features = F.udf(
     update_features, T.MapType(T.StringType(), T.FloatType())
 )
 udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())
-to_dense_vector_udf = F.udf(lambda l: Vectors.dense(l), VectorUDT())
+udf_to_dense_vector = F.udf(lambda l: Vectors.dense(l), VectorUDT())
+udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())
