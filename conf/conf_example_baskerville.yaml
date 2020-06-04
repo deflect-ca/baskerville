@@ -53,20 +53,17 @@ engine:
       - 'path2/log2.json'
       - 'path/to/somename*/*'         # use * to match folder names and files, spark will load them all in one dataframe if they are of the same format
   training:                           # Optional: only for the Training pipeline
-    model_name: 'test_model'          # how to name the model
-    scaler_name: 'test_scaler'        # how to name the scaler
-    path: '/full/path/to/baskerville/data/models'     # where to save
-    classifier: 'pyspark_iforest.ml.iforest.IForest'  # which classifier to use, see baskerville.util.enums.AlgorithmEnum
-    scaler: 'pyspark.ml.feature.StandardScaler'       # which scaler to use, see baskerville.util.enums.ScalerEnum
+    model: 'baskerville.models.anomaly_model.AnomalyModel' # which model to use, see baskerville.util.enums.ModelEnum
     data_parameters:                  # to define the training period, either use training_days or from/ to date
-      training_days: 30               # today - training_days
+#      training_days: 30               # today - training_days
       from_date: '2020-03-01 20:59:59'
       to_date: '2020-03-05 13:01:01'
-    classifier_parameters:        # depending on the algorithm chosen, provide the training parameters, as you would to instantiate the class
-      maxSamples: 100
-      contamination: 0.1
-      numTrees: 100
-      threshold: 0.5              # if applicable to the classifier
+    model_parameters:        # depending on the model chosen, provide the training parameters, as you would to instantiate the class
+      num_trees: 100  # number of trees
+      max_samples: 100 # number of samples per tree
+      categorical_features: ['target'] # the list of categorical features
+#      contamination: 0.1 # the target portion of anomalies in the dataset. Either use contamination or threshold
+      threshold: 0.45 # the threshold for anomalies in the dataset. Either use contamination or threshold
   simulation:                     # Optional: used only to test the kafka pipeline
     sleep: True
     verbose: True
