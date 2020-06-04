@@ -1,10 +1,3 @@
-[comment]: # Copyright (c) 2020, eQualit.ie inc.
-[comment]: # All rights reserved.
-
-[comment]: # This source code is licensed under the BSD-style license found in the 
-[comment]: # LICENSE file in the root directory of this source tree.
-
-
 ## Contents
 
 - [What is Baskerville](#what-is-baskerville)
