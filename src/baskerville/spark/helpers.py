@@ -133,14 +133,14 @@ def map_to_array(df, map_col, array_col, map_keys):
     :return: pyspark.sql.Dataframe
     """
     return df.withColumn(
-            array_col,
-            F.array(
-                *list(
-                    F.col(map_col).getItem(f)
-                    for f in map_keys
-                )
+        array_col,
+        F.array(
+            *list(
+                F.col(map_col).getItem(f)
+                for f in map_keys
             )
         )
+    )
 
 
 def reset_spark_storage():

@@ -88,7 +88,7 @@ class TestSparkHtmlTotal(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -114,7 +114,6 @@ class TestSparkHtmlTotal(FeatureSparkTestCase):
         self.assertAlmostEqual(value, 3., places=2)
 
     def test_update(self):
-
         schema = T.StructType([
             T.StructField(
                 self.feature.current_features_column,
@@ -147,4 +146,3 @@ class TestSparkHtmlTotal(FeatureSparkTestCase):
         ).collect()[0][self.feature.updated_feature_col_name]
         expected_value = 3.
         self.assertAlmostEqual(value, expected_value, places=2)
-

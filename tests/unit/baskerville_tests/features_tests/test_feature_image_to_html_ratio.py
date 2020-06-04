@@ -134,7 +134,7 @@ class TestSparkImageToHtmlRatio(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -183,7 +183,7 @@ class TestSparkImageToHtmlRatio(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -248,6 +248,7 @@ class TestSparkImageToHtmlRatio(FeatureSparkTestCase):
         )
 
         result_df.show()
-        value = result_df.select(self.feature.updated_feature_col_name).collect()[0][self.feature.updated_feature_col_name]
+        value = result_df.select(self.feature.updated_feature_col_name).collect()[
+            0][self.feature.updated_feature_col_name]
         expected_value = 2.
         self.assertAlmostEqual(value, expected_value, places=2)

@@ -2,6 +2,8 @@ import datetime
 import gc
 import os
 
+from py4j.protocol import Py4JJavaError
+
 from baskerville.spark import get_spark_session
 from baskerville.spark.helpers import StorageLevel
 from pyspark.sql import functions as F
@@ -37,18 +39,20 @@ class RequestSetSparkCache(object):
         self.format_ = format_
         self.storage_level = StorageLevel.CUSTOM
         self.column_renamings = {
-                            'first_ever_request': 'start',
-                            'old_subset_count': 'subset_count',
-                            'old_features': 'features',
+            'first_ever_request': 'start',
+            'old_subset_count': 'subset_count',
+            'old_features': 'features',
                             'old_num_requests': 'num_requests',
-                           }
+        }
         self._count = 0
         self._last_updated = datetime.datetime.utcnow()
         self._changed = False
         self.file_manager = FileManager(path, self.session_getter())
 
-        self.file_name = os.path.join(path, f'{self.__class__.__name__}.{self.format_}')
-        self.temp_file_name = os.path.join(path, f'{self.__class__.__name__}temp.{self.format_}')
+        self.file_name = os.path.join(
+            path, f'{self.__class__.__name__}.{self.format_}')
+        self.temp_file_name = os.path.join(
+            path, f'{self.__class__.__name__}temp.{self.format_}')
 
         if self.file_manager.path_exists(self.file_name):
             self.file_manager.delete_path(self.file_name)
@@ -68,10 +72,10 @@ class RequestSetSparkCache(object):
         return self.file_name
 
     def _get_load_q(self):
-        return f'''(SELECT * 
-                    from {self.table_name} 
-                    where id in (select max(id) 
-                    from {self.table_name} 
+        return f'''(SELECT *
+                    from {self.table_name}
+                    where id in (select max(id)
+                    from {self.table_name}
                     group by {', '.join(self.group_by_fields)} )
                     ) as {self.table_name}'''
 
@@ -371,7 +375,7 @@ class RequestSetSparkCache(object):
         )
 
         self.append(
-           df
+            df
         ).deduplicate()
 
         return self
@@ -396,10 +400,11 @@ class RequestSetSparkCache(object):
         if self.__cache:
             try:
                 return self.cache.count()
-            except:
+            except Py4JJavaError:
                 import traceback
                 traceback.print_exc()
-                self.logger.debug('Just hit the cache issue.. trying to refresh')
+                self.logger.debug(
+                    'Just hit the cache issue.. trying to refresh')
                 # self.cache.createOrReplaceTempView("current_cache")
                 # self.session_getter().catalog.refreshTable("current_cache")
                 return self.cache.count()
@@ -417,8 +422,8 @@ class RequestSetSparkCache(object):
         """
         update_date = now - datetime.timedelta(seconds=expire_if_longer_than)
         self.__cache = self.__cache.select('*').where((
-                (F.col("updated_at") >= F.lit(update_date)) |
-                (F.col("created_at") >= F.lit(update_date))
+            (F.col("updated_at") >= F.lit(update_date)) |
+            (F.col("created_at") >= F.lit(update_date))
         ))
 
         return self

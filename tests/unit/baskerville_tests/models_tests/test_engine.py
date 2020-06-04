@@ -31,7 +31,7 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
         self.patcher.stop()
         self.dbpatcher.stop()
 
-    def test_instance(self,):
+    def test_instance(self, ):
         from baskerville.models.engine import BaskervilleAnalyticsEngine
         engine = BaskervilleAnalyticsEngine(
             RunType.rawlog, self.test_config
@@ -98,8 +98,7 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
         from baskerville.models.engine import BaskervilleAnalyticsEngine
         with mock.patch.object(
                 BaskervilleAnalyticsEngine, '_set_up_pipeline'
-        ) as mock__set_up_pipeline:
-
+        ) as _:
             engine = BaskervilleAnalyticsEngine(
                 RunType.kafka, self.test_config
             )
@@ -128,7 +127,7 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
             engine.pipeline = mock_pipeline
 
             metrics = {
-                'performance':{
+                'performance': {
                     'pipeline': [
                         'test_method_name_1', 'test_method_name_2'
                     ],
@@ -153,12 +152,12 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
             self.assertTrue(
                 f'{performance_stats._prefix}timer_for_feature_'
                 f'{mock_feature1.feature_name}'
-            in performance_stats.registry
+                in performance_stats.registry
             )
             self.assertTrue(
                 f'{performance_stats._prefix}timer_for_feature_'
                 f'{mock_feature2.feature_name}'
-            in performance_stats.registry
+                in performance_stats.registry
             )
 
     def test_run(self):
@@ -167,7 +166,7 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
                 BaskervilleAnalyticsEngine, '_set_up_pipeline'
         ) as mock__set_up_pipeline:
             with mock.patch.object(
-                BaskervilleAnalyticsEngine, '_register_performance_stats'
+                    BaskervilleAnalyticsEngine, '_register_performance_stats'
             ) as mock_register_performance_stats:
                 pipeline = mock.MagicMock()
                 mock__set_up_pipeline.return_value = pipeline
@@ -197,7 +196,7 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
                 BaskervilleAnalyticsEngine, '_set_up_pipeline'
         ) as mock__set_up_pipeline:
             with mock.patch.object(
-                BaskervilleAnalyticsEngine, '_register_performance_stats'
+                    BaskervilleAnalyticsEngine, '_register_performance_stats'
             ) as mock_register_performance_stats:
                 pipeline = mock.MagicMock()
                 mock__set_up_pipeline.return_value = pipeline
@@ -217,10 +216,7 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
                 mock__set_up_pipeline.assert_called_once()
                 mock_register_performance_stats.assert_called_once()
                 pipeline.run.assert_called_once()
-                self.assertTrue(
-                    engine.performance_stats ==
-                    'should return a performance_stats instance'
-                )
+                self.assertTrue(engine.performance_stats == 'should return a performance_stats instance')
 
     def test_finish_up(self):
         pass

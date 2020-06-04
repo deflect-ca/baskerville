@@ -5,8 +5,7 @@ import math
 
 from baskerville.models.base_spark import SparkPipelineBase
 from pyspark.streaming import StreamingContext
-from pyspark.streaming.kafka import KafkaUtils, TopicAndPartition
-from pyspark.sql import functions as F
+from pyspark.streaming.kafka import KafkaUtils
 
 
 class ElasticsearchPipeline(SparkPipelineBase):
@@ -36,7 +35,7 @@ class ElasticsearchPipeline(SparkPipelineBase):
         self.batch_i = 1
         self.batch_n = math.ceil(
             float((self.stop - self.start).total_seconds()) /
-            (self.batch_length*60.)
+            (self.batch_length * 60.)
         )
 
     def initialize(self):
@@ -79,9 +78,8 @@ class ElasticsearchPipeline(SparkPipelineBase):
                            == self.manual_conf.hosts[0])
             if len(self.manual_conf.hosts) > 1:
                 for h in self.manual_conf.hosts[1:]:
-                    host_filter = host_filter | \
-                                  (F.col('client_request_host') == h)
-            filter_condition = filter_condition & (host_filter)
+                    host_filter = host_filter | (F.col('client_request_host') == h)
+            filter_condition = filter_condition & host_filter
 
         self.logs_df = self.es_storage.get(
             self.runtime.start,
@@ -224,6 +222,7 @@ class KafkaPipeline(SparkPipelineBase):
     """
     A pipeline that processes data from a Kafka instance every x seconds.
     """
+
     def __init__(
             self,
             db_conf,
@@ -285,8 +284,9 @@ class KafkaPipeline(SparkPipelineBase):
             self.ssc,
             [self.kafka_conf.consume_topic],
             kafkaParams=kafkaParams,
-            #fromOffsets={TopicAndPartition(self.kafka_conf.consume_topic, 0): 0}
+            # fromOffsets={TopicAndPartition(self.kafka_conf.consume_topic, 0): 0}
         )
+
         # from pympler import muppy, summary, tracker
         # tr = tracker.SummaryTracker()
 
@@ -319,7 +319,9 @@ class KafkaPipeline(SparkPipelineBase):
                     # self.logger.debug(
                     #     f'**** Length of all objects AFTER: {len(all_objects)}')
                     # tr.print_diff()
-                    self.logger.debug(f'self.spark.sparkContext._jsc.getPersistentRDDs().items() {len(self.spark.sparkContext._jsc.getPersistentRDDs().items())}')
+                    self.logger.debug(
+                        f'self.spark.sparkContext._jsc.getPersistentRDDs().items() '
+                        f'{ len(self.spark.sparkContext._jsc.getPersistentRDDs().items())}')
                     rdd.unpersist()
                     del rdd
                 except Exception as e:
@@ -392,13 +394,17 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
         #     .load()
 
         # .option("kafka.partition.assignment.strategy", "range") \
-            # .option("security.protocol", "SSL") \
-            # .option("ssl.truststore.location", "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/client.truststore.jks") \
-            # .option("ssl.truststore.password", "kafkadocker") \
-            # .option("ssl.keystore.location", "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/kafka.server.keystore.jks") \
-            # .option("ssl.keystore.password", "kafkadocker") \
-            # .option("ssl.key.password", "kafkadocker") \
-            # .load()
+        # .option("security.protocol", "SSL") \
+        # .option("ssl.truststore.location",
+        # "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/
+        # containers/kafka/local_cert/client.truststore.jks") \
+        # .option("ssl.truststore.password", "kafkadocker") \
+        # .option("ssl.keystore.location",
+        # "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/
+        # local_cert/kafka.server.keystore.jks") \
+        # .option("ssl.keystore.password", "kafkadocker") \
+        # .option("ssl.key.password", "kafkadocker") \
+        # .load()
 
         # .option("subscribePattern", self.kafka_conf.consume_topic) \
 
@@ -411,10 +417,12 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
         #     .option("auto.offset.reset", "earliest") \
         #     .option("security.protocol", "SSL") \
         #     .option("ssl.truststore.location",
-        #             "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/client.truststore.jks") \
+        #             "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/
+        #             kafka/local_cert/client.truststore.jks") \
         #     .option("ssl.truststore.password", "kafkadocker") \
         #     .option("ssl.keystore.location",
-        #             "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/local_cert/kafka.server.keystore.jks") \
+        #             "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/
+        #             containers/kafka/local_cert/kafka.server.keystore.jks") \
         #     .option("ssl.keystore.password", "kafkadocker") \
         #     .option("ssl.key.password", "kafkadocker") \
         #     .load()
@@ -438,7 +446,7 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
             self.ssc,
             [self.kafka_conf.consume_topic],
             {
-                #'bootstrap.servers': self.kafka_conf.zookeeper,
+                # 'bootstrap.servers': self.kafka_conf.zookeeper,
                 'metadata.broker.list': self.kafka_conf.url,
                 # "kafka.sasl.kerberos.service.name": "kafka",
                 # "kafka.sasl.kerberos.service.name": "/usr/lib/jvm/jdk1.8.0_162/jre/lib/security/cacerts",
@@ -450,6 +458,7 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
             }
             # fromOffset={topicPartion: int(0)}
         )
+
         # readDF = kafkaStream.selectExpr("CAST(key AS STRING)",
         #                            "CAST(value AS STRING)")
 
@@ -459,7 +468,9 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
         # import time
         # time.sleep(10)  # sleep 10 seconds
         # query.stop()
-        # windowed_stream = kafkaStream.withWatermark("@timestamp", f"{self.engine_conf.time_bucket} seconds").selectExpr("CAST(value AS STRING)", "CAST(timestamp AS TIMESTAMP)").toDF('log', 'timestamp')
+        # windowed_stream = kafkaStream.withWatermark("@timestamp",
+        # f"{self.engine_conf.time_bucket} seconds").selectExpr("CAST(value AS STRING)",
+        # "CAST(timestamp AS TIMESTAMP)").toDF('log', 'timestamp')
         #
         # q = kafkaStream.writeStream \
         #     .format("console") \
@@ -486,6 +497,7 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
             else:
                 self.logger.info('Empty RDD...')
             self.reset()
+
         kafkaStream.foreachRDD(process_subsets)
 
         self.ssc.start()

@@ -133,7 +133,7 @@ class TestSparkCssToHtmlRatio(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -181,7 +181,7 @@ class TestSparkCssToHtmlRatio(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 

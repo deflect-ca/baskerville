@@ -32,9 +32,9 @@ class BaseFeature(SerializableMixin, metaclass=abc.ABCMeta):
 
     def __repr__(self):
         return f'<{self.__class__.__name__} {self.feature_name} ' \
-            f'default value: {self.DEFAULT_VALUE}, ' \
-            f'dependencies:{",".join(self.DEPENDENCIES)}, ' \
-            f'columns:{",".join(self.COLUMNS)}>'
+               f'default value: {self.DEFAULT_VALUE}, ' \
+               f'dependencies:{",".join(self.DEPENDENCIES)}, ' \
+               f'columns:{",".join(self.COLUMNS)}>'
 
     @property
     def columns(self):

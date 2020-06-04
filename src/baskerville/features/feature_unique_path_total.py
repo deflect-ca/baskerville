@@ -1,7 +1,5 @@
 from baskerville.features.updateable_features import UpdaterTotal
 from pyspark.sql import functions as F
-
-from baskerville.features.base_feature import BaseFeature
 from baskerville.features.helpers import update_total
 
 
@@ -17,7 +15,7 @@ class FeatureUniquePathTotal(UpdaterTotal):
         super(FeatureUniquePathTotal, self).__init__()
 
         self.group_by_aggs = {
-            'unique_urls':  F.countDistinct(
+            'unique_urls': F.countDistinct(
                 F.col('client_url')
             ),
         }

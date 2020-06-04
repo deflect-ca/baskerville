@@ -19,8 +19,8 @@ class FeatureJsToHtmlRatio(UpdaterRatio):
         self.group_by_aggs = {
             'html_count': F.count(F.when(F.col('is_html') == True,  # noqa
                                          F.col('is_html'))),
-            'js_count':  F.count(F.when(F.col('is_js') == True,  # noqa
-                                        F.col('is_js')))
+            'js_count': F.count(F.when(F.col('is_js') == True,  # noqa
+                                       F.col('is_js')))
         }
         self.pre_group_by_calcs = {
             'is_html': F.col('content_type') == 'text/html',
@@ -46,11 +46,11 @@ class FeatureJsToHtmlRatio(UpdaterRatio):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_ratio(
-                    past.get(FeatureJsTotal.feature_name_from_class()),
-                    past.get(FeatureHtmlTotal.feature_name_from_class()),
-                    current[FeatureJsTotal.feature_name_from_class()],
-                    current[FeatureHtmlTotal.feature_name_from_class()]
-                )
+            past.get(FeatureJsTotal.feature_name_from_class()),
+            past.get(FeatureHtmlTotal.feature_name_from_class()),
+            current[FeatureJsTotal.feature_name_from_class()],
+            current[FeatureHtmlTotal.feature_name_from_class()]
+        )
 
     def update(self, df, feat_column='features', old_feat_column='old_features'):
         return super().update(

@@ -131,7 +131,7 @@ class TestSparkCssTotal(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -180,7 +180,7 @@ class TestSparkCssTotal(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -233,5 +233,6 @@ class TestSparkCssTotal(FeatureSparkTestCase):
         )
 
         result_df.show()
-        value = result_df.select(self.feature.updated_feature_col_name).collect()[0][self.feature.updated_feature_col_name]
+        value = result_df.select(self.feature.updated_feature_col_name).collect()[
+            0][self.feature.updated_feature_col_name]
         self.assertAlmostEqual(value, 3., places=2)

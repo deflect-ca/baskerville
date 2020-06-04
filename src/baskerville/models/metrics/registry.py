@@ -94,7 +94,7 @@ class MetricsRegistry(object):
                    f'{fn.__self__.__class__.__name__.lower()}_' \
                    f'{fn.__name__}' if hasattr(fn, '__self__') \
                 else self.prefix(fn.__name__)
-        raise ValueError(f'Either a function or a name should be provided')
+        raise ValueError('Either a function or a name should be provided')
 
     @staticmethod
     def get_description(fn, parent_name):
@@ -218,7 +218,8 @@ class MetricsRegistry(object):
 
         for state, method in states_to_methods.items():
             self.__func_name_to_state[method.__name__] = str(state)
-            updated_state_to_method[state] = self.state_wrapper(method, metric_name)
+            updated_state_to_method[state] = self.state_wrapper(
+                method, metric_name)
 
         return updated_state_to_method
 

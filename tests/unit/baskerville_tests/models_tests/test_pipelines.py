@@ -1,9 +1,9 @@
 import unittest
-from unittest import mock
-
-from tests.unit.baskerville_tests.helpers.spark_testing_base import \
-    SQLTestCaseLatestSpark
-from baskerville import src_dir
+# from unittest import mock
+#
+# from tests.unit.baskerville_tests.helpers.spark_testing_base import \
+#     SQLTestCaseLatestSpark
+# from baskerville import src_dir
 
 
 class TestElasticsearchPipelinee(unittest.TestCase):

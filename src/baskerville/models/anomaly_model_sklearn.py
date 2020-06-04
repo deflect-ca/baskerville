@@ -73,7 +73,8 @@ class AnomalyModelSklearn(ModelInterface):
         df[self.features] = df[self.feature_map_column].apply(pd.Series)
         df.drop(self.feature_map_column, axis=1, inplace=True)
 
-        self.scaler_model = StandardScaler(with_mean=self.scaler_with_mean, with_std=self.scaler_with_std)
+        self.scaler_model = StandardScaler(
+            with_mean=self.scaler_with_mean, with_std=self.scaler_with_std)
         x_train = self.scaler_model.fit_transform(
             df[self.features].values
         )
@@ -156,16 +157,22 @@ class AnomalyModelSklearn(ModelInterface):
 
     def save(self, path, spark_session=None):
         file_manager = FileManager(path, spark_session)
-        file_manager.save_to_file(self.get_params(), os.path.join(path, 'params.json'), format='json')
-        file_manager.save_to_file(self.iforest_model, os.path.join(path, 'iforest.pickle'), format='pickle')
-        file_manager.save_to_file(self.scaler_model, os.path.join(path, 'scaler.pickle'), format='pickle')
+        file_manager.save_to_file(self.get_params(), os.path.join(
+            path, 'params.json'), format='json')
+        file_manager.save_to_file(self.iforest_model, os.path.join(
+            path, 'iforest.pickle'), format='pickle')
+        file_manager.save_to_file(self.scaler_model, os.path.join(
+            path, 'scaler.pickle'), format='pickle')
 
     def load(self, path, spark_session=None):
         file_manager = FileManager(path, spark_session)
-        params = file_manager.load_from_file(os.path.join(path, 'params.json'), format='json')
+        params = file_manager.load_from_file(
+            os.path.join(path, 'params.json'), format='json')
         self.set_params(**params)
-        self.iforest_model = file_manager.load_from_file(os.path.join(path, 'iforest.pickle'), format='pickle')
-        self.scaler_model = file_manager.load_from_file(os.path.join(path, 'scaler.pickle'), format='pickle')
+        self.iforest_model = file_manager.load_from_file(
+            os.path.join(path, 'iforest.pickle'), format='pickle')
+        self.scaler_model = file_manager.load_from_file(
+            os.path.join(path, 'scaler.pickle'), format='pickle')
 
         anomaly_detector = AnomalyDetector(
             model=self.iforest_model,

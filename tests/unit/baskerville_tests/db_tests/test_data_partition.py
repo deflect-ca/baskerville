@@ -89,7 +89,8 @@ class TestTemporalDataPartitioner(unittest.TestCase):
         results = self.instance.to_dict()
         print(results)
         f_start = self.start.strftime("%Y-%m-%d %H:%M:%S")
-        f_end = self.end.replace(microsecond=999999).strftime("%Y-%m-%d %H:%M:%S.%f")
+        f_end = self.end.replace(microsecond=999999).strftime(
+            "%Y-%m-%d %H:%M:%S.%f")
         expected_results = {
             'name': 'parent_table',
             'partition_prefix': 'parent_table_y2019_m',
@@ -99,7 +100,7 @@ class TestTemporalDataPartitioner(unittest.TestCase):
             'partition_field': 'partition_field',
             'field_value': f'cast(extract(month from NEW.{self.partition_field}) AS TEXT)',
             'self_check': f"NEW.{self.partition_field} >= '{f_start}' "
-            f"AND NEW.{self.partition_field} <= '{f_end}' "
+                          f"AND NEW.{self.partition_field} <= '{f_end}' "
         }
 
         self.assertTrue(len(results.keys()) == len(expected_results.keys()))
@@ -112,7 +113,7 @@ class TestTemporalDataPartitioner(unittest.TestCase):
     def test_to_dict_partition_by_month_strict(self):
         self.start = datetime(2019, 12, 1)
         self.end = (
-                self.start + timedelta(days=10)
+            self.start + timedelta(days=10)
         ).replace(microsecond=999999)
         self.time_window = TimePeriod(self.start, self.end)
 
@@ -139,7 +140,7 @@ class TestTemporalDataPartitioner(unittest.TestCase):
             'partition_field': 'partition_field',
             'field_value': f'cast(extract(month from NEW.{self.partition_field}) AS TEXT)',
             'self_check': f"NEW.{self.partition_field} >= '{f_start}' "
-            f"AND NEW.{self.partition_field} <= '{f_end}' "
+                          f"AND NEW.{self.partition_field} <= '{f_end}' "
         }
 
         self.assertTrue(len(results.keys()) == len(expected_results.keys()))
@@ -171,7 +172,7 @@ class TestTemporalDataPartitioner(unittest.TestCase):
             'partitioned_by': 'week', 'partition_field': 'partition_field',
             'field_value': f'cast(extract(week from NEW.{self.partition_field}) AS TEXT)',
             'self_check': f"NEW.{self.partition_field} >= '{f_start}' "
-            f"AND NEW.{self.partition_field} <= '{f_end}' "
+                          f"AND NEW.{self.partition_field} <= '{f_end}' "
         }
 
         self.assertTrue(len(results.keys()) == len(expected_results.keys()))
@@ -210,7 +211,7 @@ class TestTemporalDataPartitioner(unittest.TestCase):
             'partitioned_by': 'week', 'partition_field': 'partition_field',
             'field_value': f'cast(extract(week from NEW.{self.partition_field}) AS TEXT)',
             'self_check': f"NEW.{self.partition_field} >= '{f_start}' "
-            f"AND NEW.{self.partition_field} <= '{f_end}' "
+                          f"AND NEW.{self.partition_field} <= '{f_end}' "
         }
 
         self.assertTrue(len(results.keys()) == len(expected_results.keys()))

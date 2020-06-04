@@ -1,6 +1,4 @@
 from pyspark.ml.feature import StandardScaler, StandardScalerModel, StringIndexer, StringIndexerModel
-from pyspark.ml.linalg import Vectors, VectorUDT
-from pyspark.sql import functions as F
 from pyspark.sql.functions import array
 
 from baskerville.models.model_interface import ModelInterface
@@ -8,7 +6,6 @@ from baskerville.spark.helpers import map_to_array, StorageLevelFactory
 from baskerville.spark.udfs import udf_to_dense_vector, udf_add_to_dense_vector
 from pyspark_iforest.ml.iforest import IForest, IForestModel
 import os
-import numpy as np
 
 from baskerville.util.file_manager import FileManager
 

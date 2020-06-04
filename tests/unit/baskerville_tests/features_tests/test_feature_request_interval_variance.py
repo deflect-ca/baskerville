@@ -23,13 +23,15 @@ class TestSparkRequestIntervalVariance(FeatureSparkTestCase):
         self.assertTrue(hasattr(self.feature, 'DEFAULT_VALUE'))
         self.assertTrue(hasattr(self.feature, 'compute_type'))
 
-        self.assertTrue(self.feature.feature_name == 'request_interval_variance')
+        self.assertTrue(self.feature.feature_name ==
+                        'request_interval_variance')
         self.assertTrue(
             self.feature.columns == ['@timestamp'])
         self.assertTrue(self.feature.dependencies == [
             FeatureRequestTotal, FeatureRequestIntervalAverage])
         self.assertTrue(self.feature.DEFAULT_VALUE == 0.)
-        self.assertTrue(self.feature.compute_type == FeatureComputeType.variance)
+        self.assertTrue(self.feature.compute_type ==
+                        FeatureComputeType.variance)
         self.assertIsNotNone(self.feature.feature_name)
         self.assertIsNotNone(self.feature.feature_default)
 
@@ -94,7 +96,7 @@ class TestSparkRequestIntervalVariance(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -146,7 +148,7 @@ class TestSparkRequestIntervalVariance(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 

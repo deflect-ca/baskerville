@@ -2,8 +2,8 @@ import unittest
 import tempfile
 import os
 
-from pyspark import SparkConf
-from pyspark.sql import SparkSession
+# from pyspark import SparkConf
+# from pyspark.sql import SparkSession
 
 from baskerville.util.file_manager import FileManager
 

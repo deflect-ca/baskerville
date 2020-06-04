@@ -1,0 +1,46 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.6.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements_unit_tests.txt ]; then pip install -r requirements_unit_tests.txt; fi
+        git clone https://github.com/titicaca/spark-iforest.git
+        cd spark-iforest/python
+        python setup.py sdist
+        pip install dist/pyspark-iforest-2.4.0.tar.gz
+        cd ../../
+        git clone https://github.com/equalitie/esretriever.git
+        cd esretriever
+        sudo pip install -e .
+        cd ..
+        mkdir ./src/baskerville/logs/
+    - name: Lint with flake8
+      run: |
+        chmod linging.sh 745
+        ./linting.sh
+
+    - name: Test with pytest
+      run: |
+        export PYTHONPATH="./src:./esretriever/src"
+        pytest ./tests/unit

@@ -200,7 +200,7 @@ class ModelTrainingSetLink(Base, SerializableMixin):
     id_request_set = Column(BigInteger,
                             ForeignKey('request_sets.id'), primary_key=True)
     model_version = Column(BigInteger,
-                      ForeignKey('models.id'), primary_key=True)
+                           ForeignKey('models.id'), primary_key=True)
 
 
 class Attack(Base, SerializableMixin):
@@ -273,7 +273,7 @@ class AttributeAttackLink(Base, SerializableMixin):
     __tablename__ = 'attribute_attack_link'
 
     id_attack = Column(BigInteger,
-                            ForeignKey('attacks.id'), primary_key=True)
+                       ForeignKey('attacks.id'), primary_key=True)
     id_attribute = Column(BigInteger,
                           ForeignKey('attributes.id'), primary_key=True)
 

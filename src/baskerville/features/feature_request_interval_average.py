@@ -18,19 +18,18 @@ class FeatureRequestIntervalAverage(UpdaterMean):
     def __init__(self):
         super(FeatureRequestIntervalAverage, self).__init__()
         self.w = Window.partitionBy(
-                    F.col('client_request_host'), F.col('client_ip')
-                ).orderBy(F.col("@timestamp"))
+            F.col('client_request_host'), F.col('client_ip')
+        ).orderBy(F.col("@timestamp"))
         self.group_by_aggs = {
-            'request_interval_mean':  F.avg(
+            'request_interval_mean': F.avg(
                 F.col('request_interval').cast('float') / 60.
             ),
         }
         self.pre_group_by_calcs = {
             'row_num_per_group':
-            F.row_number().over(self.w),
+                F.row_number().over(self.w),
             'prev_ts': F.lag(F.col('@timestamp')).over(
-                self.w
-            ),
+                self.w),
             'request_interval': F.when(
                 F.col('row_num_per_group') > 1,
                 F.when(
@@ -41,8 +40,7 @@ class FeatureRequestIntervalAverage(UpdaterMean):
                 ).otherwise(
                     F.col('@timestamp').cast('long') -
                     F.col('prev_ts').cast('long')
-                )
-            ).otherwise(None),
+                )).otherwise(None),
         }
 
     def compute(self, df):

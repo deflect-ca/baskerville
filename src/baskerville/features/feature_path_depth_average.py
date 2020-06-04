@@ -23,12 +23,11 @@ class FeaturePathDepthAverage(UpdaterMean):
         }
         self.pre_group_by_calcs = {
             'client_url_slash_count': (
-                    F.size(F.split(F.col('client_url'), '/')) - 1
+                F.size(F.split(F.col('client_url'), '/')) - 1
             )
         }
 
     def compute(self, df):
-
         df = df.withColumn(
             self.feature_name,
             F.col('client_url_slash_count_avg').cast('float')

@@ -1,5 +1,5 @@
 from grafanalib._gen import write_dashboard
-from grafanalib.core import *
+from grafanalib.core import Row, SingleStat, Target, Dashboard, Gauge, Graph
 
 
 class DashboardExporter(object):
@@ -63,7 +63,7 @@ class DashboardExporter(object):
                         ]
                     )
 
-            )
+                )
 
         for panel in panels:
             self.rows.append(Row(panels=[panel]))

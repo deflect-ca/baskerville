@@ -23,7 +23,8 @@ class TestSparkMinutesTotal(FeatureSparkTestCase):
         self.assertTrue(self.feature.columns == ['@timestamp'])
         self.assertTrue(self.feature.dependencies == [])
         self.assertTrue(self.feature.DEFAULT_VALUE == 0.)
-        self.assertTrue(self.feature.compute_type == FeatureComputeType.replace)
+        self.assertTrue(self.feature.compute_type ==
+                        FeatureComputeType.replace)
         self.assertIsNotNone(self.feature.feature_name)
         self.assertIsNotNone(self.feature.feature_default)
 

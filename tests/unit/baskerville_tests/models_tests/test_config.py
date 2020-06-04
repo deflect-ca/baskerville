@@ -27,7 +27,7 @@ class TestConfig(unittest.TestCase):
             'engine': self.engine_test_conf,
             'kafka': self.kafka_test_conf,
             'spark': self.spark_test_conf
-            })
+        })
 
     def test_validate(self):
         pass
@@ -130,4 +130,3 @@ class TestSparkConfig(unittest.TestCase):
     #
     # def test_validate(self):
     #     raise NotImplementedError()
-

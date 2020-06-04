@@ -1,9 +1,6 @@
-from collections import defaultdict
-
 from baskerville.models.base import BaskervilleBase
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_factory import PipelineFactory
-from baskerville.spark.helpers import DictAccumulatorParam
 from baskerville.util.helpers import get_logger
 from baskerville.models.metrics.registry import metrics_registry
 
@@ -13,6 +10,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
     The Baskerville Analytics Engine's main.
     Sets up the pipeline and runs it.
     """
+
     def __init__(self, run_type, conf, register_metrics=True):
         super(BaskervilleAnalyticsEngine, self).__init__(conf)
         self.run_type = run_type
@@ -27,7 +25,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.config = BaskervilleConfig(self.config).validate()
 
         self.register_metrics = (
-                self.config.engine.metrics and register_metrics
+            self.config.engine.metrics and register_metrics
         )
 
         self.logger = get_logger(
@@ -226,7 +224,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         if self.pipeline:
             self.pipeline.finish_up()
         self.logger.info('{} says \'Goodbye\'.'.format(
-                self.__class__.__name__
-            )
+            self.__class__.__name__
+        )
         )
         sys.exit(0)

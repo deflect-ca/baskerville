@@ -1,7 +1,5 @@
 from baskerville.features.updateable_features import UpdaterTotal
 from pyspark.sql import functions as F
-
-from baskerville.features.base_feature import BaseFeature
 from baskerville.features.helpers import update_total
 
 
@@ -41,4 +39,3 @@ class FeatureResponse4xxTotal(UpdaterTotal):
             current[cls.feature_name_from_class()],
             past.get(cls.feature_name_from_class())
         )
-

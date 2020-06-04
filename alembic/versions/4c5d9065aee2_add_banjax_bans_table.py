@@ -1,7 +1,7 @@
 """add banjax bans table
 
 Revision ID: 4c5d9065aee2
-Revises: 
+Revises:
 Create Date: 2019-02-19 13:12:54.127134
 
 """

@@ -30,7 +30,8 @@ class TestSparkPathDepthVariance(FeatureSparkTestCase):
         self.assertTrue(self.feature.dependencies == [FeatureRequestTotal,
                                                       FeaturePathDepthAverage])
         self.assertTrue(self.feature.DEFAULT_VALUE == 0.)
-        self.assertTrue(self.feature.compute_type == FeatureComputeType.variance)
+        self.assertTrue(self.feature.compute_type ==
+                        FeatureComputeType.variance)
         self.assertIsNotNone(self.feature.feature_name)
         self.assertIsNotNone(self.feature.feature_default)
 

@@ -24,14 +24,14 @@ class TestHelpers(unittest.TestCase):
             data1:  !ENV ${OTHER_TEST_TAG}
         '''
         config = parse_config(data=test_data)
-        
+
         expected_config = {
             'test1': {
                 'data0': 'it works!',
                 'data1': 'this works too!'
             }
         }
-        
+
         self.assertDictEqual(
             config,
             expected_config

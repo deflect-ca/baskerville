@@ -20,11 +20,10 @@ class FeatureUniquePathRate(TimeBasedFeature, UpdaterRate):
         super(FeatureUniquePathRate, self).__init__()
 
         self.group_by_aggs.update({
-            'unique_urls':  F.countDistinct(F.col('client_url')),
+            'unique_urls': F.countDistinct(F.col('client_url')),
         })
 
     def compute(self, df):
-
         df = df.withColumn(
             self.feature_name,
             F.when(F.col('dt') != 0.,
@@ -38,10 +37,10 @@ class FeatureUniquePathRate(TimeBasedFeature, UpdaterRate):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_rate(
-                    past.get(FeatureUniquePathTotal.feature_name_from_class()),
-                    current[FeatureUniquePathTotal.feature_name_from_class()],
-                    current[FeatureMinutesTotal.feature_name_from_class()]
-                )
+            past.get(FeatureUniquePathTotal.feature_name_from_class()),
+            current[FeatureUniquePathTotal.feature_name_from_class()],
+            current[FeatureMinutesTotal.feature_name_from_class()]
+        )
 
     def update(self, df):
         return super().update(

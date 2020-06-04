@@ -1,10 +1,9 @@
 import abc
 from functools import wraps
 
-from attr import dataclass
+from baskerville.models.metrics.registry import StatsHook
 from baskerville.util.helpers import get_logger
 from prometheus_client import Summary, Counter, Gauge
-from prometheus_client.core import Metric
 
 
 class Stats(object):

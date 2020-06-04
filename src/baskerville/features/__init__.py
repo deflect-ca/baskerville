@@ -12,13 +12,12 @@ for f in feature_files:
     __import__('.'.join(['baskerville', 'features', f]))
 
 FEATURES = set(
-        BaseFeature.__subclasses__() +
-        TimeBasedFeature.__subclasses__() +
-        list(itertools.chain(
-            *[
-                subclass.__subclasses__()
-                for subclass in UpdateableFeature.__subclasses__()
-            ]
-        ))
+    BaseFeature.__subclasses__() +
+    TimeBasedFeature.__subclasses__() +
+    list(itertools.chain(
+        *[
+            subclass.__subclasses__()
+            for subclass in UpdateableFeature.__subclasses__()
+        ]
+    ))
 )
-

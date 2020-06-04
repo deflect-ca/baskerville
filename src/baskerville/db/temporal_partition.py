@@ -86,11 +86,11 @@ class TimePeriod(TP):
         if not strict:
             start_m = self.start.replace(day=1, hour=0, minute=0, second=0)
             end_m = self.end.replace(
-                                    day=days_in_end_month,
-                                    hour=23,
-                                    minute=59,
-                                    second=59
-                                )
+                day=days_in_end_month,
+                hour=23,
+                minute=59,
+                second=59
+            )
 
         if self.start.year == self.end.year:
             if self.start.month == self.end.month:
@@ -177,9 +177,9 @@ class TimePeriod(TP):
                 )
                 return {
                     start_y: {start_w: TimePeriod(
-                                start_wd,
-                                end_wd
-                            )}
+                        start_wd,
+                        end_wd
+                    )}
                 }
 
         for year_tw in self.split_by_year():
@@ -221,13 +221,13 @@ class TimePeriod(TP):
                 week = isoweek.Week(end_y, end_w)
                 start = datetime(
                     *week.monday().timetuple()[:6]).replace(
-                                hour=0, minute=0, second=0
+                    hour=0, minute=0, second=0
                 )
                 end = self.end
                 if not strict:
                     end = datetime(*week.sunday().timetuple()[:6]).replace(
-                                hour=23, minute=59, second=59)
-                sub_periods[end_y] = {end_w: TimePeriod( start, end)}
+                        hour=23, minute=59, second=59)
+                sub_periods[end_y] = {end_w: TimePeriod(start, end)}
 
         return sub_periods
 
@@ -236,6 +236,7 @@ class TemporalPartitionedTable(PartitionedTable):
     """
     Representation of a partitioned by date table.
     """
+
     def __init__(
             self, name, active_period, partition_field,
             partitioned_by=PartitionByEnum.w, index_by=None,

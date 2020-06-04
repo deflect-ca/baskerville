@@ -78,7 +78,7 @@ class BaskervilleConfluentKafkaBatchConsumer(object):
                 'bootstrap.servers': bootstrap_servers,
                 'group.id': group_id,
                 'default.topic.config': {
-                   'auto.offset.reset': offset_reset
+                    'auto.offset.reset': offset_reset
                 }
             }
         )

@@ -15,13 +15,13 @@ prediction_schema = T.StructType([
 
 def get_cache_schema():
     return T.StructType([
-                T.StructField("id", T.IntegerType(), False),
-                T.StructField("target", T.StringType(), False),
-                T.StructField("ip", T.StringType(), False),
-                T.StructField("first_ever_request", T.TimestampType(), True),
-                T.StructField("old_subset_count", T.IntegerType(), True),
-                T.StructField("old_features",
-                              T.MapType(T.StringType(), T.DoubleType()), True),
-                T.StructField("old_num_requests", T.IntegerType(), True),
-                T.StructField("updated_at", T.TimestampType(), True)
-            ])
+        T.StructField("id", T.IntegerType(), False),
+        T.StructField("target", T.StringType(), False),
+        T.StructField("ip", T.StringType(), False),
+        T.StructField("first_ever_request", T.TimestampType(), True),
+        T.StructField("old_subset_count", T.IntegerType(), True),
+        T.StructField("old_features",
+                      T.MapType(T.StringType(), T.DoubleType()), True),
+        T.StructField("old_num_requests", T.IntegerType(), True),
+        T.StructField("updated_at", T.TimestampType(), True)
+    ])

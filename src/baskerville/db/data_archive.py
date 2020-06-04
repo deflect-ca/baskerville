@@ -5,7 +5,7 @@ from baskerville.db.base import GeneratorBase, TEMPLATE_FOLDER
 from baskerville.db.temporal_partition import TemporalPartitionedTable, \
     TimePeriod
 from baskerville.util.enums import PartitionByEnum
-from baskerville.util.helpers import get_default_data_path, get_days_in_year
+from baskerville.util.helpers import get_days_in_year
 
 
 class Archiver(GeneratorBase):
@@ -13,6 +13,7 @@ class Archiver(GeneratorBase):
     Generates the data to be used in the archive template to generate the
     necessary sql for data archive
     """
+
     def __init__(
             self,
             partitioned_table_name,
@@ -50,6 +51,7 @@ class TemporalArchiver(Archiver):
     include the non archived period - but this is not part of the archiver,
     please, run the data partition process separately.
     """
+
     def __init__(
             self,
             partitioned_table_name,
@@ -72,7 +74,8 @@ class TemporalArchiver(Archiver):
         self.archive_period = archive_period
         self.archive_table_name = archive_table_name or self.get_name()
         self.index_by = index_by
-        self.retention_period = get_days_in_year(self.archive_period.start.year)
+        self.retention_period = get_days_in_year(
+            self.archive_period.start.year)
 
         self.partitioned_table = TemporalPartitionedTable(
             self.partitioned_table_name,
@@ -94,7 +97,7 @@ class TemporalArchiver(Archiver):
             return f'{self.partitioned_table_name}_archive_' \
                 f'y{self.archive_period.start.year}'
         return f'{self.partitioned_table_name}_archive_' \
-                f'y{self.archive_period.start.year}_to_' \
+            f'y{self.archive_period.start.year}_to_' \
             f'y{self.archive_period.end.year}'
 
     def to_dict(self):
@@ -118,10 +121,10 @@ def get_archive_script(since, until, parent_table='request_sets'):
         parent_table,
         'created_at',
         TimePeriod(
-                since,
-                until,
-            ),
-        )
+            since,
+            until,
+        ),
+    )
 
     return str(archiver)
 
