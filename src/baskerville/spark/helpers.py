@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from typing import T, Any, Mapping
 
 from baskerville.spark import get_spark_session
@@ -133,14 +140,14 @@ def map_to_array(df, map_col, array_col, map_keys):
     :return: pyspark.sql.Dataframe
     """
     return df.withColumn(
-            array_col,
-            F.array(
-                *list(
-                    F.col(map_col).getItem(f)
-                    for f in map_keys
-                )
+        array_col,
+        F.array(
+            *list(
+                F.col(map_col).getItem(f)
+                for f in map_keys
             )
         )
+    )
 
 
 def reset_spark_storage():
@@ -187,7 +194,7 @@ def save_model(model, path, mode='overwrite'):
     writer.save(path)
 
 
-def set_unknown_prediction(df, columns=('prediction', 'score')):
+def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
     """
     Sets the preset unknown value for prediction and score
     :param pyspark.sql.Dataframe df:

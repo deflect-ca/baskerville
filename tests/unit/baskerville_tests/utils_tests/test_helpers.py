@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import os
 import unittest
 from datetime import datetime
@@ -24,14 +31,14 @@ class TestHelpers(unittest.TestCase):
             data1:  !ENV ${OTHER_TEST_TAG}
         '''
         config = parse_config(data=test_data)
-        
+
         expected_config = {
             'test1': {
                 'data0': 'it works!',
                 'data1': 'this works too!'
             }
         }
-        
+
         self.assertDictEqual(
             config,
             expected_config

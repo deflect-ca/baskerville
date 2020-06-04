@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import json
 import os
 import warnings
@@ -5,7 +12,7 @@ from datetime import datetime
 from functools import wraps
 
 import dateutil
-from baskerville.util.enums import AlgorithmEnum, ScalerEnum
+from baskerville.util.enums import ModelEnum
 from baskerville.util.helpers import get_logger, get_default_data_path, \
     SerializableMixin
 from dateutil.tz import tzutc
@@ -18,6 +25,7 @@ class ConfigError(Exception, SerializableMixin):
     """
     Custom Error to be used in the configuration error report
     """
+
     def __init__(self, message, fields, exception_type=ValueError):
         if isinstance(fields, str):
             fields = [fields]
@@ -33,6 +41,7 @@ class ConfigErrorReport(object):
     Singleton configuration report - gathers all the errors from all the
     configuration instances
     """
+
     def __init__(self):
         self._errors = []
 
@@ -50,7 +59,7 @@ class ConfigErrorReport(object):
 
     @property
     def errors(self):
-        return self._errors    \
+        return self._errors
 
     @property
     def serialized_errors(self):
@@ -102,9 +111,9 @@ class Config(SerializableMixin):
 
     def __init__(self, config_dict, parent=None):
         self.__dict__.update(**{
-                k: v for k, v in self.__class__.__dict__.items()
-                if '__' not in k and not callable(v)
-            })
+            k: v for k, v in self.__class__.__dict__.items()
+            if '__' not in k and not callable(v)
+        })
         self.__dict__.update(**config_dict)
         self.parent = parent
         self._is_validated = False
@@ -133,7 +142,7 @@ class Config(SerializableMixin):
 
     @property
     def errors(self):
-        return self._configuration_error_report.errors    \
+        return self._configuration_error_report.errors
 
     @property
     def serialized_errors(self):
@@ -272,7 +281,8 @@ class EngineConfig(Config):
             (f.feature_name_from_class(), f) for f in FEATURES
         )
         if not self.storage_path:
-            self.storage_path = os.path.join(get_default_data_path(), 'storage')
+            self.storage_path = os.path.join(
+                get_default_data_path(), 'storage')
 
     def validate(self):
         logger.debug('Validating EngineConfig...')
@@ -323,7 +333,8 @@ class EngineConfig(Config):
             for f in self.extra_features:
                 if f not in self.all_features:
                     self.add_error(
-                        ConfigError(f'Unknown feature {f}.', ['extra_features'])
+                        ConfigError(f'Unknown feature {f}.', [
+                                    'extra_features'])
                     )
 
         self._is_validated = True
@@ -439,41 +450,27 @@ class TrainingConfig(Config):
         - training days
         - from - to date
         - other filters, like hosts
-    Classifier Parameters:  (optional)
-        - max_samples
-        - contamination
-        - n_estimators
-    Scaler Parameters       (optional)
+    Model Parameters:  (optional)
+        -
     """
     classifier: str
     scaler: str
-    data_parameters: dict
-    classifier_parameters: dict
-    scaler_parameters: dict
-    model_options: dict
-    host_feature: list = []
+    model_parameters: dict
     n_jobs: int = -1
-    use_host_feature: bool = False
     max_number_of_records_to_read_from_db: int = None
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
-        self.allowed_algorithms = list(vars(AlgorithmEnum)['_value2member_map_'].keys())
-        self.allowed_scalers = list(vars(ScalerEnum)['_value2member_map_'].keys())
+        self.allowed_models = list(
+            vars(ModelEnum)['_value2member_map_'].keys())
 
     def validate(self):
         logger.debug('Validating TrainingConfig...')
-        if self.classifier:
-            if self.classifier not in self.allowed_algorithms:
+        if self.model:
+            if self.model not in self.allowed_models:
                 raise ValueError(
-                    f'{self.classifier} is not in allowed algorithms: '
-                    f'{",".join(self.allowed_algorithms)}'
-                )
-        if self.scaler:
-            if self.scaler not in self.allowed_scalers:
-                raise ValueError(
-                    f'{self.scaler} is not in allowed algorithms: '
-                    f'{",".join(self.allowed_scalers)}'
+                    f'{self.model} is not in allowed models: '
+                    f'{",".join(self.allowed_models)}'
                 )
 
         if self.data_parameters:
@@ -481,14 +478,11 @@ class TrainingConfig(Config):
                     (self.data_parameters.get('from_date') and
                      self.data_parameters.get('to_date')):
                 raise ValueError(
-                    f'Either training days or from-to date should be specified'
+                    'Either training days or from-to date should be specified'
                 )
 
-        if not self.classifier_parameters:
-            self.classifier_parameters = {}
-
-        if not self.scaler_parameters:
-            self.scaler_parameters = {}
+        if not self.model_parameters:
+            self.model_parameters = {}
 
         self._is_validated = True
         return self
@@ -575,7 +569,6 @@ class MaintenanceConfig(Config):
                 raise ValueError(
                     f'Wrong value for \'keep_data_for\':{self.keep_data_for}'
                 )
-            num = int(split_kdf[0])
             unit = split_kdf[1]
 
             if unit not in ['year', 'years', 'month', 'months', 'week',
@@ -906,7 +899,7 @@ class MetricsConfig(Config):
     def validate(self):
         logger.debug('Validating MetricsConfig...')
         if not self.performance and not self.progress:
-            raise ValueError(f'Metrics configuration is missing.')
+            raise ValueError('Metrics configuration is missing.')
 
         if not self.port:
             self.port = 8998
@@ -936,7 +929,8 @@ class DataParsingConfig(Config):
         from baskerville.models.log_parsers import LOG_PARSERS
 
         if not self.schema or not os.path.isfile(self.schema):
-            self.add_error(ConfigError('Please provide a valid schema', 'schema'))
+            self.add_error(ConfigError(
+                'Please provide a valid schema', 'schema'))
         else:
             with open(self.schema) as sc:
                 self.schema_obj = json.load(sc)

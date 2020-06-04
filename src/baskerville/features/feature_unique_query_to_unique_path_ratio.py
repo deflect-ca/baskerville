@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.updateable_features import UpdaterRatio
 from pyspark.sql import functions as F
 
@@ -36,11 +43,11 @@ class FeatureUniqueQueryToUniquePathRatio(UpdaterRatio):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_ratio(
-                    past.get(FeatureUniqueQueryTotal.feature_name_from_class()),
-                    past.get(FeatureUniquePathTotal.feature_name_from_class()),
-                    current[FeatureUniqueQueryTotal.feature_name_from_class()],
-                    current[FeatureUniquePathTotal.feature_name_from_class()]
-                )
+            past.get(FeatureUniqueQueryTotal.feature_name_from_class()),
+            past.get(FeatureUniquePathTotal.feature_name_from_class()),
+            current[FeatureUniqueQueryTotal.feature_name_from_class()],
+            current[FeatureUniquePathTotal.feature_name_from_class()]
+        )
 
     def update(self, df, feat_column='features', old_feat_column='old_features'):
         return super().update(

@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from sqlalchemy import (
     Column, Integer, String, Boolean, DateTime, ForeignKey, TEXT, Float,
     JSON, LargeBinary, BigInteger)
@@ -200,7 +207,7 @@ class ModelTrainingSetLink(Base, SerializableMixin):
     id_request_set = Column(BigInteger,
                             ForeignKey('request_sets.id'), primary_key=True)
     model_version = Column(BigInteger,
-                      ForeignKey('models.id'), primary_key=True)
+                           ForeignKey('models.id'), primary_key=True)
 
 
 class Attack(Base, SerializableMixin):
@@ -273,7 +280,7 @@ class AttributeAttackLink(Base, SerializableMixin):
     __tablename__ = 'attribute_attack_link'
 
     id_attack = Column(BigInteger,
-                            ForeignKey('attacks.id'), primary_key=True)
+                       ForeignKey('attacks.id'), primary_key=True)
     id_attribute = Column(BigInteger,
                           ForeignKey('attributes.id'), primary_key=True)
 

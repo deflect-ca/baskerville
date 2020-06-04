@@ -1,7 +1,13 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import abc
 
 from baskerville.db import get_jdbc_url
-from baskerville.models.feature_manager import FeatureManager
 from baskerville.util.helpers import get_logger
 
 
@@ -36,7 +42,8 @@ class PipelineBase(object, metaclass=abc.ABCMeta):
 
     def __init__(self, db_conf, engine_conf, clean_up):
         self.runtime = None
-        self.active_features = None  # todo: does not belong here anymore - see feature manager
+        # todo: does not belong here anymore - see feature manager
+        self.active_features = None
         self.step_to_action = None
         self.remaining_steps = None
         self.logs_df = None
@@ -72,35 +79,3 @@ class PipelineBase(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def finish_up(self):
         pass
-
-
-class TrainingPipelineBase(PipelineBase, metaclass=abc.ABCMeta):
-    def __init__(self, db_conf, engine_conf, spark_conf, clean_up=True):
-        super().__init__(db_conf, engine_conf, clean_up)
-        self.data = None
-        self.training_conf = self.engine_conf.training
-        self.spark_conf = spark_conf
-        self.feature_manager = FeatureManager(self.engine_conf)
-
-    @abc.abstractmethod
-    def get_data(self):
-        pass
-
-    @abc.abstractmethod
-    def train(self):
-        pass
-
-    @abc.abstractmethod
-    def test(self):
-        pass
-
-    @abc.abstractmethod
-    def evaluate(self):
-        pass
-
-    @abc.abstractmethod
-    def save(self, *args, **kwargs):
-        pass
-
-    def run(self, *args, **kwargs):
-        super().run()

@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.updateable_features import UpdaterRatio
 from pyspark.sql import functions as F
 
@@ -18,10 +25,10 @@ class FeatureImageToHtmlRatio(UpdaterRatio):
         super(FeatureImageToHtmlRatio, self).__init__()
 
         self.group_by_aggs = {
-            'html_count':   F.count(
+            'html_count': F.count(
                 F.when(F.col('is_html') == True, F.col('is_html'))  # noqa
             ),
-            'image_count':  F.count(
+            'image_count': F.count(
                 F.when(F.col('is_image') == True, F.col('is_image'))  # noqa
             )
         }
@@ -47,11 +54,11 @@ class FeatureImageToHtmlRatio(UpdaterRatio):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_ratio(
-                    past.get(FeatureImageTotal.feature_name_from_class()),
-                    past.get(FeatureHtmlTotal.feature_name_from_class()),
-                    current[FeatureImageTotal.feature_name_from_class()],
-                    current[FeatureHtmlTotal.feature_name_from_class()]
-                )
+            past.get(FeatureImageTotal.feature_name_from_class()),
+            past.get(FeatureHtmlTotal.feature_name_from_class()),
+            current[FeatureImageTotal.feature_name_from_class()],
+            current[FeatureHtmlTotal.feature_name_from_class()]
+        )
 
     def update(self, df, feat_column='features', old_feat_column='old_features'):
         return super().update(

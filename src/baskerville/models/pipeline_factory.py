@@ -1,12 +1,17 @@
-from baskerville.models.pipeline_training import TrainingPipeline, \
-    TrainingSparkMLPipeline
-from baskerville.models.pipelines import RawLogPipeline, ElasticsearchPipeline, \
-    KafkaPipeline
-from baskerville.util.enums import RunType, SPARK_ML_MODELS, SKLEARN_MODELS
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+from baskerville.models.pipeline_training import TrainingPipeline
+from baskerville.models.pipelines import RawLogPipeline, ElasticsearchPipeline, KafkaPipeline
+from baskerville.util.enums import RunType
 
 
 class PipelineFactory(object):
-    def get_pipeline(self, run_type,  config):
+    def get_pipeline(self, run_type, config):
         if run_type == RunType.es:
             return ElasticsearchPipeline(
                 config.database,
@@ -16,10 +21,10 @@ class PipelineFactory(object):
             )
         elif run_type == RunType.rawlog:
             return RawLogPipeline(
-                    config.database,
-                    config.engine,
-                    config.spark
-                )
+                config.database,
+                config.engine,
+                config.spark
+            )
         elif run_type == RunType.kafka:
             return KafkaPipeline(
                 config.database,
@@ -28,19 +33,11 @@ class PipelineFactory(object):
                 config.spark
             )
         elif run_type == RunType.training:
-            if config.engine.training.classifier in SPARK_ML_MODELS:
-                return TrainingSparkMLPipeline(
-                    config.database,
-                    config.engine,
-                    config.spark
-                )
-            elif config.engine.training.classifier in SKLEARN_MODELS:
-
-                return TrainingPipeline(
-                    config.database,
-                    config.engine,
-                    config.spark
-                )
+            return TrainingPipeline(
+                config.database,
+                config.engine,
+                config.spark
+            )
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'
         )

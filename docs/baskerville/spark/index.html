@@ -1,410 +1,571 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.spark API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.spark</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">import os
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.spark API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.spark
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
 
-from pyspark import SparkConf
+
+import os
+
+from pyspark import SparkConf, StorageLevel
 from pyspark.sql import SparkSession
 
 
 def get_or_create_spark_session(spark_conf):
-    &#34;&#34;&#34;
+    """
     Returns a configured spark session
     :param SparkConfig spark_conf: the spark configuration
     :return:
     :rtype: pyspark.Session
-    &#34;&#34;&#34;
+    """
     # https://spark.apache.org/docs/latest/tuning.html
     conf = SparkConf()
-    conf.set(&#39;spark.logConf&#39;, spark_conf.log_conf)
-    conf.set(&#39;spark.jars&#39;, spark_conf.jars)
+    conf.set('spark.logConf', 'true')
+    conf.set('spark.jars', spark_conf.jars)
+    conf.set('spark.master', spark_conf.master)
+    conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
 
     if spark_conf.spark_executor_instances:
-        conf.set(&#39;spark.executor.instances&#39;, spark_conf.spark_executor_instances)
-        # conf.set(&#39;spark.streaming.dynamicAllocation.minExecutors&#39;, spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances',
+                 spark_conf.spark_executor_instances)
+        # conf.set('spark.streaming.dynamicAllocation.minExecutors', spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_cores:
-        conf.set(&#39;spark.executor.cores&#39;, spark_conf.spark_executor_cores)
+        conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_memory:
-        conf.set(&#39;spark.executor.memory&#39;, spark_conf.spark_executor_memory)
-    # todo: https://stackoverflow.com/questions/49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
+        conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
+    # todo: https://stackoverflow.com/questions/
+    #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
     # https://medium.com/@pmatpadi/spark-streaming-dynamic-scaling-and-backpressure-in-action-6ebdbc782a69
 
-    # conf.set(&#39;spark.streaming.dynamicAllocation.enabled&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.streaming.unpersist&#39;, &#39;true&#39;)
-    # conf.set(&#39;spark.dynamicAllocation.enabled&#39;, &#39;true&#39;)
-    # conf.set(&#39;spark.shuffle.service.enabled&#39;, &#39;true&#39;)
-    # conf.set(&#39;spark.streaming.dynamicAllocation.executorIdleTimeout&#39;, &#39;3s&#39;)
-    # conf.set(&#39;spark.streaming.dynamicAllocation.initialExecutors&#39;, &#39;4&#39;)
-    # conf.set(&#39;spark.streaming.dynamicAllocation.minExecutors&#39;, &#39;3&#39;)
-    conf.set(&#39;spark.cleaner.periodicGC.interval&#39;, &#39;1m&#39;)
-    conf.set(&#39;spark.memory.offHeap.enabled&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.memory.offHeap.size&#39;, &#39;2g&#39;)
-    # conf.set(&#39;spark.python.worker.memory&#39;, &#39;1g&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.strategy&#39;, &#39;time&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.time.interval&#39;, &#39;daily&#39;)
-    # conf.set(&#39;spark.python.worker.reuse&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.ui.port&#39;, &#39;4042&#39;)
-    # conf.set(&#39;spark.python.profile&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.rdd.compress&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.broadcast.compress&#39;, &#39;true&#39;)
+    # conf.set('spark.streaming.dynamicAllocation.enabled', 'true')
+    conf.set('spark.streaming.unpersist', 'true')
+    conf.set('spark.sql.session.timeZone', 'UTC')
+    # conf.set('spark.dynamicAllocation.enabled', 'true')
+    # conf.set('spark.shuffle.service.enabled', 'true')
+    # conf.set('spark.streaming.dynamicAllocation.executorIdleTimeout', '3s')
+    # conf.set('spark.streaming.dynamicAllocation.initialExecutors', '4')
+    # conf.set('spark.streaming.dynamicAllocation.minExecutors', '3')
+    conf.set('spark.cleaner.periodicGC.interval', '1m')
+    if spark_conf.storage_level == StorageLevel.OFF_HEAP:
+        conf.set('spark.memory.offHeap.enabled', 'true')
+        conf.set('spark.memory.offHeap.size', spark_conf.off_heap_size or '2g')
+    # conf.set('spark.python.worker.memory', '1g')
+    conf.set('spark.executor.logs.rolling.strategy', 'time')
+    conf.set('spark.executor.logs.rolling.time.interval', 'daily')
+    # conf.set('spark.python.worker.reuse', 'true')
+    conf.set('spark.ui.port', '4042')
+    # conf.set('spark.python.profile', 'true')
+    conf.set('spark.rdd.compress', 'true')
+    conf.set('spark.broadcast.compress', 'true')
 
-    conf.set(&#39;spark.history.fs.cleaner.enabled&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.history.fs.cleaner.interval&#39;, &#39;1d&#39;)
-    conf.set(&#39;log4j.appender.rolling.maxFileSize&#39;, &#39;50MB&#39;)
-    conf.set(&#39;log4j.appender.rolling.maxBackupIndex&#39;, &#39;5&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.maxRetainedFiles&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.enableCompression&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.maxSize&#39;, &#39;50MB&#39;)
+    conf.set('spark.history.fs.cleaner.enabled', 'true')
+    conf.set('spark.history.fs.cleaner.interval', '1d')
+    conf.set('log4j.appender.rolling.maxFileSize', '50MB')
+    conf.set('log4j.appender.rolling.maxBackupIndex', '5')
+    conf.set('spark.executor.logs.rolling.maxRetainedFiles', '20')
+    conf.set('spark.executor.logs.rolling.enableCompression', 'true')
+    conf.set('spark.executor.logs.rolling.maxSize', '50MB')
 
     # ui
-    conf.set(&#39;spark.ui.retainedJobs&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.ui.retainedStages&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.ui.retainedTask&#39;, &#39;50&#39;)
-    conf.set(&#39;spark.worker.ui.retainedExecutors&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.worker.ui.retainedDrivers&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.sql.ui.retainedExecutions&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.streaming.ui.retainedBatches&#39;, &#39;20&#39;)
+    conf.set('spark.ui.retainedJobs', '20')
+    conf.set('spark.ui.retainedStages', '20')
+    conf.set('spark.ui.retainedTask', '50')
+    conf.set('spark.worker.ui.retainedExecutors', '20')
+    conf.set('spark.worker.ui.retainedDrivers', '20')
+    conf.set('spark.sql.ui.retainedExecutions', '20')
+    conf.set('spark.streaming.ui.retainedBatches', '20')
 
     # parquet related properties
-    # conf.set(&#39;spark.hadoop.native.lib&#39;, &#39;false&#39;)
-    # conf.set(&#39;spark.sql.parquet.cacheMetadata&#39;, &#39;false&#39;)
-    conf.set(&#39;spark.sql.parquet.enable.dictionary&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.hadoop.parquet.enable.summary-metadata&#39;, &#39;false&#39;)
-    conf.set(&#39;spark.sql.parquet.mergeSchema&#39;, &#39;false&#39;)
-    conf.set(&#39;spark.sql.parquet.filterPushdown&#39;, &#39;true&#39;)
-    conf.set(&#39; spark.sql.hive.metastorePartitionPruning&#39;, &#39;true&#39;)
-
+    # conf.set('spark.hadoop.native.lib', 'false')
+    # conf.set('spark.sql.parquet.cacheMetadata', 'false')
+    conf.set('spark.sql.parquet.enable.dictionary', 'true')
+    conf.set('spark.hadoop.parquet.enable.summary-metadata', 'false')
+    conf.set('spark.sql.parquet.mergeSchema', 'false')
+    conf.set('spark.sql.parquet.filterPushdown', 'true')
+    conf.set(' spark.sql.hive.metastorePartitionPruning', 'true')
 
     # https://spark.apache.org/docs/latest/monitoring.html
     # To view the web UI after the app has terminated
-    conf.set(&#39;spark.eventLog.enabled&#39;, spark_conf.event_log)
-    conf.set(&#39;spark.eventLog.compress&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.eventLog.overwrite&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.ui.dagGraph.retainedRootRDDs&#39;, 100000)
-    if not os.path.exists(&#39;/tmp/spark-events&#39;):
-        os.makedirs(&#39;/tmp/spark-events&#39;)
+    conf.set('spark.eventLog.enabled', spark_conf.event_log)
+    conf.set('spark.eventLog.compress', 'true')
+    conf.set('spark.eventLog.overwrite', 'true')
+    conf.set('spark.ui.dagGraph.retainedRootRDDs', 100000)
+    if not os.path.exists('/tmp/spark-events'):
+        os.makedirs('/tmp/spark-events')
     if spark_conf.spark_executor_cores:
-        conf.set(&#39;spark.executor.cores&#39;, spark_conf.spark_executor_cores)
+        conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_instances:
-        conf.set(&#39;spark.executor.instances&#39;, spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances',
+                 spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_memory:
-        conf.set(&#39;spark.executor.memory&#39;, spark_conf.spark_executor_memory)
+        conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     if spark_conf.serializer:
-        conf.set(&#39;spark.serializer&#39;, spark_conf.serializer)
-        if &#39;KryoSerializer&#39; in spark_conf.serializer:
+        conf.set('spark.serializer', spark_conf.serializer)
+        if 'KryoSerializer' in spark_conf.serializer:
             if spark_conf.kryoserializer_buffer_max:
                 conf.set(
-                    &#39;spark.kryoserializer.buffer.max&#39;,
+                    'spark.kryoserializer.buffer.max',
                     spark_conf.kryoserializer_buffer_max
                 )
             if spark_conf.kryoserializer_buffer:
                 conf.set(
-                    &#39;spark.kryoserializer.buffer&#39;,
+                    'spark.kryoserializer.buffer',
                     spark_conf.kryoserializer_buffer
                 )
     if spark_conf.driver_extra_class_path:
-        conf.set(&#39;spark.driver.extraClassPath&#39;, spark_conf.driver_extra_class_path)
+        conf.set('spark.driver.extraClassPath',
+                 spark_conf.driver_extra_class_path)
     if spark_conf.metrics_conf:
-        conf.set(&#39;spark.metrics.conf&#39;, spark_conf.metrics_conf)
+        conf.set('spark.metrics.conf', spark_conf.metrics_conf)
     if spark_conf.jars_repositories:
-        conf.set(&#39;spark.jars.repositories&#39;, spark_conf.jars_repositories)
+        conf.set('spark.jars.repositories', spark_conf.jars_repositories)
     if spark_conf.jar_packages:
-        conf.set(&#39;spark.jars.packages&#39;, spark_conf.jar_packages)
+        conf.set('spark.jars.packages', spark_conf.jar_packages)
     # when on a local machine with less than 36GB of ram -XX:+UseCompressedOops
     if spark_conf.executor_extra_java_options:
         conf.set(
-            &#39;spark.executor.extraJavaOptions&#39;,
+            'spark.executor.extraJavaOptions',
             spark_conf.executor_extra_java_options
         )
     if spark_conf.driver_java_options:
         conf.set(
-            &#39;spark.driver.java.options&#39;, spark_conf.driver_java_options
+            'spark.driver.java.options', spark_conf.driver_java_options
         )
     if spark_conf.spark_driver_memory:
         conf.set(
-            &#39;spark.driver.memory&#39;, spark_conf.spark_driver_memory
+            'spark.driver.memory', spark_conf.spark_driver_memory
         )
     conf.set(
-        &#39;spark.sql.session.timeZone&#39;, spark_conf.session_timezone
+        'spark.sql.session.timeZone', spark_conf.session_timezone
     )
-    conf.set(&#39;spark.sql.shuffle.partitions&#39;, spark_conf.shuffle_partitions)
+    conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
+    conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
 
     spark = SparkSession.builder \
         .config(conf=conf) \
         .appName(spark_conf.app_name) \
         .getOrCreate()
 
-    if spark_conf.log_conf:
+    if spark_conf.log_level:
         spark.sparkContext.setLogLevel(spark_conf.log_level)
     return spark
 
 
 def get_spark_session():
-    return SparkSession.builder.getOrCreate()
-
-
-if __name__ == &#39;__main__&#39;:
-    from pyspark.ml.feature import Word2Vec, Word2VecModel
-    # import nltk
-
-    spark = get_spark_session()
-    # rdd = spark.sparkContext.textFile(&#39;&#39;).map(lambda l: nltk.tokenize.sent_tokenize())
-    model = Word2VecModel.load(&#39;/Users/mariakaranasou/Desktop/model_all&#39;)
-    model.findSynonyms(&#39;κράτος&#39;, 5).show()
-#     &#34;&#34;&#34;
-#     +-----------------+------------------+
-# |             word|        similarity|
-# +-----------------+------------------+
-# |          κρά¬τος| 0.827213704586029|
-# |    συμ¬βαλλόμενο|0.7738680243492126|
-# |συμβαλλόμενομέρος|0.7666512131690979|
-# |     συμβαλλόμενο|0.7566986083984375|
-# |     φορολο¬γηθεί|0.7496457099914551|
-# +-----------------+------------------+
-#     &#34;&#34;&#34;
-#     from pattern.text.en import singularize
-#     word2Vec = Word2Vec(vectorSize=5, seed=42, inputCol=&#34;sentence&#34;,
-#                         outputCol=&#34;model&#34;)</code></pre>
-</details>
-</section>
-<section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
-<dl>
-<dt><code class="name"><a title="baskerville.spark.helpers" href="helpers.html">baskerville.spark.helpers</a></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-<dt><code class="name"><a title="baskerville.spark.streaming_test" href="streaming_test.html">baskerville.spark.streaming_test</a></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-<dt><code class="name"><a title="baskerville.spark.udfs" href="udfs.html">baskerville.spark.udfs</a></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-</dl>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="baskerville.spark.get_or_create_spark_session"><code class="name flex">
-<span>def <span class="ident">get_or_create_spark_session</span></span>(<span>spark_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns a configured spark session
+    return SparkSession.builder.getOrCreate()</code></pre>
+     </details>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-submodules">
+      Sub-modules
+     </h2>
+     <dl>
+      <dt>
+       <code class="name">
+        <a href="helpers.html" title="baskerville.spark.helpers">
+         baskerville.spark.helpers
+        </a>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+      </dd>
+      <dt>
+       <code class="name">
+        <a href="schemas.html" title="baskerville.spark.schemas">
+         baskerville.spark.schemas
+        </a>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+      </dd>
+      <dt>
+       <code class="name">
+        <a href="streaming_test.html" title="baskerville.spark.streaming_test">
+         baskerville.spark.streaming_test
+        </a>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+      </dd>
+      <dt>
+       <code class="name">
+        <a href="udfs.html" title="baskerville.spark.udfs">
+         baskerville.spark.udfs
+        </a>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+      </dd>
+     </dl>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-functions">
+      Functions
+     </h2>
+     <dl>
+      <dt id="baskerville.spark.get_or_create_spark_session">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_or_create_spark_session
+         </span>
+        </span>
+        (
+        <span>
+         spark_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Returns a configured spark session
 :param SparkConfig spark_conf: the spark configuration
 :return:
-:rtype: pyspark.Session</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_or_create_spark_session(spark_conf):
-    &#34;&#34;&#34;
+:rtype: pyspark.Session
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_or_create_spark_session(spark_conf):
+    """
     Returns a configured spark session
     :param SparkConfig spark_conf: the spark configuration
     :return:
     :rtype: pyspark.Session
-    &#34;&#34;&#34;
+    """
     # https://spark.apache.org/docs/latest/tuning.html
     conf = SparkConf()
-    conf.set(&#39;spark.logConf&#39;, spark_conf.log_conf)
-    conf.set(&#39;spark.jars&#39;, spark_conf.jars)
+    conf.set('spark.logConf', 'true')
+    conf.set('spark.jars', spark_conf.jars)
+    conf.set('spark.master', spark_conf.master)
+    conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
 
     if spark_conf.spark_executor_instances:
-        conf.set(&#39;spark.executor.instances&#39;, spark_conf.spark_executor_instances)
-        # conf.set(&#39;spark.streaming.dynamicAllocation.minExecutors&#39;, spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances',
+                 spark_conf.spark_executor_instances)
+        # conf.set('spark.streaming.dynamicAllocation.minExecutors', spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_cores:
-        conf.set(&#39;spark.executor.cores&#39;, spark_conf.spark_executor_cores)
+        conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_memory:
-        conf.set(&#39;spark.executor.memory&#39;, spark_conf.spark_executor_memory)
-    # todo: https://stackoverflow.com/questions/49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
+        conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
+    # todo: https://stackoverflow.com/questions/
+    #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
     # https://medium.com/@pmatpadi/spark-streaming-dynamic-scaling-and-backpressure-in-action-6ebdbc782a69
 
-    # conf.set(&#39;spark.streaming.dynamicAllocation.enabled&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.streaming.unpersist&#39;, &#39;true&#39;)
-    # conf.set(&#39;spark.dynamicAllocation.enabled&#39;, &#39;true&#39;)
-    # conf.set(&#39;spark.shuffle.service.enabled&#39;, &#39;true&#39;)
-    # conf.set(&#39;spark.streaming.dynamicAllocation.executorIdleTimeout&#39;, &#39;3s&#39;)
-    # conf.set(&#39;spark.streaming.dynamicAllocation.initialExecutors&#39;, &#39;4&#39;)
-    # conf.set(&#39;spark.streaming.dynamicAllocation.minExecutors&#39;, &#39;3&#39;)
-    conf.set(&#39;spark.cleaner.periodicGC.interval&#39;, &#39;1m&#39;)
-    conf.set(&#39;spark.memory.offHeap.enabled&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.memory.offHeap.size&#39;, &#39;2g&#39;)
-    # conf.set(&#39;spark.python.worker.memory&#39;, &#39;1g&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.strategy&#39;, &#39;time&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.time.interval&#39;, &#39;daily&#39;)
-    # conf.set(&#39;spark.python.worker.reuse&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.ui.port&#39;, &#39;4042&#39;)
-    # conf.set(&#39;spark.python.profile&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.rdd.compress&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.broadcast.compress&#39;, &#39;true&#39;)
+    # conf.set('spark.streaming.dynamicAllocation.enabled', 'true')
+    conf.set('spark.streaming.unpersist', 'true')
+    conf.set('spark.sql.session.timeZone', 'UTC')
+    # conf.set('spark.dynamicAllocation.enabled', 'true')
+    # conf.set('spark.shuffle.service.enabled', 'true')
+    # conf.set('spark.streaming.dynamicAllocation.executorIdleTimeout', '3s')
+    # conf.set('spark.streaming.dynamicAllocation.initialExecutors', '4')
+    # conf.set('spark.streaming.dynamicAllocation.minExecutors', '3')
+    conf.set('spark.cleaner.periodicGC.interval', '1m')
+    if spark_conf.storage_level == StorageLevel.OFF_HEAP:
+        conf.set('spark.memory.offHeap.enabled', 'true')
+        conf.set('spark.memory.offHeap.size', spark_conf.off_heap_size or '2g')
+    # conf.set('spark.python.worker.memory', '1g')
+    conf.set('spark.executor.logs.rolling.strategy', 'time')
+    conf.set('spark.executor.logs.rolling.time.interval', 'daily')
+    # conf.set('spark.python.worker.reuse', 'true')
+    conf.set('spark.ui.port', '4042')
+    # conf.set('spark.python.profile', 'true')
+    conf.set('spark.rdd.compress', 'true')
+    conf.set('spark.broadcast.compress', 'true')
 
-    conf.set(&#39;spark.history.fs.cleaner.enabled&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.history.fs.cleaner.interval&#39;, &#39;1d&#39;)
-    conf.set(&#39;log4j.appender.rolling.maxFileSize&#39;, &#39;50MB&#39;)
-    conf.set(&#39;log4j.appender.rolling.maxBackupIndex&#39;, &#39;5&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.maxRetainedFiles&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.enableCompression&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.executor.logs.rolling.maxSize&#39;, &#39;50MB&#39;)
+    conf.set('spark.history.fs.cleaner.enabled', 'true')
+    conf.set('spark.history.fs.cleaner.interval', '1d')
+    conf.set('log4j.appender.rolling.maxFileSize', '50MB')
+    conf.set('log4j.appender.rolling.maxBackupIndex', '5')
+    conf.set('spark.executor.logs.rolling.maxRetainedFiles', '20')
+    conf.set('spark.executor.logs.rolling.enableCompression', 'true')
+    conf.set('spark.executor.logs.rolling.maxSize', '50MB')
 
     # ui
-    conf.set(&#39;spark.ui.retainedJobs&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.ui.retainedStages&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.ui.retainedTask&#39;, &#39;50&#39;)
-    conf.set(&#39;spark.worker.ui.retainedExecutors&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.worker.ui.retainedDrivers&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.sql.ui.retainedExecutions&#39;, &#39;20&#39;)
-    conf.set(&#39;spark.streaming.ui.retainedBatches&#39;, &#39;20&#39;)
+    conf.set('spark.ui.retainedJobs', '20')
+    conf.set('spark.ui.retainedStages', '20')
+    conf.set('spark.ui.retainedTask', '50')
+    conf.set('spark.worker.ui.retainedExecutors', '20')
+    conf.set('spark.worker.ui.retainedDrivers', '20')
+    conf.set('spark.sql.ui.retainedExecutions', '20')
+    conf.set('spark.streaming.ui.retainedBatches', '20')
 
     # parquet related properties
-    # conf.set(&#39;spark.hadoop.native.lib&#39;, &#39;false&#39;)
-    # conf.set(&#39;spark.sql.parquet.cacheMetadata&#39;, &#39;false&#39;)
-    conf.set(&#39;spark.sql.parquet.enable.dictionary&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.hadoop.parquet.enable.summary-metadata&#39;, &#39;false&#39;)
-    conf.set(&#39;spark.sql.parquet.mergeSchema&#39;, &#39;false&#39;)
-    conf.set(&#39;spark.sql.parquet.filterPushdown&#39;, &#39;true&#39;)
-    conf.set(&#39; spark.sql.hive.metastorePartitionPruning&#39;, &#39;true&#39;)
-
+    # conf.set('spark.hadoop.native.lib', 'false')
+    # conf.set('spark.sql.parquet.cacheMetadata', 'false')
+    conf.set('spark.sql.parquet.enable.dictionary', 'true')
+    conf.set('spark.hadoop.parquet.enable.summary-metadata', 'false')
+    conf.set('spark.sql.parquet.mergeSchema', 'false')
+    conf.set('spark.sql.parquet.filterPushdown', 'true')
+    conf.set(' spark.sql.hive.metastorePartitionPruning', 'true')
 
     # https://spark.apache.org/docs/latest/monitoring.html
     # To view the web UI after the app has terminated
-    conf.set(&#39;spark.eventLog.enabled&#39;, spark_conf.event_log)
-    conf.set(&#39;spark.eventLog.compress&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.eventLog.overwrite&#39;, &#39;true&#39;)
-    conf.set(&#39;spark.ui.dagGraph.retainedRootRDDs&#39;, 100000)
-    if not os.path.exists(&#39;/tmp/spark-events&#39;):
-        os.makedirs(&#39;/tmp/spark-events&#39;)
+    conf.set('spark.eventLog.enabled', spark_conf.event_log)
+    conf.set('spark.eventLog.compress', 'true')
+    conf.set('spark.eventLog.overwrite', 'true')
+    conf.set('spark.ui.dagGraph.retainedRootRDDs', 100000)
+    if not os.path.exists('/tmp/spark-events'):
+        os.makedirs('/tmp/spark-events')
     if spark_conf.spark_executor_cores:
-        conf.set(&#39;spark.executor.cores&#39;, spark_conf.spark_executor_cores)
+        conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_instances:
-        conf.set(&#39;spark.executor.instances&#39;, spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances',
+                 spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_memory:
-        conf.set(&#39;spark.executor.memory&#39;, spark_conf.spark_executor_memory)
+        conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     if spark_conf.serializer:
-        conf.set(&#39;spark.serializer&#39;, spark_conf.serializer)
-        if &#39;KryoSerializer&#39; in spark_conf.serializer:
+        conf.set('spark.serializer', spark_conf.serializer)
+        if 'KryoSerializer' in spark_conf.serializer:
             if spark_conf.kryoserializer_buffer_max:
                 conf.set(
-                    &#39;spark.kryoserializer.buffer.max&#39;,
+                    'spark.kryoserializer.buffer.max',
                     spark_conf.kryoserializer_buffer_max
                 )
             if spark_conf.kryoserializer_buffer:
                 conf.set(
-                    &#39;spark.kryoserializer.buffer&#39;,
+                    'spark.kryoserializer.buffer',
                     spark_conf.kryoserializer_buffer
                 )
     if spark_conf.driver_extra_class_path:
-        conf.set(&#39;spark.driver.extraClassPath&#39;, spark_conf.driver_extra_class_path)
+        conf.set('spark.driver.extraClassPath',
+                 spark_conf.driver_extra_class_path)
     if spark_conf.metrics_conf:
-        conf.set(&#39;spark.metrics.conf&#39;, spark_conf.metrics_conf)
+        conf.set('spark.metrics.conf', spark_conf.metrics_conf)
     if spark_conf.jars_repositories:
-        conf.set(&#39;spark.jars.repositories&#39;, spark_conf.jars_repositories)
+        conf.set('spark.jars.repositories', spark_conf.jars_repositories)
     if spark_conf.jar_packages:
-        conf.set(&#39;spark.jars.packages&#39;, spark_conf.jar_packages)
+        conf.set('spark.jars.packages', spark_conf.jar_packages)
     # when on a local machine with less than 36GB of ram -XX:+UseCompressedOops
     if spark_conf.executor_extra_java_options:
         conf.set(
-            &#39;spark.executor.extraJavaOptions&#39;,
+            'spark.executor.extraJavaOptions',
             spark_conf.executor_extra_java_options
         )
     if spark_conf.driver_java_options:
         conf.set(
-            &#39;spark.driver.java.options&#39;, spark_conf.driver_java_options
+            'spark.driver.java.options', spark_conf.driver_java_options
         )
     if spark_conf.spark_driver_memory:
         conf.set(
-            &#39;spark.driver.memory&#39;, spark_conf.spark_driver_memory
+            'spark.driver.memory', spark_conf.spark_driver_memory
         )
     conf.set(
-        &#39;spark.sql.session.timeZone&#39;, spark_conf.session_timezone
+        'spark.sql.session.timeZone', spark_conf.session_timezone
     )
-    conf.set(&#39;spark.sql.shuffle.partitions&#39;, spark_conf.shuffle_partitions)
+    conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
+    conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
 
     spark = SparkSession.builder \
         .config(conf=conf) \
         .appName(spark_conf.app_name) \
         .getOrCreate()
 
-    if spark_conf.log_conf:
+    if spark_conf.log_level:
         spark.sparkContext.setLogLevel(spark_conf.log_level)
     return spark</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.get_spark_session"><code class="name flex">
-<span>def <span class="ident">get_spark_session</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_spark_session():
+       </details>
+      </dd>
+      <dt id="baskerville.spark.get_spark_session">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_spark_session
+         </span>
+        </span>
+        (
+        <span>
+         )
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_spark_session():
     return SparkSession.builder.getOrCreate()</code></pre>
-</details>
-</dd>
-</dl>
-</section>
-<section>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville" href="../index.html">baskerville</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
-<ul>
-<li><code><a title="baskerville.spark.helpers" href="helpers.html">baskerville.spark.helpers</a></code></li>
-<li><code><a title="baskerville.spark.streaming_test" href="streaming_test.html">baskerville.spark.streaming_test</a></code></li>
-<li><code><a title="baskerville.spark.udfs" href="udfs.html">baskerville.spark.udfs</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="baskerville.spark.get_or_create_spark_session" href="#baskerville.spark.get_or_create_spark_session">get_or_create_spark_session</a></code></li>
-<li><code><a title="baskerville.spark.get_spark_session" href="#baskerville.spark.get_spark_session">get_spark_session</a></code></li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+       </details>
+      </dd>
+     </dl>
+    </section>
+    <section>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="../index.html" title="baskerville">
+          baskerville
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-submodules">
+        Sub-modules
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="helpers.html" title="baskerville.spark.helpers">
+          baskerville.spark.helpers
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="schemas.html" title="baskerville.spark.schemas">
+          baskerville.spark.schemas
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="streaming_test.html" title="baskerville.spark.streaming_test">
+          baskerville.spark.streaming_test
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="udfs.html" title="baskerville.spark.udfs">
+          baskerville.spark.udfs
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-functions">
+        Functions
+       </a>
+      </h3>
+      <ul class="">
+       <li>
+        <code>
+         <a href="#baskerville.spark.get_or_create_spark_session" title="baskerville.spark.get_or_create_spark_session">
+          get_or_create_spark_session
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.get_spark_session" title="baskerville.spark.get_spark_session">
+          get_spark_session
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>

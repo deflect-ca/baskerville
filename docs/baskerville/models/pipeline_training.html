@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.models.pipeline_training API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.models.pipeline_training
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import os
+from collections import OrderedDict
+import json
+import pyspark
+
+from baskerville.models.config import EngineConfig, DatabaseConfig, SparkConfig
+from baskerville.spark import get_or_create_spark_session
+from baskerville.spark.helpers import reset_spark_storage
+from baskerville.util.enums import Step
+from baskerville.util.helpers import instantiate_from_str, get_model_path
+from baskerville.db.models import Model
+
+from baskerville.models.base import PipelineBase
+import datetime
+from dateutil.tz import tzutc
+
+from baskerville.util.baskerville_tools import BaskervilleDBTools
+
+import pyspark.sql.functions as F
+
+
+class TrainingPipeline(PipelineBase):
+    """
+    Training Pipeline
+    """
+    model: object
+    evaluation_results: dict
+    data: pyspark.sql.DataFrame
+    spark: pyspark.sql.SparkSession
+
+    def __init__(
+            self,
+            db_conf: DatabaseConfig,
+            engine_conf: EngineConfig,
+            spark_conf: SparkConfig,
+            clean_up: bool = True
+    ):
+        super().__init__(db_conf, engine_conf, clean_up)
+        self.data = None
+        self.training_conf = self.engine_conf.training
+        self.spark_conf = spark_conf
+
+        self.logger.debug(f'{self.__class__.__name__} initiated')
+        self.columns_to_keep = [
+            'ip', 'target', 'created_at', 'features',
+        ]
+
+        self.step_to_action = OrderedDict(
+            zip([
+                Step.get_data,
+                Step.train,
+                Step.test,
+                Step.evaluate,
+                Step.save,
+            ], [
+                self.get_data,
+                self.train,
+                self.test,
+                self.evaluate,
+                self.save,
+            ]))
+        self.training_row_n = 0
+        self.testing_row_n = 0
+        self.db_tools = None
+        self.conn_properties = {
+            'user': self.db_conf.user,
+            'password': self.db_conf.password,
+            'driver': self.spark_conf.db_driver,
+        }
+
+        self.remaining_steps = list(self.step_to_action.keys())
+
+    def initialize(self):
+        """
+        Get a spark session
+        Create the model instance
+        Set the appropriate parameters as set up in configuration
+        :return:
+        """
+        self.spark = get_or_create_spark_session(self.spark_conf)
+        self.model = instantiate_from_str(self.training_conf.model)
+        self.model.set_params(**self.engine_conf.training.model_parameters)
+
+        conf = self.db_conf
+        conf.maintenance = None
+        self.db_tools = BaskervilleDBTools(conf)
+        self.db_tools.connect_to_db()
+
+    def run(self, *args, **kwargs):
+        super().run()
+
+    def get_data(self):
+        """
+        Load the data from the database into a dataframe and do the necessary
+        transformations to get the features as a list \
+        :return:
+        """
+        self.data = self.load().persist(self.spark_conf.storage_level)
+
+        # since features are stored as json, we need to expand them to create
+        # vectors
+        json_schema = self.spark.read.json(
+            self.data.limit(1).rdd.map(lambda row: row.features)
+        ).schema
+        self.data = self.data.withColumn(
+            'features',
+            F.from_json('features', json_schema)
+        )
+
+        # get the active feature names and transform the features to list
+        self.active_features = json_schema.fieldNames()
+
+        self.training_row_n = self.data.count()
+        self.logger.debug(f'Loaded #{self.training_row_n} of request sets...')
+
+    def train(self):
+        """
+        Vectorize the features and train on the loaded data
+        Todo: train-test split:
+        # self.train_data, self.test_data = self.data.randomSplit(
+        #   [0.9, 0.1], seed=RANDOM_SEED
+        # )
+        :return: None
+        """
+        if not self.model.features:
+            self.model.features = self.active_features
+        self.model.train(self.data)
+        self.data.unpersist()
+
+    def test(self):
+        """
+        # todo
+        :return:
+        """
+        self.logger.debug('Testing: Coming soon-ish...')
+
+    def evaluate(self):
+        """
+        # todo
+        :return:
+        """
+        self.logger.debug('Evaluating: Coming soon-ish...')
+
+    def save(self):
+        """
+        Save the models on disc and add a baskerville.db.Model in the database
+        :return: None
+        """
+        model_path = get_model_path(
+            self.engine_conf.storage_path, self.model.__class__.__name__)
+        self.model.save(path=model_path, spark_session=self.spark)
+
+        db_model = Model()
+        db_model.created_at = datetime.datetime.now(tz=tzutc())
+        db_model.algorithm = self.training_conf.model
+        db_model.parameters = json.dumps(self.model.get_params())
+        db_model.classifier = bytearray(model_path.encode('utf8'))
+
+        # save to db
+        self.db_tools.session.add(db_model)
+        self.db_tools.session.commit()
+
+    def get_bounds(self, from_date, to_date=None, field='stop'):
+        """
+        Get the lower and upper limit
+        :param str from_date: lower date bound
+        :param str to_date: upper date bound
+        :param str field: date field
+        :return:
+        """
+        where = f'{field}&gt;=\'{from_date}\' '
+        if to_date:
+            where += f'AND {field}&lt;=\'{to_date}\' '
+        q = f"(select min(id) as min_id, " \
+            f"max(id) as max_id, " \
+            f"count(id) as rows " \
+            f"from request_sets " \
+            f"where {where}) as bounds"
+        return self.spark.read.jdbc(
+            url=self.db_url,
+            table=q,
+            properties=self.conn_properties
+        )
+
+    def load(self) -&gt; pyspark.sql.DataFrame:
+        """
+        Loads the request_sets already in the database
+        :return:
+        :rtype: pyspark.sql.Dataframe
+        """
+        data_params = self.training_conf.data_parameters
+        from_date = data_params.get('from_date')
+        to_date = data_params.get('to_date')
+        training_days = data_params.get('training_days')
+
+        if training_days:
+            to_date = datetime.datetime.utcnow()
+            from_date = str(to_date - datetime.timedelta(
+                days=training_days
+            ))
+            to_date = str(to_date)
+        if not training_days and (not from_date or not to_date):
+            raise ValueError(
+                'Please specify either from-to dates or training days'
+            )
+
+        bounds = self.get_bounds(from_date, to_date).collect()[0]
+        self.logger.debug(
+            f'Fetching {bounds.rows} rows. '
+            f'min: {bounds.min_id} max: {bounds.max_id}'
+        )
+        q = f'(select id, {",".join(self.columns_to_keep)} ' \
+            f'from request_sets where id &gt;= {bounds.min_id}  ' \
+            f'and id &lt;= {bounds.max_id} and stop &gt;= \'{from_date}\' ' \
+            f'and stop &lt;=\'{to_date}\') as request_sets'
+
+        return self.spark.read.jdbc(
+            url=self.db_url,
+            table=q,
+            numPartitions=int(self.spark.conf.get(
+                'spark.sql.shuffle.partitions'
+            )) or os.cpu_count()*2,
+            column='id',
+            lowerBound=bounds.min_id,
+            upperBound=bounds.max_id + 1,
+            properties=self.conn_properties
+        )
+
+    def finish_up(self):
+        """
+        Unpersist all
+        :return:
+        """
+        reset_spark_storage()
+        if self.db_tools:
+            self.db_tools.disconnect_from_db()</code></pre>
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.models.pipeline_training.TrainingPipeline">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          TrainingPipeline
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         db_conf, engine_conf, spark_conf, clean_up=True)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Training Pipeline
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class TrainingPipeline(PipelineBase):
+    """
+    Training Pipeline
+    """
+    model: object
+    evaluation_results: dict
+    data: pyspark.sql.DataFrame
+    spark: pyspark.sql.SparkSession
+
+    def __init__(
+            self,
+            db_conf: DatabaseConfig,
+            engine_conf: EngineConfig,
+            spark_conf: SparkConfig,
+            clean_up: bool = True
+    ):
+        super().__init__(db_conf, engine_conf, clean_up)
+        self.data = None
+        self.training_conf = self.engine_conf.training
+        self.spark_conf = spark_conf
+
+        self.logger.debug(f'{self.__class__.__name__} initiated')
+        self.columns_to_keep = [
+            'ip', 'target', 'created_at', 'features',
+        ]
+
+        self.step_to_action = OrderedDict(
+            zip([
+                Step.get_data,
+                Step.train,
+                Step.test,
+                Step.evaluate,
+                Step.save,
+            ], [
+                self.get_data,
+                self.train,
+                self.test,
+                self.evaluate,
+                self.save,
+            ]))
+        self.training_row_n = 0
+        self.testing_row_n = 0
+        self.db_tools = None
+        self.conn_properties = {
+            'user': self.db_conf.user,
+            'password': self.db_conf.password,
+            'driver': self.spark_conf.db_driver,
+        }
+
+        self.remaining_steps = list(self.step_to_action.keys())
+
+    def initialize(self):
+        """
+        Get a spark session
+        Create the model instance
+        Set the appropriate parameters as set up in configuration
+        :return:
+        """
+        self.spark = get_or_create_spark_session(self.spark_conf)
+        self.model = instantiate_from_str(self.training_conf.model)
+        self.model.set_params(**self.engine_conf.training.model_parameters)
+
+        conf = self.db_conf
+        conf.maintenance = None
+        self.db_tools = BaskervilleDBTools(conf)
+        self.db_tools.connect_to_db()
+
+    def run(self, *args, **kwargs):
+        super().run()
+
+    def get_data(self):
+        """
+        Load the data from the database into a dataframe and do the necessary
+        transformations to get the features as a list \
+        :return:
+        """
+        self.data = self.load().persist(self.spark_conf.storage_level)
+
+        # since features are stored as json, we need to expand them to create
+        # vectors
+        json_schema = self.spark.read.json(
+            self.data.limit(1).rdd.map(lambda row: row.features)
+        ).schema
+        self.data = self.data.withColumn(
+            'features',
+            F.from_json('features', json_schema)
+        )
+
+        # get the active feature names and transform the features to list
+        self.active_features = json_schema.fieldNames()
+
+        self.training_row_n = self.data.count()
+        self.logger.debug(f'Loaded #{self.training_row_n} of request sets...')
+
+    def train(self):
+        """
+        Vectorize the features and train on the loaded data
+        Todo: train-test split:
+        # self.train_data, self.test_data = self.data.randomSplit(
+        #   [0.9, 0.1], seed=RANDOM_SEED
+        # )
+        :return: None
+        """
+        if not self.model.features:
+            self.model.features = self.active_features
+        self.model.train(self.data)
+        self.data.unpersist()
+
+    def test(self):
+        """
+        # todo
+        :return:
+        """
+        self.logger.debug('Testing: Coming soon-ish...')
+
+    def evaluate(self):
+        """
+        # todo
+        :return:
+        """
+        self.logger.debug('Evaluating: Coming soon-ish...')
+
+    def save(self):
+        """
+        Save the models on disc and add a baskerville.db.Model in the database
+        :return: None
+        """
+        model_path = get_model_path(
+            self.engine_conf.storage_path, self.model.__class__.__name__)
+        self.model.save(path=model_path, spark_session=self.spark)
+
+        db_model = Model()
+        db_model.created_at = datetime.datetime.now(tz=tzutc())
+        db_model.algorithm = self.training_conf.model
+        db_model.parameters = json.dumps(self.model.get_params())
+        db_model.classifier = bytearray(model_path.encode('utf8'))
+
+        # save to db
+        self.db_tools.session.add(db_model)
+        self.db_tools.session.commit()
+
+    def get_bounds(self, from_date, to_date=None, field='stop'):
+        """
+        Get the lower and upper limit
+        :param str from_date: lower date bound
+        :param str to_date: upper date bound
+        :param str field: date field
+        :return:
+        """
+        where = f'{field}&gt;=\'{from_date}\' '
+        if to_date:
+            where += f'AND {field}&lt;=\'{to_date}\' '
+        q = f"(select min(id) as min_id, " \
+            f"max(id) as max_id, " \
+            f"count(id) as rows " \
+            f"from request_sets " \
+            f"where {where}) as bounds"
+        return self.spark.read.jdbc(
+            url=self.db_url,
+            table=q,
+            properties=self.conn_properties
+        )
+
+    def load(self) -&gt; pyspark.sql.DataFrame:
+        """
+        Loads the request_sets already in the database
+        :return:
+        :rtype: pyspark.sql.Dataframe
+        """
+        data_params = self.training_conf.data_parameters
+        from_date = data_params.get('from_date')
+        to_date = data_params.get('to_date')
+        training_days = data_params.get('training_days')
+
+        if training_days:
+            to_date = datetime.datetime.utcnow()
+            from_date = str(to_date - datetime.timedelta(
+                days=training_days
+            ))
+            to_date = str(to_date)
+        if not training_days and (not from_date or not to_date):
+            raise ValueError(
+                'Please specify either from-to dates or training days'
+            )
+
+        bounds = self.get_bounds(from_date, to_date).collect()[0]
+        self.logger.debug(
+            f'Fetching {bounds.rows} rows. '
+            f'min: {bounds.min_id} max: {bounds.max_id}'
+        )
+        q = f'(select id, {",".join(self.columns_to_keep)} ' \
+            f'from request_sets where id &gt;= {bounds.min_id}  ' \
+            f'and id &lt;= {bounds.max_id} and stop &gt;= \'{from_date}\' ' \
+            f'and stop &lt;=\'{to_date}\') as request_sets'
+
+        return self.spark.read.jdbc(
+            url=self.db_url,
+            table=q,
+            numPartitions=int(self.spark.conf.get(
+                'spark.sql.shuffle.partitions'
+            )) or os.cpu_count()*2,
+            column='id',
+            lowerBound=bounds.min_id,
+            upperBound=bounds.max_id + 1,
+            properties=self.conn_properties
+        )
+
+    def finish_up(self):
+        """
+        Unpersist all
+        :return:
+        """
+        reset_spark_storage()
+        if self.db_tools:
+            self.db_tools.disconnect_from_db()</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="base.html#baskerville.models.base.PipelineBase" title="baskerville.models.base.PipelineBase">
+          PipelineBase
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.evaluate">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            evaluate
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <h1 id="todo">
+           todo
+          </h1>
+          <p>
+           :return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def evaluate(self):
+    """
+    # todo
+    :return:
+    """
+    self.logger.debug('Evaluating: Coming soon-ish...')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.finish_up">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            finish_up
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Unpersist all
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def finish_up(self):
+    """
+    Unpersist all
+    :return:
+    """
+    reset_spark_storage()
+    if self.db_tools:
+        self.db_tools.disconnect_from_db()</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.get_bounds">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_bounds
+           </span>
+          </span>
+          (
+          <span>
+           self, from_date, to_date=None, field='stop')
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Get the lower and upper limit
+:param str from_date: lower date bound
+:param str to_date: upper date bound
+:param str field: date field
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_bounds(self, from_date, to_date=None, field='stop'):
+    """
+    Get the lower and upper limit
+    :param str from_date: lower date bound
+    :param str to_date: upper date bound
+    :param str field: date field
+    :return:
+    """
+    where = f'{field}&gt;=\'{from_date}\' '
+    if to_date:
+        where += f'AND {field}&lt;=\'{to_date}\' '
+    q = f"(select min(id) as min_id, " \
+        f"max(id) as max_id, " \
+        f"count(id) as rows " \
+        f"from request_sets " \
+        f"where {where}) as bounds"
+    return self.spark.read.jdbc(
+        url=self.db_url,
+        table=q,
+        properties=self.conn_properties
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.get_data">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_data
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Load the data from the database into a dataframe and do the necessary
+transformations to get the features as a list
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_data(self):
+    """
+    Load the data from the database into a dataframe and do the necessary
+    transformations to get the features as a list \
+    :return:
+    """
+    self.data = self.load().persist(self.spark_conf.storage_level)
+
+    # since features are stored as json, we need to expand them to create
+    # vectors
+    json_schema = self.spark.read.json(
+        self.data.limit(1).rdd.map(lambda row: row.features)
+    ).schema
+    self.data = self.data.withColumn(
+        'features',
+        F.from_json('features', json_schema)
+    )
+
+    # get the active feature names and transform the features to list
+    self.active_features = json_schema.fieldNames()
+
+    self.training_row_n = self.data.count()
+    self.logger.debug(f'Loaded #{self.training_row_n} of request sets...')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Get a spark session
+Create the model instance
+Set the appropriate parameters as set up in configuration
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    """
+    Get a spark session
+    Create the model instance
+    Set the appropriate parameters as set up in configuration
+    :return:
+    """
+    self.spark = get_or_create_spark_session(self.spark_conf)
+    self.model = instantiate_from_str(self.training_conf.model)
+    self.model.set_params(**self.engine_conf.training.model_parameters)
+
+    conf = self.db_conf
+    conf.maintenance = None
+    self.db_tools = BaskervilleDBTools(conf)
+    self.db_tools.connect_to_db()</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.load">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            load
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Loads the request_sets already in the database
+:return:
+:rtype: pyspark.sql.Dataframe
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def load(self) -&gt; pyspark.sql.DataFrame:
+    """
+    Loads the request_sets already in the database
+    :return:
+    :rtype: pyspark.sql.Dataframe
+    """
+    data_params = self.training_conf.data_parameters
+    from_date = data_params.get('from_date')
+    to_date = data_params.get('to_date')
+    training_days = data_params.get('training_days')
+
+    if training_days:
+        to_date = datetime.datetime.utcnow()
+        from_date = str(to_date - datetime.timedelta(
+            days=training_days
+        ))
+        to_date = str(to_date)
+    if not training_days and (not from_date or not to_date):
+        raise ValueError(
+            'Please specify either from-to dates or training days'
+        )
+
+    bounds = self.get_bounds(from_date, to_date).collect()[0]
+    self.logger.debug(
+        f'Fetching {bounds.rows} rows. '
+        f'min: {bounds.min_id} max: {bounds.max_id}'
+    )
+    q = f'(select id, {",".join(self.columns_to_keep)} ' \
+        f'from request_sets where id &gt;= {bounds.min_id}  ' \
+        f'and id &lt;= {bounds.max_id} and stop &gt;= \'{from_date}\' ' \
+        f'and stop &lt;=\'{to_date}\') as request_sets'
+
+    return self.spark.read.jdbc(
+        url=self.db_url,
+        table=q,
+        numPartitions=int(self.spark.conf.get(
+            'spark.sql.shuffle.partitions'
+        )) or os.cpu_count()*2,
+        column='id',
+        lowerBound=bounds.min_id,
+        upperBound=bounds.max_id + 1,
+        properties=self.conn_properties
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.save">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            save
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Save the models on disc and add a baskerville.db.Model in the database
+:return: None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def save(self):
+    """
+    Save the models on disc and add a baskerville.db.Model in the database
+    :return: None
+    """
+    model_path = get_model_path(
+        self.engine_conf.storage_path, self.model.__class__.__name__)
+    self.model.save(path=model_path, spark_session=self.spark)
+
+    db_model = Model()
+    db_model.created_at = datetime.datetime.now(tz=tzutc())
+    db_model.algorithm = self.training_conf.model
+    db_model.parameters = json.dumps(self.model.get_params())
+    db_model.classifier = bytearray(model_path.encode('utf8'))
+
+    # save to db
+    self.db_tools.session.add(db_model)
+    self.db_tools.session.commit()</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.test">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            test
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <h1 id="todo">
+           todo
+          </h1>
+          <p>
+           :return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def test(self):
+    """
+    # todo
+    :return:
+    """
+    self.logger.debug('Testing: Coming soon-ish...')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_training.TrainingPipeline.train">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            train
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Vectorize the features and train on the loaded data
+Todo: train-test split:
+          </p>
+          <h1 id="selftrain_data-selftest_data-selfdatarandomsplit">
+           self.train_data, self.test_data = self.data.randomSplit(
+          </h1>
+          <h1 id="09-01-seedrandom_seed">
+           [0.9, 0.1], seed=RANDOM_SEED
+          </h1>
+          <h1 id="_1">
+           )
+          </h1>
+          <p>
+           :return: None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def train(self):
+    """
+    Vectorize the features and train on the loaded data
+    Todo: train-test split:
+    # self.train_data, self.test_data = self.data.randomSplit(
+    #   [0.9, 0.1], seed=RANDOM_SEED
+    # )
+    :return: None
+    """
+    if not self.model.features:
+        self.model.features = self.active_features
+    self.model.train(self.data)
+    self.data.unpersist()</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="base.html#baskerville.models.base.PipelineBase" title="baskerville.models.base.PipelineBase">
+            PipelineBase
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="base.html#baskerville.models.base.PipelineBase.run" title="baskerville.models.base.PipelineBase.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.models">
+          baskerville.models
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_training.TrainingPipeline" title="baskerville.models.pipeline_training.TrainingPipeline">
+           TrainingPipeline
+          </a>
+         </code>
+        </h4>
+        <ul class="two-column">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.evaluate" title="baskerville.models.pipeline_training.TrainingPipeline.evaluate">
+            evaluate
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.finish_up" title="baskerville.models.pipeline_training.TrainingPipeline.finish_up">
+            finish_up
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.get_bounds" title="baskerville.models.pipeline_training.TrainingPipeline.get_bounds">
+            get_bounds
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.get_data" title="baskerville.models.pipeline_training.TrainingPipeline.get_data">
+            get_data
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.initialize" title="baskerville.models.pipeline_training.TrainingPipeline.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.load" title="baskerville.models.pipeline_training.TrainingPipeline.load">
+            load
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.save" title="baskerville.models.pipeline_training.TrainingPipeline.save">
+            save
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.test" title="baskerville.models.pipeline_training.TrainingPipeline.test">
+            test
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_training.TrainingPipeline.train" title="baskerville.models.pipeline_training.TrainingPipeline.train">
+            train
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
+</html>

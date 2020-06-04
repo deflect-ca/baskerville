@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.feature_geo_time_average import FeatureGeoTimeAverage
 from baskerville.features.feature_request_total import FeatureRequestTotal
 from baskerville.util.enums import FeatureComputeType
@@ -114,7 +121,7 @@ class TestSparkGeoTimeAverage(FeatureSparkTestCase):
             test_current, test_past
         )
 
-        expected_value = 0.75*6. + 0.25*2.
+        expected_value = 0.75 * 6. + 0.25 * 2.
         self.assertAlmostEqual(value, expected_value, places=2)
 
     def test_update(self):
@@ -147,7 +154,7 @@ class TestSparkGeoTimeAverage(FeatureSparkTestCase):
         )
 
         result_df.show()
-        value = result_df.select(self.feature.updated_feature_col_name).collect()[0][self.feature.updated_feature_col_name]
+        value = result_df.select(self.feature.updated_feature_col_name).collect()[0][
+            self.feature.updated_feature_col_name]
         expected_value = 0.75 * 6. + 0.25 * 2.
         self.assertAlmostEqual(value, expected_value, places=2)
-

@@ -1,9 +1,16 @@
-import unittest
-from unittest import mock
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
 
-from tests.unit.baskerville_tests.helpers.spark_testing_base import \
-    SQLTestCaseLatestSpark
-from baskerville import src_dir
+
+import unittest
+# from unittest import mock
+#
+# from tests.unit.baskerville_tests.helpers.spark_testing_base import \
+#     SQLTestCaseLatestSpark
+# from baskerville import src_dir
 
 
 class TestElasticsearchPipelinee(unittest.TestCase):

@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import traceback
 
 import sqlalchemy
@@ -31,7 +38,8 @@ def get_table_inheritance_script_for(table_name):
           FOREACH month IN ARRAY target_month LOOP
             table_name = '{table_name}_' || month;
             EXECUTE format('DROP TABLE IF EXISTS %I CASCADE', table_name);
-            EXECUTE format('CREATE TABLE %I (CHECK ( extract(month from created_at) = ' || quote_literal(month) ||' )) INHERITS (public.{table_name})', table_name) USING month;
+            EXECUTE format('CREATE TABLE %I (CHECK ( extract(month from created_at) = ' ||
+            quote_literal(month) ||' )) INHERITS (public.{table_name})', table_name) USING month;
           END LOOP;
         END;
         $do$;
@@ -50,7 +58,6 @@ def get_f_request_sets_insert_by_month():
             table_name = TG_ARGV[0] || target_month;
             raise notice '% ', table_name;
             EXECUTE 'INSERT INTO ' || table_name || ' VALUES ($1.*)' USING NEW;
-        
             RETURN NULL;
         exception when others then
           raise notice '% %', SQLERRM, SQLSTATE;
@@ -111,24 +118,24 @@ def get_jdbc_url(conf):
         return 'jdbc:{}://{}:{}/{}?' \
                'rewriteBatchedStatements=true&' \
                'reWriteBatchedInserts=true'.format(
-                    conf.type,
-                    conf.host,
-                    conf.port,
-                    conf.name,
-                )
+                   conf.type,
+                   conf.host,
+                   conf.port,
+                   conf.name,
+               )
     elif conf.type == 'postgres':
         return 'jdbc:{}://{}:{}/{}?' \
                'user={}&' \
                'password={}&' \
                'rewriteBatchedStatements=true&' \
                'reWriteBatchedInserts=true'.format(
-                    'postgresql',
-                    conf.host,
-                    conf.port,
-                    conf.name,
-                    conf.user,
-                    conf.password
-                )
+                   'postgresql',
+                   conf.host,
+                   conf.port,
+                   conf.name,
+                   conf.user,
+                   conf.password
+               )
 
 
 def set_up_db(conf, create=True, partition=True):

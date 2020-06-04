@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import os
 
 from pyspark import SparkConf, StorageLevel
@@ -19,13 +26,15 @@ def get_or_create_spark_session(spark_conf):
     conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
 
     if spark_conf.spark_executor_instances:
-        conf.set('spark.executor.instances', spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances',
+                 spark_conf.spark_executor_instances)
         # conf.set('spark.streaming.dynamicAllocation.minExecutors', spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_cores:
         conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_memory:
         conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
-    # todo: https://stackoverflow.com/questions/49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
+    # todo: https://stackoverflow.com/questions/
+    #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
     # https://medium.com/@pmatpadi/spark-streaming-dynamic-scaling-and-backpressure-in-action-6ebdbc782a69
 
     # conf.set('spark.streaming.dynamicAllocation.enabled', 'true')
@@ -75,7 +84,6 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.sql.parquet.filterPushdown', 'true')
     conf.set(' spark.sql.hive.metastorePartitionPruning', 'true')
 
-
     # https://spark.apache.org/docs/latest/monitoring.html
     # To view the web UI after the app has terminated
     conf.set('spark.eventLog.enabled', spark_conf.event_log)
@@ -87,7 +95,8 @@ def get_or_create_spark_session(spark_conf):
     if spark_conf.spark_executor_cores:
         conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_instances:
-        conf.set('spark.executor.instances', spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances',
+                 spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_memory:
         conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     if spark_conf.serializer:
@@ -104,7 +113,8 @@ def get_or_create_spark_session(spark_conf):
                     spark_conf.kryoserializer_buffer
                 )
     if spark_conf.driver_extra_class_path:
-        conf.set('spark.driver.extraClassPath', spark_conf.driver_extra_class_path)
+        conf.set('spark.driver.extraClassPath',
+                 spark_conf.driver_extra_class_path)
     if spark_conf.metrics_conf:
         conf.set('spark.metrics.conf', spark_conf.metrics_conf)
     if spark_conf.jars_repositories:
@@ -129,7 +139,7 @@ def get_or_create_spark_session(spark_conf):
         'spark.sql.session.timeZone', spark_conf.session_timezone
     )
     conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
-    conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100) # 100MB
+    conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
 
     spark = SparkSession.builder \
         .config(conf=conf) \

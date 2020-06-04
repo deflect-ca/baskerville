@@ -1,8 +1,13 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.updateable_features import UpdaterTotal
-from baskerville.util.enums import FeatureComputeType
 from pyspark.sql import functions as F
 
-from baskerville.features.base_feature import BaseFeature
 from baskerville.features.helpers import update_total
 
 
@@ -37,4 +42,3 @@ class FeatureRequestTotal(UpdaterTotal):
             current[cls.feature_name_from_class()],
             past.get(cls.feature_name_from_class())
         )
-

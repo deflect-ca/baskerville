@@ -1,30 +1,52 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.simulation.confluent_kafka_consumer API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.simulation.confluent_kafka_consumer</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">import json
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.simulation.confluent_kafka_consumer API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.simulation.confluent_kafka_consumer
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import json
 
 from confluent_kafka import Consumer
 
@@ -32,359 +54,1033 @@ from confluent_kafka import Consumer
 def process(batch_msgs):
     import pandas as pd
 
-    batch_msgs = [json.loads(b.value(), encoding=&#39;utf-8&#39;)
+    batch_msgs = [json.loads(b.value(), encoding='utf-8')
                   for b in batch_msgs if b]
     df = pd.DataFrame(batch_msgs)
     print(df.head())
 
 
-if __name__ == &#39;__main__&#39;:
-    c = Consumer(**{&#39;bootstrap.servers&#39;: &#39;0.0.0.0:9092&#39;, &#39;group.id&#39;: &#39;baskerville&#39;,
-                    &#39;default.topic.config&#39;: {&#39;auto.offset.reset&#39;: &#39;smallest&#39;}})
-    c.subscribe([&#39;deflect.logs&#39;])
+if __name__ == '__main__':
+    c = Consumer(**{'bootstrap.servers': '0.0.0.0:9092', 'group.id': 'mygroup',
+                    'default.topic.config': {'auto.offset.reset': 'smallest'}})
+    c.subscribe(['ats.logs'])
     running = True
 
     while running:
-        msgs = c.consume(num_messages=2, timeout=15)
+        msgs = c.consume(num_messages=100, timeout=15)
         print(len(msgs))
-        print(msgs)
         process(msgs)
 
     c.close()</code></pre>
-</details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="baskerville.simulation.confluent_kafka_consumer.process"><code class="name flex">
-<span>def <span class="ident">process</span></span>(<span>batch_msgs)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def process(batch_msgs):
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-functions">
+      Functions
+     </h2>
+     <dl>
+      <dt id="baskerville.simulation.confluent_kafka_consumer.process">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          process
+         </span>
+        </span>
+        (
+        <span>
+         batch_msgs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def process(batch_msgs):
     import pandas as pd
 
-    batch_msgs = [json.loads(b.value(), encoding=&#39;utf-8&#39;)
+    batch_msgs = [json.loads(b.value(), encoding='utf-8')
                   for b in batch_msgs if b]
     df = pd.DataFrame(batch_msgs)
     print(df.head())</code></pre>
-</details>
-</dd>
-</dl>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer"><code class="flex name class">
-<span>class <span class="ident">Consumer</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>High-level Kafka Consumer</p>
-<p>.. py:function:: Consumer(config)</p>
-<p>:param dict config: Configuration properties. At a minimum <code>bootstrap.servers</code> and <code>group.id</code> <strong>should</strong> be set
-Create new Consumer instance using provided configuration dict.</p>
-<p>Special configuration properties:
-<code>on_commit</code>: Optional callback will be called when a commit request has succeeded or failed.</p>
-<p>.. py:function:: on_commit(err, partitions)</p>
-<p>:param Consumer consumer: Consumer instance.
+       </details>
+      </dd>
+     </dl>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Consumer
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         High-level Kafka Consumer
+        </p>
+        <p>
+         .. py:function:: Consumer(config)
+        </p>
+        <p>
+         :param dict config: Configuration properties. At a minimum
+         <code>
+          bootstrap.servers
+         </code>
+         and
+         <code>
+          group.id
+         </code>
+         <strong>
+          should
+         </strong>
+         be set
+Create new Consumer instance using provided configuration dict.
+        </p>
+        <p>
+         Special configuration properties:
+         <code>
+          on_commit
+         </code>
+         : Optional callback will be called when a commit request has succeeded or failed.
+        </p>
+        <p>
+         .. py:function:: on_commit(err, partitions)
+        </p>
+        <p>
+         :param Consumer consumer: Consumer instance.
 :param KafkaError err: Commit error object, or None on success.
-:param list(TopicPartition) partitions: List of partitions with their committed offsets or per-partition errors.</p></section>
-<h3>Methods</h3>
-<dl>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.assign"><code class="name flex">
-<span>def <span class="ident">assign</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: assign(partitions)</p>
-<p>Set consumer partition assignment to the provided list of :py:class:<code>TopicPartition</code> and starts consuming.</p>
-<p>:param list(TopicPartition) partitions: List of topic+partitions and optionally initial offsets to start consuming.
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.assignment"><code class="name flex">
-<span>def <span class="ident">assignment</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns the current partition assignment.</p>
-<p>:returns: List of assigned topic+partitions.
+:param list(TopicPartition) partitions: List of partitions with their committed offsets or per-partition errors.
+        </p>
+       </section>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.assign">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            assign
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: assign(partitions)
+          </p>
+          <p>
+           Set consumer partition assignment to the provided list of :py:class:
+           <code>
+            TopicPartition
+           </code>
+           and starts consuming.
+          </p>
+          <p>
+           :param list(TopicPartition) partitions: List of topic+partitions and optionally initial offsets to start consuming.
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.assignment">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            assignment
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Returns the current partition assignment.
+          </p>
+          <p>
+           :returns: List of assigned topic+partitions.
 :rtype: list(TopicPartition)
 :raises: KafkaException
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.close"><code class="name flex">
-<span>def <span class="ident">close</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Close down and terminate the Kafka Consumer.</p>
-<p>Actions performed:</p>
-<ul>
-<li>Stops consuming</li>
-<li>Commits offsets - except if the consumer property 'enable.auto.commit' is set to False</li>
-<li>Leave consumer group</li>
-</ul>
-<p>.. note: Registered callbacks may be called from this method, see :py:func::<code>poll()</code> for more info.</p>
-<p>:rtype: None
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.commit"><code class="name flex">
-<span>def <span class="ident">commit</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: commit([message=None], [offsets=None], [asynchronous=True])</p>
-<p>Commit a message or a list of offsets.</p>
-<p><code>message</code> and <code>offsets</code> are mutually exclusive, if neither is set the current partition assignment's offsets are used instead. The consumer relies on your use of this method if you have set 'enable.auto.commit' to False</p>
-<p>:param confluent_kafka.Message message: Commit message's offset+1.
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.close">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            close
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Close down and terminate the Kafka Consumer.
+          </p>
+          <p>
+           Actions performed:
+          </p>
+          <ul>
+           <li>
+            Stops consuming
+           </li>
+           <li>
+            Commits offsets - except if the consumer property 'enable.auto.commit' is set to False
+           </li>
+           <li>
+            Leave consumer group
+           </li>
+          </ul>
+          <p>
+           .. note: Registered callbacks may be called from this method, see :py:func::
+           <code>
+            poll()
+           </code>
+           for more info.
+          </p>
+          <p>
+           :rtype: None
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.commit">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            commit
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: commit([message=None], [offsets=None], [asynchronous=True])
+          </p>
+          <p>
+           Commit a message or a list of offsets.
+          </p>
+          <p>
+           <code>
+            message
+           </code>
+           and
+           <code>
+            offsets
+           </code>
+           are mutually exclusive, if neither is set the current partition assignment's offsets are used instead. The consumer relies on your use of this method if you have set 'enable.auto.commit' to False
+          </p>
+          <p>
+           :param confluent_kafka.Message message: Commit message's offset+1.
 :param list(TopicPartition) offsets: List of topic+partitions+offsets to commit.
 :param bool asynchronous: Asynchronous commit, return None immediately. If False the commit() call will block until the commit succeeds or fails and the committed offsets will be returned (on success). Note that specific partitions may have failed and the .err field of each partition will need to be checked for success.
 :rtype: None|list(TopicPartition)
 :raises: KafkaException
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.committed"><code class="name flex">
-<span>def <span class="ident">committed</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: committed(partitions, [timeout=None])</p>
-<p>Retrieve committed offsets for the list of partitions.</p>
-<p>:param list(TopicPartition) partitions: List of topic+partitions to query for stored offsets.
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.committed">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            committed
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: committed(partitions, [timeout=None])
+          </p>
+          <p>
+           Retrieve committed offsets for the list of partitions.
+          </p>
+          <p>
+           :param list(TopicPartition) partitions: List of topic+partitions to query for stored offsets.
 :param float timeout: Request timeout. (Seconds)
 :returns: List of topic+partitions with offset and possibly error set.
 :rtype: list(TopicPartition)
 :raises: KafkaException
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.consume"><code class="name flex">
-<span>def <span class="ident">consume</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: consume([num_messages=1], [timeout=-1])</p>
-<p>Consume messages, calls callbacks and returns list of messages (possibly empty on timeout).</p>
-<p>The application must check the returned :py:class:<code>Message</code> object's :py:func:<code>Message.error()</code> method to distinguish between proper messages (error() returns None), or an event or error for each :py:class:<code>Message</code> in the list (see error().code() for specifics).</p>
-<p>.. note: Callbacks may be called from this method, such as <code>on_assign</code>, <code>on_revoke</code>, et.al.</p>
-<p>:param int num_messages: Maximum number of messages to return (default: 1).
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.consume">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            consume
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: consume([num_messages=1], [timeout=-1])
+          </p>
+          <p>
+           Consume messages, calls callbacks and returns list of messages (possibly empty on timeout).
+          </p>
+          <p>
+           The application must check the returned :py:class:
+           <code>
+            Message
+           </code>
+           object's :py:func:
+           <code>
+            Message.error()
+           </code>
+           method to distinguish between proper messages (error() returns None), or an event or error for each :py:class:
+           <code>
+            Message
+           </code>
+           in the list (see error().code() for specifics).
+          </p>
+          <p>
+           .. note: Callbacks may be called from this method, such as
+           <code>
+            on_assign
+           </code>
+           ,
+           <code>
+            on_revoke
+           </code>
+           , et.al.
+          </p>
+          <p>
+           :param int num_messages: Maximum number of messages to return (default: 1).
 :param float timeout: Maximum time to block waiting for message, event or callback (default: infinite (-1)). (Seconds)
 :returns: A list of Message objects (possibly empty on timeout)
 :rtype: list(Message)
 :raises RuntimeError: if called on a closed consumer
 :raises KafkaError: in case of internal error
-:raises ValueError: if num_messages &gt; 1M</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.get_watermark_offsets"><code class="name flex">
-<span>def <span class="ident">get_watermark_offsets</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: get_watermark_offsets(partition, [timeout=None], [cached=False])</p>
-<p>Retrieve low and high offsets for partition.</p>
-<p>:param TopicPartition partition: Topic+partition to return offsets for.
+:raises ValueError: if num_messages &gt; 1M
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.get_watermark_offsets">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_watermark_offsets
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: get_watermark_offsets(partition, [timeout=None], [cached=False])
+          </p>
+          <p>
+           Retrieve low and high offsets for partition.
+          </p>
+          <p>
+           :param TopicPartition partition: Topic+partition to return offsets for.
 :param float timeout: Request timeout (when cached=False). (Seconds)
 :param bool cached: Instead of querying the broker used cached information. Cached values: The low offset is updated periodically (if statistics.interval.ms is set) while the high offset is updated on each message fetched from the broker for this partition.
 :returns: Tuple of (low,high) on success or None on timeout.
 :rtype: tuple(int,int)
 :raises: KafkaException
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.list_topics"><code class="name flex">
-<span>def <span class="ident">list_topics</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: list_topics([topic=None], [timeout=-1])</p>
-<p>Request Metadata from cluster.
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.list_topics">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            list_topics
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: list_topics([topic=None], [timeout=-1])
+          </p>
+          <p>
+           Request Metadata from cluster.
 This method provides the same information as
 listTopics(), describeTopics() and describeCluster() in
-the Java Admin client.</p>
-<p>:param str topic: If specified, only request info about this topic, else return for all topics in cluster. Warning: If auto.create.topics.enable is set to true on the broker and an unknown topic is specified it will be created.
+the Java Admin client.
+          </p>
+          <p>
+           :param str topic: If specified, only request info about this topic, else return for all topics in cluster. Warning: If auto.create.topics.enable is set to true on the broker and an unknown topic is specified it will be created.
 :param float timeout: Maximum response time before timing out, or -1 for infinite timeout.
 :rtype: ClusterMetadata
-:raises: KafkaException</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.offsets_for_times"><code class="name flex">
-<span>def <span class="ident">offsets_for_times</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: offsets_for_times(partitions, [timeout=None])</p>
-<p>offsets_for_times looks up offsets by timestamp for the given partitions.</p>
-<p>The returned offsets for each partition is the earliest offset whose
+:raises: KafkaException
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.offsets_for_times">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            offsets_for_times
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: offsets_for_times(partitions, [timeout=None])
+          </p>
+          <p>
+           offsets_for_times looks up offsets by timestamp for the given partitions.
+          </p>
+          <p>
+           The returned offsets for each partition is the earliest offset whose
 timestamp is greater than or equal to the given timestamp in the
-corresponding partition.</p>
-<p>:param list(TopicPartition) partitions: topic+partitions with timestamps in the TopicPartition.offset field.
+corresponding partition.
+          </p>
+          <p>
+           :param list(TopicPartition) partitions: topic+partitions with timestamps in the TopicPartition.offset field.
 :param float timeout: Request timeout. (Seconds)
 :returns: list of topic+partition with offset field set and possibly error set
 :rtype: list(TopicPartition)
 :raises: KafkaException
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.pause"><code class="name flex">
-<span>def <span class="ident">pause</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: pause(partitions)</p>
-<p>Pause consumption for the provided list of partitions.</p>
-<p>:param list(TopicPartition) partitions: List of topic+partitions to pause.
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.pause">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            pause
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: pause(partitions)
+          </p>
+          <p>
+           Pause consumption for the provided list of partitions.
+          </p>
+          <p>
+           :param list(TopicPartition) partitions: List of topic+partitions to pause.
 :rtype: None
-:raises: KafkaException</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.poll"><code class="name flex">
-<span>def <span class="ident">poll</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: poll([timeout=None])</p>
-<p>Consume messages, calls callbacks and returns events.</p>
-<p>The application must check the returned :py:class:<code>Message</code> object's :py:func:<code>Message.error()</code> method to distinguish between proper messages (error() returns None), or an event or error (see error().code() for specifics).</p>
-<p>.. note: Callbacks may be called from this method, such as <code>on_assign</code>, <code>on_revoke</code>, et.al.</p>
-<p>:param float timeout: Maximum time to block waiting for message, event or callback. (Seconds)
+:raises: KafkaException
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.poll">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            poll
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: poll([timeout=None])
+          </p>
+          <p>
+           Consume messages, calls callbacks and returns events.
+          </p>
+          <p>
+           The application must check the returned :py:class:
+           <code>
+            Message
+           </code>
+           object's :py:func:
+           <code>
+            Message.error()
+           </code>
+           method to distinguish between proper messages (error() returns None), or an event or error (see error().code() for specifics).
+          </p>
+          <p>
+           .. note: Callbacks may be called from this method, such as
+           <code>
+            on_assign
+           </code>
+           ,
+           <code>
+            on_revoke
+           </code>
+           , et.al.
+          </p>
+          <p>
+           :param float timeout: Maximum time to block waiting for message, event or callback. (Seconds)
 :returns: A Message object or None on timeout
-:rtype: :py:class:<code>Message</code> or None
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.position"><code class="name flex">
-<span>def <span class="ident">position</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: position(partitions, [timeout=None])</p>
-<p>Retrieve current positions (offsets) for the list of partitions.</p>
-<p>:param list(TopicPartition) partitions: List of topic+partitions to return current offsets for. The current offset is the offset of the last consumed message + 1.
+:rtype: :py:class:
+           <code>
+            Message
+           </code>
+           or None
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.position">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            position
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: position(partitions, [timeout=None])
+          </p>
+          <p>
+           Retrieve current positions (offsets) for the list of partitions.
+          </p>
+          <p>
+           :param list(TopicPartition) partitions: List of topic+partitions to return current offsets for. The current offset is the offset of the last consumed message + 1.
 :returns: List of topic+partitions with offset and possibly error set.
 :rtype: list(TopicPartition)
 :raises: KafkaException
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.resume"><code class="name flex">
-<span>def <span class="ident">resume</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: resume(partitions)</p>
-<p>Resume consumption for the provided list of partitions.</p>
-<p>:param list(TopicPartition) partitions: List of topic+partitions to resume.
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.resume">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            resume
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: resume(partitions)
+          </p>
+          <p>
+           Resume consumption for the provided list of partitions.
+          </p>
+          <p>
+           :param list(TopicPartition) partitions: List of topic+partitions to resume.
 :rtype: None
-:raises: KafkaException</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.seek"><code class="name flex">
-<span>def <span class="ident">seek</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: seek(partition)</p>
-<p>Set consume position for partition to offset.
+:raises: KafkaException
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.seek">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            seek
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: seek(partition)
+          </p>
+          <p>
+           Set consume position for partition to offset.
 The offset may be an absolute (&gt;=0) or a
-logical offset (:py:const:<code>OFFSET_BEGINNING</code> et.al).</p>
-<p>seek() may only be used to update the consume offset of an
-actively consumed partition (i.e., after :py:const:<code>assign()</code>),
+logical offset (:py:const:
+           <code>
+            OFFSET_BEGINNING
+           </code>
+           et.al).
+          </p>
+          <p>
+           seek() may only be used to update the consume offset of an
+actively consumed partition (i.e., after :py:const:
+           <code>
+            assign()
+           </code>
+           ),
 to set the starting offset of partition not being consumed instead
-pass the offset in an <code>assign()</code> call.</p>
-<p>:param TopicPartition partition: Topic+partition+offset to seek to.</p>
-<p>:raises: KafkaException</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.store_offsets"><code class="name flex">
-<span>def <span class="ident">store_offsets</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: store_offsets([message=None], [offsets=None])</p>
-<p>Store offsets for a message or a list of offsets.</p>
-<p><code>message</code> and <code>offsets</code> are mutually exclusive. The stored offsets will be committed according to 'auto.commit.interval.ms' or manual offset-less :py:meth:<code>commit</code>. Note that 'enable.auto.offset.store' must be set to False when using this API.</p>
-<p>:param confluent_kafka.Message message: Store message's offset+1.
+pass the offset in an
+           <code>
+            assign()
+           </code>
+           call.
+          </p>
+          <p>
+           :param TopicPartition partition: Topic+partition+offset to seek to.
+          </p>
+          <p>
+           :raises: KafkaException
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.store_offsets">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            store_offsets
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: store_offsets([message=None], [offsets=None])
+          </p>
+          <p>
+           Store offsets for a message or a list of offsets.
+          </p>
+          <p>
+           <code>
+            message
+           </code>
+           and
+           <code>
+            offsets
+           </code>
+           are mutually exclusive. The stored offsets will be committed according to 'auto.commit.interval.ms' or manual offset-less :py:meth:
+           <code>
+            commit
+           </code>
+           . Note that 'enable.auto.offset.store' must be set to False when using this API.
+          </p>
+          <p>
+           :param confluent_kafka.Message message: Store message's offset+1.
 :param list(TopicPartition) offsets: List of topic+partitions+offsets to store.
 :rtype: None
 :raises: KafkaException
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.subscribe"><code class="name flex">
-<span>def <span class="ident">subscribe</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>.. py:function:: subscribe(topics, [listener=None])</p>
-<p>Set subscription to supplied list of topics
-This replaces a previous subscription.</p>
-<p>Regexp pattern subscriptions are supported by prefixing the topic string with <code>"^"</code>, e.g.::</p>
-<pre><code>consumer.subscribe(["^my_topic.*", "^another[0-9]-?[a-z]+$", "not_a_regex"])
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.subscribe">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            subscribe
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           .. py:function:: subscribe(topics, [listener=None])
+          </p>
+          <p>
+           Set subscription to supplied list of topics
+This replaces a previous subscription.
+          </p>
+          <p>
+           Regexp pattern subscriptions are supported by prefixing the topic string with
+           <code>
+            "^"
+           </code>
+           , e.g.::
+          </p>
+          <pre><code>consumer.subscribe(["^my_topic.*", "^another[0-9]-?[a-z]+$", "not_a_regex"])
 </code></pre>
-<p>:param list(str) topics: List of topics (strings) to subscribe to.
+          <p>
+           :param list(str) topics: List of topics (strings) to subscribe to.
 :param callable on_assign: callback to provide handling of customized offsets on completion of a successful partition re-assignment.
-:param callable on_revoke: callback to provide handling of offset commits to a customized store on the start of a rebalance operation.</p>
-<p>:raises KafkaException:
-:raises: RuntimeError if called on a closed consumer</p>
-<p>.. py:function:: on_assign(consumer, partitions)
-.. py:function:: on_revoke(consumer, partitions)</p>
-<p>:param Consumer consumer: Consumer instance.
-:param list(TopicPartition) partitions: Absolute list of partitions being assigned or revoked.</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.unassign"><code class="name flex">
-<span>def <span class="ident">unassign</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Removes the current partition assignment and stops consuming.</p>
-<p>:raises KafkaException:
-:raises RuntimeError: if called on a closed consumer</p></section>
-</dd>
-<dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.unsubscribe"><code class="name flex">
-<span>def <span class="ident">unsubscribe</span></span>(<span>...)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Remove current subscription.</p>
-<p>:raises: KafkaException
-:raises: RuntimeError if called on a closed consumer</p></section>
-</dd>
-</dl>
-</dd>
-</dl>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville.simulation" href="index.html">baskerville.simulation</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.process" href="#baskerville.simulation.confluent_kafka_consumer.process">process</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer" href="#baskerville.simulation.confluent_kafka_consumer.Consumer">Consumer</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.assign" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.assign">assign</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.assignment" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.assignment">assignment</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.close" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.close">close</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.commit" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.commit">commit</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.committed" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.committed">committed</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.consume" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.consume">consume</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.get_watermark_offsets" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.get_watermark_offsets">get_watermark_offsets</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.list_topics" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.list_topics">list_topics</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.offsets_for_times" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.offsets_for_times">offsets_for_times</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.pause" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.pause">pause</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.poll" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.poll">poll</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.position" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.position">position</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.resume" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.resume">resume</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.seek" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.seek">seek</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.store_offsets" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.store_offsets">store_offsets</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.subscribe" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.subscribe">subscribe</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.unassign" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.unassign">unassign</a></code></li>
-<li><code><a title="baskerville.simulation.confluent_kafka_consumer.Consumer.unsubscribe" href="#baskerville.simulation.confluent_kafka_consumer.Consumer.unsubscribe">unsubscribe</a></code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+:param callable on_revoke: callback to provide handling of offset commits to a customized store on the start of a rebalance operation.
+          </p>
+          <p>
+           :raises KafkaException:
+:raises: RuntimeError if called on a closed consumer
+          </p>
+          <p>
+           .. py:function:: on_assign(consumer, partitions)
+.. py:function:: on_revoke(consumer, partitions)
+          </p>
+          <p>
+           :param Consumer consumer: Consumer instance.
+:param list(TopicPartition) partitions: Absolute list of partitions being assigned or revoked.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.unassign">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            unassign
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Removes the current partition assignment and stops consuming.
+          </p>
+          <p>
+           :raises KafkaException:
+:raises RuntimeError: if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.simulation.confluent_kafka_consumer.Consumer.unsubscribe">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            unsubscribe
+           </span>
+          </span>
+          (
+          <span>
+           ...)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Remove current subscription.
+          </p>
+          <p>
+           :raises: KafkaException
+:raises: RuntimeError if called on a closed consumer
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.simulation">
+          baskerville.simulation
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-functions">
+        Functions
+       </a>
+      </h3>
+      <ul class="">
+       <li>
+        <code>
+         <a href="#baskerville.simulation.confluent_kafka_consumer.process" title="baskerville.simulation.confluent_kafka_consumer.process">
+          process
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer" title="baskerville.simulation.confluent_kafka_consumer.Consumer">
+           Consumer
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.assign" title="baskerville.simulation.confluent_kafka_consumer.Consumer.assign">
+            assign
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.assignment" title="baskerville.simulation.confluent_kafka_consumer.Consumer.assignment">
+            assignment
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.close" title="baskerville.simulation.confluent_kafka_consumer.Consumer.close">
+            close
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.commit" title="baskerville.simulation.confluent_kafka_consumer.Consumer.commit">
+            commit
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.committed" title="baskerville.simulation.confluent_kafka_consumer.Consumer.committed">
+            committed
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.consume" title="baskerville.simulation.confluent_kafka_consumer.Consumer.consume">
+            consume
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.get_watermark_offsets" title="baskerville.simulation.confluent_kafka_consumer.Consumer.get_watermark_offsets">
+            get_watermark_offsets
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.list_topics" title="baskerville.simulation.confluent_kafka_consumer.Consumer.list_topics">
+            list_topics
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.offsets_for_times" title="baskerville.simulation.confluent_kafka_consumer.Consumer.offsets_for_times">
+            offsets_for_times
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.pause" title="baskerville.simulation.confluent_kafka_consumer.Consumer.pause">
+            pause
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.poll" title="baskerville.simulation.confluent_kafka_consumer.Consumer.poll">
+            poll
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.position" title="baskerville.simulation.confluent_kafka_consumer.Consumer.position">
+            position
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.resume" title="baskerville.simulation.confluent_kafka_consumer.Consumer.resume">
+            resume
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.seek" title="baskerville.simulation.confluent_kafka_consumer.Consumer.seek">
+            seek
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.store_offsets" title="baskerville.simulation.confluent_kafka_consumer.Consumer.store_offsets">
+            store_offsets
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.subscribe" title="baskerville.simulation.confluent_kafka_consumer.Consumer.subscribe">
+            subscribe
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.unassign" title="baskerville.simulation.confluent_kafka_consumer.Consumer.unassign">
+            unassign
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.simulation.confluent_kafka_consumer.Consumer.unsubscribe" title="baskerville.simulation.confluent_kafka_consumer.Consumer.unsubscribe">
+            unsubscribe
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>

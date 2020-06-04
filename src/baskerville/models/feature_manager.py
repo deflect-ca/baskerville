@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import itertools
 from collections import OrderedDict
 
@@ -8,12 +15,10 @@ from baskerville.util.helpers import get_logger
 class FeatureManager(object):
     def __init__(
             self,
-            engine_conf,
-            model_manager=None,
+            engine_conf
     ):
         self.all_features = engine_conf.all_features
         self.extra_features = engine_conf.extra_features
-        self.model_manager = model_manager
         self.active_features = None
         self.active_feature_names = None
         self.updateable_active_features = None
@@ -29,8 +34,7 @@ class FeatureManager(object):
             output_file=engine_conf.logpath
         )
 
-    def initialize(self, model_manager=None):
-        self.model_manager = model_manager
+    def initialize(self,):
         self.active_features = self.get_active_features()
         self.active_feature_names = self.get_active_feature_names()
         self.updateable_active_features = self.get_updateable_active_features()
@@ -46,8 +50,6 @@ class FeatureManager(object):
         :return:
         """
         feature_list = self.extra_features
-        if self.model_manager and self.model_manager.ml_model:
-            feature_list += self.model_manager.ml_model.features
         if not feature_list:
             raise RuntimeError('No features specified! Either input model '
                                'or specify features in config.')
@@ -120,21 +122,9 @@ class FeatureManager(object):
         :return:
         """
         checks = []
-        if self.model_manager.ml_model:
-            checks.append(self.features_subset_of_model_features())
-            checks.append(self.feature_dependencies_met())
+        checks.append(self.feature_dependencies_met())
 
         return False not in checks
-
-    def features_subset_of_model_features(self) -> bool:
-        """
-        Checks whether the features required for the model are a subset of the
-        active feature names
-        :return:
-        """
-        return set(self.model_manager.ml_model.features).issubset(
-            set(self.active_feature_names)
-        )
 
     def feature_dependencies_met(self) -> bool:
         """

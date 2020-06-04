@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import abc
 import warnings
 
@@ -139,7 +146,7 @@ class JSONLogSparkParser(JSONLogParser, SerializableMixin):
                 not v.get('required', False)
             )
             for name, v in self.__json_schema['properties'].items()
-            ]
+        ]
         )
         self.schema = self.__schema
         self.__schema_class = self.__json_schema
@@ -159,8 +166,9 @@ class JSONLogSparkParser(JSONLogParser, SerializableMixin):
         :return:
         """
         properties = self.__json_schema['properties']
-        fill = lambda c: (required_only and c in self.required) \
-                         or not required_only
+
+        def fill(c):
+            return (required_only and c in self.required) or not required_only
 
         for c in df.columns:
             if c in properties:

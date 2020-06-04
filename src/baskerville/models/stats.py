@@ -1,10 +1,16 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import abc
 from functools import wraps
 
-from attr import dataclass
+from baskerville.models.metrics.registry import StatsHook
 from baskerville.util.helpers import get_logger
 from prometheus_client import Summary, Counter, Gauge
-from prometheus_client.core import Metric
 
 
 class Stats(object):

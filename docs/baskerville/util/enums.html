@@ -1,30 +1,52 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.util.enums API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.util.enums</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">from enum import Enum
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.util.enums API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.util.enums
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+from enum import Enum
 
 
 class BaseStrEnum(Enum):
@@ -59,53 +81,63 @@ class LogType(Enum):
 
 
 class RunType(BaseStrEnum):
-    es = &#39;es&#39;
-    rawlog = &#39;rawlog&#39;
-    kafka = &#39;kafka&#39;
+    es = 'es'
+    rawlog = 'rawlog'
+    kafka = 'kafka'
+    training = 'training'
 
 
 class Step(BaseStrEnum):
-    initialize = &#39;Start sessions, initialize cache/features/model/dfs.&#39;
-    create_runtime = &#39;Create a Runtime in the Baskerville database.&#39;
-    get_data = &#39;Get dataframe of log data.&#39;
-    get_window = &#39;Select data from current time bucket window.&#39;
-    preprocessing = &#39;Fill missing values, add calculation cols, and filter.&#39;
-    group_by = &#39;Group logs by IP/host.&#39;
-    feature_calculation = &#39;Add calculation cols, extract features, and update.&#39;
-    label_or_predict = &#39;Apply label from MISP or predict label.&#39;
-    save = &#39;Update dataframe, save to database, and update cache.&#39;
-    finish_up = &#39;Disconnect from db, unpersist dataframes, and empty cache.&#39;
+    initialize = 'Start sessions, initialize cache/features/model/dfs.'
+    create_runtime = 'Create a Runtime in the Baskerville database.'
+    get_data = 'Get dataframe of data.'
+    get_window = 'Select data from current time bucket window.'
+    preprocessing = 'Fill missing values, add calculation cols, and filter.'
+    group_by = 'Group logs by IP/host.'
+    feature_calculation = 'Add calculation cols, extract features, and update.'
+    label_or_predict = 'Apply label from MISP or predict label.'
+    trigger_challenge = 'Trigger host wise challenge'
+    save = 'Save to database.'
+    finish_up = 'Disconnect from db, unpersist dataframes, and empty cache.'
+    train = 'Train'
+    test = 'Test'
+    evaluate = 'Evaluate results'
+    reset = 'Reset: remove stored data'
 
 
 class NotifyMetricEnum(BaseStrEnum):
-    total_requests_count = &#39;total_requests_count&#39;
-    total_request_sets_count = &#39;total_request_sets_count&#39;
-    total_alerts_count = &#39;total_alerts_count&#39;
-    current_requests_count = &#39;current_requests_count&#39;
-    requests_count_so_far = &#39;requests_count_so_far&#39;
-    current_request_sets_count = &#39;current_request_sets_count&#39;
-    request_sets_count_so_far = &#39;request_sets_count_so_far&#39;
-    subsets_count_so_far = &#39;subsets_count_so_far&#39;
-    current_alerts_count = &#39;current_alerts_count&#39;
-    alerts_count_so_far = &#39;alerts_count_so_far&#39;
+    total_requests_count = 'total_requests_count'
+    total_request_sets_count = 'total_request_sets_count'
+    total_alerts_count = 'total_alerts_count'
+    current_requests_count = 'current_requests_count'
+    requests_count_so_far = 'requests_count_so_far'
+    current_request_sets_count = 'current_request_sets_count'
+    request_sets_count_so_far = 'request_sets_count_so_far'
+    subsets_count_so_far = 'subsets_count_so_far'
+    current_alerts_count = 'current_alerts_count'
+    alerts_count_so_far = 'alerts_count_so_far'
 
 
 class FeatureComputeType(BaseStrEnum):
-    mean = &#39;update_mean&#39;
-    variance = &#39;update_variance&#39;
-    total = &#39;update_total&#39;
-    rate = &#39;update_rate&#39;
-    maximum = &#39;update_maximum&#39;
-    minimum = &#39;update_minimum&#39;
-    ratio = &#39;update_ratio&#39;
-    replace = &#39;update_replace&#39;
-    other = &#39;update_other&#39;
+    mean = 'update_mean'
+    variance = 'update_variance'
+    total = 'update_total'
+    rate = 'update_rate'
+    maximum = 'update_maximum'
+    minimum = 'update_minimum'
+    ratio = 'update_ratio'
+    replace = 'update_replace'
+    other = 'update_other'
 
 
 class LabelEnum(Enum):
-    malicious = -1
-    benign = 1
-    unknown = None
+    """
+    Following the Isolation Forest's initial paper:
+    benign 0 &lt;= prediction &lt;= 1 malicious
+    """
+    malicious = 1
+    benign = 0
+    unknown = 42
 
     def __eq__(self, other):
         if isinstance(other, LabelEnum):
@@ -114,45 +146,70 @@ class LabelEnum(Enum):
 
 
 class MetricTypeEnum(BaseStrEnum):
-    progress = &#34;Progress&#34;
-    performance = &#34;Performance&#34;
-    exception = &#34;Exception&#34;
+    progress = "Progress"
+    performance = "Performance"
+    exception = "Exception"
 
 
 class MetricClassEnum(BaseStrEnum):
-    counter = &#34;counter&#34;
-    gauge = &#34;gauge&#34;
-    summary = &#34;summary&#34;
-    histogram = &#34;histogram&#34;
-    info = &#34;info&#34;
-    enum = &#34;enum&#34;
+    counter = "counter"
+    gauge = "gauge"
+    summary = "summary"
+    histogram = "histogram"
+    info = "info"
+    enum = "enum"
 
 
 class PartitionByEnum(BaseStrEnum):
-    w = &#39;week&#39;
-    m = &#39;month&#39;</code></pre>
-</details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="baskerville.util.enums.BaseStrEnum"><code class="flex name class">
-<span>class <span class="ident">BaseStrEnum</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class BaseStrEnum(Enum):
+    w = 'week'
+    m = 'month'
+
+
+class ModelEnum(BaseStrEnum):
+    isolation_forest_sklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
+    isolation_forest = "baskerville.models.anomaly_model.AnomalyModel"</code></pre>
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.util.enums.BaseStrEnum">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          BaseStrEnum
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class BaseStrEnum(Enum):
 
     def __str__(self):
         return self.value
@@ -173,573 +230,2005 @@ class PartitionByEnum(BaseStrEnum):
 
     def __hash__(self):
         return hash(self.value)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>enum.Enum</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.enums.RunType" href="#baskerville.util.enums.RunType">RunType</a></li>
-<li><a title="baskerville.util.enums.Step" href="#baskerville.util.enums.Step">Step</a></li>
-<li><a title="baskerville.util.enums.NotifyMetricEnum" href="#baskerville.util.enums.NotifyMetricEnum">NotifyMetricEnum</a></li>
-<li><a title="baskerville.util.enums.FeatureComputeType" href="#baskerville.util.enums.FeatureComputeType">FeatureComputeType</a></li>
-<li><a title="baskerville.util.enums.MetricTypeEnum" href="#baskerville.util.enums.MetricTypeEnum">MetricTypeEnum</a></li>
-<li><a title="baskerville.util.enums.MetricClassEnum" href="#baskerville.util.enums.MetricClassEnum">MetricClassEnum</a></li>
-<li><a title="baskerville.util.enums.PartitionByEnum" href="#baskerville.util.enums.PartitionByEnum">PartitionByEnum</a></li>
-</ul>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType"><code class="flex name class">
-<span>class <span class="ident">FeatureComputeType</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class FeatureComputeType(BaseStrEnum):
-    mean = &#39;update_mean&#39;
-    variance = &#39;update_variance&#39;
-    total = &#39;update_total&#39;
-    rate = &#39;update_rate&#39;
-    maximum = &#39;update_maximum&#39;
-    minimum = &#39;update_minimum&#39;
-    ratio = &#39;update_ratio&#39;
-    replace = &#39;update_replace&#39;
-    other = &#39;update_other&#39;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.enums.BaseStrEnum" href="#baskerville.util.enums.BaseStrEnum">BaseStrEnum</a></li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.FeatureComputeType.maximum"><code class="name">var <span class="ident">maximum</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType.mean"><code class="name">var <span class="ident">mean</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType.minimum"><code class="name">var <span class="ident">minimum</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType.other"><code class="name">var <span class="ident">other</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType.rate"><code class="name">var <span class="ident">rate</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType.ratio"><code class="name">var <span class="ident">ratio</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType.replace"><code class="name">var <span class="ident">replace</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType.total"><code class="name">var <span class="ident">total</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.FeatureComputeType.variance"><code class="name">var <span class="ident">variance</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.enums.LabelEnum"><code class="flex name class">
-<span>class <span class="ident">LabelEnum</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class LabelEnum(Enum):
-    malicious = -1
-    benign = 1
-    unknown = None
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.RunType" title="baskerville.util.enums.RunType">
+          RunType
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.util.enums.Step" title="baskerville.util.enums.Step">
+          Step
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.util.enums.NotifyMetricEnum" title="baskerville.util.enums.NotifyMetricEnum">
+          NotifyMetricEnum
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.util.enums.FeatureComputeType" title="baskerville.util.enums.FeatureComputeType">
+          FeatureComputeType
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.util.enums.MetricTypeEnum" title="baskerville.util.enums.MetricTypeEnum">
+          MetricTypeEnum
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.util.enums.MetricClassEnum" title="baskerville.util.enums.MetricClassEnum">
+          MetricClassEnum
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.util.enums.PartitionByEnum" title="baskerville.util.enums.PartitionByEnum">
+          PartitionByEnum
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.util.enums.ModelEnum" title="baskerville.util.enums.ModelEnum">
+          ModelEnum
+         </a>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.util.enums.FeatureComputeType">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          FeatureComputeType
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class FeatureComputeType(BaseStrEnum):
+    mean = 'update_mean'
+    variance = 'update_variance'
+    total = 'update_total'
+    rate = 'update_rate'
+    maximum = 'update_maximum'
+    minimum = 'update_minimum'
+    ratio = 'update_ratio'
+    replace = 'update_replace'
+    other = 'update_other'</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+          BaseStrEnum
+         </a>
+        </li>
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.FeatureComputeType.maximum">
+         <code class="name">
+          var
+          <span class="ident">
+           maximum
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.FeatureComputeType.mean">
+         <code class="name">
+          var
+          <span class="ident">
+           mean
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.FeatureComputeType.minimum">
+         <code class="name">
+          var
+          <span class="ident">
+           minimum
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.FeatureComputeType.other">
+         <code class="name">
+          var
+          <span class="ident">
+           other
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.FeatureComputeType.rate">
+         <code class="name">
+          var
+          <span class="ident">
+           rate
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.FeatureComputeType.ratio">
+         <code class="name">
+          var
+          <span class="ident">
+           ratio
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.FeatureComputeType.replace">
+         <code class="name">
+          var
+          <span class="ident">
+           replace
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.FeatureComputeType.total">
+         <code class="name">
+          var
+          <span class="ident">
+           total
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.FeatureComputeType.variance">
+         <code class="name">
+          var
+          <span class="ident">
+           variance
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.LabelEnum">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          LabelEnum
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Following the Isolation Forest's initial paper:
+benign 0 &lt;= prediction &lt;= 1 malicious
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class LabelEnum(Enum):
+    """
+    Following the Isolation Forest's initial paper:
+    benign 0 &lt;= prediction &lt;= 1 malicious
+    """
+    malicious = 1
+    benign = 0
+    unknown = 42
 
     def __eq__(self, other):
         if isinstance(other, LabelEnum):
             return self.value == other.value
         return self.value == other</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.LabelEnum.benign"><code class="name">var <span class="ident">benign</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.LabelEnum.malicious"><code class="name">var <span class="ident">malicious</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.LabelEnum.unknown"><code class="name">var <span class="ident">unknown</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.enums.LogType"><code class="flex name class">
-<span>class <span class="ident">LogType</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class LogType(Enum):
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.LabelEnum.benign">
+         <code class="name">
+          var
+          <span class="ident">
+           benign
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Following the Isolation Forest's initial paper:
+benign 0 &lt;= prediction &lt;= 1 malicious
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.LabelEnum.malicious">
+         <code class="name">
+          var
+          <span class="ident">
+           malicious
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Following the Isolation Forest's initial paper:
+benign 0 &lt;= prediction &lt;= 1 malicious
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.LabelEnum.unknown">
+         <code class="name">
+          var
+          <span class="ident">
+           unknown
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Following the Isolation Forest's initial paper:
+benign 0 &lt;= prediction &lt;= 1 malicious
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.LogType">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          LogType
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class LogType(Enum):
     apache = 0
     nginx = 0
     raw = 0
     csv = 0
     json = 0</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.LogType.apache"><code class="name">var <span class="ident">apache</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.enums.MetricClassEnum"><code class="flex name class">
-<span>class <span class="ident">MetricClassEnum</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class MetricClassEnum(BaseStrEnum):
-    counter = &#34;counter&#34;
-    gauge = &#34;gauge&#34;
-    summary = &#34;summary&#34;
-    histogram = &#34;histogram&#34;
-    info = &#34;info&#34;
-    enum = &#34;enum&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.enums.BaseStrEnum" href="#baskerville.util.enums.BaseStrEnum">BaseStrEnum</a></li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.MetricClassEnum.counter"><code class="name">var <span class="ident">counter</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.MetricClassEnum.enum"><code class="name">var <span class="ident">enum</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.MetricClassEnum.gauge"><code class="name">var <span class="ident">gauge</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.MetricClassEnum.histogram"><code class="name">var <span class="ident">histogram</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.MetricClassEnum.info"><code class="name">var <span class="ident">info</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.MetricClassEnum.summary"><code class="name">var <span class="ident">summary</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.enums.MetricTypeEnum"><code class="flex name class">
-<span>class <span class="ident">MetricTypeEnum</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class MetricTypeEnum(BaseStrEnum):
-    progress = &#34;Progress&#34;
-    performance = &#34;Performance&#34;
-    exception = &#34;Exception&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.enums.BaseStrEnum" href="#baskerville.util.enums.BaseStrEnum">BaseStrEnum</a></li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.MetricTypeEnum.exception"><code class="name">var <span class="ident">exception</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.MetricTypeEnum.performance"><code class="name">var <span class="ident">performance</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.MetricTypeEnum.progress"><code class="name">var <span class="ident">progress</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum"><code class="flex name class">
-<span>class <span class="ident">NotifyMetricEnum</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class NotifyMetricEnum(BaseStrEnum):
-    total_requests_count = &#39;total_requests_count&#39;
-    total_request_sets_count = &#39;total_request_sets_count&#39;
-    total_alerts_count = &#39;total_alerts_count&#39;
-    current_requests_count = &#39;current_requests_count&#39;
-    requests_count_so_far = &#39;requests_count_so_far&#39;
-    current_request_sets_count = &#39;current_request_sets_count&#39;
-    request_sets_count_so_far = &#39;request_sets_count_so_far&#39;
-    subsets_count_so_far = &#39;subsets_count_so_far&#39;
-    current_alerts_count = &#39;current_alerts_count&#39;
-    alerts_count_so_far = &#39;alerts_count_so_far&#39;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.enums.BaseStrEnum" href="#baskerville.util.enums.BaseStrEnum">BaseStrEnum</a></li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.NotifyMetricEnum.alerts_count_so_far"><code class="name">var <span class="ident">alerts_count_so_far</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.current_alerts_count"><code class="name">var <span class="ident">current_alerts_count</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.current_request_sets_count"><code class="name">var <span class="ident">current_request_sets_count</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.current_requests_count"><code class="name">var <span class="ident">current_requests_count</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.request_sets_count_so_far"><code class="name">var <span class="ident">request_sets_count_so_far</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.requests_count_so_far"><code class="name">var <span class="ident">requests_count_so_far</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.subsets_count_so_far"><code class="name">var <span class="ident">subsets_count_so_far</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.total_alerts_count"><code class="name">var <span class="ident">total_alerts_count</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.total_request_sets_count"><code class="name">var <span class="ident">total_request_sets_count</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.NotifyMetricEnum.total_requests_count"><code class="name">var <span class="ident">total_requests_count</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.enums.PartitionByEnum"><code class="flex name class">
-<span>class <span class="ident">PartitionByEnum</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class PartitionByEnum(BaseStrEnum):
-    w = &#39;week&#39;
-    m = &#39;month&#39;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.enums.BaseStrEnum" href="#baskerville.util.enums.BaseStrEnum">BaseStrEnum</a></li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.PartitionByEnum.m"><code class="name">var <span class="ident">m</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.PartitionByEnum.w"><code class="name">var <span class="ident">w</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.enums.RunType"><code class="flex name class">
-<span>class <span class="ident">RunType</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class RunType(BaseStrEnum):
-    es = &#39;es&#39;
-    rawlog = &#39;rawlog&#39;
-    kafka = &#39;kafka&#39;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.enums.BaseStrEnum" href="#baskerville.util.enums.BaseStrEnum">BaseStrEnum</a></li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.RunType.es"><code class="name">var <span class="ident">es</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.RunType.kafka"><code class="name">var <span class="ident">kafka</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.RunType.rawlog"><code class="name">var <span class="ident">rawlog</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.enums.Step"><code class="flex name class">
-<span>class <span class="ident">Step</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Step(BaseStrEnum):
-    initialize = &#39;Start sessions, initialize cache/features/model/dfs.&#39;
-    create_runtime = &#39;Create a Runtime in the Baskerville database.&#39;
-    get_data = &#39;Get dataframe of log data.&#39;
-    get_window = &#39;Select data from current time bucket window.&#39;
-    preprocessing = &#39;Fill missing values, add calculation cols, and filter.&#39;
-    group_by = &#39;Group logs by IP/host.&#39;
-    feature_calculation = &#39;Add calculation cols, extract features, and update.&#39;
-    label_or_predict = &#39;Apply label from MISP or predict label.&#39;
-    save = &#39;Update dataframe, save to database, and update cache.&#39;
-    finish_up = &#39;Disconnect from db, unpersist dataframes, and empty cache.&#39;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.enums.BaseStrEnum" href="#baskerville.util.enums.BaseStrEnum">BaseStrEnum</a></li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.util.enums.Step.create_runtime"><code class="name">var <span class="ident">create_runtime</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.feature_calculation"><code class="name">var <span class="ident">feature_calculation</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.finish_up"><code class="name">var <span class="ident">finish_up</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.get_data"><code class="name">var <span class="ident">get_data</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.get_window"><code class="name">var <span class="ident">get_window</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.group_by"><code class="name">var <span class="ident">group_by</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.initialize"><code class="name">var <span class="ident">initialize</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.label_or_predict"><code class="name">var <span class="ident">label_or_predict</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.preprocessing"><code class="name">var <span class="ident">preprocessing</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-<dt id="baskerville.util.enums.Step.save"><code class="name">var <span class="ident">save</span></code></dt>
-<dd>
-<section class="desc"><p>An enumeration.</p></section>
-</dd>
-</dl>
-</dd>
-</dl>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville.util" href="index.html">baskerville.util</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="baskerville.util.enums.BaseStrEnum" href="#baskerville.util.enums.BaseStrEnum">BaseStrEnum</a></code></h4>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.FeatureComputeType" href="#baskerville.util.enums.FeatureComputeType">FeatureComputeType</a></code></h4>
-<ul class="two-column">
-<li><code><a title="baskerville.util.enums.FeatureComputeType.maximum" href="#baskerville.util.enums.FeatureComputeType.maximum">maximum</a></code></li>
-<li><code><a title="baskerville.util.enums.FeatureComputeType.mean" href="#baskerville.util.enums.FeatureComputeType.mean">mean</a></code></li>
-<li><code><a title="baskerville.util.enums.FeatureComputeType.minimum" href="#baskerville.util.enums.FeatureComputeType.minimum">minimum</a></code></li>
-<li><code><a title="baskerville.util.enums.FeatureComputeType.other" href="#baskerville.util.enums.FeatureComputeType.other">other</a></code></li>
-<li><code><a title="baskerville.util.enums.FeatureComputeType.rate" href="#baskerville.util.enums.FeatureComputeType.rate">rate</a></code></li>
-<li><code><a title="baskerville.util.enums.FeatureComputeType.ratio" href="#baskerville.util.enums.FeatureComputeType.ratio">ratio</a></code></li>
-<li><code><a title="baskerville.util.enums.FeatureComputeType.replace" href="#baskerville.util.enums.FeatureComputeType.replace">replace</a></code></li>
-<li><code><a title="baskerville.util.enums.FeatureComputeType.total" href="#baskerville.util.enums.FeatureComputeType.total">total</a></code></li>
-<li><code><a title="baskerville.util.enums.FeatureComputeType.variance" href="#baskerville.util.enums.FeatureComputeType.variance">variance</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.LabelEnum" href="#baskerville.util.enums.LabelEnum">LabelEnum</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.util.enums.LabelEnum.benign" href="#baskerville.util.enums.LabelEnum.benign">benign</a></code></li>
-<li><code><a title="baskerville.util.enums.LabelEnum.malicious" href="#baskerville.util.enums.LabelEnum.malicious">malicious</a></code></li>
-<li><code><a title="baskerville.util.enums.LabelEnum.unknown" href="#baskerville.util.enums.LabelEnum.unknown">unknown</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.LogType" href="#baskerville.util.enums.LogType">LogType</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.util.enums.LogType.apache" href="#baskerville.util.enums.LogType.apache">apache</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.MetricClassEnum" href="#baskerville.util.enums.MetricClassEnum">MetricClassEnum</a></code></h4>
-<ul class="two-column">
-<li><code><a title="baskerville.util.enums.MetricClassEnum.counter" href="#baskerville.util.enums.MetricClassEnum.counter">counter</a></code></li>
-<li><code><a title="baskerville.util.enums.MetricClassEnum.enum" href="#baskerville.util.enums.MetricClassEnum.enum">enum</a></code></li>
-<li><code><a title="baskerville.util.enums.MetricClassEnum.gauge" href="#baskerville.util.enums.MetricClassEnum.gauge">gauge</a></code></li>
-<li><code><a title="baskerville.util.enums.MetricClassEnum.histogram" href="#baskerville.util.enums.MetricClassEnum.histogram">histogram</a></code></li>
-<li><code><a title="baskerville.util.enums.MetricClassEnum.info" href="#baskerville.util.enums.MetricClassEnum.info">info</a></code></li>
-<li><code><a title="baskerville.util.enums.MetricClassEnum.summary" href="#baskerville.util.enums.MetricClassEnum.summary">summary</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.MetricTypeEnum" href="#baskerville.util.enums.MetricTypeEnum">MetricTypeEnum</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.util.enums.MetricTypeEnum.exception" href="#baskerville.util.enums.MetricTypeEnum.exception">exception</a></code></li>
-<li><code><a title="baskerville.util.enums.MetricTypeEnum.performance" href="#baskerville.util.enums.MetricTypeEnum.performance">performance</a></code></li>
-<li><code><a title="baskerville.util.enums.MetricTypeEnum.progress" href="#baskerville.util.enums.MetricTypeEnum.progress">progress</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.NotifyMetricEnum" href="#baskerville.util.enums.NotifyMetricEnum">NotifyMetricEnum</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.alerts_count_so_far" href="#baskerville.util.enums.NotifyMetricEnum.alerts_count_so_far">alerts_count_so_far</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.current_alerts_count" href="#baskerville.util.enums.NotifyMetricEnum.current_alerts_count">current_alerts_count</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.current_request_sets_count" href="#baskerville.util.enums.NotifyMetricEnum.current_request_sets_count">current_request_sets_count</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.current_requests_count" href="#baskerville.util.enums.NotifyMetricEnum.current_requests_count">current_requests_count</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.request_sets_count_so_far" href="#baskerville.util.enums.NotifyMetricEnum.request_sets_count_so_far">request_sets_count_so_far</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.requests_count_so_far" href="#baskerville.util.enums.NotifyMetricEnum.requests_count_so_far">requests_count_so_far</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.subsets_count_so_far" href="#baskerville.util.enums.NotifyMetricEnum.subsets_count_so_far">subsets_count_so_far</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.total_alerts_count" href="#baskerville.util.enums.NotifyMetricEnum.total_alerts_count">total_alerts_count</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.total_request_sets_count" href="#baskerville.util.enums.NotifyMetricEnum.total_request_sets_count">total_request_sets_count</a></code></li>
-<li><code><a title="baskerville.util.enums.NotifyMetricEnum.total_requests_count" href="#baskerville.util.enums.NotifyMetricEnum.total_requests_count">total_requests_count</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.PartitionByEnum" href="#baskerville.util.enums.PartitionByEnum">PartitionByEnum</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.util.enums.PartitionByEnum.m" href="#baskerville.util.enums.PartitionByEnum.m">m</a></code></li>
-<li><code><a title="baskerville.util.enums.PartitionByEnum.w" href="#baskerville.util.enums.PartitionByEnum.w">w</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.RunType" href="#baskerville.util.enums.RunType">RunType</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.util.enums.RunType.es" href="#baskerville.util.enums.RunType.es">es</a></code></li>
-<li><code><a title="baskerville.util.enums.RunType.kafka" href="#baskerville.util.enums.RunType.kafka">kafka</a></code></li>
-<li><code><a title="baskerville.util.enums.RunType.rawlog" href="#baskerville.util.enums.RunType.rawlog">rawlog</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.enums.Step" href="#baskerville.util.enums.Step">Step</a></code></h4>
-<ul class="two-column">
-<li><code><a title="baskerville.util.enums.Step.create_runtime" href="#baskerville.util.enums.Step.create_runtime">create_runtime</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.feature_calculation" href="#baskerville.util.enums.Step.feature_calculation">feature_calculation</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.finish_up" href="#baskerville.util.enums.Step.finish_up">finish_up</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.get_data" href="#baskerville.util.enums.Step.get_data">get_data</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.get_window" href="#baskerville.util.enums.Step.get_window">get_window</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.group_by" href="#baskerville.util.enums.Step.group_by">group_by</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.initialize" href="#baskerville.util.enums.Step.initialize">initialize</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.label_or_predict" href="#baskerville.util.enums.Step.label_or_predict">label_or_predict</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.preprocessing" href="#baskerville.util.enums.Step.preprocessing">preprocessing</a></code></li>
-<li><code><a title="baskerville.util.enums.Step.save" href="#baskerville.util.enums.Step.save">save</a></code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.LogType.apache">
+         <code class="name">
+          var
+          <span class="ident">
+           apache
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.MetricClassEnum">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          MetricClassEnum
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class MetricClassEnum(BaseStrEnum):
+    counter = "counter"
+    gauge = "gauge"
+    summary = "summary"
+    histogram = "histogram"
+    info = "info"
+    enum = "enum"</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+          BaseStrEnum
+         </a>
+        </li>
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.MetricClassEnum.counter">
+         <code class="name">
+          var
+          <span class="ident">
+           counter
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.MetricClassEnum.enum">
+         <code class="name">
+          var
+          <span class="ident">
+           enum
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.MetricClassEnum.gauge">
+         <code class="name">
+          var
+          <span class="ident">
+           gauge
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.MetricClassEnum.histogram">
+         <code class="name">
+          var
+          <span class="ident">
+           histogram
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.MetricClassEnum.info">
+         <code class="name">
+          var
+          <span class="ident">
+           info
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.MetricClassEnum.summary">
+         <code class="name">
+          var
+          <span class="ident">
+           summary
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.MetricTypeEnum">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          MetricTypeEnum
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class MetricTypeEnum(BaseStrEnum):
+    progress = "Progress"
+    performance = "Performance"
+    exception = "Exception"</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+          BaseStrEnum
+         </a>
+        </li>
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.MetricTypeEnum.exception">
+         <code class="name">
+          var
+          <span class="ident">
+           exception
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.MetricTypeEnum.performance">
+         <code class="name">
+          var
+          <span class="ident">
+           performance
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.MetricTypeEnum.progress">
+         <code class="name">
+          var
+          <span class="ident">
+           progress
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.ModelEnum">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          ModelEnum
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class ModelEnum(BaseStrEnum):
+    isolation_forest_sklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
+    isolation_forest = "baskerville.models.anomaly_model.AnomalyModel"</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+          BaseStrEnum
+         </a>
+        </li>
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.ModelEnum.isolation_forest">
+         <code class="name">
+          var
+          <span class="ident">
+           isolation_forest
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.ModelEnum.isolation_forest_sklearn">
+         <code class="name">
+          var
+          <span class="ident">
+           isolation_forest_sklearn
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.NotifyMetricEnum">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          NotifyMetricEnum
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class NotifyMetricEnum(BaseStrEnum):
+    total_requests_count = 'total_requests_count'
+    total_request_sets_count = 'total_request_sets_count'
+    total_alerts_count = 'total_alerts_count'
+    current_requests_count = 'current_requests_count'
+    requests_count_so_far = 'requests_count_so_far'
+    current_request_sets_count = 'current_request_sets_count'
+    request_sets_count_so_far = 'request_sets_count_so_far'
+    subsets_count_so_far = 'subsets_count_so_far'
+    current_alerts_count = 'current_alerts_count'
+    alerts_count_so_far = 'alerts_count_so_far'</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+          BaseStrEnum
+         </a>
+        </li>
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.alerts_count_so_far">
+         <code class="name">
+          var
+          <span class="ident">
+           alerts_count_so_far
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.current_alerts_count">
+         <code class="name">
+          var
+          <span class="ident">
+           current_alerts_count
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.current_request_sets_count">
+         <code class="name">
+          var
+          <span class="ident">
+           current_request_sets_count
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.current_requests_count">
+         <code class="name">
+          var
+          <span class="ident">
+           current_requests_count
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.request_sets_count_so_far">
+         <code class="name">
+          var
+          <span class="ident">
+           request_sets_count_so_far
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.requests_count_so_far">
+         <code class="name">
+          var
+          <span class="ident">
+           requests_count_so_far
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.subsets_count_so_far">
+         <code class="name">
+          var
+          <span class="ident">
+           subsets_count_so_far
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.total_alerts_count">
+         <code class="name">
+          var
+          <span class="ident">
+           total_alerts_count
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.total_request_sets_count">
+         <code class="name">
+          var
+          <span class="ident">
+           total_request_sets_count
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.NotifyMetricEnum.total_requests_count">
+         <code class="name">
+          var
+          <span class="ident">
+           total_requests_count
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.PartitionByEnum">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          PartitionByEnum
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class PartitionByEnum(BaseStrEnum):
+    w = 'week'
+    m = 'month'</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+          BaseStrEnum
+         </a>
+        </li>
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.PartitionByEnum.m">
+         <code class="name">
+          var
+          <span class="ident">
+           m
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.PartitionByEnum.w">
+         <code class="name">
+          var
+          <span class="ident">
+           w
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.RunType">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          RunType
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class RunType(BaseStrEnum):
+    es = 'es'
+    rawlog = 'rawlog'
+    kafka = 'kafka'
+    training = 'training'</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+          BaseStrEnum
+         </a>
+        </li>
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.RunType.es">
+         <code class="name">
+          var
+          <span class="ident">
+           es
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.RunType.kafka">
+         <code class="name">
+          var
+          <span class="ident">
+           kafka
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.RunType.rawlog">
+         <code class="name">
+          var
+          <span class="ident">
+           rawlog
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.RunType.training">
+         <code class="name">
+          var
+          <span class="ident">
+           training
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.enums.Step">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Step
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         An enumeration.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class Step(BaseStrEnum):
+    initialize = 'Start sessions, initialize cache/features/model/dfs.'
+    create_runtime = 'Create a Runtime in the Baskerville database.'
+    get_data = 'Get dataframe of data.'
+    get_window = 'Select data from current time bucket window.'
+    preprocessing = 'Fill missing values, add calculation cols, and filter.'
+    group_by = 'Group logs by IP/host.'
+    feature_calculation = 'Add calculation cols, extract features, and update.'
+    label_or_predict = 'Apply label from MISP or predict label.'
+    trigger_challenge = 'Trigger host wise challenge'
+    save = 'Save to database.'
+    finish_up = 'Disconnect from db, unpersist dataframes, and empty cache.'
+    train = 'Train'
+    test = 'Test'
+    evaluate = 'Evaluate results'
+    reset = 'Reset: remove stored data'</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+          BaseStrEnum
+         </a>
+        </li>
+        <li>
+         enum.Enum
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.enums.Step.create_runtime">
+         <code class="name">
+          var
+          <span class="ident">
+           create_runtime
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.evaluate">
+         <code class="name">
+          var
+          <span class="ident">
+           evaluate
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.feature_calculation">
+         <code class="name">
+          var
+          <span class="ident">
+           feature_calculation
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.finish_up">
+         <code class="name">
+          var
+          <span class="ident">
+           finish_up
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.get_data">
+         <code class="name">
+          var
+          <span class="ident">
+           get_data
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.get_window">
+         <code class="name">
+          var
+          <span class="ident">
+           get_window
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.group_by">
+         <code class="name">
+          var
+          <span class="ident">
+           group_by
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.initialize">
+         <code class="name">
+          var
+          <span class="ident">
+           initialize
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.label_or_predict">
+         <code class="name">
+          var
+          <span class="ident">
+           label_or_predict
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.preprocessing">
+         <code class="name">
+          var
+          <span class="ident">
+           preprocessing
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.reset">
+         <code class="name">
+          var
+          <span class="ident">
+           reset
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.save">
+         <code class="name">
+          var
+          <span class="ident">
+           save
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.test">
+         <code class="name">
+          var
+          <span class="ident">
+           test
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.train">
+         <code class="name">
+          var
+          <span class="ident">
+           train
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.Step.trigger_challenge">
+         <code class="name">
+          var
+          <span class="ident">
+           trigger_challenge
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.util">
+          baskerville.util
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.BaseStrEnum" title="baskerville.util.enums.BaseStrEnum">
+           BaseStrEnum
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.FeatureComputeType" title="baskerville.util.enums.FeatureComputeType">
+           FeatureComputeType
+          </a>
+         </code>
+        </h4>
+        <ul class="two-column">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.maximum" title="baskerville.util.enums.FeatureComputeType.maximum">
+            maximum
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.mean" title="baskerville.util.enums.FeatureComputeType.mean">
+            mean
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.minimum" title="baskerville.util.enums.FeatureComputeType.minimum">
+            minimum
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.other" title="baskerville.util.enums.FeatureComputeType.other">
+            other
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.rate" title="baskerville.util.enums.FeatureComputeType.rate">
+            rate
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.ratio" title="baskerville.util.enums.FeatureComputeType.ratio">
+            ratio
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.replace" title="baskerville.util.enums.FeatureComputeType.replace">
+            replace
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.total" title="baskerville.util.enums.FeatureComputeType.total">
+            total
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.FeatureComputeType.variance" title="baskerville.util.enums.FeatureComputeType.variance">
+            variance
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.LabelEnum" title="baskerville.util.enums.LabelEnum">
+           LabelEnum
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.LabelEnum.benign" title="baskerville.util.enums.LabelEnum.benign">
+            benign
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.LabelEnum.malicious" title="baskerville.util.enums.LabelEnum.malicious">
+            malicious
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.LabelEnum.unknown" title="baskerville.util.enums.LabelEnum.unknown">
+            unknown
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.LogType" title="baskerville.util.enums.LogType">
+           LogType
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.LogType.apache" title="baskerville.util.enums.LogType.apache">
+            apache
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.MetricClassEnum" title="baskerville.util.enums.MetricClassEnum">
+           MetricClassEnum
+          </a>
+         </code>
+        </h4>
+        <ul class="two-column">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricClassEnum.counter" title="baskerville.util.enums.MetricClassEnum.counter">
+            counter
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricClassEnum.enum" title="baskerville.util.enums.MetricClassEnum.enum">
+            enum
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricClassEnum.gauge" title="baskerville.util.enums.MetricClassEnum.gauge">
+            gauge
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricClassEnum.histogram" title="baskerville.util.enums.MetricClassEnum.histogram">
+            histogram
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricClassEnum.info" title="baskerville.util.enums.MetricClassEnum.info">
+            info
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricClassEnum.summary" title="baskerville.util.enums.MetricClassEnum.summary">
+            summary
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.MetricTypeEnum" title="baskerville.util.enums.MetricTypeEnum">
+           MetricTypeEnum
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricTypeEnum.exception" title="baskerville.util.enums.MetricTypeEnum.exception">
+            exception
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricTypeEnum.performance" title="baskerville.util.enums.MetricTypeEnum.performance">
+            performance
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.MetricTypeEnum.progress" title="baskerville.util.enums.MetricTypeEnum.progress">
+            progress
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.ModelEnum" title="baskerville.util.enums.ModelEnum">
+           ModelEnum
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.ModelEnum.isolation_forest" title="baskerville.util.enums.ModelEnum.isolation_forest">
+            isolation_forest
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.ModelEnum.isolation_forest_sklearn" title="baskerville.util.enums.ModelEnum.isolation_forest_sklearn">
+            isolation_forest_sklearn
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.NotifyMetricEnum" title="baskerville.util.enums.NotifyMetricEnum">
+           NotifyMetricEnum
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.alerts_count_so_far" title="baskerville.util.enums.NotifyMetricEnum.alerts_count_so_far">
+            alerts_count_so_far
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.current_alerts_count" title="baskerville.util.enums.NotifyMetricEnum.current_alerts_count">
+            current_alerts_count
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.current_request_sets_count" title="baskerville.util.enums.NotifyMetricEnum.current_request_sets_count">
+            current_request_sets_count
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.current_requests_count" title="baskerville.util.enums.NotifyMetricEnum.current_requests_count">
+            current_requests_count
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.request_sets_count_so_far" title="baskerville.util.enums.NotifyMetricEnum.request_sets_count_so_far">
+            request_sets_count_so_far
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.requests_count_so_far" title="baskerville.util.enums.NotifyMetricEnum.requests_count_so_far">
+            requests_count_so_far
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.subsets_count_so_far" title="baskerville.util.enums.NotifyMetricEnum.subsets_count_so_far">
+            subsets_count_so_far
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.total_alerts_count" title="baskerville.util.enums.NotifyMetricEnum.total_alerts_count">
+            total_alerts_count
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.total_request_sets_count" title="baskerville.util.enums.NotifyMetricEnum.total_request_sets_count">
+            total_request_sets_count
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.NotifyMetricEnum.total_requests_count" title="baskerville.util.enums.NotifyMetricEnum.total_requests_count">
+            total_requests_count
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.PartitionByEnum" title="baskerville.util.enums.PartitionByEnum">
+           PartitionByEnum
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.PartitionByEnum.m" title="baskerville.util.enums.PartitionByEnum.m">
+            m
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.PartitionByEnum.w" title="baskerville.util.enums.PartitionByEnum.w">
+            w
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.RunType" title="baskerville.util.enums.RunType">
+           RunType
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.es" title="baskerville.util.enums.RunType.es">
+            es
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.kafka" title="baskerville.util.enums.RunType.kafka">
+            kafka
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.rawlog" title="baskerville.util.enums.RunType.rawlog">
+            rawlog
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.training" title="baskerville.util.enums.RunType.training">
+            training
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.enums.Step" title="baskerville.util.enums.Step">
+           Step
+          </a>
+         </code>
+        </h4>
+        <ul class="two-column">
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.create_runtime" title="baskerville.util.enums.Step.create_runtime">
+            create_runtime
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.evaluate" title="baskerville.util.enums.Step.evaluate">
+            evaluate
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.feature_calculation" title="baskerville.util.enums.Step.feature_calculation">
+            feature_calculation
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.finish_up" title="baskerville.util.enums.Step.finish_up">
+            finish_up
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.get_data" title="baskerville.util.enums.Step.get_data">
+            get_data
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.get_window" title="baskerville.util.enums.Step.get_window">
+            get_window
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.group_by" title="baskerville.util.enums.Step.group_by">
+            group_by
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.initialize" title="baskerville.util.enums.Step.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.label_or_predict" title="baskerville.util.enums.Step.label_or_predict">
+            label_or_predict
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.preprocessing" title="baskerville.util.enums.Step.preprocessing">
+            preprocessing
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.reset" title="baskerville.util.enums.Step.reset">
+            reset
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.save" title="baskerville.util.enums.Step.save">
+            save
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.test" title="baskerville.util.enums.Step.test">
+            test
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.train" title="baskerville.util.enums.Step.train">
+            train
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.Step.trigger_challenge" title="baskerville.util.enums.Step.trigger_challenge">
+            trigger_challenge
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>

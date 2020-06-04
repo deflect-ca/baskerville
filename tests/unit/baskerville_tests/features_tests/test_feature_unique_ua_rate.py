@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from pyspark.sql import functions as F, types as T
 
 from baskerville.util.enums import FeatureComputeType
@@ -82,7 +89,7 @@ class TestSparkUniqueUaRate(FeatureSparkTestCase):
         result = self.feature.compute(sub_df)
         expected_df = sub_df.withColumn(
             self.feature.feature_name,
-            F.lit(1./10.).cast('float')
+            F.lit(1. / 10.).cast('float')
         )
 
         result.show()
@@ -124,7 +131,7 @@ class TestSparkUniqueUaRate(FeatureSparkTestCase):
                 second_ats_record,
                 third_ats_record,
             ],
-            extra_cols = {
+            extra_cols={
                 'first_ever_request': F.lit(None).cast('timestamp')
             }
         )
@@ -132,7 +139,7 @@ class TestSparkUniqueUaRate(FeatureSparkTestCase):
 
         expected_df = sub_df.withColumn(
             self.feature.feature_name,
-            F.lit(2./20.).cast('float')
+            F.lit(2. / 20.).cast('float')
         )
 
         result.show()
@@ -174,7 +181,7 @@ class TestSparkUniqueUaRate(FeatureSparkTestCase):
                 second_ats_record,
                 third_ats_record,
             ],
-            extra_cols = {
+            extra_cols={
                 'first_ever_request': F.lit('2018-01-17T08:30:00.000Z').cast(
                     'timestamp')
             }
@@ -205,7 +212,7 @@ class TestSparkUniqueUaRate(FeatureSparkTestCase):
             test_current, test_past
         )
 
-        expected_value = (6. + 2.)/3.
+        expected_value = (6. + 2.) / 3.
         self.assertAlmostEqual(value, expected_value, places=2)
 
     def test_update(self):
@@ -243,5 +250,5 @@ class TestSparkUniqueUaRate(FeatureSparkTestCase):
         value = result_df.select(
             self.feature.updated_feature_col_name
         ).collect()[0][self.feature.updated_feature_col_name]
-        expected_value = (6. + 2.)/3.
+        expected_value = (6. + 2.) / 3.
         self.assertAlmostEqual(value, expected_value, places=2)

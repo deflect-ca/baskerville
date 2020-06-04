@@ -9,7 +9,7 @@ class TestStats(unittest.TestCase):
 
     def tearDown(self):
         if hasattr(f_test, '__self__'):
-            delattr(f_test,'__self__')
+            delattr(f_test, '__self__')
 
     def test_instance(self):
         self.assertTrue(hasattr(self.stats, '_prefix'))

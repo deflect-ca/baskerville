@@ -1,5 +1,11 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.updateable_features import UpdaterRate
-from baskerville.util.enums import FeatureComputeType
 from pyspark.sql import functions as F
 
 from baskerville.features.base_feature import TimeBasedFeature
@@ -27,7 +33,6 @@ class FeatureUniqueUaRate(TimeBasedFeature, UpdaterRate):
         })
 
     def compute(self, df):
-
         df = df.withColumn(
             self.feature_name,
             F.when(F.col('dt') != 0.,
@@ -41,10 +46,10 @@ class FeatureUniqueUaRate(TimeBasedFeature, UpdaterRate):
     @classmethod
     def update_row(cls, current, past, *args, **kwargs):
         return update_rate(
-                    past.get(FeatureUniqueUaTotal.feature_name_from_class()),
-                    current[FeatureUniqueUaTotal.feature_name_from_class()],
-                    current[FeatureMinutesTotal.feature_name_from_class()]
-                )
+            past.get(FeatureUniqueUaTotal.feature_name_from_class()),
+            current[FeatureUniqueUaTotal.feature_name_from_class()],
+            current[FeatureMinutesTotal.feature_name_from_class()]
+        )
 
     def update(self, df):
         return super().update(
@@ -52,4 +57,3 @@ class FeatureUniqueUaRate(TimeBasedFeature, UpdaterRate):
             FeatureMinutesTotal.feature_name_from_class(),
             numerator=FeatureUniqueUaTotal.feature_name_from_class()
         )
-

@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.updateable_features import UpdaterMean
 from pyspark.sql import functions as F
 
@@ -23,12 +30,11 @@ class FeaturePathDepthAverage(UpdaterMean):
         }
         self.pre_group_by_calcs = {
             'client_url_slash_count': (
-                    F.size(F.split(F.col('client_url'), '/')) - 1
+                F.size(F.split(F.col('client_url'), '/')) - 1
             )
         }
 
     def compute(self, df):
-
         df = df.withColumn(
             self.feature_name,
             F.col('client_url_slash_count_avg').cast('float')

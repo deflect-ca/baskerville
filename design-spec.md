@@ -574,3 +574,9 @@ Deploy and run the system but do not actually block with the results, evaluate f
 * Since Baskerville will be running for all deflectees (analysing all traffic), we need to either find a way to identify the deflectee that's causing the problem (if any) or keep running for all deflectees.
 * How can we calculate features accumulatively for ongoing request sets? If we use a fixed length request set, what happens if a request set spreads in more than one time windows?
 * If Banjax has already blocked something then what use do we have for consuming Banjax logs in real-time? Use them to verify predictions?
+
+
+
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+<img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />
+This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.

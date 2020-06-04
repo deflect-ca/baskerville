@@ -1,12 +1,21 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import datetime
 import gc
 import os
-import shutil
+
+from py4j.protocol import Py4JJavaError
 
 from baskerville.spark import get_spark_session
 from baskerville.spark.helpers import StorageLevel
 from pyspark.sql import functions as F
 
+from baskerville.util.file_manager import FileManager
 from baskerville.util.helpers import get_logger
 
 
@@ -22,7 +31,7 @@ class RequestSetSparkCache(object):
             session_getter=get_spark_session,
             group_by_fields=('target', 'ip'),
             format_='parquet',
-            path=''
+            path='request_set_cache'
     ):
         self.__cache = None
         self.__persistent_cache = None
@@ -37,61 +46,25 @@ class RequestSetSparkCache(object):
         self.format_ = format_
         self.storage_level = StorageLevel.CUSTOM
         self.column_renamings = {
-                            'first_ever_request': 'start',
-                            'old_subset_count': 'subset_count',
-                            'old_features': 'features',
+            'first_ever_request': 'start',
+            'old_subset_count': 'subset_count',
+            'old_features': 'features',
                             'old_num_requests': 'num_requests',
-                           }
+        }
         self._count = 0
         self._last_updated = datetime.datetime.utcnow()
         self._changed = False
+        self.file_manager = FileManager(path, self.session_getter())
 
-        if path.startswith('hdfs://'):
-            # find the third occurrence of '/'
-            slash = path.find('/', path.find('/', path.find('/') + 1) + 1)
-            if slash == -1:
-                raise RuntimeError(f'HDFS path "{path}" must contain at least one folder. '
-                                   f'For example "hdfs://xxx:8020/baskerville"). ')
-            self.hdfs = path[:slash]
-            self.path = path[slash+1:]
-            sc = self.session_getter()._sc
-            self.hdfs_path = sc._gateway.jvm.org.apache.hadoop.fs.Path
-            self.hdfs_file_system = sc._gateway.jvm.org.apache.hadoop.fs.FileSystem.get(
-                sc._gateway.jvm.java.net.URI(self.hdfs),
-                sc._jsc.hadoopConfiguration())
-        else:
-            self.hdfs = None
-            self.path = path
+        self.file_name = os.path.join(
+            path, f'{self.__class__.__name__}.{self.format_}')
+        self.temp_file_name = os.path.join(
+            path, f'{self.__class__.__name__}temp.{self.format_}')
 
-        self.file_name = os.path.join(self.path, f'{self.__class__.__name__}.{self.format_}')
-        self.temp_file_name = os.path.join(self.path, f'{self.__class__.__name__}temp.{self.format_}')
-
-        if self.path_exists(self.file_name):
-            self.delete_path(self.file_name)
-        if self.path_exists(self.temp_file_name):
-            self.delete_path(self.temp_file_name)
-
-    def path_exists(self, path):
-        if self.hdfs:
-            return self.hdfs_file_system.exists(self.hdfs_path(path))
-        return os.path.exists(path)
-
-    def delete_path(self, path):
-        if self.hdfs:
-            self.hdfs_file_system.delete(self.hdfs_path(path), True)
-            return
-        shutil.rmtree(path)
-
-    def rename_path(self, source, destination):
-        if self.hdfs:
-            self.hdfs_file_system.rename(self.hdfs_path(source), self.hdfs_path(destination))
-            return
-        os.rename(source, destination)
-
-    def get_full_path(self, path):
-        if self.hdfs:
-            return os.path.join(self.hdfs, path)
-        return path
+        if self.file_manager.path_exists(self.file_name):
+            self.file_manager.delete_path(self.file_name)
+        if self.file_manager.path_exists(self.temp_file_name):
+            self.file_manager.delete_path(self.temp_file_name)
 
     @property
     def cache(self):
@@ -106,10 +79,10 @@ class RequestSetSparkCache(object):
         return self.file_name
 
     def _get_load_q(self):
-        return f'''(SELECT * 
-                    from {self.table_name} 
-                    where id in (select max(id) 
-                    from {self.table_name} 
+        return f'''(SELECT *
+                    from {self.table_name}
+                    where id in (select max(id)
+                    from {self.table_name}
                     group by {', '.join(self.group_by_fields)} )
                     ) as {self.table_name}'''
 
@@ -321,11 +294,11 @@ class RequestSetSparkCache(object):
         self.logger.debug(f'Source_df count = {source_df.count()}')
 
         # read the whole thing again
-        if self.path_exists(self.file_name):
+        if self.file_manager.path_exists(self.file_name):
             self.__persistent_cache = self.session_getter().read.format(
                 self.format_
             ).load(
-                self.get_full_path(self.file_name)
+                self.file_name
             ).persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
@@ -377,14 +350,14 @@ class RequestSetSparkCache(object):
         # write back to parquet - different file/folder though
         # because self.parquet_name is already in use
         # rename temp to self.parquet_name
-        if self.path_exists(self.temp_file_name):
-            self.delete_path(self.temp_file_name)
+        if self.file_manager.path_exists(self.temp_file_name):
+            self.file_manager.delete_path(self.temp_file_name)
 
         self.__persistent_cache.write.mode(
             'overwrite'
         ).format(
             self.format_
-        ).save(self.get_full_path(self.temp_file_name))
+        ).save(self.temp_file_name)
 
         self.logger.debug(
             f'# Number of rows in persistent cache: '
@@ -398,10 +371,10 @@ class RequestSetSparkCache(object):
         self.empty_all()
 
         # rename temp to self.parquet_name
-        if self.path_exists(self.file_name):
-            self.delete_path(self.file_name)
+        if self.file_manager.path_exists(self.file_name):
+            self.file_manager.delete_path(self.file_name)
 
-        self.rename_path(self.temp_file_name, self.file_name)
+        self.file_manager.rename_path(self.temp_file_name, self.file_name)
 
     def refresh(self, update_date, hosts, extra_filters=None):
         df = self._load(
@@ -409,7 +382,7 @@ class RequestSetSparkCache(object):
         )
 
         self.append(
-           df
+            df
         ).deduplicate()
 
         return self
@@ -434,10 +407,11 @@ class RequestSetSparkCache(object):
         if self.__cache:
             try:
                 return self.cache.count()
-            except:
+            except Py4JJavaError:
                 import traceback
                 traceback.print_exc()
-                self.logger.debug('Just hit the cache issue.. trying to refresh')
+                self.logger.debug(
+                    'Just hit the cache issue.. trying to refresh')
                 # self.cache.createOrReplaceTempView("current_cache")
                 # self.session_getter().catalog.refreshTable("current_cache")
                 return self.cache.count()
@@ -455,8 +429,8 @@ class RequestSetSparkCache(object):
         """
         update_date = now - datetime.timedelta(seconds=expire_if_longer_than)
         self.__cache = self.__cache.select('*').where((
-                (F.col("updated_at") >= F.lit(update_date)) |
-                (F.col("created_at") >= F.lit(update_date))
+            (F.col("updated_at") >= F.lit(update_date)) |
+            (F.col("created_at") >= F.lit(update_date))
         ))
 
         return self

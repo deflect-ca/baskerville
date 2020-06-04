@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.feature_image_to_html_ratio import \
     FeatureImageToHtmlRatio
 from baskerville.util.enums import FeatureComputeType
@@ -134,7 +141,7 @@ class TestSparkImageToHtmlRatio(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -183,7 +190,7 @@ class TestSparkImageToHtmlRatio(FeatureSparkTestCase):
                 first_ats_record,
                 second_ats_record,
                 third_ats_record,
-             ]
+            ]
         )
         result = self.feature.compute(sub_df)
 
@@ -248,6 +255,7 @@ class TestSparkImageToHtmlRatio(FeatureSparkTestCase):
         )
 
         result_df.show()
-        value = result_df.select(self.feature.updated_feature_col_name).collect()[0][self.feature.updated_feature_col_name]
+        value = result_df.select(self.feature.updated_feature_col_name).collect()[
+            0][self.feature.updated_feature_col_name]
         expected_value = 2.
         self.assertAlmostEqual(value, expected_value, places=2)

@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import numpy as np
 from pyspark.sql import functions as F, types as T
 
@@ -22,7 +29,8 @@ class TestSparkPayloadSizeLogAverage(FeatureSparkTestCase):
         self.assertTrue(hasattr(self.feature, 'DEFAULT_VALUE'))
         self.assertTrue(hasattr(self.feature, 'compute_type'))
 
-        self.assertTrue(self.feature.feature_name == 'payload_size_log_average')
+        self.assertTrue(self.feature.feature_name ==
+                        'payload_size_log_average')
         self.assertTrue(
             self.feature.columns == ['reply_length_bytes'])
         self.assertTrue(self.feature.dependencies == [FeatureRequestTotal])

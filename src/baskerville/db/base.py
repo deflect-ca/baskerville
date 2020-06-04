@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import abc
 from datetime import datetime
 
@@ -107,4 +114,3 @@ class Partition(object):
         self.partition_field = partition_field
         self.index_by = index_by
         self.is_catch_all = is_catch_all
-

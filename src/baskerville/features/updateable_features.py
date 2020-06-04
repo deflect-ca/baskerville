@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.base_feature import UpdateableFeature
 from baskerville.util.enums import FeatureComputeType
 from pyspark.sql import functions as F
@@ -12,7 +19,7 @@ class UpdaterTotal(UpdateableFeature):
             (
                 F.col(self.past_features_column)[self.feature_name] +
                 F.col(self.current_features_column)[self.feature_name]
-             ).cast('float')
+            ).cast('float')
         )
 
 
@@ -92,7 +99,7 @@ class UpdaterRatio(UpdateableFeature):
 class UpdaterMean(UpdateableFeature):
     _update_type = FeatureComputeType.mean
 
-    def update(self, df,  numerator, denominator):
+    def update(self, df, numerator, denominator):
         past_value = F.col(self.past_features_column)[numerator]
         current_value = F.col(self.current_features_column)[numerator]
         past_denom = F.col(self.past_features_column)[denominator]
@@ -100,8 +107,8 @@ class UpdaterMean(UpdateableFeature):
         return df.withColumn(
             self.updated_feature_col_name,
             (
-                    (past_denom * past_value + current_denom * current_value) /
-                    (past_denom + current_denom)
+                (past_denom * past_value + current_denom * current_value) /
+                (past_denom + current_denom)
             ).cast('float')
         )
 
@@ -118,8 +125,8 @@ class UpdaterVariance(UpdateableFeature):
         current_mean = F.col(self.current_features_column)[mean_col]
 
         updated_mean = (
-                    past_count * past_value + current_count * current_value
-                ) / (past_count + current_count)
+            past_count * past_value + current_count * current_value
+        ) / (past_count + current_count)
 
         updated_past_counts = (past_count - 1) * F.pow(past_value, F.lit(2))
         updated_current_counts = (current_count - 1) * F.pow(
@@ -140,7 +147,5 @@ class UpdaterVariance(UpdateableFeature):
                 updated_current_counts +
                 updated_past_means +
                 updated_current_means
-             ) / population_size).cast('float')
+            ) / population_size).cast('float')
         )
-
-

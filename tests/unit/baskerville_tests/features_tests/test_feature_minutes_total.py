@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.feature_minutes_total import FeatureMinutesTotal
 from baskerville.util.enums import FeatureComputeType
 from pyspark.sql import functions as F, types as T
@@ -23,7 +30,8 @@ class TestSparkMinutesTotal(FeatureSparkTestCase):
         self.assertTrue(self.feature.columns == ['@timestamp'])
         self.assertTrue(self.feature.dependencies == [])
         self.assertTrue(self.feature.DEFAULT_VALUE == 0.)
-        self.assertTrue(self.feature.compute_type == FeatureComputeType.replace)
+        self.assertTrue(self.feature.compute_type ==
+                        FeatureComputeType.replace)
         self.assertIsNotNone(self.feature.feature_name)
         self.assertIsNotNone(self.feature.feature_default)
 

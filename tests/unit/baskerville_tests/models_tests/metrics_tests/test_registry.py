@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import unittest
 from unittest import mock
 
@@ -86,7 +93,7 @@ class TestMetricsRegistry(unittest.TestCase):
         mr.registry[name] = StatsHook(
             metric=mock_metric,
             wrapped_func_name=name,
-           hooks_to_callbacks={'before': lambda m, s: print(m, s)}
+            hooks_to_callbacks={'before': lambda m, s: print(m, s)}
         )
 
         wrapped_fn = mr.before_wrapper(test_fn, name)
@@ -106,7 +113,7 @@ class TestMetricsRegistry(unittest.TestCase):
         mr.registry[name] = StatsHook(
             metric=mock_metric,
             wrapped_func_name=name,
-           hooks_to_callbacks={'after': lambda m, s: print(m, s)}
+            hooks_to_callbacks={'after': lambda m, s: print(m, s)}
         )
 
         wrapped_fn = mr.after_wrapper(test_fn, name)
@@ -145,5 +152,3 @@ class TestMetricsRegistry(unittest.TestCase):
 
         self.assertTrue(actual, expected)
         mock_metric.state.assert_called_once_with(test_state)
-
-

@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import importlib
 import os
 import pickle
@@ -7,8 +14,8 @@ from datetime import datetime, timedelta
 from unittest import mock
 
 from baskerville.db.models import RequestSet
-from baskerville.models.anomaly_detector import SparkAnomalyDetectorManager
 from baskerville.spark.helpers import StorageLevelFactory
+from baskerville.util.helpers import get_default_data_path
 
 from tests.unit.baskerville_tests.helpers.spark_testing_base import \
     SQLTestCaseLatestSpark
@@ -18,7 +25,7 @@ from pyspark.sql import functions as F
 from baskerville.models.config import (
     Config, DatabaseConfig, SparkConfig, DataParsingConfig
 )
-from baskerville.util.enums import Step, AlgorithmEnum, LabelEnum
+from baskerville.util.enums import Step, LabelEnum
 from pyspark.sql.types import (StructType, StructField, IntegerType,
                                StringType, TimestampType)
 
@@ -36,19 +43,12 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.request_set_cache_patcher = mock.patch(
             'baskerville.models.base_spark.SparkPipelineBase.set_up_request_set_cache'
         )
-        self.ANOMALY_MODEL_MANAGER_patcher = mock.patch(
-            'baskerville.util.enums.ANOMALY_MODEL_MANAGER'
-        )
         self.mock_baskerville_tools = self.db_tools_patcher.start()
         self.mock_spark_session = self.spark_patcher.start()
         self.mock_request_set_cache = self.request_set_cache_patcher.start()
-        self.mock_ANOMALY_MODEL_MANAGER = self.ANOMALY_MODEL_MANAGER_patcher.start()
         self.dummy_conf = Config({})
-        self.db_conf = DatabaseConfig({
-            'user': 'postgres',
-            'password': '***',
-            'host': 'localhost'
-        }).validate()
+        self.db_conf = DatabaseConfig(
+            {'user': 'postgres', 'password': '***', 'host': 'localhost'})
         self.engine_conf = mock.MagicMock()
         self.engine_conf.log_level = 'DEBUG'
         self.engine_conf.time_bucket = 10
@@ -78,24 +78,27 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         if mock._is_started(self.request_set_cache_patcher):
             self.request_set_cache_patcher.stop()
             self.mock_request_set_cache.reset_mock()
-        if mock._is_started(self.mock_ANOMALY_MODEL_MANAGER):
-            self.mock_ANOMALY_MODEL_MANAGER.stop()
-            self.mock_ANOMALY_MODEL_MANAGER.reset_mock()
 
     def test_instance(self):
         self.assertTrue(hasattr(self.spark_pipeline, 'db_conf'))
         self.assertTrue(hasattr(self.spark_pipeline, 'clean_up'))
         self.assertTrue(hasattr(self.spark_pipeline, 'group_by_cols'))
-        self.assertTrue(hasattr(self.spark_pipeline.feature_manager, 'active_features'))
-        self.assertTrue(hasattr(self.spark_pipeline.feature_manager, 'active_feature_names'))
-        self.assertTrue(hasattr(self.spark_pipeline.feature_manager, 'active_columns'))
+        self.assertTrue(
+            hasattr(self.spark_pipeline.feature_manager, 'active_features'))
+        self.assertTrue(
+            hasattr(self.spark_pipeline.feature_manager, 'active_feature_names'))
+        self.assertTrue(
+            hasattr(self.spark_pipeline.feature_manager, 'active_columns'))
         self.assertTrue(hasattr(self.spark_pipeline, 'logs_df'))
         self.assertTrue(hasattr(self.spark_pipeline, 'request_set_cache'))
 
-        self.assertTrue(Step.preprocessing in self.spark_pipeline.step_to_action)
+        self.assertTrue(
+            Step.preprocessing in self.spark_pipeline.step_to_action)
         self.assertTrue(Step.group_by in self.spark_pipeline.step_to_action)
-        self.assertTrue(Step.feature_calculation in self.spark_pipeline.step_to_action)
-        self.assertTrue(Step.label_or_predict in self.spark_pipeline.step_to_action)
+        self.assertTrue(
+            Step.feature_calculation in self.spark_pipeline.step_to_action)
+        self.assertTrue(
+            Step.label_or_predict in self.spark_pipeline.step_to_action)
         self.assertTrue(Step.save in self.spark_pipeline.step_to_action)
 
     @mock.patch('baskerville.spark.get_or_create_spark_session')
@@ -105,7 +108,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                                                         'spark instance'
         importlib.reload(baskerville.models.base_spark)
         from baskerville.models.base_spark import SparkPipelineBase
-        spark = SparkPipelineBase.instantiate_spark_session(self.spark_pipeline)
+        spark = SparkPipelineBase.instantiate_spark_session(
+            self.spark_pipeline)
         self.assertTrue(spark is not None)
         self.assertEqual(spark, 'This should be the spark instance')
         mock_get_or_create_spark_session.assert_called_once_with(
@@ -113,121 +117,123 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         )
         self.db_tools_patcher.start()
 
-    def test_initialize(self):
-        # to call get_latest_ml_model_from_db
+    @mock.patch('baskerville.models.base_spark.instantiate_from_str')
+    @mock.patch('baskerville.models.base_spark.bytes')
+    def test_initialize(self, mock_bytes, mock_instantiate_from_str):
+        # to call get_ml_model_from_db
         self.engine_conf.model_id = -1
+        model_index = mock.MagicMock()
+        model_index.id = 1
         db_tools = self.mock_baskerville_tools.return_value
-        db_tools.get_latest_ml_model_from_db.return_value.algorithm = \
-            AlgorithmEnum.isolation_forest_pyspark
-        with mock.patch.object(SparkAnomalyDetectorManager, 'load') \
-                as mock_load:
-            self.spark_pipeline.initialize()
-            self.assertEqual(
-                self.spark_pipeline.time_bucket.sec,
-                self.engine_conf.time_bucket
-            )
-            self.assertEqual(
-                self.spark_pipeline.time_bucket.td,
-                timedelta(seconds=self.engine_conf.time_bucket)
-            )
+        db_tools.get_ml_model_from_db.return_value = model_index
 
-            self.mock_baskerville_tools.assert_called_once_with(
-                self.spark_pipeline.db_conf
-            )
-            db_tools = self.mock_baskerville_tools.return_value
-            db_tools.connect_to_db.assert_called_once()
+        self.spark_pipeline.initialize()
+        self.assertEqual(
+            self.spark_pipeline.time_bucket.sec,
+            self.engine_conf.time_bucket
+        )
+        self.assertEqual(
+            self.spark_pipeline.time_bucket.td,
+            timedelta(seconds=self.engine_conf.time_bucket)
+        )
 
-            self.spark_pipeline.instantiate_spark_session.assert_called_once()
-            self.spark_pipeline.set_up_request_set_cache.assert_called_once()
+        self.mock_baskerville_tools.assert_called_once_with(
+            self.spark_pipeline.db_conf
+        )
 
-            self.assertEqual(len(self.spark_pipeline.group_by_aggs), 3)
-            self.assertTrue('first_request' in self.spark_pipeline.group_by_aggs)
-            self.assertTrue('last_request' in self.spark_pipeline.group_by_aggs)
-            self.assertTrue('num_requests' in self.spark_pipeline.group_by_aggs)
-            self.assertEqual(
-                str(self.spark_pipeline.group_by_aggs['first_request']._jc),
-                'min(@timestamp) AS `first_request`'
-            )
-            self.assertEqual(
-                str(self.spark_pipeline.group_by_aggs['last_request']._jc),
-                'max(@timestamp) AS `last_request`'
-            )
-            self.assertEqual(
-                str(self.spark_pipeline.group_by_aggs['num_requests']._jc),
-                'count(@timestamp) AS `num_requests`'
-            )
+        db_tools.connect_to_db.assert_called_once()
 
-            self.assertEqual(len(self.spark_pipeline.feature_manager.column_renamings), 0)
-            self.assertEqual(len(self.spark_pipeline.feature_manager.active_features), 0)
-            self.assertEqual(len(self.spark_pipeline.feature_manager.active_feature_names), 0)
-            self.assertEqual(len(self.spark_pipeline.feature_manager.active_columns), 0)
-            self.assertEqual(len(self.spark_pipeline.columns_to_filter_by), 3)
-            self.assertSetEqual(
-                self.spark_pipeline.columns_to_filter_by,
-                {'client_request_host', 'client_ip', '@timestamp'}
-            )
-            db_tools.get_latest_ml_model_from_db.assert_called_once()
-            mock_load.assert_called_once()
+        self.spark_pipeline.instantiate_spark_session.assert_called_once()
+        self.spark_pipeline.set_up_request_set_cache.assert_called_once()
 
-    def test_initialize_model_path(self):
+        self.assertEqual(len(self.spark_pipeline.group_by_aggs), 3)
+        self.assertTrue('first_request' in self.spark_pipeline.group_by_aggs)
+        self.assertTrue('last_request' in self.spark_pipeline.group_by_aggs)
+        self.assertTrue('num_requests' in self.spark_pipeline.group_by_aggs)
+        self.assertEqual(
+            str(self.spark_pipeline.group_by_aggs['first_request']._jc),
+            'min(@timestamp) AS `first_request`'
+        )
+        self.assertEqual(
+            str(self.spark_pipeline.group_by_aggs['last_request']._jc),
+            'max(@timestamp) AS `last_request`'
+        )
+        self.assertEqual(
+            str(self.spark_pipeline.group_by_aggs['num_requests']._jc),
+            'count(@timestamp) AS `num_requests`'
+        )
 
-        # to call get_ml_model_from_file
-        self.engine_conf.model_id = None
-        self.engine_conf.model_path = 'some test path'
-        db_tools = self.mock_baskerville_tools.return_value
-        db_tools.get_ml_model_from_file.return_value.algorithm = \
-            AlgorithmEnum.isolation_forest_pyspark
-        with mock.patch.object(SparkAnomalyDetectorManager,
-                               'load') as mock_load:
-            self.spark_pipeline.initialize()
-            self.assertEqual(
-                self.spark_pipeline.time_bucket.sec,
-                self.engine_conf.time_bucket
-            )
-            self.assertEqual(
-                self.spark_pipeline.time_bucket.td,
-                timedelta(seconds=self.engine_conf.time_bucket)
-            )
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.column_renamings), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_features), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_feature_names), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_columns), 0)
+        self.assertEqual(len(self.spark_pipeline.columns_to_filter_by), 3)
+        self.assertSetEqual(
+            self.spark_pipeline.columns_to_filter_by,
+            {'client_request_host', 'client_ip', '@timestamp'}
+        )
+        mock_bytes.decode.assert_called_once()
+        mock_instantiate_from_str.assert_called_once()
 
-            db_tools = self.spark_pipeline.tools
-            db_tools.connect_to_db.assert_called_once()
+    # def test_initialize_model_path(self):
+    #
+    #     # to call get_ml_model_from_file
+    #     self.engine_conf.model_id = None
+    #     self.engine_conf.model_path = 'some test path'
+    #     self.spark_pipeline.model_manager.set_anomaly_detector_broadcast = mock.MagicMock()
+    #     self.spark_pipeline.initialize()
+    #     self.assertEqual(
+    #         self.spark_pipeline.time_bucket.sec,
+    #         self.engine_conf.time_bucket
+    #     )
+    #     self.assertEqual(
+    #         self.spark_pipeline.time_bucket.td,
+    #         timedelta(seconds=self.engine_conf.time_bucket)
+    #     )
+    #
+    #     db_tools = self.spark_pipeline.tools
+    #     db_tools.connect_to_db.assert_called_once()
+    #
+    #     self.spark_pipeline.instantiate_spark_session.assert_called_once()
+    #     self.spark_pipeline.set_up_request_set_cache.assert_called_once()
+    #
+    #     self.assertEqual(len(self.spark_pipeline.group_by_aggs), 3)
+    #     self.assertTrue('first_request' in self.spark_pipeline.group_by_aggs)
+    #     self.assertTrue('last_request' in self.spark_pipeline.group_by_aggs)
+    #     self.assertTrue('num_requests' in self.spark_pipeline.group_by_aggs)
+    #     self.assertEqual(
+    #         str(self.spark_pipeline.group_by_aggs['first_request']._jc),
+    #         'min(@timestamp) AS `first_request`'
+    #     )
+    #     self.assertEqual(
+    #         str(self.spark_pipeline.group_by_aggs['last_request']._jc),
+    #         'max(@timestamp) AS `last_request`'
+    #     )
+    #     self.assertEqual(
+    #         str(self.spark_pipeline.group_by_aggs['num_requests']._jc),
+    #         'count(@timestamp) AS `num_requests`'
+    #     )
+    #
+    #     self.assertEqual(len(self.spark_pipeline.feature_manager.column_renamings), 0)
+    #     self.assertEqual(len(self.spark_pipeline.feature_manager.active_features), 0)
+    #     self.assertEqual(len(self.spark_pipeline.feature_manager.active_feature_names), 0)
+    #     self.assertEqual(len(self.spark_pipeline.feature_manager.active_columns), 0)
+    #     self.assertEqual(len(self.spark_pipeline.columns_to_filter_by), 3)
+    #     self.assertSetEqual(
+    #         self.spark_pipeline.columns_to_filter_by,
+    #         {'client_request_host', 'client_ip', '@timestamp'}
+    #     )
+    #     db_tools = self.spark_pipeline.tools
+    #     db_tools.get_ml_model_from_file.assert_called_once_with(
+    #         self.engine_conf.model_path
+    #     )
 
-            self.spark_pipeline.instantiate_spark_session.assert_called_once()
-            self.spark_pipeline.set_up_request_set_cache.assert_called_once()
-
-            self.assertEqual(len(self.spark_pipeline.group_by_aggs), 3)
-            self.assertTrue('first_request' in self.spark_pipeline.group_by_aggs)
-            self.assertTrue('last_request' in self.spark_pipeline.group_by_aggs)
-            self.assertTrue('num_requests' in self.spark_pipeline.group_by_aggs)
-            self.assertEqual(
-                str(self.spark_pipeline.group_by_aggs['first_request']._jc),
-                'min(@timestamp) AS `first_request`'
-            )
-            self.assertEqual(
-                str(self.spark_pipeline.group_by_aggs['last_request']._jc),
-                'max(@timestamp) AS `last_request`'
-            )
-            self.assertEqual(
-                str(self.spark_pipeline.group_by_aggs['num_requests']._jc),
-                'count(@timestamp) AS `num_requests`'
-            )
-
-            self.assertEqual(len(self.spark_pipeline.feature_manager.column_renamings), 0)
-            self.assertEqual(len(self.spark_pipeline.feature_manager.active_features), 0)
-            self.assertEqual(len(self.spark_pipeline.feature_manager.active_feature_names), 0)
-            self.assertEqual(len(self.spark_pipeline.feature_manager.active_columns), 0)
-            self.assertEqual(len(self.spark_pipeline.columns_to_filter_by), 3)
-            self.assertSetEqual(
-                self.spark_pipeline.columns_to_filter_by,
-                {'client_request_host', 'client_ip', '@timestamp'}
-            )
-            db_tools = self.spark_pipeline.tools
-            db_tools.get_ml_model_from_file.assert_called_once_with(
-                self.engine_conf.model_path
-            )
-            mock_load.assert_called_once()
-
-    def test_initialize_no_model_register_metrics(self):
+    @mock.patch('baskerville.models.base_spark.instantiate_from_str')
+    def test_initialize_no_model_register_metrics(self, mock_instantiate_from_str):
 
         # for an empty model:
         self.engine_conf.model_id = None
@@ -236,7 +242,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.engine_conf.metrics = mock.MagicMock()
         self.engine_conf.metrics.progress = True
         self.spark_pipeline.register_metrics = mock.MagicMock()
-        self.spark_pipeline.model_manager.load = mock.MagicMock()
         self.spark_pipeline.initialize()
         self.assertEqual(
             self.spark_pipeline.time_bucket.sec,
@@ -270,17 +275,19 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             'count(@timestamp) AS `num_requests`'
         )
 
-        self.assertEqual(len(self.spark_pipeline.feature_manager.column_renamings), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_features), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_feature_names), 0)
-        self.assertEqual(len(self.spark_pipeline.feature_manager.active_columns), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.column_renamings), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_features), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_feature_names), 0)
+        self.assertEqual(
+            len(self.spark_pipeline.feature_manager.active_columns), 0)
         self.assertEqual(len(self.spark_pipeline.columns_to_filter_by), 3)
         self.assertSetEqual(
             self.spark_pipeline.columns_to_filter_by,
             {'client_request_host', 'client_ip', '@timestamp'}
         )
-
-        self.assertTrue(self.spark_pipeline.model_manager.ml_model is None)
 
     def test_add_calc_columns(self):
         mock_feature = mock.MagicMock()
@@ -319,7 +326,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
 
         self.assertDataFrameEqual(self.spark_pipeline.logs_df, df_expected)
 
-    def test_add_post_group_columns(self):
+    @mock.patch('baskerville.models.base_spark.instantiate_from_str')
+    @mock.patch('baskerville.models.base_spark.bytes')
+    def test_add_post_group_columns(self, mock_bytes, mock_instantiate_from_str):
         # spark saves binary as byte array
         pickled = bytearray(pickle.dumps(-1))
 
@@ -362,7 +371,12 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         ])
         self.spark_pipeline.runtime = mock.MagicMock()
         self.spark_pipeline.runtime.id = -1
-        self.spark_pipeline.model_manager = mock.MagicMock()
+
+        model_index = mock.MagicMock()
+        model_index.id = 1
+        db_tools = self.mock_baskerville_tools.return_value
+        db_tools.get_ml_model_from_db.return_value = model_index
+
         self.spark_pipeline.initialize()
 
         df = self.session.createDataFrame(logs, schema=schema)
@@ -375,20 +389,17 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             'last_request',
             'old_subset_count',
         )
-        self.spark_pipeline.model_manager.ml_model.id = 1
-        df = df.withColumn(
-            'model_version', F.lit(
-                self.spark_pipeline.model_manager.ml_model.id
-            )
-        )
+
         df = df.withColumn('classifier', F.lit(pickled))
         df = df.withColumn('model', F.lit(pickled))
         df = df.withColumn('scaler', F.lit(pickled))
         df = df.withColumn('model_features', F.lit(pickled))
         df = df.withColumn('subset_count', F.lit(10))
+        df = df.withColumn('model_version', F.lit(1))
         df = df.withColumn('start', F.col('first_ever_request'))
         df = df.withColumn('stop', F.col('last_request'))
 
+        self.spark_pipeline.model = None
         self.spark_pipeline.engine_conf.time_bucket = 600
         self.spark_pipeline.add_cache_columns = mock.MagicMock()
         self.spark_pipeline.add_post_groupby_columns()
@@ -400,7 +411,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         columns = self.spark_pipeline.logs_df.columns
 
         self.spark_pipeline.logs_df.select(columns).show()
-        df = self.fix_schema(df.select(columns), self.spark_pipeline.logs_df.schema)
+        df = self.fix_schema(df.select(columns),
+                             self.spark_pipeline.logs_df.schema)
         df.show()
 
         self.assertTrue(df.schema == self.spark_pipeline.logs_df.schema)
@@ -411,7 +423,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             df
         )
 
-    def test_add_post_group_columns_no_ml_model(self):
+    @mock.patch('baskerville.models.base_spark.instantiate_from_str')
+    @mock.patch('baskerville.models.base_spark.bytes')
+    def test_add_post_group_columns_no_ml_model(self, mock_bytes, mock_instantiate_from_str):
         logs = [
             {
                 'client_request_host': 'testhost',
@@ -449,9 +463,11 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             StructField('first_request', TimestampType(), True),
             StructField('last_request', TimestampType(), True),
         ])
-        self.spark_pipeline.model_manager.load = mock.MagicMock()
-        self.spark_pipeline.model_manager.load.return_value = None
-        self.spark_pipeline.model_manager.ml_model = None
+
+        model_index = mock.MagicMock()
+        model_index.id = 1
+        db_tools = self.mock_baskerville_tools.return_value
+        db_tools.get_ml_model_from_db.return_value = model_index
 
         self.spark_pipeline.initialize()
 
@@ -466,6 +482,11 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             'first_request',
             'last_request',
             'old_subset_count',
+        )
+        df = df.withColumn(
+            'model_version', F.lit(
+                1
+            )
         )
         df = df.withColumn('subset_count', F.lit(10))
         df = df.withColumn('start', F.col('first_ever_request'))
@@ -482,7 +503,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         columns = self.spark_pipeline.logs_df.columns
 
         self.spark_pipeline.logs_df.select(columns).show()
-        df = self.fix_schema(df.select(columns), self.spark_pipeline.logs_df.schema)
+        df = self.fix_schema(df.select(columns),
+                             self.spark_pipeline.logs_df.schema)
         df.show()
 
         self.assertTrue(df.schema == self.spark_pipeline.logs_df.schema)
@@ -493,7 +515,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             df
         )
 
-    def test_group_by(self):
+    @mock.patch('baskerville.models.base_spark.instantiate_from_str')
+    @mock.patch('baskerville.models.base_spark.bytes')
+    def test_group_by(self, mock_bytes, mock_instantiate_from_str):
         logs = [
             {
                 'client_request_host': 'testhost',
@@ -527,13 +551,17 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         mock_feature.columns = []
 
         self.spark_pipeline.feature_manager.get_active_features = mock.MagicMock()
-        self.spark_pipeline.feature_manager.get_active_features.return_value = [mock_feature]
+        self.spark_pipeline.feature_manager.get_active_features.return_value = [
+            mock_feature]
         self.spark_pipeline.add_post_groupby_columns = mock.MagicMock()
         self.spark_pipeline.feature_manager.active_features = [mock_feature]
-        self.spark_pipeline.model_manager.load = mock.MagicMock()
-        self.spark_pipeline.model_manager.load.return_value = None
-        self.spark_pipeline.model_manager.ml_model = None
+        self.spark_pipeline.model = None
         self.spark_pipeline.active_columns = self.spark_pipeline.feature_manager.get_active_columns()
+
+        model_index = mock.MagicMock()
+        model_index.id = 1
+        db_tools = self.mock_baskerville_tools.return_value
+        db_tools.get_ml_model_from_db.return_value = model_index
 
         self.spark_pipeline.initialize()
 
@@ -552,7 +580,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.assertTrue('num_requests' in self.spark_pipeline.logs_df.columns)
         self.assertDataFrameEqual(grouped_df, self.spark_pipeline.logs_df)
 
-    def test_group_by_empty_feature_group_by_aggs(self):
+    @mock.patch('baskerville.models.base_spark.instantiate_from_str')
+    @mock.patch('baskerville.models.base_spark.bytes')
+    def test_group_by_empty_feature_group_by_aggs(self, mock_bytes, mock_instantiate_from_str):
         logs = [
             {
                 'client_request_host': 'testhost',
@@ -585,8 +615,14 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         mock_feature = mock.MagicMock()
         mock_feature.columns = []
         self.spark_pipeline.add_post_groupby_columns = mock.MagicMock()
-        self.spark_pipeline.model_manager = mock.MagicMock()
+        self.spark_pipeline.set_broadcasts = mock.MagicMock()
         self.spark_pipeline.feature_manager.active_features = [mock_feature]
+
+        model_index = mock.MagicMock()
+        model_index.id = 1
+        db_tools = self.mock_baskerville_tools.return_value
+        db_tools.get_ml_model_from_db.return_value = model_index
+
         self.spark_pipeline.initialize()
 
         self.spark_pipeline.group_by()
@@ -665,7 +701,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             for k, v in cldf[i].features.items():
                 self.assertAlmostEqual(getattr(row, k), v, 1)
 
-    def test_save(self):
+    @mock.patch('baskerville.models.base_spark.instantiate_from_str')
+    @mock.patch('baskerville.models.base_spark.bytes')
+    def test_save(self, mock_bytes, mock_instantiate_from_str):
         now = datetime.now()
 
         logs = [
@@ -720,7 +758,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'model_version': 'test',
             }
         ]
-        self.spark_pipeline.model_manager = mock.MagicMock()
+        self.spark_pipeline.set_broadcasts = mock.MagicMock()
         self.spark_pipeline.initialize()
 
         df = self.session.createDataFrame(logs)
@@ -739,7 +777,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         request_sets_df = df.select(
             RequestSet.columns
         ).withColumnRenamed(
-                'id_request_set', 'id'
+            'id_request_set', 'id'
         ).withColumnRenamed(
             'request_set_prediction', 'prediction'
         )
@@ -793,7 +831,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         df = df.withColumn('features', F.lit(0))
         df = df.withColumn('prediction', F.lit(LabelEnum.unknown.value).cast('int'))
         df = df.withColumn('score', F.lit(LabelEnum.unknown.value).cast('float'))
-        df = df.withColumn('threshold', F.lit(LabelEnum.unknown.value).cast('float'))
         df = self.fix_schema(
             df,
             self.spark_pipeline.logs_df.schema,
@@ -845,7 +882,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             df, test_table, json_cols=json_cols, mode=mode_param
         )
 
-        persist.assert_called_once_with(StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
+        persist.assert_called_once_with(
+            StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
         format.assert_called_once_with('jdbc')
         options.assert_called_once_with(
             url=self.spark_pipeline.db_url,
@@ -950,7 +988,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
 
         self.assertTupleEqual(tuple(actual_json_col), test_json_cols)
 
-    def test_filter_columns(self):
+    @mock.patch('baskerville.models.base_spark.instantiate_from_str')
+    @mock.patch('baskerville.models.base_spark.bytes')
+    def test_filter_columns(self, mock_bytes, mock_instantiate_from_str):
         logs = [
             {
                 'client_ip': '1',
@@ -979,16 +1019,22 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.spark_pipeline.feature_manager.get_active_columns.return_value = [
             'client_ip', 'client_request_host', 'afeature', 'drop_if_null'
         ]
-        self.spark_pipeline.model_manager = mock.MagicMock()
+        self.spark_pipeline.set_broadcasts = mock.MagicMock()
+        model_index = mock.MagicMock()
+        model_index.id = 1
+        db_tools = self.mock_baskerville_tools.return_value
+        db_tools.get_ml_model_from_db.return_value = model_index
+
         self.spark_pipeline.initialize()
+
         self.spark_pipeline.logs_df = df
 
         self.spark_pipeline.filter_columns()
 
         self.spark_pipeline.logs_df.show()
         df.select(*self.spark_pipeline.logs_df.columns).where(
-                F.col('drop_if_null').isNotNull()
-            ).show()
+            F.col('drop_if_null').isNotNull()
+        ).show()
 
         self.assertEqual(self.spark_pipeline.logs_df.count(), 1)
         self.assertListEqual(sorted(self.spark_pipeline.logs_df.columns),
@@ -1001,10 +1047,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         )
 
     def get_data_parser_helper(self):
-        from tests.unit.baskerville_tests.helpers.utils import get_default_data_path
         data_conf = DataParsingConfig({
             'parser': 'JSONLogSparkParser',
-            'schema': f'{get_default_data_path()}/sample_log_schema.json',
+            'schema': f'{get_default_data_path()}/samples/log_schema.json',
             'timestamp_column': '@timestamp'
         })
         data_conf.validate()

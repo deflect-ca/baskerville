@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import dateutil.parser
 from datetime import datetime
 
@@ -5,7 +12,6 @@ from baskerville.db.base import GeneratorBase, TEMPLATE_FOLDER
 from baskerville.db.temporal_partition import TemporalPartitionedTable, \
     TimePeriod
 from baskerville.util.enums import PartitionByEnum
-from baskerville.util.helpers import get_default_data_path
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -38,6 +44,7 @@ class TemporalDataPartitioner(DataPartitioner):
     """
     Partition data based on a date field. Generates
     """
+
     def __init__(
             self,
             partitioned_table_name,
@@ -112,17 +119,17 @@ def get_temporal_partitions(conf):
         until = datetime(*until.timetuple()[:6])
 
     return str(TemporalDataPartitioner(
-            conf['partition_table'],
-            conf['partition_field'],
-            time_window=TimePeriod(
-                since,
-                until
-            ),
-            partition_by=conf['partition_by'],
-            index_by=conf['data_partition']['index_by'],
-            template_path=conf['template_folder'] or TEMPLATE_FOLDER,
-            template_name=conf['data_partition']['template']
-        )
+        conf['partition_table'],
+        conf['partition_field'],
+        time_window=TimePeriod(
+            since,
+            until
+        ),
+        partition_by=conf['partition_by'],
+        index_by=conf['data_partition']['index_by'],
+        template_path=conf['template_folder'] or TEMPLATE_FOLDER,
+        template_name=conf['data_partition']['template']
+    )
     )
 
 

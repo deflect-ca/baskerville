@@ -1,10 +1,18 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import os
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
 
-start_date = (datetime.utcnow() - timedelta(minutes=1)).strftime("%Y-%m-%d %H:%M:%S %z")
+start_date = (datetime.utcnow() - timedelta(minutes=1)
+              ).strftime("%Y-%m-%d %H:%M:%S %z")
 email = os.environ.get('AIRFLOW_EMAIL')
 default_args = {
     'owner': 'airflow',
@@ -38,4 +46,3 @@ periodic_gc = BashOperator(
     bash_command='date',
     dag=periodic_gc_dag
 )
-

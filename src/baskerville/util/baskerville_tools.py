@@ -1,13 +1,15 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from __future__ import print_function
 import pickle
 from baskerville.util.crypto import encrypt, decrypt
 import os
-import pandas as pd
-from sqlalchemy import func, and_
-
 from baskerville.db import set_up_db
-# import models here to be registered to the db
-from baskerville.db.models import *  # noqa
 from baskerville.db.models import RequestSet, Runtime, Model
 
 # Utility class that holds commonly used functions.
@@ -90,8 +92,11 @@ class BaskervilleDBTools(object):
     def get_latest_ml_model_from_db(self):
         return self.session.query(Model).order_by(Model.id.desc()).first()
 
-    def get_ml_model_from_db(self, version_id):
-        return self.session.query(Model).filter(Model.id == version_id).first()
+    def get_ml_model_from_db(self, model_id):
+        if model_id < 0:
+            return self.get_latest_ml_model_from_db()
+
+        return self.session.query(Model).filter(Model.id == model_id).first()
 
     def get_ml_model_from_file(self, model_path):
 
@@ -108,7 +113,7 @@ class BaskervilleDBTools(object):
         return model
 
     def get_ml_clf_from_file(self, model_dir, version_id):
-        path_to_model = f'{model_dir}/model_{version_id}.sav'
+        path_to_model = f'{model_dir}/model_version{version_id}.sav'
         if not os.path.lexists(path_to_model):
             clf = None
         else:

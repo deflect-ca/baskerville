@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import pytz
 from baskerville.features.helpers import update_features
 from baskerville.features.helpers import extract_features_in_order
@@ -8,6 +15,7 @@ from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from tzwhere import tzwhere
+import numpy as np
 
 
 def normalize_host_name(host):
@@ -134,12 +142,12 @@ def update_request_set_by_id(
 
     stop = stop.replace(tzinfo=tzutc())
     values = {
-               "stop": stop,
-               "features": features,
-               "prediction": prediction,
-               "subset_count": subset_count,
-               "num_requests": num_requests,
-            }
+        "stop": stop,
+        "features": features,
+        "prediction": prediction,
+        "subset_count": subset_count,
+        "num_requests": num_requests,
+    }
     try:
         # with engine.connect() as conn:
         #     stmt = RequestSet.__table__.update(). \
@@ -222,7 +230,7 @@ def cross_reference_misp(ip, db_conf):
     session, engine = set_up_db(db_conf, False)
 
     attribute = session.query(Attribute).filter(
-      Attribute.value == ip).first()
+        Attribute.value == ip).first()
 
     label = None
     id_attribute = None
@@ -251,4 +259,5 @@ udf_update_features = F.udf(
     update_features, T.MapType(T.StringType(), T.FloatType())
 )
 udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())
-to_dense_vector_udf = F.udf(lambda l: Vectors.dense(l), VectorUDT())
+udf_to_dense_vector = F.udf(lambda l: Vectors.dense(l), VectorUDT())
+udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())

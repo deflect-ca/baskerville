@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import datetime
 import os
 import logging
@@ -9,7 +16,6 @@ import yaml
 
 FOLDER_MODELS = 'models'
 FOLDER_CACHE = 'cache'
-RANDOM_SEED = 42
 
 
 def parse_config(path=None, data=None, tag='!ENV'):
@@ -33,7 +39,7 @@ def parse_config(path=None, data=None, tag='!ENV'):
     :rtype: dict[str, T]
     """
     # pattern for global vars
-    pattern = re.compile('.*?\${(\w+)}.*?')
+    pattern = re.compile(r'.*?\${(\w+)}.*?')
     loader = yaml.SafeLoader
     loader.add_implicit_resolver(tag, pattern, None)
 
@@ -134,7 +140,7 @@ def randomize_data(path_to_json, output_path='test_data_1k.json', take=1000):
     :param str path_to_json: full path to json file that contains the logs in
     lines
     :param str output_path: where to save, defaults to json 1k
-    :param int take: how many lines to keep, defaulst to 1000
+    :param int take: how many lines to keep, defaults to 1000
     :return: None
     """
     import pandas as pd
@@ -170,9 +176,7 @@ def get_objects_attributes(obj, exclude=()):
     return [
         attr
         for attr in dir(obj)
-        if attr not in exclude
-           and not attr.startswith('_')
-           and not callable(getattr(obj, attr))
+        if attr not in exclude and not attr.startswith('_') and not callable(getattr(obj, attr))
     ]
 
 
@@ -244,9 +248,8 @@ def periods_overlap(
     if allow_closed_interval:
         # the not overlaping check does not take equality into account
         return not (other_start < start and other_end < start) and \
-               not (other_start > end and other_end > end)
-    return not (other_start < start and other_end <= start) and \
-           not (other_start >= end and other_end > end)
+            not (other_start > end and other_end > end)
+    return not (other_start < start and other_end <= start) and not (other_start >= end and other_end > end)
 
 
 def get_default_data_path() -> str:
@@ -315,7 +318,7 @@ class SerializableMixin(object):
                                for c in cols
                                if c not in self._remove and
                                not c.startswith('_') and not callable(
-                        getattr(self, c))}
+                    getattr(self, c))}
         else:
             basic_attrs = {c: getattr(self, c)
                            for c in cols
@@ -348,6 +351,7 @@ class TimeBucket(object):
     """
     Representation of time bucket: seconds and timedelta
     """
+
     def __init__(self, time_bucket=120):
         self._sec = time_bucket
         self._td = datetime.timedelta(seconds=self._sec)
@@ -406,11 +410,3 @@ def get_model_path(storage_path, model_name='model'):
     return os.path.join(storage_path,
                         FOLDER_MODELS,
                         f'{model_name}__{get_timestamp()}')
-
-
-def get_classifier_load_path(path):
-    return os.path.join(path, 'classifier')
-
-
-def get_scaler_load_path(path):
-    return os.path.join(path, 'scaler')

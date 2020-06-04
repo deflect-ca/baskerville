@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import json
 import datetime
 import itertools
@@ -5,12 +12,9 @@ import os
 
 from baskerville.models.base import PipelineBase
 from baskerville.models.feature_manager import FeatureManager
-from baskerville.models.model_manager import ModelManager
-from baskerville.spark.helpers import save_df_to_table, map_to_array, \
-    reset_spark_storage
+from baskerville.spark.helpers import save_df_to_table, reset_spark_storage, set_unknown_prediction
 from baskerville.spark.schemas import get_cache_schema
-from baskerville.spark.udfs import to_dense_vector_udf
-from baskerville.util.helpers import TimeBucket, FOLDER_CACHE
+from baskerville.util.helpers import TimeBucket, FOLDER_CACHE, instantiate_from_str
 from pyspark.sql import types as T, DataFrame
 
 from baskerville.spark import get_or_create_spark_session
@@ -94,8 +98,9 @@ class SparkPipelineBase(PipelineBase):
         self.remaining_steps = list(self.step_to_action.keys())
 
         self.time_bucket = TimeBucket(self.engine_conf.time_bucket)
-        self.model_manager = ModelManager(self.db_conf, self.engine_conf)
         self.feature_manager = FeatureManager(self.engine_conf)
+        self.model_index = None
+        self.model = None
 
     def load_test(self):
         """
@@ -151,15 +156,7 @@ class SparkPipelineBase(PipelineBase):
 
         # initialize spark session
         self.spark = self.instantiate_spark_session()
-
-        # set the model and feature related stuff
-        self.model_manager.initialize(self.spark, self.tools)
-        self.feature_manager.initialize(self.model_manager)
-        self.model_manager.can_predict = self.feature_manager.\
-            feature_config_is_valid()
-
-        self._can_predict = self.feature_manager.feature_config_is_valid() \
-                            and self.model_manager.ml_model
+        self.feature_manager.initialize()
         self.drop_if_missing_filter = self.data_parser.drop_if_missing_filter()
 
         # set up cache
@@ -174,6 +171,15 @@ class SparkPipelineBase(PipelineBase):
             list(self.group_by_aggs.keys()) +
             self.feature_manager.update_feature_cols
         ).difference(RequestSet.columns)
+
+        if self.engine_conf.model_id:
+            self.model_index = self.tools.get_ml_model_from_db(
+                self.engine_conf.model_id)
+            self.model = instantiate_from_str(self.model_index.algorithm)
+            self.model.load(bytes.decode(
+                self.model_index.classifier, 'utf8'), self.spark)
+        else:
+            self.model = None
 
         self._is_initialized = True
 
@@ -277,9 +283,9 @@ class SparkPipelineBase(PipelineBase):
             ).otherwise(F.lit(0))
         }
 
-        if self.model_manager.ml_model:
+        if self.model_index:
             post_group_by_columns['model_version'] = F.lit(
-                self.model_manager.ml_model.id
+                self.model_index.id
             )
 
         # todo: what if a feature defines a column name that already exists?
@@ -376,8 +382,8 @@ class SparkPipelineBase(PipelineBase):
                 window_df.unpersist(blocking=True)
                 del window_df
             filter_ = (
-                    (F.col('timestamp') >= current_window_start) &
-                    (F.col('timestamp') < current_end)
+                (F.col('timestamp') >= current_window_start) &
+                (F.col('timestamp') < current_end)
             )
             window_df = df.where(filter_).persist(
                 self.spark_conf.storage_level
@@ -607,7 +613,7 @@ class SparkPipelineBase(PipelineBase):
                     )
                 ).replace(tzinfo=tzutc()),
                 extra_filters=(
-                        F.col('time_bucket') == self.time_bucket.sec
+                    F.col('time_bucket') == self.time_bucket.sec
                 )  # todo: & (F.col("id_runtime") == self.runtime.id)?
             )
         else:
@@ -801,13 +807,6 @@ class SparkPipelineBase(PipelineBase):
                 )
             )
         ))
-        self.logs_df = map_to_array(
-            self.logs_df,
-            'features',
-            'vectorized_features',
-            self.feature_manager.active_feature_names
-        )
-        self.remove_feature_columns()
 
         # older way with a udf:
         # self.logs_df = self.logs_df.withColumn(
@@ -872,31 +871,21 @@ class SparkPipelineBase(PipelineBase):
                    F.col('cross_reference.id_attribute')).otherwise(None)
         )
 
-    def predict_sparkml(self):
-        """
-        Predict using the Spark ML implementation of the algorithms
-        :return:
-        """
-        self.logs_df = self.logs_df.withColumn(
-            'vectorized_features',
-            to_dense_vector_udf('vectorized_features')
-        )
-
-        self.logs_df = self.model_manager.ml_model.scaler_model.transform(
-            self.logs_df
-        )
-        self.logs_df = self.model_manager.ml_model.classifier_model.transform(
-            self.logs_df
-        )
-        self.logs_df = self.logs_df.withColumnRenamed('anomalyScore', 'score')
-
     def predict(self):
         """
         Predict on the request_sets. Prediction on request_sets
         requires feature averaging where there is an existing request_set.
 `        :return: None
         """
-        self.logs_df = self.model_manager.predict(self.logs_df)
+        if self.model:
+            self.logs_df = self.model.predict(self.logs_df)
+        else:
+            self.logs_df = set_unknown_prediction(self.logs_df).withColumn(
+                'prediction', F.col('prediction').cast(T.IntegerType())
+            ).withColumn(
+                'score', F.col('score').cast(T.FloatType())
+            ).withColumn(
+                'threshold', F.col('threshold').cast(T.FloatType()))
 
     def save_df_to_table(
             self, df, table_name, json_cols=('features',), mode='append'
@@ -912,7 +901,7 @@ class SparkPipelineBase(PipelineBase):
         options
         :return: None
         """
-        #todo: mostly duplicated code, refactor
+        # todo: mostly duplicated code, refactor
         self.db_conf.conn_str = self.db_url
         save_df_to_table(
             df,

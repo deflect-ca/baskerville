@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import os
 import json
 import unittest
@@ -133,18 +140,14 @@ class TestJSONLogSparkParser(SQLTestCaseLatestSpark):
     def test_instance(self):
         required = ['timestamp', 'some_property']
         jlp = JSONLogSparkParser(self.schema)
-        data = {
-            'timestamp': '2018-04-17T08:12:32.000Z',
-            'some_property': 'somevalue',
-        }
         schema = T.StructType(
             [
 
-                    T.StructField("timestamp", T.StringType(), True),
-                    T.StructField("some_property", T.StringType(),True),
-                    T.StructField("some_other_property", T.StringType(), True),
-                    T.StructField("an_integer_property", T.IntegerType(), True),
-                    T.StructField("a_numeric_property", T.StringType(), True)
+                T.StructField("timestamp", T.StringType(), True),
+                T.StructField("some_property", T.StringType(), True),
+                T.StructField("some_other_property", T.StringType(), True),
+                T.StructField("an_integer_property", T.IntegerType(), True),
+                T.StructField("a_numeric_property", T.StringType(), True)
 
             ]
         )
@@ -166,11 +169,11 @@ class TestJSONLogSparkParser(SQLTestCaseLatestSpark):
             {
                 'timestamp': '2018-04-17T08:12:32.000Z',
                 'some_property': None,
-            },
+        },
             {
                 'timestamp': None,
                 'some_property': 'somevalue',
-            }
+        }
         ]
 
         df = self.session.createDataFrame(data)
@@ -211,11 +214,11 @@ class TestJSONLogSparkParser(SQLTestCaseLatestSpark):
             {
                 'timestamp': '2018-04-17T08:12:32.000Z',
                 'some_property': None,
-            },
+        },
             {
                 'timestamp': None,
                 'some_property': 'somevalue',
-            }
+        }
         ]
 
         df = self.session.createDataFrame(data)
@@ -244,11 +247,11 @@ class TestJSONLogSparkParser(SQLTestCaseLatestSpark):
             {
                 'timestamp': '2018-04-17T08:12:32.000Z',
                 'some_property': None,
-            },
+        },
             {
                 'timestamp': None,
                 'some_property': 'somevalue',
-            }
+        }
         ]
 
         df = self.session.createDataFrame(data)
@@ -292,7 +295,6 @@ class TestJSONLogSparkParser(SQLTestCaseLatestSpark):
         self.assertDataFrameEqual(
             filtered_df,
             df.select(filtered_df.columns).where(
-                F.col('timestamp').isNotNull() &
-                F.col('some_property').isNotNull()
+                F.col('timestamp').isNotNull() & F.col('some_property').isNotNull()
             )
         )

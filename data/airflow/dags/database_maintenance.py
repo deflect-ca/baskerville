@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import os
 
 from airflow import DAG
@@ -9,11 +16,10 @@ from baskerville.db.database_maintenance import maintain_db
 now = datetime.utcnow().replace(hour=23, minute=00, second=00, microsecond=00)
 email = os.environ.get('AIRFLOW_EMAIL')
 # Monday is 0, Sunday is 6, run every sunday
-start_date = (now + timedelta(days=6-now.weekday())).replace(
+start_date = (now + timedelta(days=6 - now.weekday())).replace(
     hour=23, minute=00, second=00, microsecond=00
 )
 schedule_interval = timedelta(days=7)
-
 
 # start_date = (datetime.utcnow() - timedelta(minutes=1))
 # schedule_interval = timedelta(minutes=1)
@@ -42,10 +48,8 @@ database_maintenance_dag = DAG(
     catchup=True
 )
 
-
 maintain_db_python_op = PythonOperator(
     task_id='database_maintenance',
     python_callable=maintain_db,
     dag=database_maintenance_dag
 )
-

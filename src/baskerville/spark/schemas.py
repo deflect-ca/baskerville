@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from pyspark.sql import types as T
 
 
@@ -13,32 +20,15 @@ prediction_schema = T.StructType([
 ])
 
 
-def get_models_schema():
-    return T.StructType([
-                T.StructField("features", T.ArrayType(T.StringType()), True),
-                T.StructField("algorithm", T.StringType(), True),
-                T.StructField("scaler_type", T.StringType(), True),
-                T.StructField("parameters", T.StringType(), True),
-                T.StructField("recall", T.DoubleType(), True),
-                T.StructField("precision", T.DoubleType(), True),
-                T.StructField("f1_score", T.DoubleType(), True),
-                T.StructField("classifier", T.BinaryType(), True),
-                T.StructField("scaler", T.BinaryType(), True),
-                T.StructField("n_training", T.IntegerType(), True),
-                T.StructField("n_testing", T.IntegerType(), True),
-                T.StructField("threshold", T.DoubleType(), True)
-            ])
-
-
 def get_cache_schema():
     return T.StructType([
-                T.StructField("id", T.IntegerType(), False),
-                T.StructField("target", T.StringType(), False),
-                T.StructField("ip", T.StringType(), False),
-                T.StructField("first_ever_request", T.TimestampType(), True),
-                T.StructField("old_subset_count", T.IntegerType(), True),
-                T.StructField("old_features",
-                              T.MapType(T.StringType(), T.DoubleType()), True),
-                T.StructField("old_num_requests", T.IntegerType(), True),
-                T.StructField("updated_at", T.TimestampType(), True)
-            ])
+        T.StructField("id", T.IntegerType(), False),
+        T.StructField("target", T.StringType(), False),
+        T.StructField("ip", T.StringType(), False),
+        T.StructField("first_ever_request", T.TimestampType(), True),
+        T.StructField("old_subset_count", T.IntegerType(), True),
+        T.StructField("old_features",
+                      T.MapType(T.StringType(), T.DoubleType()), True),
+        T.StructField("old_num_requests", T.IntegerType(), True),
+        T.StructField("updated_at", T.TimestampType(), True)
+    ])

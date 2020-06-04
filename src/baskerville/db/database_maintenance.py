@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import os
 import traceback
 from datetime import datetime, timedelta
@@ -40,11 +47,11 @@ def maintain_db():
     y, w, _ = now.isocalendar()
     partition_start_week = isoweek.Week(y, w + 1)
     start = datetime.combine(
-            partition_start_week.monday(), datetime.min.time()
-        )
+        partition_start_week.monday(), datetime.min.time()
+    )
     end = datetime.combine(
-            partition_start_week.sunday(), datetime.max.time()
-        )
+        partition_start_week.sunday(), datetime.max.time()
+    )
 
     logger.info(f'Data Partition Start : {start}')
 
@@ -66,17 +73,17 @@ def maintain_db():
 
     db_config.maintenance.data_partition.since = start
     db_config.maintenance.data_partition.until = (
-            start + timedelta(days=6)
+        start + timedelta(days=6)
     ).replace(
         hour=23, minute=59, second=59
     )
 
     db_config.maintenance.data_archive.since = datetime.combine(
-            week.monday(), datetime.min.time()
-        )
+        week.monday(), datetime.min.time()
+    )
     db_config.maintenance.data_archive.until = datetime.combine(
-            week.sunday(), datetime.max.time()
-        )
+        week.sunday(), datetime.max.time()
+    )
 
     print(db_config.maintenance.data_partition)
     print(db_config.maintenance.data_archive)
