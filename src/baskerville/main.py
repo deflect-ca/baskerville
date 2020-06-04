@@ -1,17 +1,23 @@
 #!/usr/bin/env python
 import argparse
 import atexit
+import json
 import os
 import time
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
+from dateutil.tz import tzutc
 from prometheus_client import start_http_server
 
 from baskerville import src_dir
+from baskerville.db import set_up_db
+from baskerville.db.models import Model
+from baskerville.models.anomaly_model_sklearn import AnomalyModelSklearn
+from baskerville.models.config import DatabaseConfig
 from baskerville.models.engine import BaskervilleAnalyticsEngine
 from baskerville.simulation.real_timeish_simulation import simulation
-from baskerville.util.helpers import get_logger, parse_config
+from baskerville.util.helpers import get_logger, parse_config, get_default_data_path
 
 # Main baskerville script
 
@@ -61,6 +67,33 @@ def run_simulation(conf, spark=None):
     print('Set up Simulation...')
 
 
+def add_model_to_database(database_config):
+    """
+    Load the test model and save it in the database
+    :param dict[str, T] database_config:
+    :return:
+    """
+    global logger
+    path = os.path.join(get_default_data_path(), 'samples', 'models', 'AnomalyModel')
+    logger.info(f'Loading test model from: {path}')
+    model = AnomalyModelSklearn()
+    model.load(path=path)
+
+    db_cfg = DatabaseConfig(database_config).validate()
+    session, _ = set_up_db(db_cfg.__dict__, partition=False)
+
+    db_model = Model()
+    db_model.algorithm = 'baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn'
+    db_model.created_at = datetime.now(tz=tzutc())
+    db_model.parameters = json.dumps(model.get_params())
+    db_model.classifier = bytearray(path.encode('utf8'))
+
+    # save to db
+    session.add(db_model)
+    session.commit()
+    session.close()
+
+
 def main():
     """
     Baskerville commandline arguments
@@ -88,6 +121,13 @@ def main():
         "-c", "--conf", action="store", dest="conf_file",
         default=os.path.join(src_dir, '..', 'conf', 'baskerville.yaml'),
         help="Path to config file"
+    )
+
+    parser.add_argument(
+        "-t", "--testmodel", dest="test_model",
+        help="Add a test model in the models table",
+        default=False,
+        action="store_true"
     )
 
     args = parser.parse_args()
@@ -120,6 +160,10 @@ def main():
         start_http_server(port)
         logger.info(f'Starting Baskerville Exporter at '
                     f'http://localhost:{port}')
+
+    # populate with test data if specified
+    if args.test_model:
+        add_model_to_database(conf['database'])
 
     for p in PROCESS_LIST[::-1]:
         print(f"{p.name} starting...")
