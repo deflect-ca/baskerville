@@ -37,7 +37,7 @@ jobs:
         mkdir ./src/baskerville/logs/
     - name: Lint with flake8
       run: |
-        chmod linging.sh 745
+        chmod 745 linting.sh
         ./linting.sh
 
     - name: Test with pytest

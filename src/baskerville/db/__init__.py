@@ -5,9 +5,6 @@
 # LICENSE file in the root directory of this source tree.
 
 
-import traceback
-
-import sqlalchemy
 from baskerville.db.data_partitioning import get_temporal_partitions
 
 from sqlalchemy import create_engine, text

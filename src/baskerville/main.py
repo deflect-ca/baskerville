@@ -115,7 +115,7 @@ def main():
         help="Pipeline to use: es, rawlog, or kafka",
     )
     parser.add_argument(
-        "-s", "--simulate", dest="simulate",  action="store_true",
+        "-s", "--simulate", dest="simulate", action="store_true",
         help="Simulate real-time run using kafka",
     )
     parser.add_argument(
@@ -170,7 +170,7 @@ def main():
     # start baskerville prometheus exporter if specified
     if args.start_exporter:
         if not baskerville_engine.config.engine.metrics:
-            raise RuntimeError(f'Cannot start exporter without metrics config')
+            raise RuntimeError('Cannot start exporter without metrics config')
         port = baskerville_engine.config.engine.metrics.port
         start_http_server(port)
         logger.info(f'Starting Baskerville Exporter at '
