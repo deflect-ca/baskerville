@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.util.model_transfer API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.util.model_transfer
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import traceback
+
+from sqlalchemy import asc
+
+
+def model_transfer(
+        input_db_cfg, output_db_cfg, model_id=None, truncate_out_table=False
+):
+    """
+    Transferring models between dbs. The databases can be located on the same
+    server or on different servers. Use ssh tunneling for better performance
+    in the second case.
+    :param dict[str, T] input_db_cfg: the database configuration for the db to
+    get data from
+    input_db_cfg = {
+        'name': 'baskerville_training',
+        'user': 'postgres',
+        'password': 'secret',
+        'host': '127.0.0.1',
+        'port': 5432,
+        'type': 'postgres',
+    }
+    :param dict[str, T] output_db_cfg: the database configuration for the db to
+    store data to, e.g.
+    output_db_cfg = {
+        'name': 'baskerville_production',
+        'user': 'postgres',
+        'password': 'secret',
+        'host': '127.0.0.1',
+        'port': 5432,
+        'type': 'postgres',
+    }
+    :param int model_id: specify an id to get only one model
+    :param bool truncate_out_table: Drop the models' data on the target
+    database (True) or not (False) and restarts identity
+    :return: None
+    """
+    from baskerville.models.config import DatabaseConfig
+    from baskerville.db import set_up_db
+    from baskerville.db.models import Model
+
+    in_db_cfg = DatabaseConfig(input_db_cfg)
+    out_db_cfg = DatabaseConfig(output_db_cfg)
+
+    in_session, _ = set_up_db(in_db_cfg.__dict__)
+    out_session, _ = set_up_db(out_db_cfg.__dict__)
+
+    if truncate_out_table:
+        if input(
+                'Are you sure you want to truncate table data?(y/n)'
+        ) in ['Y', 'y']:
+            print('Truncating data...')
+            out_session.execute(
+                f'TRUNCATE TABLE {Model.__tablename__} RESTART IDENTITY'
+            )
+            out_session.commit()
+        else:
+            print('Skipping data truncation...')
+
+    models_in = in_session.query(Model)
+    if model_id:
+        models_in = models_in.filter_by(id=model_id)
+    models_in = models_in.order_by(asc(Model.id)).all()
+
+    print(f'{len(models_in)} models in in_db: {in_db_cfg.name}')
+
+    try:
+        for model in models_in:
+            print(f'Getting model with id: {model.id}')
+            model_out = Model()
+            model_out.scaler = model.scaler
+            model_out.classifier = model.classifier
+            model_out.features = model.features
+            model_out.algorithm = model.algorithm
+            model_out.analysis_notebook = model.analysis_notebook
+            model_out.created_at = model.created_at
+            model_out.f1_score = model.f1_score
+            model_out.n_training = model.n_training
+            model_out.n_testing = model.n_testing
+            model_out.notes = model.notes
+            model_out.parameters = model.parameters
+            model_out.precision = model.precision
+            model_out.recall = model.recall
+            model_out.request_sets = model.request_sets
+            out_session.add(model_out)
+            out_session.commit()
+    except Exception:
+        traceback.print_exc()
+        out_session.rollback()
+
+
+if __name__ == '__main__':
+    input_db_cfg = {
+        'name': 'baskerville_report',
+        'user': 'postgres',
+        'password': 'secret',
+        'host': '127.0.0.1',
+        'port': 5434,
+        'type': 'postgres',
+    }
+    output_db_cfg = {
+        'name': 'baskerville_test',
+        'user': 'postgres',
+        'password': 'secret',
+        'host': '127.0.0.1',
+        'port': 5432,
+        'type': 'postgres',
+    }
+    model_transfer(input_db_cfg, output_db_cfg, truncate_out_table=True)</code></pre>
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-functions">
+      Functions
+     </h2>
+     <dl>
+      <dt id="baskerville.util.model_transfer.asc">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          asc
+         </span>
+        </span>
+        (
+        <span>
+         column)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Produce an ascending
+         <code>
+          ORDER BY
+         </code>
+         clause element.
+        </p>
+        <p>
+         e.g.::
+        </p>
+        <pre><code>from sqlalchemy import asc
+stmt = select([users_table]).order_by(asc(users_table.c.name))
+</code></pre>
+        <p>
+         will produce SQL as::
+        </p>
+        <pre><code>SELECT id, name FROM user ORDER BY name ASC
+</code></pre>
+        <p>
+         The :func:
+         <code>
+          .asc
+         </code>
+         function is a standalone version of the
+:meth:
+         <code>
+          .ColumnElement.asc
+         </code>
+         method available on all SQL expressions,
+e.g.::
+        </p>
+        <pre><code>stmt = select([users_table]).order_by(users_table.c.name.asc())
+</code></pre>
+        <p>
+         :param column: A :class:
+         <code>
+          .ColumnElement
+         </code>
+         (e.g. scalar SQL expression)
+with which to apply the :func:
+         <code>
+          .asc
+         </code>
+         operation.
+        </p>
+        <div class="admonition seealso">
+         <p class="admonition-title">
+          Seealso
+         </p>
+         <p>
+          :func:
+          <code>
+           .desc
+          </code>
+         </p>
+         <p>
+          :func:
+          <code>
+           .nullsfirst
+          </code>
+         </p>
+         <p>
+          :func:
+          <code>
+           .nullslast
+          </code>
+         </p>
+         <p>
+          :meth:
+          <code>
+           .Select.order_by
+          </code>
+         </p>
+        </div>
+       </section>
+      </dd>
+      <dt id="baskerville.util.model_transfer.model_transfer">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          model_transfer
+         </span>
+        </span>
+        (
+        <span>
+         input_db_cfg, output_db_cfg, model_id=None, truncate_out_table=False)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Transferring models between dbs. The databases can be located on the same
+server or on different servers. Use ssh tunneling for better performance
+in the second case.
+:param dict[str, T] input_db_cfg: the database configuration for the db to
+get data from
+input_db_cfg = {
+'name': 'baskerville_training',
+'user': 'postgres',
+'password': 'secret',
+'host': '127.0.0.1',
+'port': 5432,
+'type': 'postgres',
+}
+:param dict[str, T] output_db_cfg: the database configuration for the db to
+store data to, e.g.
+output_db_cfg = {
+'name': 'baskerville_production',
+'user': 'postgres',
+'password': 'secret',
+'host': '127.0.0.1',
+'port': 5432,
+'type': 'postgres',
+}
+:param int model_id: specify an id to get only one model
+:param bool truncate_out_table: Drop the models' data on the target
+database (True) or not (False) and restarts identity
+:return: None
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def model_transfer(
+        input_db_cfg, output_db_cfg, model_id=None, truncate_out_table=False
+):
+    """
+    Transferring models between dbs. The databases can be located on the same
+    server or on different servers. Use ssh tunneling for better performance
+    in the second case.
+    :param dict[str, T] input_db_cfg: the database configuration for the db to
+    get data from
+    input_db_cfg = {
+        'name': 'baskerville_training',
+        'user': 'postgres',
+        'password': 'secret',
+        'host': '127.0.0.1',
+        'port': 5432,
+        'type': 'postgres',
+    }
+    :param dict[str, T] output_db_cfg: the database configuration for the db to
+    store data to, e.g.
+    output_db_cfg = {
+        'name': 'baskerville_production',
+        'user': 'postgres',
+        'password': 'secret',
+        'host': '127.0.0.1',
+        'port': 5432,
+        'type': 'postgres',
+    }
+    :param int model_id: specify an id to get only one model
+    :param bool truncate_out_table: Drop the models' data on the target
+    database (True) or not (False) and restarts identity
+    :return: None
+    """
+    from baskerville.models.config import DatabaseConfig
+    from baskerville.db import set_up_db
+    from baskerville.db.models import Model
+
+    in_db_cfg = DatabaseConfig(input_db_cfg)
+    out_db_cfg = DatabaseConfig(output_db_cfg)
+
+    in_session, _ = set_up_db(in_db_cfg.__dict__)
+    out_session, _ = set_up_db(out_db_cfg.__dict__)
+
+    if truncate_out_table:
+        if input(
+                'Are you sure you want to truncate table data?(y/n)'
+        ) in ['Y', 'y']:
+            print('Truncating data...')
+            out_session.execute(
+                f'TRUNCATE TABLE {Model.__tablename__} RESTART IDENTITY'
+            )
+            out_session.commit()
+        else:
+            print('Skipping data truncation...')
+
+    models_in = in_session.query(Model)
+    if model_id:
+        models_in = models_in.filter_by(id=model_id)
+    models_in = models_in.order_by(asc(Model.id)).all()
+
+    print(f'{len(models_in)} models in in_db: {in_db_cfg.name}')
+
+    try:
+        for model in models_in:
+            print(f'Getting model with id: {model.id}')
+            model_out = Model()
+            model_out.scaler = model.scaler
+            model_out.classifier = model.classifier
+            model_out.features = model.features
+            model_out.algorithm = model.algorithm
+            model_out.analysis_notebook = model.analysis_notebook
+            model_out.created_at = model.created_at
+            model_out.f1_score = model.f1_score
+            model_out.n_training = model.n_training
+            model_out.n_testing = model.n_testing
+            model_out.notes = model.notes
+            model_out.parameters = model.parameters
+            model_out.precision = model.precision
+            model_out.recall = model.recall
+            model_out.request_sets = model.request_sets
+            out_session.add(model_out)
+            out_session.commit()
+    except Exception:
+        traceback.print_exc()
+        out_session.rollback()</code></pre>
+       </details>
+      </dd>
+     </dl>
+    </section>
+    <section>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.util">
+          baskerville.util
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-functions">
+        Functions
+       </a>
+      </h3>
+      <ul class="">
+       <li>
+        <code>
+         <a href="#baskerville.util.model_transfer.asc" title="baskerville.util.model_transfer.asc">
+          asc
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.model_transfer.model_transfer" title="baskerville.util.model_transfer.model_transfer">
+          model_transfer
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
+</html>

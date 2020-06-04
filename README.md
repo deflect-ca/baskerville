@@ -1,3 +1,10 @@
+[comment]: # Copyright (c) 2020, eQualit.ie inc.
+[comment]: # All rights reserved.
+
+[comment]: # This source code is licensed under the BSD-style license found in the 
+[comment]: # LICENSE file in the root directory of this source tree.
+
+
 ## Contents
 
 - [What is Baskerville](#what-is-baskerville)
@@ -433,7 +440,7 @@ No functional tests exist yet. They will be added as the structure stabilizes.
 We use `pydoc` to generate docs for Baskerville under `baskerville/docs` folder. 
 ```shell script
 # use --force to overwrite docs
- pdoc --html --force --output-dir docs baskerville
+ pdoc3 --html --force --output-dir docs baskerville
 ```
 Then open (`docs/baskerville/index.html`)[docs/baskerville/index.html] with a browser.
 
@@ -555,3 +562,8 @@ implement the solution for the issue there, along with the relevant tests and th
 - [Anton](https://github.com/mazhurin)
 - [Maria](https://github.com/mkaranasou)
 - [Te-k](https://github.com/Te-k)
+
+
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+<img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />
+This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.

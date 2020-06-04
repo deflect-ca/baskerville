@@ -1,44 +1,69 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.spark.udfs API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.spark.udfs</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">import pytz
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.spark.udfs API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.spark.udfs
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import pytz
 from baskerville.features.helpers import update_features
 from baskerville.features.helpers import extract_features_in_order
+from baskerville.spark.schemas import cross_reference_schema
 from baskerville.util.enums import LabelEnum
 from dateutil.tz import tzutc
+from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from tzwhere import tzwhere
+import numpy as np
 
 
 def normalize_host_name(host):
 
-    if host[:4] == &#39;www.&#39;:
+    if host[:4] == 'www.':
         host = host[4:]
-    h_split = host.replace(&#39;:&#39;, &#39;.&#39;).split(&#39;.&#39;)
+    h_split = host.replace(':', '.').split('.')
     host_norm = max(h_split, key=len)
     if len(set([h for h in h_split if len(h) == len(host_norm)])) &gt; 1:
         host_norm = host
@@ -48,7 +73,7 @@ def normalize_host_name(host):
 
 
 def compute_geotime(lat, lon, t, feature_default):
-    &#34;&#34;&#34;
+    """
     Given a latitude and a longitude for a (utc) timestamp, calculate
     the local time.
     :param float lat: latitude
@@ -56,7 +81,7 @@ def compute_geotime(lat, lon, t, feature_default):
     :param datetime timestamp: the utc timestamp
     :param float feature_default: the default value
     :return:
-    &#34;&#34;&#34;
+    """
     if not lat and not lon:
         # todo: how do latitude/longitude appear in raw ats record?
         feature_value = feature_default
@@ -72,11 +97,11 @@ def compute_geotime(lat, lon, t, feature_default):
 
 
 def predict_dict(scaler, classifier, model_features, dict_features):
-    &#34;&#34;&#34;
+    """
     Scale the feature values and use the model to predict
     :param dict[str, float] dict_features: the feature dictionary
     :return: 0 if normal, 1 if abnormal, -1 if something went wrong
-    &#34;&#34;&#34;
+    """
     import numpy as np
     import pickle
     import json
@@ -95,19 +120,19 @@ def predict_dict(scaler, classifier, model_features, dict_features):
         return float(prediction), float(r)
     except ValueError:
         # traceback.print_exc()
-        print(&#39;Cannot predict:&#39;, x_test)
+        print('Cannot predict:', x_test)
         return 0, 0
 
 
 def delete_by(past_to_current_ids, db_conf):
-    &#34;&#34;&#34;
+    """
     Delete the old request_sets (that refer to the same target ip pairs as the
     current request_sets)
     :param tuple[int, int] past_to_current_ids:
     :param str db_conf: the serialized db_conf
     :return: True if everything went well, False otherwise
     :rtype: bool
-    &#34;&#34;&#34;
+    """
     import json
     from baskerville.db import set_up_db
     from baskerville.db.models import RequestSet
@@ -137,17 +162,17 @@ def delete_by(past_to_current_ids, db_conf):
 def update_request_set_by_id(
         id, stop, features, prediction, subset_count, num_requests, db_conf
 ):
-    &#34;&#34;&#34;
+    """
     Updates a RequestSet by id
     :param int id: the request_set id
-    :param datetime.datetime stop: current subset&#39;s stop datetime
+    :param datetime.datetime stop: current subset's stop datetime
     :param dict features: latest features
     :param float prediction: the current prediction
     :param int subset_count: the subset count
-    :param int num_requests: the current subset&#39;s num_requests
+    :param int num_requests: the current subset's num_requests
     :param str db_conf: the database configuration serialized
     :return:
-    &#34;&#34;&#34;
+    """
     import json
     import traceback
     from baskerville.db import set_up_db
@@ -158,12 +183,12 @@ def update_request_set_by_id(
 
     stop = stop.replace(tzinfo=tzutc())
     values = {
-               &#34;stop&#34;: stop,
-               &#34;features&#34;: features,
-               &#34;prediction&#34;: prediction,
-               &#34;subset_count&#34;: subset_count,
-               &#34;num_requests&#34;: num_requests,
-            }
+        "stop": stop,
+        "features": features,
+        "prediction": prediction,
+        "subset_count": subset_count,
+        "num_requests": num_requests,
+    }
     try:
         # with engine.connect() as conn:
         #     stmt = RequestSet.__table__.update(). \
@@ -212,12 +237,12 @@ def bulk_update_request_sets(
     try:
         for request_set in req_per_row:
             values = {
-                &#34;stop&#34;: request_set[1],
-                &#34;features&#34;: request_set[2],
-                &#34;prediction&#34;: request_set[3],
-                &#34;subset_count&#34;: request_set[4],
-                &#34;num_requests&#34;: request_set[5],
-                &#34;total_seconds&#34;: request_set[6]
+                "stop": request_set[1],
+                "features": request_set[2],
+                "prediction": request_set[3],
+                "subset_count": request_set[4],
+                "num_requests": request_set[5],
+                "total_seconds": request_set[6]
             }
             session.query(RequestSet).filter(
                 RequestSet.id == request_set[0]
@@ -246,7 +271,7 @@ def cross_reference_misp(ip, db_conf):
     session, engine = set_up_db(db_conf, False)
 
     attribute = session.query(Attribute).filter(
-      Attribute.value == ip).first()
+        Attribute.value == ip).first()
 
     label = None
     id_attribute = None
@@ -260,14 +285,9 @@ def cross_reference_misp(ip, db_conf):
     return label, id_attribute
 
 
-cross_reference_schema = T.StructType([
-    T.StructField(&#34;label&#34;, T.IntegerType(), False),
-    T.StructField(&#34;id_attribute&#34;, T.IntegerType(), False)
-])
-
 prediction_schema = T.StructType([
-    T.StructField(&#34;prediction&#34;, T.FloatType(), False),
-    T.StructField(&#34;r&#34;, T.FloatType(), False)
+    T.StructField("prediction", T.FloatType(), False),
+    T.StructField("r", T.FloatType(), False)
 ])
 
 udf_normalize_host_name = F.udf(normalize_host_name, T.StringType())
@@ -279,26 +299,44 @@ udf_cross_reference_misp = F.udf(cross_reference_misp, cross_reference_schema)
 udf_update_features = F.udf(
     update_features, T.MapType(T.StringType(), T.FloatType())
 )
-udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())</code></pre>
-</details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="baskerville.spark.udfs.bulk_update_request_sets"><code class="name flex">
-<span>def <span class="ident">bulk_update_request_sets</span></span>(<span>id, stop, features, prediction, subset_count, num_requests, total_seconds, db_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def bulk_update_request_sets(
+udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())
+udf_to_dense_vector = F.udf(lambda l: Vectors.dense(l), VectorUDT())
+udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())</code></pre>
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-functions">
+      Functions
+     </h2>
+     <dl>
+      <dt id="baskerville.spark.udfs.bulk_update_request_sets">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          bulk_update_request_sets
+         </span>
+        </span>
+        (
+        <span>
+         id, stop, features, prediction, subset_count, num_requests, total_seconds, db_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def bulk_update_request_sets(
         id, stop, features, prediction, subset_count, num_requests,
         total_seconds, db_conf
 ):
@@ -321,12 +359,12 @@ udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())<
     try:
         for request_set in req_per_row:
             values = {
-                &#34;stop&#34;: request_set[1],
-                &#34;features&#34;: request_set[2],
-                &#34;prediction&#34;: request_set[3],
-                &#34;subset_count&#34;: request_set[4],
-                &#34;num_requests&#34;: request_set[5],
-                &#34;total_seconds&#34;: request_set[6]
+                "stop": request_set[1],
+                "features": request_set[2],
+                "prediction": request_set[3],
+                "subset_count": request_set[4],
+                "num_requests": request_set[5],
+                "total_seconds": request_set[6]
             }
             session.query(RequestSet).filter(
                 RequestSet.id == request_set[0]
@@ -344,25 +382,42 @@ udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())<
     engine.dispose()
 
     return True</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.compute_geotime"><code class="name flex">
-<span>def <span class="ident">compute_geotime</span></span>(<span>lat, lon, t, feature_default)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Given a latitude and a longitude for a (utc) timestamp, calculate
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.compute_geotime">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          compute_geotime
+         </span>
+        </span>
+        (
+        <span>
+         lat, lon, t, feature_default)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Given a latitude and a longitude for a (utc) timestamp, calculate
 the local time.
 :param float lat: latitude
 :param float lon: longitude
 :param datetime timestamp: the utc timestamp
 :param float feature_default: the default value
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def compute_geotime(lat, lon, t, feature_default):
-    &#34;&#34;&#34;
+:return:
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def compute_geotime(lat, lon, t, feature_default):
+    """
     Given a latitude and a longitude for a (utc) timestamp, calculate
     the local time.
     :param float lat: latitude
@@ -370,7 +425,7 @@ the local time.
     :param datetime timestamp: the utc timestamp
     :param float feature_default: the default value
     :return:
-    &#34;&#34;&#34;
+    """
     if not lat and not lon:
         # todo: how do latitude/longitude appear in raw ats record?
         feature_value = feature_default
@@ -383,18 +438,32 @@ the local time.
         feature_value = (float(t.hour) + float(t.minute) / 60.) % 24.
 
     return feature_value</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.cross_reference_misp"><code class="name flex">
-<span>def <span class="ident">cross_reference_misp</span></span>(<span>ip, db_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cross_reference_misp(ip, db_conf):
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.cross_reference_misp">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          cross_reference_misp
+         </span>
+        </span>
+        (
+        <span>
+         ip, db_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def cross_reference_misp(ip, db_conf):
     import json
     from baskerville.db import set_up_db
     from baskerville.db.models import Attribute
@@ -403,7 +472,7 @@ the local time.
     session, engine = set_up_db(db_conf, False)
 
     attribute = session.query(Attribute).filter(
-      Attribute.value == ip).first()
+        Attribute.value == ip).first()
 
     label = None
     id_attribute = None
@@ -415,31 +484,48 @@ the local time.
     engine.dispose()
 
     return label, id_attribute</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.delete_by"><code class="name flex">
-<span>def <span class="ident">delete_by</span></span>(<span>past_to_current_ids, db_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Delete the old request_sets (that refer to the same target ip pairs as the
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.delete_by">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          delete_by
+         </span>
+        </span>
+        (
+        <span>
+         past_to_current_ids, db_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Delete the old request_sets (that refer to the same target ip pairs as the
 current request_sets)
 :param tuple[int, int] past_to_current_ids:
 :param str db_conf: the serialized db_conf
 :return: True if everything went well, False otherwise
-:rtype: bool</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def delete_by(past_to_current_ids, db_conf):
-    &#34;&#34;&#34;
+:rtype: bool
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def delete_by(past_to_current_ids, db_conf):
+    """
     Delete the old request_sets (that refer to the same target ip pairs as the
     current request_sets)
     :param tuple[int, int] past_to_current_ids:
     :param str db_conf: the serialized db_conf
     :return: True if everything went well, False otherwise
     :rtype: bool
-    &#34;&#34;&#34;
+    """
     import json
     from baskerville.db import set_up_db
     from baskerville.db.models import RequestSet
@@ -464,47 +550,78 @@ current request_sets)
     engine.dispose()
 
     return True</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.normalize_host_name"><code class="name flex">
-<span>def <span class="ident">normalize_host_name</span></span>(<span>host)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def normalize_host_name(host):
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.normalize_host_name">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          normalize_host_name
+         </span>
+        </span>
+        (
+        <span>
+         host)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def normalize_host_name(host):
 
-    if host[:4] == &#39;www.&#39;:
+    if host[:4] == 'www.':
         host = host[4:]
-    h_split = host.replace(&#39;:&#39;, &#39;.&#39;).split(&#39;.&#39;)
+    h_split = host.replace(':', '.').split('.')
     host_norm = max(h_split, key=len)
     if len(set([h for h in h_split if len(h) == len(host_norm)])) &gt; 1:
         host_norm = host
     host_norm = host_norm.lower()
 
     return host_norm</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.predict_dict"><code class="name flex">
-<span>def <span class="ident">predict_dict</span></span>(<span>scaler, classifier, model_features, dict_features)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Scale the feature values and use the model to predict
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.predict_dict">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          predict_dict
+         </span>
+        </span>
+        (
+        <span>
+         scaler, classifier, model_features, dict_features)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Scale the feature values and use the model to predict
 :param dict[str, float] dict_features: the feature dictionary
-:return: 0 if normal, 1 if abnormal, -1 if something went wrong</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def predict_dict(scaler, classifier, model_features, dict_features):
-    &#34;&#34;&#34;
+:return: 0 if normal, 1 if abnormal, -1 if something went wrong
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def predict_dict(scaler, classifier, model_features, dict_features):
+    """
     Scale the feature values and use the model to predict
     :param dict[str, float] dict_features: the feature dictionary
     :return: 0 if normal, 1 if abnormal, -1 if something went wrong
-    &#34;&#34;&#34;
+    """
     import numpy as np
     import pickle
     import json
@@ -523,20 +640,60 @@ current request_sets)
         return float(prediction), float(r)
     except ValueError:
         # traceback.print_exc()
-        print(&#39;Cannot predict:&#39;, x_test)
+        print('Cannot predict:', x_test)
         return 0, 0</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.udf_bulk_update_request_sets"><code class="name flex">
-<span>def <span class="ident">udf_bulk_update_request_sets</span></span>(<span>id, stop, features, prediction, subset_count, num_requests, total_seconds, db_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def bulk_update_request_sets(
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_add_to_dense_vector">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_add_to_dense_vector
+         </span>
+        </span>
+        (
+        <span>
+         features, arr)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_bulk_update_request_sets">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_bulk_update_request_sets
+         </span>
+        </span>
+        (
+        <span>
+         id, stop, features, prediction, subset_count, num_requests, total_seconds, db_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def bulk_update_request_sets(
         id, stop, features, prediction, subset_count, num_requests,
         total_seconds, db_conf
 ):
@@ -559,12 +716,12 @@ current request_sets)
     try:
         for request_set in req_per_row:
             values = {
-                &#34;stop&#34;: request_set[1],
-                &#34;features&#34;: request_set[2],
-                &#34;prediction&#34;: request_set[3],
-                &#34;subset_count&#34;: request_set[4],
-                &#34;num_requests&#34;: request_set[5],
-                &#34;total_seconds&#34;: request_set[6]
+                "stop": request_set[1],
+                "features": request_set[2],
+                "prediction": request_set[3],
+                "subset_count": request_set[4],
+                "num_requests": request_set[5],
+                "total_seconds": request_set[6]
             }
             session.query(RequestSet).filter(
                 RequestSet.id == request_set[0]
@@ -582,25 +739,42 @@ current request_sets)
     engine.dispose()
 
     return True</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.udf_compute_geotime"><code class="name flex">
-<span>def <span class="ident">udf_compute_geotime</span></span>(<span>lat, lon, t, feature_default)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Given a latitude and a longitude for a (utc) timestamp, calculate
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_compute_geotime">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_compute_geotime
+         </span>
+        </span>
+        (
+        <span>
+         lat, lon, t, feature_default)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Given a latitude and a longitude for a (utc) timestamp, calculate
 the local time.
 :param float lat: latitude
 :param float lon: longitude
 :param datetime timestamp: the utc timestamp
 :param float feature_default: the default value
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def compute_geotime(lat, lon, t, feature_default):
-    &#34;&#34;&#34;
+:return:
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def compute_geotime(lat, lon, t, feature_default):
+    """
     Given a latitude and a longitude for a (utc) timestamp, calculate
     the local time.
     :param float lat: latitude
@@ -608,7 +782,7 @@ the local time.
     :param datetime timestamp: the utc timestamp
     :param float feature_default: the default value
     :return:
-    &#34;&#34;&#34;
+    """
     if not lat and not lon:
         # todo: how do latitude/longitude appear in raw ats record?
         feature_value = feature_default
@@ -621,18 +795,32 @@ the local time.
         feature_value = (float(t.hour) + float(t.minute) / 60.) % 24.
 
     return feature_value</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.udf_cross_reference_misp"><code class="name flex">
-<span>def <span class="ident">udf_cross_reference_misp</span></span>(<span>ip, db_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cross_reference_misp(ip, db_conf):
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_cross_reference_misp">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_cross_reference_misp
+         </span>
+        </span>
+        (
+        <span>
+         ip, db_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def cross_reference_misp(ip, db_conf):
     import json
     from baskerville.db import set_up_db
     from baskerville.db.models import Attribute
@@ -641,7 +829,7 @@ the local time.
     session, engine = set_up_db(db_conf, False)
 
     attribute = session.query(Attribute).filter(
-      Attribute.value == ip).first()
+        Attribute.value == ip).first()
 
     label = None
     id_attribute = None
@@ -653,31 +841,48 @@ the local time.
     engine.dispose()
 
     return label, id_attribute</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.udf_delete_by"><code class="name flex">
-<span>def <span class="ident">udf_delete_by</span></span>(<span>past_to_current_ids, db_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Delete the old request_sets (that refer to the same target ip pairs as the
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_delete_by">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_delete_by
+         </span>
+        </span>
+        (
+        <span>
+         past_to_current_ids, db_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Delete the old request_sets (that refer to the same target ip pairs as the
 current request_sets)
 :param tuple[int, int] past_to_current_ids:
 :param str db_conf: the serialized db_conf
 :return: True if everything went well, False otherwise
-:rtype: bool</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def delete_by(past_to_current_ids, db_conf):
-    &#34;&#34;&#34;
+:rtype: bool
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def delete_by(past_to_current_ids, db_conf):
+    """
     Delete the old request_sets (that refer to the same target ip pairs as the
     current request_sets)
     :param tuple[int, int] past_to_current_ids:
     :param str db_conf: the serialized db_conf
     :return: True if everything went well, False otherwise
     :rtype: bool
-    &#34;&#34;&#34;
+    """
     import json
     from baskerville.db import set_up_db
     from baskerville.db.models import RequestSet
@@ -702,47 +907,78 @@ current request_sets)
     engine.dispose()
 
     return True</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.udf_normalize_host_name"><code class="name flex">
-<span>def <span class="ident">udf_normalize_host_name</span></span>(<span>host)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def normalize_host_name(host):
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_normalize_host_name">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_normalize_host_name
+         </span>
+        </span>
+        (
+        <span>
+         host)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def normalize_host_name(host):
 
-    if host[:4] == &#39;www.&#39;:
+    if host[:4] == 'www.':
         host = host[4:]
-    h_split = host.replace(&#39;:&#39;, &#39;.&#39;).split(&#39;.&#39;)
+    h_split = host.replace(':', '.').split('.')
     host_norm = max(h_split, key=len)
     if len(set([h for h in h_split if len(h) == len(host_norm)])) &gt; 1:
         host_norm = host
     host_norm = host_norm.lower()
 
     return host_norm</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.udf_predict_dict"><code class="name flex">
-<span>def <span class="ident">udf_predict_dict</span></span>(<span>scaler, classifier, model_features, dict_features)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Scale the feature values and use the model to predict
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_predict_dict">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_predict_dict
+         </span>
+        </span>
+        (
+        <span>
+         scaler, classifier, model_features, dict_features)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Scale the feature values and use the model to predict
 :param dict[str, float] dict_features: the feature dictionary
-:return: 0 if normal, 1 if abnormal, -1 if something went wrong</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def predict_dict(scaler, classifier, model_features, dict_features):
-    &#34;&#34;&#34;
+:return: 0 if normal, 1 if abnormal, -1 if something went wrong
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def predict_dict(scaler, classifier, model_features, dict_features):
+    """
     Scale the feature values and use the model to predict
     :param dict[str, float] dict_features: the feature dictionary
     :return: 0 if normal, 1 if abnormal, -1 if something went wrong
-    &#34;&#34;&#34;
+    """
     import numpy as np
     import pickle
     import json
@@ -761,15 +997,54 @@ current request_sets)
         return float(prediction), float(r)
     except ValueError:
         # traceback.print_exc()
-        print(&#39;Cannot predict:&#39;, x_test)
+        print('Cannot predict:', x_test)
         return 0, 0</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.udf_update_request_set_by_id"><code class="name flex">
-<span>def <span class="ident">udf_update_request_set_by_id</span></span>(<span>id, stop, features, prediction, subset_count, num_requests, db_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Updates a RequestSet by id
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_to_dense_vector">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_to_dense_vector
+         </span>
+        </span>
+        (
+        <span>
+         l)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">udf_to_dense_vector = F.udf(lambda l: Vectors.dense(l), VectorUDT())</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.udf_update_request_set_by_id">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          udf_update_request_set_by_id
+         </span>
+        </span>
+        (
+        <span>
+         id, stop, features, prediction, subset_count, num_requests, db_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Updates a RequestSet by id
 :param int id: the request_set id
 :param datetime.datetime stop: current subset's stop datetime
 :param dict features: latest features
@@ -777,25 +1052,29 @@ current request_sets)
 :param int subset_count: the subset count
 :param int num_requests: the current subset's num_requests
 :param str db_conf: the database configuration serialized
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def update_request_set_by_id(
+:return:
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def update_request_set_by_id(
         id, stop, features, prediction, subset_count, num_requests, db_conf
 ):
-    &#34;&#34;&#34;
+    """
     Updates a RequestSet by id
     :param int id: the request_set id
-    :param datetime.datetime stop: current subset&#39;s stop datetime
+    :param datetime.datetime stop: current subset's stop datetime
     :param dict features: latest features
     :param float prediction: the current prediction
     :param int subset_count: the subset count
-    :param int num_requests: the current subset&#39;s num_requests
+    :param int num_requests: the current subset's num_requests
     :param str db_conf: the database configuration serialized
     :return:
-    &#34;&#34;&#34;
+    """
     import json
     import traceback
     from baskerville.db import set_up_db
@@ -806,12 +1085,12 @@ current request_sets)
 
     stop = stop.replace(tzinfo=tzutc())
     values = {
-               &#34;stop&#34;: stop,
-               &#34;features&#34;: features,
-               &#34;prediction&#34;: prediction,
-               &#34;subset_count&#34;: subset_count,
-               &#34;num_requests&#34;: num_requests,
-            }
+        "stop": stop,
+        "features": features,
+        "prediction": prediction,
+        "subset_count": subset_count,
+        "num_requests": num_requests,
+    }
     try:
         # with engine.connect() as conn:
         #     stmt = RequestSet.__table__.update(). \
@@ -835,13 +1114,26 @@ current request_sets)
     engine.dispose()
 
     return True</code></pre>
-</details>
-</dd>
-<dt id="baskerville.spark.udfs.update_request_set_by_id"><code class="name flex">
-<span>def <span class="ident">update_request_set_by_id</span></span>(<span>id, stop, features, prediction, subset_count, num_requests, db_conf)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Updates a RequestSet by id
+       </details>
+      </dd>
+      <dt id="baskerville.spark.udfs.update_request_set_by_id">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          update_request_set_by_id
+         </span>
+        </span>
+        (
+        <span>
+         id, stop, features, prediction, subset_count, num_requests, db_conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Updates a RequestSet by id
 :param int id: the request_set id
 :param datetime.datetime stop: current subset's stop datetime
 :param dict features: latest features
@@ -849,25 +1141,29 @@ current request_sets)
 :param int subset_count: the subset count
 :param int num_requests: the current subset's num_requests
 :param str db_conf: the database configuration serialized
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def update_request_set_by_id(
+:return:
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def update_request_set_by_id(
         id, stop, features, prediction, subset_count, num_requests, db_conf
 ):
-    &#34;&#34;&#34;
+    """
     Updates a RequestSet by id
     :param int id: the request_set id
-    :param datetime.datetime stop: current subset&#39;s stop datetime
+    :param datetime.datetime stop: current subset's stop datetime
     :param dict features: latest features
     :param float prediction: the current prediction
     :param int subset_count: the subset count
-    :param int num_requests: the current subset&#39;s num_requests
+    :param int num_requests: the current subset's num_requests
     :param str db_conf: the database configuration serialized
     :return:
-    &#34;&#34;&#34;
+    """
     import json
     import traceback
     from baskerville.db import set_up_db
@@ -878,12 +1174,12 @@ current request_sets)
 
     stop = stop.replace(tzinfo=tzutc())
     values = {
-               &#34;stop&#34;: stop,
-               &#34;features&#34;: features,
-               &#34;prediction&#34;: prediction,
-               &#34;subset_count&#34;: subset_count,
-               &#34;num_requests&#34;: num_requests,
-            }
+        "stop": stop,
+        "features": features,
+        "prediction": prediction,
+        "subset_count": subset_count,
+        "num_requests": num_requests,
+    }
     try:
         # with engine.connect() as conn:
         #     stmt = RequestSet.__table__.update(). \
@@ -907,49 +1203,185 @@ current request_sets)
     engine.dispose()
 
     return True</code></pre>
-</details>
-</dd>
-</dl>
-</section>
-<section>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville.spark" href="index.html">baskerville.spark</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="baskerville.spark.udfs.bulk_update_request_sets" href="#baskerville.spark.udfs.bulk_update_request_sets">bulk_update_request_sets</a></code></li>
-<li><code><a title="baskerville.spark.udfs.compute_geotime" href="#baskerville.spark.udfs.compute_geotime">compute_geotime</a></code></li>
-<li><code><a title="baskerville.spark.udfs.cross_reference_misp" href="#baskerville.spark.udfs.cross_reference_misp">cross_reference_misp</a></code></li>
-<li><code><a title="baskerville.spark.udfs.delete_by" href="#baskerville.spark.udfs.delete_by">delete_by</a></code></li>
-<li><code><a title="baskerville.spark.udfs.normalize_host_name" href="#baskerville.spark.udfs.normalize_host_name">normalize_host_name</a></code></li>
-<li><code><a title="baskerville.spark.udfs.predict_dict" href="#baskerville.spark.udfs.predict_dict">predict_dict</a></code></li>
-<li><code><a title="baskerville.spark.udfs.udf_bulk_update_request_sets" href="#baskerville.spark.udfs.udf_bulk_update_request_sets">udf_bulk_update_request_sets</a></code></li>
-<li><code><a title="baskerville.spark.udfs.udf_compute_geotime" href="#baskerville.spark.udfs.udf_compute_geotime">udf_compute_geotime</a></code></li>
-<li><code><a title="baskerville.spark.udfs.udf_cross_reference_misp" href="#baskerville.spark.udfs.udf_cross_reference_misp">udf_cross_reference_misp</a></code></li>
-<li><code><a title="baskerville.spark.udfs.udf_delete_by" href="#baskerville.spark.udfs.udf_delete_by">udf_delete_by</a></code></li>
-<li><code><a title="baskerville.spark.udfs.udf_normalize_host_name" href="#baskerville.spark.udfs.udf_normalize_host_name">udf_normalize_host_name</a></code></li>
-<li><code><a title="baskerville.spark.udfs.udf_predict_dict" href="#baskerville.spark.udfs.udf_predict_dict">udf_predict_dict</a></code></li>
-<li><code><a title="baskerville.spark.udfs.udf_update_request_set_by_id" href="#baskerville.spark.udfs.udf_update_request_set_by_id">udf_update_request_set_by_id</a></code></li>
-<li><code><a title="baskerville.spark.udfs.update_request_set_by_id" href="#baskerville.spark.udfs.update_request_set_by_id">update_request_set_by_id</a></code></li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+       </details>
+      </dd>
+     </dl>
+    </section>
+    <section>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.spark">
+          baskerville.spark
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-functions">
+        Functions
+       </a>
+      </h3>
+      <ul class="">
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.bulk_update_request_sets" title="baskerville.spark.udfs.bulk_update_request_sets">
+          bulk_update_request_sets
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.compute_geotime" title="baskerville.spark.udfs.compute_geotime">
+          compute_geotime
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.cross_reference_misp" title="baskerville.spark.udfs.cross_reference_misp">
+          cross_reference_misp
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.delete_by" title="baskerville.spark.udfs.delete_by">
+          delete_by
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.normalize_host_name" title="baskerville.spark.udfs.normalize_host_name">
+          normalize_host_name
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.predict_dict" title="baskerville.spark.udfs.predict_dict">
+          predict_dict
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_add_to_dense_vector" title="baskerville.spark.udfs.udf_add_to_dense_vector">
+          udf_add_to_dense_vector
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_bulk_update_request_sets" title="baskerville.spark.udfs.udf_bulk_update_request_sets">
+          udf_bulk_update_request_sets
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_compute_geotime" title="baskerville.spark.udfs.udf_compute_geotime">
+          udf_compute_geotime
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_cross_reference_misp" title="baskerville.spark.udfs.udf_cross_reference_misp">
+          udf_cross_reference_misp
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_delete_by" title="baskerville.spark.udfs.udf_delete_by">
+          udf_delete_by
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_normalize_host_name" title="baskerville.spark.udfs.udf_normalize_host_name">
+          udf_normalize_host_name
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_predict_dict" title="baskerville.spark.udfs.udf_predict_dict">
+          udf_predict_dict
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_to_dense_vector" title="baskerville.spark.udfs.udf_to_dense_vector">
+          udf_to_dense_vector
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.udf_update_request_set_by_id" title="baskerville.spark.udfs.udf_update_request_set_by_id">
+          udf_update_request_set_by_id
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.udfs.update_request_set_by_id" title="baskerville.spark.udfs.update_request_set_by_id">
+          update_request_set_by_id
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.models.anomaly_model_sklearn API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.models.anomaly_model_sklearn
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+from baskerville.models.model_interface import ModelInterface
+from baskerville.spark import get_spark_session
+import os
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import IsolationForest
+import pandas as pd
+from typing import NamedTuple
+from pyspark.sql import functions as F
+from pyspark.sql import types as T
+
+from baskerville.util.file_manager import FileManager
+
+prediction_schema = T.StructType([
+    T.StructField("prediction", T.FloatType(), False),
+    T.StructField("score", T.FloatType(), True)
+])
+
+
+class AnomalyDetector(NamedTuple):
+    model: any
+    features: list
+    scaler: any
+    threshold: float
+    features_col: str = 'features'
+    prediction_col: str = 'prediction'
+    score_col: str = 'score'
+
+
+def extract_features_in_order(feature_dict, model_features):
+    """
+    Returns the model features in the order the model requires them.
+    """
+    return [feature_dict[feature] for feature in model_features]
+
+
+class AnomalyModelSklearn(ModelInterface):
+
+    def __init__(self, feature_map_column='features', features=None, prediction_column="prediction",
+                 score_column="score",
+                 num_trees=100, max_samples="auto", max_features=1.0, n_jobs=1, verbose=10,
+                 contamination=0.1, bootstrap=False,
+                 seed=777,
+                 scaler_with_mean=False, scaler_with_std=True):
+        super().__init__()
+        self.prediction_column = prediction_column
+        self.score_column = score_column
+        self.num_trees = num_trees
+        self.max_samples = max_samples
+        self.max_features = max_features
+        self.contamination = contamination
+        self.bootstrap = bootstrap
+        self.seed = seed
+        self.n_jobs = n_jobs
+        self.verbose = verbose
+
+        self.scaler_with_mean = scaler_with_mean
+        self.scaler_with_std = scaler_with_std
+
+        self.scaler_model = None
+        self.iforest_model = None
+
+        self.features = features
+        self.feature_map_column = feature_map_column
+        self.anomaly_detector_broadcast = None
+
+    def train(self, df):
+        df = df.toPandas()
+        features = self.features
+        if not features or len(features) == 0:
+            self.features = [*df[self.feature_map_column][0].keys()]
+
+        df[self.features] = df[self.feature_map_column].apply(pd.Series)
+        df.drop(self.feature_map_column, axis=1, inplace=True)
+
+        self.scaler_model = StandardScaler(
+            with_mean=self.scaler_with_mean, with_std=self.scaler_with_std)
+        x_train = self.scaler_model.fit_transform(
+            df[self.features].values
+        )
+
+        self.iforest_model = IsolationForest(
+            n_estimators=self.num_trees,
+            max_samples=self.max_samples,
+            contamination=self.contamination,
+            max_features=self.max_features,
+            bootstrap=self.bootstrap,
+            n_jobs=self.n_jobs,
+            random_state=self.seed,
+            verbose=self.verbose
+        )
+        self.iforest_model.fit(x_train)
+
+    def predict(self, df):
+        from baskerville.models.metrics.helpers import CLIENT_PREDICTION_ACCUMULATOR
+        global CPA, CRSC
+
+        CPA = CLIENT_PREDICTION_ACCUMULATOR
+        CRSC = CLIENT_PREDICTION_ACCUMULATOR
+
+        def predict_dict(target, dict_features, update_metrics=False):
+            """
+            Scale the feature values and use the model to predict
+            :param dict[str, float] dict_features: the feature dictionary
+            :param update_metrics:
+            :return: 0 if normal, 1 if abnormal, -1 if something went wrong
+            """
+            global CPA, CRSC
+            import json
+            prediction = 0, 0.
+            score = None
+
+            if isinstance(dict_features, str):
+                dict_features = json.loads(dict_features)
+            try:
+                x = dict_features
+                detector = self.anomaly_detector_broadcast.value
+                x = [extract_features_in_order(x, detector.features)]
+                x = detector.scaler.transform(x)
+                y = 0.5 - detector.model.decision_function(x)
+                threshold = detector.threshold if detector.threshold &gt; 0 \
+                    else 0.5 - detector.model.threshold_
+                prediction = float((y &gt; threshold)[0])
+                score = float(y[0])
+                # because of net.razorvine.pickle.PickleException: expected
+                # zero arguments for construction of ClassDict
+                # (for numpy.core.multiarray._reconstruct):
+
+            except ValueError:
+                import traceback
+                traceback.print_exc()
+                print('Cannot predict:', dict_features)
+
+            if update_metrics:
+                CRSC += {target: 1}
+                CPA += {target: prediction}
+
+            return prediction, score
+
+        udf_predict_dict = F.udf(predict_dict, prediction_schema)
+
+        df = df.withColumn(
+            'y',
+            udf_predict_dict(
+                'target',
+                'features',
+                F.lit(False)  # todo
+            )
+        )
+
+        df = df.withColumn(
+            self.prediction_column, F.col('y.prediction')
+        ).withColumn(
+            self.score_column, F.col('y.score')
+        ).drop('y')
+        return df
+
+    def save(self, path, spark_session=None):
+        file_manager = FileManager(path, spark_session)
+        file_manager.save_to_file(self.get_params(), os.path.join(
+            path, 'params.json'), format='json')
+        file_manager.save_to_file(self.iforest_model, os.path.join(
+            path, 'iforest.pickle'), format='pickle')
+        file_manager.save_to_file(self.scaler_model, os.path.join(
+            path, 'scaler.pickle'), format='pickle')
+
+    def load(self, path, spark_session=None):
+        file_manager = FileManager(path, spark_session)
+        params = file_manager.load_from_file(
+            os.path.join(path, 'params.json'), format='json')
+        self.set_params(**params)
+        self.iforest_model = file_manager.load_from_file(
+            os.path.join(path, 'iforest.pickle'), format='pickle')
+        self.scaler_model = file_manager.load_from_file(
+            os.path.join(path, 'scaler.pickle'), format='pickle')
+
+        anomaly_detector = AnomalyDetector(
+            model=self.iforest_model,
+            features=self.features,
+            scaler=self.scaler_model,
+            threshold=0.0
+        )
+
+        self.anomaly_detector_broadcast = get_spark_session().sparkContext.broadcast(
+            anomaly_detector
+        )</code></pre>
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-functions">
+      Functions
+     </h2>
+     <dl>
+      <dt id="baskerville.models.anomaly_model_sklearn.extract_features_in_order">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          extract_features_in_order
+         </span>
+        </span>
+        (
+        <span>
+         feature_dict, model_features)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Returns the model features in the order the model requires them.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def extract_features_in_order(feature_dict, model_features):
+    """
+    Returns the model features in the order the model requires them.
+    """
+    return [feature_dict[feature] for feature in model_features]</code></pre>
+       </details>
+      </dd>
+     </dl>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.models.anomaly_model_sklearn.AnomalyDetector">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          AnomalyDetector
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         AnomalyDetector(model, features, scaler, threshold, features_col, prediction_col, score_col)
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class AnomalyDetector(NamedTuple):
+    model: any
+    features: list
+    scaler: any
+    threshold: float
+    features_col: str = 'features'
+    prediction_col: str = 'prediction'
+    score_col: str = 'score'</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         builtins.tuple
+        </li>
+       </ul>
+       <h3>
+        Instance variables
+       </h3>
+       <dl>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyDetector.features">
+         <code class="name">
+          var
+          <span class="ident">
+           features
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Alias for field number 1
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyDetector.features_col">
+         <code class="name">
+          var
+          <span class="ident">
+           features_col
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Alias for field number 4
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyDetector.model">
+         <code class="name">
+          var
+          <span class="ident">
+           model
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Alias for field number 0
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyDetector.prediction_col">
+         <code class="name">
+          var
+          <span class="ident">
+           prediction_col
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Alias for field number 5
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyDetector.scaler">
+         <code class="name">
+          var
+          <span class="ident">
+           scaler
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Alias for field number 2
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyDetector.score_col">
+         <code class="name">
+          var
+          <span class="ident">
+           score_col
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Alias for field number 6
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyDetector.threshold">
+         <code class="name">
+          var
+          <span class="ident">
+           threshold
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Alias for field number 3
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          AnomalyModelSklearn
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         feature_map_column='features', features=None, prediction_column='prediction', score_column='score', num_trees=100, max_samples='auto', max_features=1.0, n_jobs=1, verbose=10, contamination=0.1, bootstrap=False, seed=777, scaler_with_mean=False, scaler_with_std=True)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class AnomalyModelSklearn(ModelInterface):
+
+    def __init__(self, feature_map_column='features', features=None, prediction_column="prediction",
+                 score_column="score",
+                 num_trees=100, max_samples="auto", max_features=1.0, n_jobs=1, verbose=10,
+                 contamination=0.1, bootstrap=False,
+                 seed=777,
+                 scaler_with_mean=False, scaler_with_std=True):
+        super().__init__()
+        self.prediction_column = prediction_column
+        self.score_column = score_column
+        self.num_trees = num_trees
+        self.max_samples = max_samples
+        self.max_features = max_features
+        self.contamination = contamination
+        self.bootstrap = bootstrap
+        self.seed = seed
+        self.n_jobs = n_jobs
+        self.verbose = verbose
+
+        self.scaler_with_mean = scaler_with_mean
+        self.scaler_with_std = scaler_with_std
+
+        self.scaler_model = None
+        self.iforest_model = None
+
+        self.features = features
+        self.feature_map_column = feature_map_column
+        self.anomaly_detector_broadcast = None
+
+    def train(self, df):
+        df = df.toPandas()
+        features = self.features
+        if not features or len(features) == 0:
+            self.features = [*df[self.feature_map_column][0].keys()]
+
+        df[self.features] = df[self.feature_map_column].apply(pd.Series)
+        df.drop(self.feature_map_column, axis=1, inplace=True)
+
+        self.scaler_model = StandardScaler(
+            with_mean=self.scaler_with_mean, with_std=self.scaler_with_std)
+        x_train = self.scaler_model.fit_transform(
+            df[self.features].values
+        )
+
+        self.iforest_model = IsolationForest(
+            n_estimators=self.num_trees,
+            max_samples=self.max_samples,
+            contamination=self.contamination,
+            max_features=self.max_features,
+            bootstrap=self.bootstrap,
+            n_jobs=self.n_jobs,
+            random_state=self.seed,
+            verbose=self.verbose
+        )
+        self.iforest_model.fit(x_train)
+
+    def predict(self, df):
+        from baskerville.models.metrics.helpers import CLIENT_PREDICTION_ACCUMULATOR
+        global CPA, CRSC
+
+        CPA = CLIENT_PREDICTION_ACCUMULATOR
+        CRSC = CLIENT_PREDICTION_ACCUMULATOR
+
+        def predict_dict(target, dict_features, update_metrics=False):
+            """
+            Scale the feature values and use the model to predict
+            :param dict[str, float] dict_features: the feature dictionary
+            :param update_metrics:
+            :return: 0 if normal, 1 if abnormal, -1 if something went wrong
+            """
+            global CPA, CRSC
+            import json
+            prediction = 0, 0.
+            score = None
+
+            if isinstance(dict_features, str):
+                dict_features = json.loads(dict_features)
+            try:
+                x = dict_features
+                detector = self.anomaly_detector_broadcast.value
+                x = [extract_features_in_order(x, detector.features)]
+                x = detector.scaler.transform(x)
+                y = 0.5 - detector.model.decision_function(x)
+                threshold = detector.threshold if detector.threshold &gt; 0 \
+                    else 0.5 - detector.model.threshold_
+                prediction = float((y &gt; threshold)[0])
+                score = float(y[0])
+                # because of net.razorvine.pickle.PickleException: expected
+                # zero arguments for construction of ClassDict
+                # (for numpy.core.multiarray._reconstruct):
+
+            except ValueError:
+                import traceback
+                traceback.print_exc()
+                print('Cannot predict:', dict_features)
+
+            if update_metrics:
+                CRSC += {target: 1}
+                CPA += {target: prediction}
+
+            return prediction, score
+
+        udf_predict_dict = F.udf(predict_dict, prediction_schema)
+
+        df = df.withColumn(
+            'y',
+            udf_predict_dict(
+                'target',
+                'features',
+                F.lit(False)  # todo
+            )
+        )
+
+        df = df.withColumn(
+            self.prediction_column, F.col('y.prediction')
+        ).withColumn(
+            self.score_column, F.col('y.score')
+        ).drop('y')
+        return df
+
+    def save(self, path, spark_session=None):
+        file_manager = FileManager(path, spark_session)
+        file_manager.save_to_file(self.get_params(), os.path.join(
+            path, 'params.json'), format='json')
+        file_manager.save_to_file(self.iforest_model, os.path.join(
+            path, 'iforest.pickle'), format='pickle')
+        file_manager.save_to_file(self.scaler_model, os.path.join(
+            path, 'scaler.pickle'), format='pickle')
+
+    def load(self, path, spark_session=None):
+        file_manager = FileManager(path, spark_session)
+        params = file_manager.load_from_file(
+            os.path.join(path, 'params.json'), format='json')
+        self.set_params(**params)
+        self.iforest_model = file_manager.load_from_file(
+            os.path.join(path, 'iforest.pickle'), format='pickle')
+        self.scaler_model = file_manager.load_from_file(
+            os.path.join(path, 'scaler.pickle'), format='pickle')
+
+        anomaly_detector = AnomalyDetector(
+            model=self.iforest_model,
+            features=self.features,
+            scaler=self.scaler_model,
+            threshold=0.0
+        )
+
+        self.anomaly_detector_broadcast = get_spark_session().sparkContext.broadcast(
+            anomaly_detector
+        )</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="model_interface.html#baskerville.models.model_interface.ModelInterface" title="baskerville.models.model_interface.ModelInterface">
+          ModelInterface
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.load">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            load
+           </span>
+          </span>
+          (
+          <span>
+           self, path, spark_session=None)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def load(self, path, spark_session=None):
+    file_manager = FileManager(path, spark_session)
+    params = file_manager.load_from_file(
+        os.path.join(path, 'params.json'), format='json')
+    self.set_params(**params)
+    self.iforest_model = file_manager.load_from_file(
+        os.path.join(path, 'iforest.pickle'), format='pickle')
+    self.scaler_model = file_manager.load_from_file(
+        os.path.join(path, 'scaler.pickle'), format='pickle')
+
+    anomaly_detector = AnomalyDetector(
+        model=self.iforest_model,
+        features=self.features,
+        scaler=self.scaler_model,
+        threshold=0.0
+    )
+
+    self.anomaly_detector_broadcast = get_spark_session().sparkContext.broadcast(
+        anomaly_detector
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.predict">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            predict
+           </span>
+          </span>
+          (
+          <span>
+           self, df)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def predict(self, df):
+    from baskerville.models.metrics.helpers import CLIENT_PREDICTION_ACCUMULATOR
+    global CPA, CRSC
+
+    CPA = CLIENT_PREDICTION_ACCUMULATOR
+    CRSC = CLIENT_PREDICTION_ACCUMULATOR
+
+    def predict_dict(target, dict_features, update_metrics=False):
+        """
+        Scale the feature values and use the model to predict
+        :param dict[str, float] dict_features: the feature dictionary
+        :param update_metrics:
+        :return: 0 if normal, 1 if abnormal, -1 if something went wrong
+        """
+        global CPA, CRSC
+        import json
+        prediction = 0, 0.
+        score = None
+
+        if isinstance(dict_features, str):
+            dict_features = json.loads(dict_features)
+        try:
+            x = dict_features
+            detector = self.anomaly_detector_broadcast.value
+            x = [extract_features_in_order(x, detector.features)]
+            x = detector.scaler.transform(x)
+            y = 0.5 - detector.model.decision_function(x)
+            threshold = detector.threshold if detector.threshold &gt; 0 \
+                else 0.5 - detector.model.threshold_
+            prediction = float((y &gt; threshold)[0])
+            score = float(y[0])
+            # because of net.razorvine.pickle.PickleException: expected
+            # zero arguments for construction of ClassDict
+            # (for numpy.core.multiarray._reconstruct):
+
+        except ValueError:
+            import traceback
+            traceback.print_exc()
+            print('Cannot predict:', dict_features)
+
+        if update_metrics:
+            CRSC += {target: 1}
+            CPA += {target: prediction}
+
+        return prediction, score
+
+    udf_predict_dict = F.udf(predict_dict, prediction_schema)
+
+    df = df.withColumn(
+        'y',
+        udf_predict_dict(
+            'target',
+            'features',
+            F.lit(False)  # todo
+        )
+    )
+
+    df = df.withColumn(
+        self.prediction_column, F.col('y.prediction')
+    ).withColumn(
+        self.score_column, F.col('y.score')
+    ).drop('y')
+    return df</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.save">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            save
+           </span>
+          </span>
+          (
+          <span>
+           self, path, spark_session=None)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def save(self, path, spark_session=None):
+    file_manager = FileManager(path, spark_session)
+    file_manager.save_to_file(self.get_params(), os.path.join(
+        path, 'params.json'), format='json')
+    file_manager.save_to_file(self.iforest_model, os.path.join(
+        path, 'iforest.pickle'), format='pickle')
+    file_manager.save_to_file(self.scaler_model, os.path.join(
+        path, 'scaler.pickle'), format='pickle')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.train">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            train
+           </span>
+          </span>
+          (
+          <span>
+           self, df)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def train(self, df):
+    df = df.toPandas()
+    features = self.features
+    if not features or len(features) == 0:
+        self.features = [*df[self.feature_map_column][0].keys()]
+
+    df[self.features] = df[self.feature_map_column].apply(pd.Series)
+    df.drop(self.feature_map_column, axis=1, inplace=True)
+
+    self.scaler_model = StandardScaler(
+        with_mean=self.scaler_with_mean, with_std=self.scaler_with_std)
+    x_train = self.scaler_model.fit_transform(
+        df[self.features].values
+    )
+
+    self.iforest_model = IsolationForest(
+        n_estimators=self.num_trees,
+        max_samples=self.max_samples,
+        contamination=self.contamination,
+        max_features=self.max_features,
+        bootstrap=self.bootstrap,
+        n_jobs=self.n_jobs,
+        random_state=self.seed,
+        verbose=self.verbose
+    )
+    self.iforest_model.fit(x_train)</code></pre>
+         </details>
+        </dd>
+       </dl>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.models">
+          baskerville.models
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-functions">
+        Functions
+       </a>
+      </h3>
+      <ul class="">
+       <li>
+        <code>
+         <a href="#baskerville.models.anomaly_model_sklearn.extract_features_in_order" title="baskerville.models.anomaly_model_sklearn.extract_features_in_order">
+          extract_features_in_order
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.anomaly_model_sklearn.AnomalyDetector" title="baskerville.models.anomaly_model_sklearn.AnomalyDetector">
+           AnomalyDetector
+          </a>
+         </code>
+        </h4>
+        <ul class="two-column">
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyDetector.features" title="baskerville.models.anomaly_model_sklearn.AnomalyDetector.features">
+            features
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyDetector.features_col" title="baskerville.models.anomaly_model_sklearn.AnomalyDetector.features_col">
+            features_col
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyDetector.model" title="baskerville.models.anomaly_model_sklearn.AnomalyDetector.model">
+            model
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyDetector.prediction_col" title="baskerville.models.anomaly_model_sklearn.AnomalyDetector.prediction_col">
+            prediction_col
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyDetector.scaler" title="baskerville.models.anomaly_model_sklearn.AnomalyDetector.scaler">
+            scaler
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyDetector.score_col" title="baskerville.models.anomaly_model_sklearn.AnomalyDetector.score_col">
+            score_col
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyDetector.threshold" title="baskerville.models.anomaly_model_sklearn.AnomalyDetector.threshold">
+            threshold
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn" title="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn">
+           AnomalyModelSklearn
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.load" title="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.load">
+            load
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.predict" title="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.predict">
+            predict
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.save" title="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.save">
+            save
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.train" title="baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn.train">
+            train
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
+</html>

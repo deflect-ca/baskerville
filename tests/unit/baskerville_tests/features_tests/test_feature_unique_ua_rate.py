@@ -1,4 +1,11 @@
-from pyspark.sql import types as T
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+from pyspark.sql import functions as F, types as T
 
 from baskerville.util.enums import FeatureComputeType
 from baskerville.features.feature_unique_ua_rate import \

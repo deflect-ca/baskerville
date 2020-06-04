@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from pyspark.ml.feature import StandardScaler, StandardScalerModel, StringIndexer, StringIndexerModel
 from pyspark.sql.functions import array
 
@@ -108,7 +115,7 @@ class AnomalyModel(ModelInterface):
             contamination=self.contamination,
             bootstrap=self.bootstrap,
             approxQuantileRelativeError=self.approximate_quantile_relative_error,
-            numCategoricalFeatures=len(self.categorical_features)
+            # numCategoricalFeatures=len(self.categorical_features)
         )
         iforest.setSeed(self.seed)
         params = {'threshold': self.threshold}

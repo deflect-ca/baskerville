@@ -1,4 +1,12 @@
-#!/usr/bin/env python
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+# Main baskerville script
+
+
 import argparse
 import atexit
 import json
@@ -17,9 +25,9 @@ from baskerville.models.anomaly_model_sklearn import AnomalyModelSklearn
 from baskerville.models.config import DatabaseConfig
 from baskerville.models.engine import BaskervilleAnalyticsEngine
 from baskerville.simulation.real_timeish_simulation import simulation
-from baskerville.util.helpers import get_logger, parse_config, get_default_data_path
+from baskerville.util.helpers import get_logger, parse_config, \
+    get_default_data_path
 
-# Main baskerville script
 
 PROCESS_LIST = []
 baskerville_engine = None
@@ -107,7 +115,7 @@ def main():
         help="Pipeline to use: es, rawlog, or kafka",
     )
     parser.add_argument(
-        "-s", "--simulate", dest="simulate", action="store_true",
+        "-s", "--simulate", dest="simulate",  action="store_true",
         help="Simulate real-time run using kafka",
     )
     parser.add_argument(
@@ -115,6 +123,13 @@ def main():
         action="store_true",
         help="Start the Baskerville Prometheus exporter at the specified "
              "in the configuration port",
+    )
+
+    parser.add_argument(
+        "-t", "--testmodel", dest="test_model",
+        help="Add a test model in the models table",
+        default=False,
+        action="store_true"
     )
 
     parser.add_argument(
@@ -155,7 +170,7 @@ def main():
     # start baskerville prometheus exporter if specified
     if args.start_exporter:
         if not baskerville_engine.config.engine.metrics:
-            raise RuntimeError('Cannot start exporter without metrics config')
+            raise RuntimeError(f'Cannot start exporter without metrics config')
         port = baskerville_engine.config.engine.metrics.port
         start_http_server(port)
         logger.info(f'Starting Baskerville Exporter at '

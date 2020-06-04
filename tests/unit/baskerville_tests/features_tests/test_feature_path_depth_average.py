@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.features.feature_path_depth_average import \
     FeaturePathDepthAverage
 from baskerville.features.feature_request_total import FeatureRequestTotal

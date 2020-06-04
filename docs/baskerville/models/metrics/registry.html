@@ -1,30 +1,52 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.models.metrics.registry API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.models.metrics.registry</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">from functools import wraps
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.models.metrics.registry API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.models.metrics.registry
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+from functools import wraps
 
 from attr import dataclass
 from baskerville.models.metrics.helpers import set__self__
@@ -41,7 +63,7 @@ class StatsHook(object):
 
 
 class MetricsRegistry(object):
-    &#34;&#34;&#34;
+    """
     A Singleton class that keeps a registry with metrics of the following
     types:
     - Counter
@@ -62,8 +84,8 @@ class MetricsRegistry(object):
     or . Wraps the method/ function to
     be timed and
 
-    &#34;&#34;&#34;
-    _prefix = &#39;baskerville_&#39;
+    """
+    _prefix = 'baskerville_'
     __registry = {}
     __metric_classes = {
         MetricClassEnum.counter: Counter,
@@ -76,7 +98,7 @@ class MetricsRegistry(object):
     __func_name_to_state = {}
 
     def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, &#39;_instance&#39;):
+        if not hasattr(cls, '_instance'):
             cls._instance = super(MetricsRegistry, cls).__new__(
                 cls, *args, **kwargs
             )
@@ -86,7 +108,7 @@ class MetricsRegistry(object):
         return len(self.registry)
 
     def prefix(self, name):
-        return f&#39;{self._prefix}{name}&#39;
+        return f'{self._prefix}{name}'
 
     @property
     def registry(self):
@@ -94,62 +116,62 @@ class MetricsRegistry(object):
 
     @staticmethod
     def get_parent_name(fn):
-        &#34;&#34;&#34;
-        Returns the class&#39;s name if any, else emtpy.
-        :param callable fn: the callable to get the class&#39;s name for.
-        :return: the class&#39;s name if a bound method else an empty string
+        """
+        Returns the class's name if any, else emtpy.
+        :param callable fn: the callable to get the class's name for.
+        :return: the class's name if a bound method else an empty string
         :rtype: str
-        &#34;&#34;&#34;
+        """
         return fn.__self__.__class__.__name__ \
-            if hasattr(fn, &#39;__self__&#39;) else &#39;&#39;
+            if hasattr(fn, '__self__') else ''
 
     def get_name(self, fn=None, name=None):
-        &#34;&#34;&#34;
+        """
         Returns the metric name
         :param name:
         :param callable fn:
         :return:
         :rtype:str
-        &#34;&#34;&#34;
+        """
         prefix = self._prefix
 
         if name:
             return self.prefix(name)
         if callable(fn):
-            return f&#39;{prefix}&#39; \
-                   f&#39;{fn.__self__.__class__.__name__.lower()}_&#39; \
-                   f&#39;{fn.__name__}&#39; if hasattr(fn, &#39;__self__&#39;) \
+            return f'{prefix}' \
+                   f'{fn.__self__.__class__.__name__.lower()}_' \
+                   f'{fn.__name__}' if hasattr(fn, '__self__') \
                 else self.prefix(fn.__name__)
-        raise ValueError(f&#39;Either a function or a name should be provided&#39;)
+        raise ValueError('Either a function or a name should be provided')
 
     @staticmethod
     def get_description(fn, parent_name):
-        return f&#39;Time Performance of {parent_name} &#34;{fn.__name__}&#34;&#39;
+        return f'Time Performance of {parent_name} "{fn.__name__}"'
 
     def name_integrity_check(self, fn, metric_name=None):
-        &#34;&#34;&#34;
+        """
         Checks whether the name that corresponds to the fn is already in the
         registry or not.
         :param callable fn:
         :param str metric_name:
         :return:
-        &#34;&#34;&#34;
+        """
         name = self.get_name(fn, metric_name)
         if name in self.registry:
-            raise ValueError(f&#39;Duplicate name: {name}&#39;)
+            raise ValueError(f'Duplicate name: {name}')
         return name
 
     def before_wrapper(self, fn, metric_name):
-        &#34;&#34;&#34;
+        """
 
         :param callable fn:
         :param str metric_name:
         :return:
-        &#34;&#34;&#34;
+        """
         @wraps(fn)
         def wrapper_f(*args, **kwargs):
             stats_h = self.registry[metric_name]
-            stats_h.hooks_to_callbacks[&#39;before&#39;](stats_h.metric, fn.__self__)
+            stats_h.hooks_to_callbacks['before'](stats_h.metric, fn.__self__)
             return fn(*args, **kwargs)
 
         # restore __self__ because wrapping loses it.
@@ -158,19 +180,19 @@ class MetricsRegistry(object):
         return wrapper_f
 
     def after_wrapper(self, fn, metric_name):
-        &#34;&#34;&#34;
+        """
         Wraps func and executes the stats hook after func has finished
         executing
         :param callable fn: the function to be executed
         :param str metric_name: the metric name
         :return: the wrapped fuction
-        &#34;&#34;&#34;
+        """
 
         @wraps(fn)
         def wrapper_f(*args, **kwargs):
             result = fn(*args, **kwargs)
             stats_h = self.registry[metric_name]
-            stats_h.hooks_to_callbacks[&#39;after&#39;](stats_h.metric, fn.__self__)
+            stats_h.hooks_to_callbacks['after'](stats_h.metric, fn.__self__)
             return result
 
         # restore __self__ because wrapping loses it.
@@ -179,17 +201,17 @@ class MetricsRegistry(object):
         return wrapper_f
 
     def with_wrapper(
-            self, fn, metric_name, kind=MetricTypeEnum.progress, method=&#39;time&#39;
+            self, fn, metric_name, kind=MetricTypeEnum.progress, method='time'
     ):
-        &#34;&#34;&#34;
+        """
         Wraps a function and uses a metric already stored in registry that
         supports with usage (context manager) to time the execution of fn
         :param func fn: the function to be timed
         :param str metric_name: the metric name
         :param MetricTypeEnum kind: the metric type
-        :param str method: which method to call on the metric, default &#39;time&#39;
+        :param str method: which method to call on the metric, default 'time'
         :return: the wrapped function
-        &#34;&#34;&#34;
+        """
 
         @wraps(fn)
         def wrapper_f(*args, **kwargs):
@@ -213,27 +235,27 @@ class MetricsRegistry(object):
         return wrapper_f
 
     def register_info(self, metric_name, description, data):
-        &#34;&#34;&#34;
+        """
         Registers an Info type of metric, e.g. the current version
         :param str metric_name: the metric name
         :param str description: details about what it measures
         :param T data: what to display
         :return:
-        &#34;&#34;&#34;
+        """
         if metric_name in self.registry:
-            raise ValueError(f&#39;Duplicate name: {metric_name}&#39;)
+            raise ValueError(f'Duplicate name: {metric_name}')
         self.registry[metric_name] = Info(metric_name, description)
         self.registry[metric_name].info(data)
 
     def register_states(self, metric_name, description, states_to_methods):
-        &#34;&#34;&#34;
+        """
         Registers an enum metric to register states (boolean)
         :param str metric_name: the name of the state metric
         :param str description: what does the state metric measure
         :param dict[str, T] states_to_methods: key value pairs of the available
         states and the respective methods
         :return:
-        &#34;&#34;&#34;
+        """
         self.__registry[metric_name] = Enum(
             metric_name,
             description,
@@ -244,17 +266,18 @@ class MetricsRegistry(object):
 
         for state, method in states_to_methods.items():
             self.__func_name_to_state[method.__name__] = str(state)
-            updated_state_to_method[state] = self.state_wrapper(method, metric_name)
+            updated_state_to_method[state] = self.state_wrapper(
+                method, metric_name)
 
         return updated_state_to_method
 
     def register_timer(self, metric_name, func, metric_description=None):
-        &#34;&#34;&#34;
+        """
         Registers a Summary metric that supports timing the execution fo
         :param metric_name:
         :param func:
         :return:
-        &#34;&#34;&#34;
+        """
         parent_name = self.get_parent_name(func)
         name = self.name_integrity_check(func, metric_name)
 
@@ -273,13 +296,13 @@ class MetricsRegistry(object):
             self,
             func_to_watch_for,
             callback,
-            when=&#39;after&#39;,
+            when='after',
             metric_name=None,
             metric_description=None,
             metric_cls=MetricClassEnum.counter,
             labelnames=None,
     ):
-        &#34;&#34;&#34;
+        """
         Registers an action for the func_to_watch_for, depending on `when`.
         This means that the func_to_watch_for is wrapped so that the callback
         that updates the metric is executed before or after the
@@ -300,13 +323,13 @@ class MetricsRegistry(object):
         :param list[str] labelnames:a list with the labelnames if any. None by
         default
         :return:
-        &#34;&#34;&#34;
+        """
         # get the name
         parent_name = self.get_parent_name(func_to_watch_for)
         metric_name = self.get_name(func_to_watch_for, metric_name)
 
         if metric_cls not in self.__metric_classes:
-            raise ValueError(f&#39;Wrong metric_cls {metric_cls}&#39;)
+            raise ValueError(f'Wrong metric_cls {metric_cls}')
 
         # create a metric
         metric = self.__metric_classes[metric_cls](
@@ -320,7 +343,7 @@ class MetricsRegistry(object):
         if metric_name in self.registry:
             stats_hook = self.registry[metric_name]
             if when in stats_hook.hooks_to_callbacks:
-                raise ValueError(f&#39;Duplicate hook {when}&#39;)
+                raise ValueError(f'Duplicate hook {when}')
             stats_hook.hooks_to_callbacks[when] = callback
         else:
             stats_hook = StatsHook(
@@ -333,56 +356,93 @@ class MetricsRegistry(object):
         self.registry[metric_name] = stats_hook
 
         # return a wrapper
-        if when == &#39;before&#39;:
+        if when == 'before':
             wrapped_f = self.before_wrapper(func_to_watch_for, metric_name)
-        elif when == &#39;after&#39;:
+        elif when == 'after':
             wrapped_f = self.after_wrapper(func_to_watch_for, metric_name)
         else:
-            raise ValueError(f&#39;Wrong `when` type: {when}&#39;)
+            raise ValueError(f'Wrong `when` type: {when}')
 
         return wrapped_f
 
 
 metrics_registry = MetricsRegistry()</code></pre>
-</details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry"><code class="flex name class">
-<span>class <span class="ident">MetricsRegistry</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>A Singleton class that keeps a registry with metrics of the following
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.models.metrics.registry.MetricsRegistry">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          MetricsRegistry
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         A Singleton class that keeps a registry with metrics of the following
 types:
 - Counter
 - Gauge
 - Summary
 - Histogram
 - Info
-- Enum</p>
-<p>more info: <a href="https://github.com/prometheus/client_python">https://github.com/prometheus/client_python</a></p>
-<p>Provides the following wrappers:
-- <code>before_wrapper</code>
-- <code>after_wrapper</code>
-- <code>with_wrapper</code>: used for timing methods/ functions and tracking with a
+- Enum
+        </p>
+        <p>
+         more info:
+         <a href="https://github.com/prometheus/client_python">
+          https://github.com/prometheus/client_python
+         </a>
+        </p>
+        <p>
+         Provides the following wrappers:
+-
+         <code>
+          before_wrapper
+         </code>
+         -
+         <code>
+          after_wrapper
+         </code>
+         -
+         <code>
+          with_wrapper
+         </code>
+         : used for timing methods/ functions and tracking with a
 Summary / Histogram metric type
 if they are in progress or not, either with a Gauge
 or . Wraps the method/ function to
-be timed and</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class MetricsRegistry(object):
-    &#34;&#34;&#34;
+be timed and
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class MetricsRegistry(object):
+    """
     A Singleton class that keeps a registry with metrics of the following
     types:
     - Counter
@@ -403,8 +463,8 @@ be timed and</p></section>
     or . Wraps the method/ function to
     be timed and
 
-    &#34;&#34;&#34;
-    _prefix = &#39;baskerville_&#39;
+    """
+    _prefix = 'baskerville_'
     __registry = {}
     __metric_classes = {
         MetricClassEnum.counter: Counter,
@@ -417,7 +477,7 @@ be timed and</p></section>
     __func_name_to_state = {}
 
     def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, &#39;_instance&#39;):
+        if not hasattr(cls, '_instance'):
             cls._instance = super(MetricsRegistry, cls).__new__(
                 cls, *args, **kwargs
             )
@@ -427,7 +487,7 @@ be timed and</p></section>
         return len(self.registry)
 
     def prefix(self, name):
-        return f&#39;{self._prefix}{name}&#39;
+        return f'{self._prefix}{name}'
 
     @property
     def registry(self):
@@ -435,62 +495,62 @@ be timed and</p></section>
 
     @staticmethod
     def get_parent_name(fn):
-        &#34;&#34;&#34;
-        Returns the class&#39;s name if any, else emtpy.
-        :param callable fn: the callable to get the class&#39;s name for.
-        :return: the class&#39;s name if a bound method else an empty string
+        """
+        Returns the class's name if any, else emtpy.
+        :param callable fn: the callable to get the class's name for.
+        :return: the class's name if a bound method else an empty string
         :rtype: str
-        &#34;&#34;&#34;
+        """
         return fn.__self__.__class__.__name__ \
-            if hasattr(fn, &#39;__self__&#39;) else &#39;&#39;
+            if hasattr(fn, '__self__') else ''
 
     def get_name(self, fn=None, name=None):
-        &#34;&#34;&#34;
+        """
         Returns the metric name
         :param name:
         :param callable fn:
         :return:
         :rtype:str
-        &#34;&#34;&#34;
+        """
         prefix = self._prefix
 
         if name:
             return self.prefix(name)
         if callable(fn):
-            return f&#39;{prefix}&#39; \
-                   f&#39;{fn.__self__.__class__.__name__.lower()}_&#39; \
-                   f&#39;{fn.__name__}&#39; if hasattr(fn, &#39;__self__&#39;) \
+            return f'{prefix}' \
+                   f'{fn.__self__.__class__.__name__.lower()}_' \
+                   f'{fn.__name__}' if hasattr(fn, '__self__') \
                 else self.prefix(fn.__name__)
-        raise ValueError(f&#39;Either a function or a name should be provided&#39;)
+        raise ValueError('Either a function or a name should be provided')
 
     @staticmethod
     def get_description(fn, parent_name):
-        return f&#39;Time Performance of {parent_name} &#34;{fn.__name__}&#34;&#39;
+        return f'Time Performance of {parent_name} "{fn.__name__}"'
 
     def name_integrity_check(self, fn, metric_name=None):
-        &#34;&#34;&#34;
+        """
         Checks whether the name that corresponds to the fn is already in the
         registry or not.
         :param callable fn:
         :param str metric_name:
         :return:
-        &#34;&#34;&#34;
+        """
         name = self.get_name(fn, metric_name)
         if name in self.registry:
-            raise ValueError(f&#39;Duplicate name: {name}&#39;)
+            raise ValueError(f'Duplicate name: {name}')
         return name
 
     def before_wrapper(self, fn, metric_name):
-        &#34;&#34;&#34;
+        """
 
         :param callable fn:
         :param str metric_name:
         :return:
-        &#34;&#34;&#34;
+        """
         @wraps(fn)
         def wrapper_f(*args, **kwargs):
             stats_h = self.registry[metric_name]
-            stats_h.hooks_to_callbacks[&#39;before&#39;](stats_h.metric, fn.__self__)
+            stats_h.hooks_to_callbacks['before'](stats_h.metric, fn.__self__)
             return fn(*args, **kwargs)
 
         # restore __self__ because wrapping loses it.
@@ -499,19 +559,19 @@ be timed and</p></section>
         return wrapper_f
 
     def after_wrapper(self, fn, metric_name):
-        &#34;&#34;&#34;
+        """
         Wraps func and executes the stats hook after func has finished
         executing
         :param callable fn: the function to be executed
         :param str metric_name: the metric name
         :return: the wrapped fuction
-        &#34;&#34;&#34;
+        """
 
         @wraps(fn)
         def wrapper_f(*args, **kwargs):
             result = fn(*args, **kwargs)
             stats_h = self.registry[metric_name]
-            stats_h.hooks_to_callbacks[&#39;after&#39;](stats_h.metric, fn.__self__)
+            stats_h.hooks_to_callbacks['after'](stats_h.metric, fn.__self__)
             return result
 
         # restore __self__ because wrapping loses it.
@@ -520,17 +580,17 @@ be timed and</p></section>
         return wrapper_f
 
     def with_wrapper(
-            self, fn, metric_name, kind=MetricTypeEnum.progress, method=&#39;time&#39;
+            self, fn, metric_name, kind=MetricTypeEnum.progress, method='time'
     ):
-        &#34;&#34;&#34;
+        """
         Wraps a function and uses a metric already stored in registry that
         supports with usage (context manager) to time the execution of fn
         :param func fn: the function to be timed
         :param str metric_name: the metric name
         :param MetricTypeEnum kind: the metric type
-        :param str method: which method to call on the metric, default &#39;time&#39;
+        :param str method: which method to call on the metric, default 'time'
         :return: the wrapped function
-        &#34;&#34;&#34;
+        """
 
         @wraps(fn)
         def wrapper_f(*args, **kwargs):
@@ -554,27 +614,27 @@ be timed and</p></section>
         return wrapper_f
 
     def register_info(self, metric_name, description, data):
-        &#34;&#34;&#34;
+        """
         Registers an Info type of metric, e.g. the current version
         :param str metric_name: the metric name
         :param str description: details about what it measures
         :param T data: what to display
         :return:
-        &#34;&#34;&#34;
+        """
         if metric_name in self.registry:
-            raise ValueError(f&#39;Duplicate name: {metric_name}&#39;)
+            raise ValueError(f'Duplicate name: {metric_name}')
         self.registry[metric_name] = Info(metric_name, description)
         self.registry[metric_name].info(data)
 
     def register_states(self, metric_name, description, states_to_methods):
-        &#34;&#34;&#34;
+        """
         Registers an enum metric to register states (boolean)
         :param str metric_name: the name of the state metric
         :param str description: what does the state metric measure
         :param dict[str, T] states_to_methods: key value pairs of the available
         states and the respective methods
         :return:
-        &#34;&#34;&#34;
+        """
         self.__registry[metric_name] = Enum(
             metric_name,
             description,
@@ -585,17 +645,18 @@ be timed and</p></section>
 
         for state, method in states_to_methods.items():
             self.__func_name_to_state[method.__name__] = str(state)
-            updated_state_to_method[state] = self.state_wrapper(method, metric_name)
+            updated_state_to_method[state] = self.state_wrapper(
+                method, metric_name)
 
         return updated_state_to_method
 
     def register_timer(self, metric_name, func, metric_description=None):
-        &#34;&#34;&#34;
+        """
         Registers a Summary metric that supports timing the execution fo
         :param metric_name:
         :param func:
         :return:
-        &#34;&#34;&#34;
+        """
         parent_name = self.get_parent_name(func)
         name = self.name_integrity_check(func, metric_name)
 
@@ -614,13 +675,13 @@ be timed and</p></section>
             self,
             func_to_watch_for,
             callback,
-            when=&#39;after&#39;,
+            when='after',
             metric_name=None,
             metric_description=None,
             metric_cls=MetricClassEnum.counter,
             labelnames=None,
     ):
-        &#34;&#34;&#34;
+        """
         Registers an action for the func_to_watch_for, depending on `when`.
         This means that the func_to_watch_for is wrapped so that the callback
         that updates the metric is executed before or after the
@@ -641,13 +702,13 @@ be timed and</p></section>
         :param list[str] labelnames:a list with the labelnames if any. None by
         default
         :return:
-        &#34;&#34;&#34;
+        """
         # get the name
         parent_name = self.get_parent_name(func_to_watch_for)
         metric_name = self.get_name(func_to_watch_for, metric_name)
 
         if metric_cls not in self.__metric_classes:
-            raise ValueError(f&#39;Wrong metric_cls {metric_cls}&#39;)
+            raise ValueError(f'Wrong metric_cls {metric_cls}')
 
         # create a metric
         metric = self.__metric_classes[metric_cls](
@@ -661,7 +722,7 @@ be timed and</p></section>
         if metric_name in self.registry:
             stats_hook = self.registry[metric_name]
             if when in stats_hook.hooks_to_callbacks:
-                raise ValueError(f&#39;Duplicate hook {when}&#39;)
+                raise ValueError(f'Duplicate hook {when}')
             stats_hook.hooks_to_callbacks[when] = callback
         else:
             stats_hook = StatsHook(
@@ -674,216 +735,362 @@ be timed and</p></section>
         self.registry[metric_name] = stats_hook
 
         # return a wrapper
-        if when == &#39;before&#39;:
+        if when == 'before':
             wrapped_f = self.before_wrapper(func_to_watch_for, metric_name)
-        elif when == &#39;after&#39;:
+        elif when == 'after':
             wrapped_f = self.after_wrapper(func_to_watch_for, metric_name)
         else:
-            raise ValueError(f&#39;Wrong `when` type: {when}&#39;)
+            raise ValueError(f'Wrong `when` type: {when}')
 
         return wrapped_f</code></pre>
-</details>
-<h3>Static methods</h3>
-<dl>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.get_description"><code class="name flex">
-<span>def <span class="ident">get_description</span></span>(<span>fn, parent_name)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
+       </details>
+       <h3>
+        Static methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.get_description">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_description
+           </span>
+          </span>
+          (
+          <span>
+           fn, parent_name)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@staticmethod
 def get_description(fn, parent_name):
-    return f&#39;Time Performance of {parent_name} &#34;{fn.__name__}&#34;&#39;</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.get_parent_name"><code class="name flex">
-<span>def <span class="ident">get_parent_name</span></span>(<span>fn)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns the class's name if any, else emtpy.
+    return f'Time Performance of {parent_name} "{fn.__name__}"'</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.get_parent_name">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_parent_name
+           </span>
+          </span>
+          (
+          <span>
+           fn)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Returns the class's name if any, else emtpy.
 :param callable fn: the callable to get the class's name for.
 :return: the class's name if a bound method else an empty string
-:rtype: str</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
+:rtype: str
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@staticmethod
 def get_parent_name(fn):
-    &#34;&#34;&#34;
-    Returns the class&#39;s name if any, else emtpy.
-    :param callable fn: the callable to get the class&#39;s name for.
-    :return: the class&#39;s name if a bound method else an empty string
+    """
+    Returns the class's name if any, else emtpy.
+    :param callable fn: the callable to get the class's name for.
+    :return: the class's name if a bound method else an empty string
     :rtype: str
-    &#34;&#34;&#34;
+    """
     return fn.__self__.__class__.__name__ \
-        if hasattr(fn, &#39;__self__&#39;) else &#39;&#39;</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.registry"><code class="name">var <span class="ident">registry</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+        if hasattr(fn, '__self__') else ''</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Instance variables
+       </h3>
+       <dl>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.registry">
+         <code class="name">
+          var
+          <span class="ident">
+           registry
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def registry(self):
     return self.__registry</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.after_wrapper"><code class="name flex">
-<span>def <span class="ident">after_wrapper</span></span>(<span>self, fn, metric_name)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Wraps func and executes the stats hook after func has finished
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.after_wrapper">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            after_wrapper
+           </span>
+          </span>
+          (
+          <span>
+           self, fn, metric_name)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Wraps func and executes the stats hook after func has finished
 executing
 :param callable fn: the function to be executed
 :param str metric_name: the metric name
-:return: the wrapped fuction</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def after_wrapper(self, fn, metric_name):
-    &#34;&#34;&#34;
+:return: the wrapped fuction
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def after_wrapper(self, fn, metric_name):
+    """
     Wraps func and executes the stats hook after func has finished
     executing
     :param callable fn: the function to be executed
     :param str metric_name: the metric name
     :return: the wrapped fuction
-    &#34;&#34;&#34;
+    """
 
     @wraps(fn)
     def wrapper_f(*args, **kwargs):
         result = fn(*args, **kwargs)
         stats_h = self.registry[metric_name]
-        stats_h.hooks_to_callbacks[&#39;after&#39;](stats_h.metric, fn.__self__)
+        stats_h.hooks_to_callbacks['after'](stats_h.metric, fn.__self__)
         return result
 
     # restore __self__ because wrapping loses it.
     wrapper_f.__self__ = fn.__self__
 
     return wrapper_f</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.before_wrapper"><code class="name flex">
-<span>def <span class="ident">before_wrapper</span></span>(<span>self, fn, metric_name)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>:param callable fn:
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.before_wrapper">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            before_wrapper
+           </span>
+          </span>
+          (
+          <span>
+           self, fn, metric_name)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           :param callable fn:
 :param str metric_name:
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def before_wrapper(self, fn, metric_name):
-    &#34;&#34;&#34;
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def before_wrapper(self, fn, metric_name):
+    """
 
     :param callable fn:
     :param str metric_name:
     :return:
-    &#34;&#34;&#34;
+    """
     @wraps(fn)
     def wrapper_f(*args, **kwargs):
         stats_h = self.registry[metric_name]
-        stats_h.hooks_to_callbacks[&#39;before&#39;](stats_h.metric, fn.__self__)
+        stats_h.hooks_to_callbacks['before'](stats_h.metric, fn.__self__)
         return fn(*args, **kwargs)
 
     # restore __self__ because wrapping loses it.
     wrapper_f.__self__ = fn.__self__
 
     return wrapper_f</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.get_name"><code class="name flex">
-<span>def <span class="ident">get_name</span></span>(<span>self, fn=None, name=None)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns the metric name
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.get_name">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_name
+           </span>
+          </span>
+          (
+          <span>
+           self, fn=None, name=None)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Returns the metric name
 :param name:
 :param callable fn:
 :return:
-:rtype:str</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_name(self, fn=None, name=None):
-    &#34;&#34;&#34;
+:rtype:str
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_name(self, fn=None, name=None):
+    """
     Returns the metric name
     :param name:
     :param callable fn:
     :return:
     :rtype:str
-    &#34;&#34;&#34;
+    """
     prefix = self._prefix
 
     if name:
         return self.prefix(name)
     if callable(fn):
-        return f&#39;{prefix}&#39; \
-               f&#39;{fn.__self__.__class__.__name__.lower()}_&#39; \
-               f&#39;{fn.__name__}&#39; if hasattr(fn, &#39;__self__&#39;) \
+        return f'{prefix}' \
+               f'{fn.__self__.__class__.__name__.lower()}_' \
+               f'{fn.__name__}' if hasattr(fn, '__self__') \
             else self.prefix(fn.__name__)
-    raise ValueError(f&#39;Either a function or a name should be provided&#39;)</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.name_integrity_check"><code class="name flex">
-<span>def <span class="ident">name_integrity_check</span></span>(<span>self, fn, metric_name=None)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Checks whether the name that corresponds to the fn is already in the
+    raise ValueError('Either a function or a name should be provided')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.name_integrity_check">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            name_integrity_check
+           </span>
+          </span>
+          (
+          <span>
+           self, fn, metric_name=None)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Checks whether the name that corresponds to the fn is already in the
 registry or not.
 :param callable fn:
 :param str metric_name:
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def name_integrity_check(self, fn, metric_name=None):
-    &#34;&#34;&#34;
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def name_integrity_check(self, fn, metric_name=None):
+    """
     Checks whether the name that corresponds to the fn is already in the
     registry or not.
     :param callable fn:
     :param str metric_name:
     :return:
-    &#34;&#34;&#34;
+    """
     name = self.get_name(fn, metric_name)
     if name in self.registry:
-        raise ValueError(f&#39;Duplicate name: {name}&#39;)
+        raise ValueError(f'Duplicate name: {name}')
     return name</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.prefix"><code class="name flex">
-<span>def <span class="ident">prefix</span></span>(<span>self, name)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def prefix(self, name):
-    return f&#39;{self._prefix}{name}&#39;</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.register_action_hook"><code class="name flex">
-<span>def <span class="ident">register_action_hook</span></span>(<span>self, func_to_watch_for, callback, when='after', metric_name=None, metric_description=None, metric_cls=counter, labelnames=None)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Registers an action for the func_to_watch_for, depending on <code>when</code>.
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.prefix">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            prefix
+           </span>
+          </span>
+          (
+          <span>
+           self, name)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def prefix(self, name):
+    return f'{self._prefix}{name}'</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.register_action_hook">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            register_action_hook
+           </span>
+          </span>
+          (
+          <span>
+           self, func_to_watch_for, callback, when='after', metric_name=None, metric_description=None, metric_cls=counter, labelnames=None)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Registers an action for the func_to_watch_for, depending on
+           <code>
+            when
+           </code>
+           .
 This means that the func_to_watch_for is wrapped so that the callback
 that updates the metric is executed before or after the
 func_to_watch_for has been called.
@@ -894,31 +1101,50 @@ the metric to be updated
 lambda expression that takes as input two arguments, metric and self
 and updates the metric: metric.inc(). Note: the callback signature must
 have two arguments, the first one is the metric itself and the second
-one is the <code>self</code> of the wrapped method <code>func_to_watch_for</code>
-(only methods are currently supported)
-:param str when: <code>before</code> or <code>after</code>, it defines when should the
+one is the
+           <code>
+            self
+           </code>
+           of the wrapped method
+           <code>
+            func_to_watch_for
+           </code>
+           (only methods are currently supported)
+:param str when:
+           <code>
+            before
+           </code>
+           or
+           <code>
+            after
+           </code>
+           , it defines when should the
 callback be executed.
 :param str metric_name: the name of the metric
 :param MetricClassEnum metric_cls: the type of metric
 :param list[str] labelnames:a list with the labelnames if any. None by
 default
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@set__self__
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@set__self__
 def register_action_hook(
         self,
         func_to_watch_for,
         callback,
-        when=&#39;after&#39;,
+        when='after',
         metric_name=None,
         metric_description=None,
         metric_cls=MetricClassEnum.counter,
         labelnames=None,
 ):
-    &#34;&#34;&#34;
+    """
     Registers an action for the func_to_watch_for, depending on `when`.
     This means that the func_to_watch_for is wrapped so that the callback
     that updates the metric is executed before or after the
@@ -939,13 +1165,13 @@ def register_action_hook(
     :param list[str] labelnames:a list with the labelnames if any. None by
     default
     :return:
-    &#34;&#34;&#34;
+    """
     # get the name
     parent_name = self.get_parent_name(func_to_watch_for)
     metric_name = self.get_name(func_to_watch_for, metric_name)
 
     if metric_cls not in self.__metric_classes:
-        raise ValueError(f&#39;Wrong metric_cls {metric_cls}&#39;)
+        raise ValueError(f'Wrong metric_cls {metric_cls}')
 
     # create a metric
     metric = self.__metric_classes[metric_cls](
@@ -959,7 +1185,7 @@ def register_action_hook(
     if metric_name in self.registry:
         stats_hook = self.registry[metric_name]
         if when in stats_hook.hooks_to_callbacks:
-            raise ValueError(f&#39;Duplicate hook {when}&#39;)
+            raise ValueError(f'Duplicate hook {when}')
         stats_hook.hooks_to_callbacks[when] = callback
     else:
         stats_hook = StatsHook(
@@ -972,66 +1198,100 @@ def register_action_hook(
     self.registry[metric_name] = stats_hook
 
     # return a wrapper
-    if when == &#39;before&#39;:
+    if when == 'before':
         wrapped_f = self.before_wrapper(func_to_watch_for, metric_name)
-    elif when == &#39;after&#39;:
+    elif when == 'after':
         wrapped_f = self.after_wrapper(func_to_watch_for, metric_name)
     else:
-        raise ValueError(f&#39;Wrong `when` type: {when}&#39;)
+        raise ValueError(f'Wrong `when` type: {when}')
 
     return wrapped_f</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.register_info"><code class="name flex">
-<span>def <span class="ident">register_info</span></span>(<span>self, metric_name, description, data)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Registers an Info type of metric, e.g. the current version
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.register_info">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            register_info
+           </span>
+          </span>
+          (
+          <span>
+           self, metric_name, description, data)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Registers an Info type of metric, e.g. the current version
 :param str metric_name: the metric name
 :param str description: details about what it measures
 :param T data: what to display
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def register_info(self, metric_name, description, data):
-    &#34;&#34;&#34;
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def register_info(self, metric_name, description, data):
+    """
     Registers an Info type of metric, e.g. the current version
     :param str metric_name: the metric name
     :param str description: details about what it measures
     :param T data: what to display
     :return:
-    &#34;&#34;&#34;
+    """
     if metric_name in self.registry:
-        raise ValueError(f&#39;Duplicate name: {metric_name}&#39;)
+        raise ValueError(f'Duplicate name: {metric_name}')
     self.registry[metric_name] = Info(metric_name, description)
     self.registry[metric_name].info(data)</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.register_states"><code class="name flex">
-<span>def <span class="ident">register_states</span></span>(<span>self, metric_name, description, states_to_methods)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Registers an enum metric to register states (boolean)
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.register_states">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            register_states
+           </span>
+          </span>
+          (
+          <span>
+           self, metric_name, description, states_to_methods)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Registers an enum metric to register states (boolean)
 :param str metric_name: the name of the state metric
 :param str description: what does the state metric measure
 :param dict[str, T] states_to_methods: key value pairs of the available
 states and the respective methods
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def register_states(self, metric_name, description, states_to_methods):
-    &#34;&#34;&#34;
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def register_states(self, metric_name, description, states_to_methods):
+    """
     Registers an enum metric to register states (boolean)
     :param str metric_name: the name of the state metric
     :param str description: what does the state metric measure
     :param dict[str, T] states_to_methods: key value pairs of the available
     states and the respective methods
     :return:
-    &#34;&#34;&#34;
+    """
     self.__registry[metric_name] = Enum(
         metric_name,
         description,
@@ -1042,30 +1302,48 @@ states and the respective methods
 
     for state, method in states_to_methods.items():
         self.__func_name_to_state[method.__name__] = str(state)
-        updated_state_to_method[state] = self.state_wrapper(method, metric_name)
+        updated_state_to_method[state] = self.state_wrapper(
+            method, metric_name)
 
     return updated_state_to_method</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.register_timer"><code class="name flex">
-<span>def <span class="ident">register_timer</span></span>(<span>self, metric_name, func, metric_description=None)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Registers a Summary metric that supports timing the execution fo
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.register_timer">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            register_timer
+           </span>
+          </span>
+          (
+          <span>
+           self, metric_name, func, metric_description=None)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Registers a Summary metric that supports timing the execution fo
 :param metric_name:
 :param func:
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def register_timer(self, metric_name, func, metric_description=None):
-    &#34;&#34;&#34;
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def register_timer(self, metric_name, func, metric_description=None):
+    """
     Registers a Summary metric that supports timing the execution fo
     :param metric_name:
     :param func:
     :return:
-    &#34;&#34;&#34;
+    """
     parent_name = self.get_parent_name(func)
     name = self.name_integrity_check(func, metric_name)
 
@@ -1078,18 +1356,32 @@ states and the respective methods
     wrapper_f = self.with_wrapper(func, name)
 
     return wrapper_f</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.state_wrapper"><code class="name flex">
-<span>def <span class="ident">state_wrapper</span></span>(<span>self, func, metric_name)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def state_wrapper(self, func, metric_name):
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.state_wrapper">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            state_wrapper
+           </span>
+          </span>
+          (
+          <span>
+           self, func, metric_name)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def state_wrapper(self, func, metric_name):
     @wraps(func)
     def wrapper_f(*args, **kwargs):
         # set state before calling the function
@@ -1098,35 +1390,52 @@ states and the respective methods
         return func(*args, **kwargs)
 
     return wrapper_f</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.metrics.registry.MetricsRegistry.with_wrapper"><code class="name flex">
-<span>def <span class="ident">with_wrapper</span></span>(<span>self, fn, metric_name, kind=Progress, method='time')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Wraps a function and uses a metric already stored in registry that
+         </details>
+        </dd>
+        <dt id="baskerville.models.metrics.registry.MetricsRegistry.with_wrapper">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            with_wrapper
+           </span>
+          </span>
+          (
+          <span>
+           self, fn, metric_name, kind=Progress, method='time')
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Wraps a function and uses a metric already stored in registry that
 supports with usage (context manager) to time the execution of fn
 :param func fn: the function to be timed
 :param str metric_name: the metric name
 :param MetricTypeEnum kind: the metric type
 :param str method: which method to call on the metric, default 'time'
-:return: the wrapped function</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def with_wrapper(
-        self, fn, metric_name, kind=MetricTypeEnum.progress, method=&#39;time&#39;
+:return: the wrapped function
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def with_wrapper(
+        self, fn, metric_name, kind=MetricTypeEnum.progress, method='time'
 ):
-    &#34;&#34;&#34;
+    """
     Wraps a function and uses a metric already stored in registry that
     supports with usage (context manager) to time the execution of fn
     :param func fn: the function to be timed
     :param str metric_name: the metric name
     :param MetricTypeEnum kind: the metric type
-    :param str method: which method to call on the metric, default &#39;time&#39;
+    :param str method: which method to call on the metric, default 'time'
     :return: the wrapped function
-    &#34;&#34;&#34;
+    """
 
     @wraps(fn)
     def wrapper_f(*args, **kwargs):
@@ -1138,73 +1447,222 @@ supports with usage (context manager) to time the execution of fn
             return fn(*args, **kwargs)
 
     return wrapper_f</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.models.metrics.registry.StatsHook"><code class="flex name class">
-<span>class <span class="ident">StatsHook</span></span>
-<span>(</span><span>metric, wrapped_func_name, hooks_to_callbacks)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class StatsHook(object):
+         </details>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.models.metrics.registry.StatsHook">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          StatsHook
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         metric, wrapped_func_name, hooks_to_callbacks)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class StatsHook(object):
     metric: Metric
     wrapped_func_name: str
     hooks_to_callbacks: dict</code></pre>
-</details>
-</dd>
-</dl>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville.models.metrics" href="index.html">baskerville.models.metrics</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="baskerville.models.metrics.registry.MetricsRegistry" href="#baskerville.models.metrics.registry.MetricsRegistry">MetricsRegistry</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.after_wrapper" href="#baskerville.models.metrics.registry.MetricsRegistry.after_wrapper">after_wrapper</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.before_wrapper" href="#baskerville.models.metrics.registry.MetricsRegistry.before_wrapper">before_wrapper</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.get_description" href="#baskerville.models.metrics.registry.MetricsRegistry.get_description">get_description</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.get_name" href="#baskerville.models.metrics.registry.MetricsRegistry.get_name">get_name</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.get_parent_name" href="#baskerville.models.metrics.registry.MetricsRegistry.get_parent_name">get_parent_name</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.name_integrity_check" href="#baskerville.models.metrics.registry.MetricsRegistry.name_integrity_check">name_integrity_check</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.prefix" href="#baskerville.models.metrics.registry.MetricsRegistry.prefix">prefix</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.register_action_hook" href="#baskerville.models.metrics.registry.MetricsRegistry.register_action_hook">register_action_hook</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.register_info" href="#baskerville.models.metrics.registry.MetricsRegistry.register_info">register_info</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.register_states" href="#baskerville.models.metrics.registry.MetricsRegistry.register_states">register_states</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.register_timer" href="#baskerville.models.metrics.registry.MetricsRegistry.register_timer">register_timer</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.registry" href="#baskerville.models.metrics.registry.MetricsRegistry.registry">registry</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.state_wrapper" href="#baskerville.models.metrics.registry.MetricsRegistry.state_wrapper">state_wrapper</a></code></li>
-<li><code><a title="baskerville.models.metrics.registry.MetricsRegistry.with_wrapper" href="#baskerville.models.metrics.registry.MetricsRegistry.with_wrapper">with_wrapper</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.models.metrics.registry.StatsHook" href="#baskerville.models.metrics.registry.StatsHook">StatsHook</a></code></h4>
-</li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+       </details>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.models.metrics">
+          baskerville.models.metrics
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.metrics.registry.MetricsRegistry" title="baskerville.models.metrics.registry.MetricsRegistry">
+           MetricsRegistry
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.after_wrapper" title="baskerville.models.metrics.registry.MetricsRegistry.after_wrapper">
+            after_wrapper
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.before_wrapper" title="baskerville.models.metrics.registry.MetricsRegistry.before_wrapper">
+            before_wrapper
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.get_description" title="baskerville.models.metrics.registry.MetricsRegistry.get_description">
+            get_description
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.get_name" title="baskerville.models.metrics.registry.MetricsRegistry.get_name">
+            get_name
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.get_parent_name" title="baskerville.models.metrics.registry.MetricsRegistry.get_parent_name">
+            get_parent_name
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.name_integrity_check" title="baskerville.models.metrics.registry.MetricsRegistry.name_integrity_check">
+            name_integrity_check
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.prefix" title="baskerville.models.metrics.registry.MetricsRegistry.prefix">
+            prefix
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.register_action_hook" title="baskerville.models.metrics.registry.MetricsRegistry.register_action_hook">
+            register_action_hook
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.register_info" title="baskerville.models.metrics.registry.MetricsRegistry.register_info">
+            register_info
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.register_states" title="baskerville.models.metrics.registry.MetricsRegistry.register_states">
+            register_states
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.register_timer" title="baskerville.models.metrics.registry.MetricsRegistry.register_timer">
+            register_timer
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.registry" title="baskerville.models.metrics.registry.MetricsRegistry.registry">
+            registry
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.state_wrapper" title="baskerville.models.metrics.registry.MetricsRegistry.state_wrapper">
+            state_wrapper
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.metrics.registry.MetricsRegistry.with_wrapper" title="baskerville.models.metrics.registry.MetricsRegistry.with_wrapper">
+            with_wrapper
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.metrics.registry.StatsHook" title="baskerville.models.metrics.registry.StatsHook">
+           StatsHook
+          </a>
+         </code>
+        </h4>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>

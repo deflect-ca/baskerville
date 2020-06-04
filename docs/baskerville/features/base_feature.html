@@ -1,30 +1,52 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.features.base_feature API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.features.base_feature</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">import abc
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.features.base_feature API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.features.base_feature
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import abc
 import stringcase
 from collections import OrderedDict
 
@@ -35,16 +57,16 @@ from baskerville.util.enums import FeatureComputeType
 
 
 class BaseFeature(SerializableMixin, metaclass=abc.ABCMeta):
-    &#34;&#34;&#34;
+    """
     The parent class for all features used to distinguish an attack from a
     legitimate request. IPSieve provides the feature with a dictionary and the
-    feature returns a dictionary of IPs and the feature&#39;s numerical value.
-    &#34;&#34;&#34;
+    feature returns a dictionary of IPs and the feature's numerical value.
+    """
     DEFAULT_VALUE = 0.
     COLUMNS = []
     CACHE_COLUMNS = []
     DEPENDENCIES = []
-    _prefix = &#39;Feature&#39;
+    _prefix = 'Feature'
 
     def __init__(self):
         self.group_by_aggs = {}
@@ -57,10 +79,10 @@ class BaseFeature(SerializableMixin, metaclass=abc.ABCMeta):
         return self.feature_name_from_class()
 
     def __repr__(self):
-        return f&#39;&lt;{self.__class__.__name__} {self.feature_name} &#39; \
-            f&#39;default value: {self.DEFAULT_VALUE}, &#39; \
-            f&#39;dependencies:{&#34;,&#34;.join(self.DEPENDENCIES)}, &#39; \
-            f&#39;columns:{&#34;,&#34;.join(self.COLUMNS)}&gt;&#39;
+        return f'&lt;{self.__class__.__name__} {self.feature_name} ' \
+               f'default value: {self.DEFAULT_VALUE}, ' \
+               f'dependencies:{",".join(self.DEPENDENCIES)}, ' \
+               f'columns:{",".join(self.COLUMNS)}&gt;'
 
     @property
     def columns(self):
@@ -76,77 +98,77 @@ class BaseFeature(SerializableMixin, metaclass=abc.ABCMeta):
 
     @property
     def feature_name(self):
-        return stringcase.snakecase(self.__class__.__name__.replace(self._prefix, &#39;&#39;))
+        return stringcase.snakecase(self.__class__.__name__.replace(self._prefix, ''))
 
     @classmethod
     def feature_name_from_class(cls):
-        return stringcase.snakecase(cls.__name__.replace(cls._prefix, &#39;&#39;))
+        return stringcase.snakecase(cls.__name__.replace(cls._prefix, ''))
 
     @property
     def feature_default(self):
         return self.DEFAULT_VALUE
 
     def compute(self, *args, **kwargs):
-        &#34;&#34;&#34;
+        """
         The feature should overload this function to implement the feature
         computation. At the end the results should be stored
         in a dictionary with the format of IP:value where the value is a double
         or an integer value
-        &#34;&#34;&#34;
-        raise NotImplementedError(&#39;Base class\&#39; compute was called. &#39;
-                                  &#39;Please, provide implementation&#39;)
+        """
+        raise NotImplementedError('Base class\' compute was called. '
+                                  'Please, provide implementation')
 
     def misc_compute(self, logs_df):
         return logs_df
 
     @classmethod
     def update_row(cls, current, past, **kwargs):
-        &#34;&#34;&#34;
+        """
         Given the past feature value, update the current feature value according
         to the feature calculation type: average by default
         :param dict[str, float] current:
         :param dict[str, float] past:
         :param dict[T] kwargs:
         :return:
-        &#34;&#34;&#34;
-        raise NotImplementedError(&#39;Base class\&#39; update was called. &#39;
-                                  &#39;Please, provide implementation&#39;)
+        """
+        raise NotImplementedError('Base class\' update was called. '
+                                  'Please, provide implementation')
 
 
 class TimeBasedFeature(BaseFeature, metaclass=abc.ABCMeta):
-    CACHE_COLUMNS = [&#39;first_ever_request&#39;]
-    date_format = &#34;YYYY-MM-DD %H:%M:%S&#34;
+    CACHE_COLUMNS = ['first_ever_request']
+    date_format = "YYYY-MM-DD %H:%M:%S"
 
     def __init__(self):
         super().__init__()
         self.group_by_aggs = {
-            &#39;first_request&#39;: F.min(F.col(&#39;@timestamp&#39;)),
-            &#39;last_request&#39;: F.max(F.col(&#39;@timestamp&#39;)),
+            'first_request': F.min(F.col('@timestamp')),
+            'last_request': F.max(F.col('@timestamp')),
         }
 
         # need to preserve the order here
         self.post_group_by_calcs = OrderedDict({
-            &#39;start&#39;: (
+            'start': (
                 F.when(
-                    F.col(&#39;first_ever_request&#39;).isNotNull(),
-                    F.col(&#39;first_ever_request&#39;)
-                ).otherwise(F.col(&#39;first_request&#39;))
-            ).cast(&#39;timestamp&#39;),
-            &#39;dt&#39;: (
+                    F.col('first_ever_request').isNotNull(),
+                    F.col('first_ever_request')
+                ).otherwise(F.col('first_request'))
+            ).cast('timestamp'),
+            'dt': (
                 (
                     F.unix_timestamp(
-                        F.col(&#39;last_request&#39;), format=self.date_format
+                        F.col('last_request'), format=self.date_format
                     ) -
                     F.unix_timestamp(
-                        F.col(&#39;start&#39;), format=self.date_format
+                        F.col('start'), format=self.date_format
                     )
-                ).cast(&#39;float&#39;) / 60.
+                ).cast('float') / 60.
             )
         })
 
         self.cache_columns_defaults = {
             # todo: will this add a 1970?
-            &#39;first_ever_request&#39;: F.lit(None).cast(&#39;timestamp&#39;)
+            'first_ever_request': F.lit(None).cast('timestamp')
         }
 
     def compute(self, df):
@@ -154,14 +176,14 @@ class TimeBasedFeature(BaseFeature, metaclass=abc.ABCMeta):
 
 
 class UpdateableFeature(BaseFeature, metaclass=abc.ABCMeta):
-    _updated_prefix = &#39;_updated_&#39;
+    _updated_prefix = '_updated_'
     _update_type = FeatureComputeType.other
-    current_features_column = &#39;features&#39;
-    past_features_column = &#39;old_features&#39;
+    current_features_column = 'features'
+    past_features_column = 'old_features'
 
     @property
     def updated_feature_col_name(self):
-        return f&#39;{self._updated_prefix}{self.feature_name}&#39;
+        return f'{self._updated_prefix}{self.feature_name}'
 
     @property
     def compute_type(self):
@@ -171,45 +193,60 @@ class UpdateableFeature(BaseFeature, metaclass=abc.ABCMeta):
     def update(
             self,
             df,
-            feat_column=&#39;features&#39;,
-            old_feat_column=&#39;old_features&#39;,
+            feat_column='features',
+            old_feat_column='old_features',
             *args,
             **kwargs
     ):
         pass</code></pre>
-</details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="baskerville.features.base_feature.BaseFeature"><code class="flex name class">
-<span>class <span class="ident">BaseFeature</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>The parent class for all features used to distinguish an attack from a
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.features.base_feature.BaseFeature">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          BaseFeature
+         </span>
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         The parent class for all features used to distinguish an attack from a
 legitimate request. IPSieve provides the feature with a dictionary and the
-feature returns a dictionary of IPs and the feature's numerical value.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class BaseFeature(SerializableMixin, metaclass=abc.ABCMeta):
-    &#34;&#34;&#34;
+feature returns a dictionary of IPs and the feature's numerical value.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class BaseFeature(SerializableMixin, metaclass=abc.ABCMeta):
+    """
     The parent class for all features used to distinguish an attack from a
     legitimate request. IPSieve provides the feature with a dictionary and the
-    feature returns a dictionary of IPs and the feature&#39;s numerical value.
-    &#34;&#34;&#34;
+    feature returns a dictionary of IPs and the feature's numerical value.
+    """
     DEFAULT_VALUE = 0.
     COLUMNS = []
     CACHE_COLUMNS = []
     DEPENDENCIES = []
-    _prefix = &#39;Feature&#39;
+    _prefix = 'Feature'
 
     def __init__(self):
         self.group_by_aggs = {}
@@ -222,10 +259,10 @@ feature returns a dictionary of IPs and the feature's numerical value.</p></sect
         return self.feature_name_from_class()
 
     def __repr__(self):
-        return f&#39;&lt;{self.__class__.__name__} {self.feature_name} &#39; \
-            f&#39;default value: {self.DEFAULT_VALUE}, &#39; \
-            f&#39;dependencies:{&#34;,&#34;.join(self.DEPENDENCIES)}, &#39; \
-            f&#39;columns:{&#34;,&#34;.join(self.COLUMNS)}&gt;&#39;
+        return f'&lt;{self.__class__.__name__} {self.feature_name} ' \
+               f'default value: {self.DEFAULT_VALUE}, ' \
+               f'dependencies:{",".join(self.DEPENDENCIES)}, ' \
+               f'columns:{",".join(self.COLUMNS)}&gt;'
 
     @property
     def columns(self):
@@ -241,345 +278,680 @@ feature returns a dictionary of IPs and the feature's numerical value.</p></sect
 
     @property
     def feature_name(self):
-        return stringcase.snakecase(self.__class__.__name__.replace(self._prefix, &#39;&#39;))
+        return stringcase.snakecase(self.__class__.__name__.replace(self._prefix, ''))
 
     @classmethod
     def feature_name_from_class(cls):
-        return stringcase.snakecase(cls.__name__.replace(cls._prefix, &#39;&#39;))
+        return stringcase.snakecase(cls.__name__.replace(cls._prefix, ''))
 
     @property
     def feature_default(self):
         return self.DEFAULT_VALUE
 
     def compute(self, *args, **kwargs):
-        &#34;&#34;&#34;
+        """
         The feature should overload this function to implement the feature
         computation. At the end the results should be stored
         in a dictionary with the format of IP:value where the value is a double
         or an integer value
-        &#34;&#34;&#34;
-        raise NotImplementedError(&#39;Base class\&#39; compute was called. &#39;
-                                  &#39;Please, provide implementation&#39;)
+        """
+        raise NotImplementedError('Base class\' compute was called. '
+                                  'Please, provide implementation')
 
     def misc_compute(self, logs_df):
         return logs_df
 
     @classmethod
     def update_row(cls, current, past, **kwargs):
-        &#34;&#34;&#34;
+        """
         Given the past feature value, update the current feature value according
         to the feature calculation type: average by default
         :param dict[str, float] current:
         :param dict[str, float] past:
         :param dict[T] kwargs:
         :return:
-        &#34;&#34;&#34;
-        raise NotImplementedError(&#39;Base class\&#39; update was called. &#39;
-                                  &#39;Please, provide implementation&#39;)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.util.helpers.SerializableMixin" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin">SerializableMixin</a></li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="baskerville.features.base_feature.TimeBasedFeature" href="#baskerville.features.base_feature.TimeBasedFeature">TimeBasedFeature</a></li>
-<li><a title="baskerville.features.base_feature.UpdateableFeature" href="#baskerville.features.base_feature.UpdateableFeature">UpdateableFeature</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS"><code class="name">var <span class="ident">CACHE_COLUMNS</span></code></dt>
-<dd>
-<section class="desc"><p>list() -&gt; new empty list
-list(iterable) -&gt; new list initialized from iterable's items</p></section>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.COLUMNS"><code class="name">var <span class="ident">COLUMNS</span></code></dt>
-<dd>
-<section class="desc"><p>list() -&gt; new empty list
-list(iterable) -&gt; new list initialized from iterable's items</p></section>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE"><code class="name">var <span class="ident">DEFAULT_VALUE</span></code></dt>
-<dd>
-<section class="desc"><p>float(x) -&gt; floating point number</p>
-<p>Convert a string or number to a floating point number, if possible.</p></section>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.DEPENDENCIES"><code class="name">var <span class="ident">DEPENDENCIES</span></code></dt>
-<dd>
-<section class="desc"><p>list() -&gt; new empty list
-list(iterable) -&gt; new list initialized from iterable's items</p></section>
-</dd>
-</dl>
-<h3>Static methods</h3>
-<dl>
-<dt id="baskerville.features.base_feature.BaseFeature.feature_name_from_class"><code class="name flex">
-<span>def <span class="ident">feature_name_from_class</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@classmethod
+        """
+        raise NotImplementedError('Base class\' update was called. '
+                                  'Please, provide implementation')</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="../util/helpers.html#baskerville.util.helpers.SerializableMixin" title="baskerville.util.helpers.SerializableMixin">
+          SerializableMixin
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.features.base_feature.TimeBasedFeature" title="baskerville.features.base_feature.TimeBasedFeature">
+          TimeBasedFeature
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.features.base_feature.UpdateableFeature" title="baskerville.features.base_feature.UpdateableFeature">
+          UpdateableFeature
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS">
+         <code class="name">
+          var
+          <span class="ident">
+           CACHE_COLUMNS
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.COLUMNS">
+         <code class="name">
+          var
+          <span class="ident">
+           COLUMNS
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE">
+         <code class="name">
+          var
+          <span class="ident">
+           DEFAULT_VALUE
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           float(x) -&gt; floating point number
+          </p>
+          <p>
+           Convert a string or number to a floating point number, if possible.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.DEPENDENCIES">
+         <code class="name">
+          var
+          <span class="ident">
+           DEPENDENCIES
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items
+          </p>
+         </section>
+        </dd>
+       </dl>
+       <h3>
+        Static methods
+       </h3>
+       <dl>
+        <dt id="baskerville.features.base_feature.BaseFeature.feature_name_from_class">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            feature_name_from_class
+           </span>
+          </span>
+          (
+          <span>
+           )
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@classmethod
 def feature_name_from_class(cls):
-    return stringcase.snakecase(cls.__name__.replace(cls._prefix, &#39;&#39;))</code></pre>
-</details>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.update_row"><code class="name flex">
-<span>def <span class="ident">update_row</span></span>(<span>current, past, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Given the past feature value, update the current feature value according
+    return stringcase.snakecase(cls.__name__.replace(cls._prefix, ''))</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.update_row">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            update_row
+           </span>
+          </span>
+          (
+          <span>
+           current, past, **kwargs)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Given the past feature value, update the current feature value according
 to the feature calculation type: average by default
 :param dict[str, float] current:
 :param dict[str, float] past:
 :param dict[T] kwargs:
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@classmethod
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@classmethod
 def update_row(cls, current, past, **kwargs):
-    &#34;&#34;&#34;
+    """
     Given the past feature value, update the current feature value according
     to the feature calculation type: average by default
     :param dict[str, float] current:
     :param dict[str, float] past:
     :param dict[T] kwargs:
     :return:
-    &#34;&#34;&#34;
-    raise NotImplementedError(&#39;Base class\&#39; update was called. &#39;
-                              &#39;Please, provide implementation&#39;)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="baskerville.features.base_feature.BaseFeature.cache_columns"><code class="name">var <span class="ident">cache_columns</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+    """
+    raise NotImplementedError('Base class\' update was called. '
+                              'Please, provide implementation')</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Instance variables
+       </h3>
+       <dl>
+        <dt id="baskerville.features.base_feature.BaseFeature.cache_columns">
+         <code class="name">
+          var
+          <span class="ident">
+           cache_columns
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def cache_columns(self):
     return self.CACHE_COLUMNS</code></pre>
-</details>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.columns"><code class="name">var <span class="ident">columns</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+         </details>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.columns">
+         <code class="name">
+          var
+          <span class="ident">
+           columns
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def columns(self):
     return self.COLUMNS</code></pre>
-</details>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.dependencies"><code class="name">var <span class="ident">dependencies</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+         </details>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.dependencies">
+         <code class="name">
+          var
+          <span class="ident">
+           dependencies
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def dependencies(self):
     return self.DEPENDENCIES</code></pre>
-</details>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.feature_default"><code class="name">var <span class="ident">feature_default</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+         </details>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.feature_default">
+         <code class="name">
+          var
+          <span class="ident">
+           feature_default
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def feature_default(self):
     return self.DEFAULT_VALUE</code></pre>
-</details>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.feature_name"><code class="name">var <span class="ident">feature_name</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+         </details>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.feature_name">
+         <code class="name">
+          var
+          <span class="ident">
+           feature_name
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def feature_name(self):
-    return stringcase.snakecase(self.__class__.__name__.replace(self._prefix, &#39;&#39;))</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="baskerville.features.base_feature.BaseFeature.compute"><code class="name flex">
-<span>def <span class="ident">compute</span></span>(<span>self, *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>The feature should overload this function to implement the feature
+    return stringcase.snakecase(self.__class__.__name__.replace(self._prefix, ''))</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.features.base_feature.BaseFeature.compute">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            compute
+           </span>
+          </span>
+          (
+          <span>
+           self, *args, **kwargs)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           The feature should overload this function to implement the feature
 computation. At the end the results should be stored
 in a dictionary with the format of IP:value where the value is a double
-or an integer value</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def compute(self, *args, **kwargs):
-    &#34;&#34;&#34;
+or an integer value
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def compute(self, *args, **kwargs):
+    """
     The feature should overload this function to implement the feature
     computation. At the end the results should be stored
     in a dictionary with the format of IP:value where the value is a double
     or an integer value
-    &#34;&#34;&#34;
-    raise NotImplementedError(&#39;Base class\&#39; compute was called. &#39;
-                              &#39;Please, provide implementation&#39;)</code></pre>
-</details>
-</dd>
-<dt id="baskerville.features.base_feature.BaseFeature.misc_compute"><code class="name flex">
-<span>def <span class="ident">misc_compute</span></span>(<span>self, logs_df)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def misc_compute(self, logs_df):
+    """
+    raise NotImplementedError('Base class\' compute was called. '
+                              'Please, provide implementation')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.features.base_feature.BaseFeature.misc_compute">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            misc_compute
+           </span>
+          </span>
+          (
+          <span>
+           self, logs_df)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def misc_compute(self, logs_df):
     return logs_df</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="baskerville.util.helpers.SerializableMixin" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin">SerializableMixin</a></b></code>:
-<ul class="hlist">
-<li><code><a title="baskerville.util.helpers.SerializableMixin.to_dict" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin.to_dict">to_dict</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="baskerville.features.base_feature.TimeBasedFeature"><code class="flex name class">
-<span>class <span class="ident">TimeBasedFeature</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>The parent class for all features used to distinguish an attack from a
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="../util/helpers.html#baskerville.util.helpers.SerializableMixin" title="baskerville.util.helpers.SerializableMixin">
+            SerializableMixin
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="../util/helpers.html#baskerville.util.helpers.SerializableMixin.to_dict" title="baskerville.util.helpers.SerializableMixin.to_dict">
+             to_dict
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.features.base_feature.TimeBasedFeature">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          TimeBasedFeature
+         </span>
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         The parent class for all features used to distinguish an attack from a
 legitimate request. IPSieve provides the feature with a dictionary and the
-feature returns a dictionary of IPs and the feature's numerical value.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class TimeBasedFeature(BaseFeature, metaclass=abc.ABCMeta):
-    CACHE_COLUMNS = [&#39;first_ever_request&#39;]
-    date_format = &#34;YYYY-MM-DD %H:%M:%S&#34;
+feature returns a dictionary of IPs and the feature's numerical value.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class TimeBasedFeature(BaseFeature, metaclass=abc.ABCMeta):
+    CACHE_COLUMNS = ['first_ever_request']
+    date_format = "YYYY-MM-DD %H:%M:%S"
 
     def __init__(self):
         super().__init__()
         self.group_by_aggs = {
-            &#39;first_request&#39;: F.min(F.col(&#39;@timestamp&#39;)),
-            &#39;last_request&#39;: F.max(F.col(&#39;@timestamp&#39;)),
+            'first_request': F.min(F.col('@timestamp')),
+            'last_request': F.max(F.col('@timestamp')),
         }
 
         # need to preserve the order here
         self.post_group_by_calcs = OrderedDict({
-            &#39;start&#39;: (
+            'start': (
                 F.when(
-                    F.col(&#39;first_ever_request&#39;).isNotNull(),
-                    F.col(&#39;first_ever_request&#39;)
-                ).otherwise(F.col(&#39;first_request&#39;))
-            ).cast(&#39;timestamp&#39;),
-            &#39;dt&#39;: (
+                    F.col('first_ever_request').isNotNull(),
+                    F.col('first_ever_request')
+                ).otherwise(F.col('first_request'))
+            ).cast('timestamp'),
+            'dt': (
                 (
                     F.unix_timestamp(
-                        F.col(&#39;last_request&#39;), format=self.date_format
+                        F.col('last_request'), format=self.date_format
                     ) -
                     F.unix_timestamp(
-                        F.col(&#39;start&#39;), format=self.date_format
+                        F.col('start'), format=self.date_format
                     )
-                ).cast(&#39;float&#39;) / 60.
+                ).cast('float') / 60.
             )
         })
 
         self.cache_columns_defaults = {
             # todo: will this add a 1970?
-            &#39;first_ever_request&#39;: F.lit(None).cast(&#39;timestamp&#39;)
+            'first_ever_request': F.lit(None).cast('timestamp')
         }
 
     def compute(self, df):
         return df</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.features.base_feature.BaseFeature" href="#baskerville.features.base_feature.BaseFeature">BaseFeature</a></li>
-<li><a title="baskerville.util.helpers.SerializableMixin" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin">SerializableMixin</a></li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="baskerville.features.feature_minutes_total.FeatureMinutesTotal" href="feature_minutes_total.html#baskerville.features.feature_minutes_total.FeatureMinutesTotal">FeatureMinutesTotal</a></li>
-<li><a title="baskerville.features.feature_unique_query_rate.FeatureUniqueQueryRate" href="feature_unique_query_rate.html#baskerville.features.feature_unique_query_rate.FeatureUniqueQueryRate">FeatureUniqueQueryRate</a></li>
-<li><a title="baskerville.features.feature_unique_path_rate.FeatureUniquePathRate" href="feature_unique_path_rate.html#baskerville.features.feature_unique_path_rate.FeatureUniquePathRate">FeatureUniquePathRate</a></li>
-<li><a title="baskerville.features.feature_request_rate.FeatureRequestRate" href="feature_request_rate.html#baskerville.features.feature_request_rate.FeatureRequestRate">FeatureRequestRate</a></li>
-<li><a title="baskerville.features.feature_response5xx_rate.FeatureResponse5xxRate" href="feature_response5xx_rate.html#baskerville.features.feature_response5xx_rate.FeatureResponse5xxRate">FeatureResponse5xxRate</a></li>
-<li><a title="baskerville.features.feature_unique_ua_rate.FeatureUniqueUaRate" href="feature_unique_ua_rate.html#baskerville.features.feature_unique_ua_rate.FeatureUniqueUaRate">FeatureUniqueUaRate</a></li>
-<li><a title="baskerville.features.feature_response4xx_rate.FeatureResponse4xxRate" href="feature_response4xx_rate.html#baskerville.features.feature_response4xx_rate.FeatureResponse4xxRate">FeatureResponse4xxRate</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.features.base_feature.TimeBasedFeature.date_format"><code class="name">var <span class="ident">date_format</span></code></dt>
-<dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.features.base_feature.BaseFeature" title="baskerville.features.base_feature.BaseFeature">
+          BaseFeature
+         </a>
+        </li>
+        <li>
+         <a href="../util/helpers.html#baskerville.util.helpers.SerializableMixin" title="baskerville.util.helpers.SerializableMixin">
+          SerializableMixin
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="feature_minutes_total.html#baskerville.features.feature_minutes_total.FeatureMinutesTotal" title="baskerville.features.feature_minutes_total.FeatureMinutesTotal">
+          FeatureMinutesTotal
+         </a>
+        </li>
+        <li>
+         <a href="feature_unique_query_rate.html#baskerville.features.feature_unique_query_rate.FeatureUniqueQueryRate" title="baskerville.features.feature_unique_query_rate.FeatureUniqueQueryRate">
+          FeatureUniqueQueryRate
+         </a>
+        </li>
+        <li>
+         <a href="feature_unique_path_rate.html#baskerville.features.feature_unique_path_rate.FeatureUniquePathRate" title="baskerville.features.feature_unique_path_rate.FeatureUniquePathRate">
+          FeatureUniquePathRate
+         </a>
+        </li>
+        <li>
+         <a href="feature_request_rate.html#baskerville.features.feature_request_rate.FeatureRequestRate" title="baskerville.features.feature_request_rate.FeatureRequestRate">
+          FeatureRequestRate
+         </a>
+        </li>
+        <li>
+         <a href="feature_response5xx_rate.html#baskerville.features.feature_response5xx_rate.FeatureResponse5xxRate" title="baskerville.features.feature_response5xx_rate.FeatureResponse5xxRate">
+          FeatureResponse5xxRate
+         </a>
+        </li>
+        <li>
+         <a href="feature_unique_ua_rate.html#baskerville.features.feature_unique_ua_rate.FeatureUniqueUaRate" title="baskerville.features.feature_unique_ua_rate.FeatureUniqueUaRate">
+          FeatureUniqueUaRate
+         </a>
+        </li>
+        <li>
+         <a href="feature_response4xx_rate.html#baskerville.features.feature_response4xx_rate.FeatureResponse4xxRate" title="baskerville.features.feature_response4xx_rate.FeatureResponse4xxRate">
+          FeatureResponse4xxRate
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.features.base_feature.TimeBasedFeature.date_format">
+         <code class="name">
+          var
+          <span class="ident">
+           date_format
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
+          </p>
+          <p>
+           Create a new string object from the given object. If encoding or
 errors is specified, then the object must expose a data buffer
 that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+Otherwise, returns the result of object.
+           <strong>
+            str
+           </strong>
+           () (if defined)
 or repr(object).
 encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="baskerville.features.base_feature.BaseFeature" href="#baskerville.features.base_feature.BaseFeature">BaseFeature</a></b></code>:
-<ul class="hlist">
-<li><code><a title="baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS" href="#baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS">CACHE_COLUMNS</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.COLUMNS" href="#baskerville.features.base_feature.BaseFeature.COLUMNS">COLUMNS</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE" href="#baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE">DEFAULT_VALUE</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.DEPENDENCIES" href="#baskerville.features.base_feature.BaseFeature.DEPENDENCIES">DEPENDENCIES</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.compute" href="#baskerville.features.base_feature.BaseFeature.compute">compute</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.to_dict" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin.to_dict">to_dict</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.update_row" href="#baskerville.features.base_feature.BaseFeature.update_row">update_row</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="baskerville.features.base_feature.UpdateableFeature"><code class="flex name class">
-<span>class <span class="ident">UpdateableFeature</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>The parent class for all features used to distinguish an attack from a
+errors defaults to 'strict'.
+          </p>
+         </section>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="#baskerville.features.base_feature.BaseFeature" title="baskerville.features.base_feature.BaseFeature">
+            BaseFeature
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS" title="baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS">
+             CACHE_COLUMNS
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.COLUMNS" title="baskerville.features.base_feature.BaseFeature.COLUMNS">
+             COLUMNS
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE" title="baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE">
+             DEFAULT_VALUE
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.DEPENDENCIES" title="baskerville.features.base_feature.BaseFeature.DEPENDENCIES">
+             DEPENDENCIES
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.compute" title="baskerville.features.base_feature.BaseFeature.compute">
+             compute
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="../util/helpers.html#baskerville.util.helpers.SerializableMixin.to_dict" title="baskerville.features.base_feature.BaseFeature.to_dict">
+             to_dict
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.update_row" title="baskerville.features.base_feature.BaseFeature.update_row">
+             update_row
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.features.base_feature.UpdateableFeature">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          UpdateableFeature
+         </span>
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         The parent class for all features used to distinguish an attack from a
 legitimate request. IPSieve provides the feature with a dictionary and the
-feature returns a dictionary of IPs and the feature's numerical value.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class UpdateableFeature(BaseFeature, metaclass=abc.ABCMeta):
-    _updated_prefix = &#39;_updated_&#39;
+feature returns a dictionary of IPs and the feature's numerical value.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class UpdateableFeature(BaseFeature, metaclass=abc.ABCMeta):
+    _updated_prefix = '_updated_'
     _update_type = FeatureComputeType.other
-    current_features_column = &#39;features&#39;
-    past_features_column = &#39;old_features&#39;
+    current_features_column = 'features'
+    past_features_column = 'old_features'
 
     @property
     def updated_feature_col_name(self):
-        return f&#39;{self._updated_prefix}{self.feature_name}&#39;
+        return f'{self._updated_prefix}{self.feature_name}'
 
     @property
     def compute_type(self):
@@ -589,181 +961,521 @@ feature returns a dictionary of IPs and the feature's numerical value.</p></sect
     def update(
             self,
             df,
-            feat_column=&#39;features&#39;,
-            old_feat_column=&#39;old_features&#39;,
+            feat_column='features',
+            old_feat_column='old_features',
             *args,
             **kwargs
     ):
         pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.features.base_feature.BaseFeature" href="#baskerville.features.base_feature.BaseFeature">BaseFeature</a></li>
-<li><a title="baskerville.util.helpers.SerializableMixin" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin">SerializableMixin</a></li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="baskerville.features.updateable_features.UpdaterTotal" href="updateable_features.html#baskerville.features.updateable_features.UpdaterTotal">UpdaterTotal</a></li>
-<li><a title="baskerville.features.updateable_features.UpdaterRate" href="updateable_features.html#baskerville.features.updateable_features.UpdaterRate">UpdaterRate</a></li>
-<li><a title="baskerville.features.updateable_features.UpdaterMaximum" href="updateable_features.html#baskerville.features.updateable_features.UpdaterMaximum">UpdaterMaximum</a></li>
-<li><a title="baskerville.features.updateable_features.UpdaterMinimum" href="updateable_features.html#baskerville.features.updateable_features.UpdaterMinimum">UpdaterMinimum</a></li>
-<li><a title="baskerville.features.updateable_features.UpdaterReplace" href="updateable_features.html#baskerville.features.updateable_features.UpdaterReplace">UpdaterReplace</a></li>
-<li><a title="baskerville.features.updateable_features.UpdaterRatio" href="updateable_features.html#baskerville.features.updateable_features.UpdaterRatio">UpdaterRatio</a></li>
-<li><a title="baskerville.features.updateable_features.UpdaterMean" href="updateable_features.html#baskerville.features.updateable_features.UpdaterMean">UpdaterMean</a></li>
-<li><a title="baskerville.features.updateable_features.UpdaterVariance" href="updateable_features.html#baskerville.features.updateable_features.UpdaterVariance">UpdaterVariance</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.features.base_feature.UpdateableFeature.current_features_column"><code class="name">var <span class="ident">current_features_column</span></code></dt>
-<dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.features.base_feature.BaseFeature" title="baskerville.features.base_feature.BaseFeature">
+          BaseFeature
+         </a>
+        </li>
+        <li>
+         <a href="../util/helpers.html#baskerville.util.helpers.SerializableMixin" title="baskerville.util.helpers.SerializableMixin">
+          SerializableMixin
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="updateable_features.html#baskerville.features.updateable_features.UpdaterTotal" title="baskerville.features.updateable_features.UpdaterTotal">
+          UpdaterTotal
+         </a>
+        </li>
+        <li>
+         <a href="updateable_features.html#baskerville.features.updateable_features.UpdaterRate" title="baskerville.features.updateable_features.UpdaterRate">
+          UpdaterRate
+         </a>
+        </li>
+        <li>
+         <a href="updateable_features.html#baskerville.features.updateable_features.UpdaterMaximum" title="baskerville.features.updateable_features.UpdaterMaximum">
+          UpdaterMaximum
+         </a>
+        </li>
+        <li>
+         <a href="updateable_features.html#baskerville.features.updateable_features.UpdaterMinimum" title="baskerville.features.updateable_features.UpdaterMinimum">
+          UpdaterMinimum
+         </a>
+        </li>
+        <li>
+         <a href="updateable_features.html#baskerville.features.updateable_features.UpdaterReplace" title="baskerville.features.updateable_features.UpdaterReplace">
+          UpdaterReplace
+         </a>
+        </li>
+        <li>
+         <a href="updateable_features.html#baskerville.features.updateable_features.UpdaterRatio" title="baskerville.features.updateable_features.UpdaterRatio">
+          UpdaterRatio
+         </a>
+        </li>
+        <li>
+         <a href="updateable_features.html#baskerville.features.updateable_features.UpdaterMean" title="baskerville.features.updateable_features.UpdaterMean">
+          UpdaterMean
+         </a>
+        </li>
+        <li>
+         <a href="updateable_features.html#baskerville.features.updateable_features.UpdaterVariance" title="baskerville.features.updateable_features.UpdaterVariance">
+          UpdaterVariance
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.features.base_feature.UpdateableFeature.current_features_column">
+         <code class="name">
+          var
+          <span class="ident">
+           current_features_column
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
+          </p>
+          <p>
+           Create a new string object from the given object. If encoding or
 errors is specified, then the object must expose a data buffer
 that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+Otherwise, returns the result of object.
+           <strong>
+            str
+           </strong>
+           () (if defined)
 or repr(object).
 encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
-</dd>
-<dt id="baskerville.features.base_feature.UpdateableFeature.past_features_column"><code class="name">var <span class="ident">past_features_column</span></code></dt>
-<dd>
-<section class="desc"><p>str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
-<p>Create a new string object from the given object. If encoding or
+errors defaults to 'strict'.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.features.base_feature.UpdateableFeature.past_features_column">
+         <code class="name">
+          var
+          <span class="ident">
+           past_features_column
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
+          </p>
+          <p>
+           Create a new string object from the given object. If encoding or
 errors is specified, then the object must expose a data buffer
 that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+Otherwise, returns the result of object.
+           <strong>
+            str
+           </strong>
+           () (if defined)
 or repr(object).
 encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.</p></section>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="baskerville.features.base_feature.UpdateableFeature.compute_type"><code class="name">var <span class="ident">compute_type</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+errors defaults to 'strict'.
+          </p>
+         </section>
+        </dd>
+       </dl>
+       <h3>
+        Instance variables
+       </h3>
+       <dl>
+        <dt id="baskerville.features.base_feature.UpdateableFeature.compute_type">
+         <code class="name">
+          var
+          <span class="ident">
+           compute_type
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def compute_type(self):
     return self._update_type</code></pre>
-</details>
-</dd>
-<dt id="baskerville.features.base_feature.UpdateableFeature.updated_feature_col_name"><code class="name">var <span class="ident">updated_feature_col_name</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+         </details>
+        </dd>
+        <dt id="baskerville.features.base_feature.UpdateableFeature.updated_feature_col_name">
+         <code class="name">
+          var
+          <span class="ident">
+           updated_feature_col_name
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def updated_feature_col_name(self):
-    return f&#39;{self._updated_prefix}{self.feature_name}&#39;</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="baskerville.features.base_feature.UpdateableFeature.update"><code class="name flex">
-<span>def <span class="ident">update</span></span>(<span>self, df, feat_column='features', old_feat_column='old_features', *args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abc.abstractmethod
+    return f'{self._updated_prefix}{self.feature_name}'</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.features.base_feature.UpdateableFeature.update">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            update
+           </span>
+          </span>
+          (
+          <span>
+           self, df, feat_column='features', old_feat_column='old_features', *args, **kwargs)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@abc.abstractmethod
 def update(
         self,
         df,
-        feat_column=&#39;features&#39;,
-        old_feat_column=&#39;old_features&#39;,
+        feat_column='features',
+        old_feat_column='old_features',
         *args,
         **kwargs
 ):
     pass</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="baskerville.features.base_feature.BaseFeature" href="#baskerville.features.base_feature.BaseFeature">BaseFeature</a></b></code>:
-<ul class="hlist">
-<li><code><a title="baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS" href="#baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS">CACHE_COLUMNS</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.COLUMNS" href="#baskerville.features.base_feature.BaseFeature.COLUMNS">COLUMNS</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE" href="#baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE">DEFAULT_VALUE</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.DEPENDENCIES" href="#baskerville.features.base_feature.BaseFeature.DEPENDENCIES">DEPENDENCIES</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.compute" href="#baskerville.features.base_feature.BaseFeature.compute">compute</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.to_dict" href="../util/helpers.html#baskerville.util.helpers.SerializableMixin.to_dict">to_dict</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.update_row" href="#baskerville.features.base_feature.BaseFeature.update_row">update_row</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-</dl>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville.features" href="index.html">baskerville.features</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="baskerville.features.base_feature.BaseFeature" href="#baskerville.features.base_feature.BaseFeature">BaseFeature</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS" href="#baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS">CACHE_COLUMNS</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.COLUMNS" href="#baskerville.features.base_feature.BaseFeature.COLUMNS">COLUMNS</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE" href="#baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE">DEFAULT_VALUE</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.DEPENDENCIES" href="#baskerville.features.base_feature.BaseFeature.DEPENDENCIES">DEPENDENCIES</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.cache_columns" href="#baskerville.features.base_feature.BaseFeature.cache_columns">cache_columns</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.columns" href="#baskerville.features.base_feature.BaseFeature.columns">columns</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.compute" href="#baskerville.features.base_feature.BaseFeature.compute">compute</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.dependencies" href="#baskerville.features.base_feature.BaseFeature.dependencies">dependencies</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.feature_default" href="#baskerville.features.base_feature.BaseFeature.feature_default">feature_default</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.feature_name" href="#baskerville.features.base_feature.BaseFeature.feature_name">feature_name</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.feature_name_from_class" href="#baskerville.features.base_feature.BaseFeature.feature_name_from_class">feature_name_from_class</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.misc_compute" href="#baskerville.features.base_feature.BaseFeature.misc_compute">misc_compute</a></code></li>
-<li><code><a title="baskerville.features.base_feature.BaseFeature.update_row" href="#baskerville.features.base_feature.BaseFeature.update_row">update_row</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.features.base_feature.TimeBasedFeature" href="#baskerville.features.base_feature.TimeBasedFeature">TimeBasedFeature</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.features.base_feature.TimeBasedFeature.date_format" href="#baskerville.features.base_feature.TimeBasedFeature.date_format">date_format</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.features.base_feature.UpdateableFeature" href="#baskerville.features.base_feature.UpdateableFeature">UpdateableFeature</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.features.base_feature.UpdateableFeature.compute_type" href="#baskerville.features.base_feature.UpdateableFeature.compute_type">compute_type</a></code></li>
-<li><code><a title="baskerville.features.base_feature.UpdateableFeature.current_features_column" href="#baskerville.features.base_feature.UpdateableFeature.current_features_column">current_features_column</a></code></li>
-<li><code><a title="baskerville.features.base_feature.UpdateableFeature.past_features_column" href="#baskerville.features.base_feature.UpdateableFeature.past_features_column">past_features_column</a></code></li>
-<li><code><a title="baskerville.features.base_feature.UpdateableFeature.update" href="#baskerville.features.base_feature.UpdateableFeature.update">update</a></code></li>
-<li><code><a title="baskerville.features.base_feature.UpdateableFeature.updated_feature_col_name" href="#baskerville.features.base_feature.UpdateableFeature.updated_feature_col_name">updated_feature_col_name</a></code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="#baskerville.features.base_feature.BaseFeature" title="baskerville.features.base_feature.BaseFeature">
+            BaseFeature
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS" title="baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS">
+             CACHE_COLUMNS
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.COLUMNS" title="baskerville.features.base_feature.BaseFeature.COLUMNS">
+             COLUMNS
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE" title="baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE">
+             DEFAULT_VALUE
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.DEPENDENCIES" title="baskerville.features.base_feature.BaseFeature.DEPENDENCIES">
+             DEPENDENCIES
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.compute" title="baskerville.features.base_feature.BaseFeature.compute">
+             compute
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="../util/helpers.html#baskerville.util.helpers.SerializableMixin.to_dict" title="baskerville.features.base_feature.BaseFeature.to_dict">
+             to_dict
+            </a>
+           </code>
+          </li>
+          <li>
+           <code>
+            <a href="#baskerville.features.base_feature.BaseFeature.update_row" title="baskerville.features.base_feature.BaseFeature.update_row">
+             update_row
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.features">
+          baskerville.features
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.features.base_feature.BaseFeature" title="baskerville.features.base_feature.BaseFeature">
+           BaseFeature
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS" title="baskerville.features.base_feature.BaseFeature.CACHE_COLUMNS">
+            CACHE_COLUMNS
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.COLUMNS" title="baskerville.features.base_feature.BaseFeature.COLUMNS">
+            COLUMNS
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE" title="baskerville.features.base_feature.BaseFeature.DEFAULT_VALUE">
+            DEFAULT_VALUE
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.DEPENDENCIES" title="baskerville.features.base_feature.BaseFeature.DEPENDENCIES">
+            DEPENDENCIES
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.cache_columns" title="baskerville.features.base_feature.BaseFeature.cache_columns">
+            cache_columns
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.columns" title="baskerville.features.base_feature.BaseFeature.columns">
+            columns
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.compute" title="baskerville.features.base_feature.BaseFeature.compute">
+            compute
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.dependencies" title="baskerville.features.base_feature.BaseFeature.dependencies">
+            dependencies
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.feature_default" title="baskerville.features.base_feature.BaseFeature.feature_default">
+            feature_default
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.feature_name" title="baskerville.features.base_feature.BaseFeature.feature_name">
+            feature_name
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.feature_name_from_class" title="baskerville.features.base_feature.BaseFeature.feature_name_from_class">
+            feature_name_from_class
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.misc_compute" title="baskerville.features.base_feature.BaseFeature.misc_compute">
+            misc_compute
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.BaseFeature.update_row" title="baskerville.features.base_feature.BaseFeature.update_row">
+            update_row
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.features.base_feature.TimeBasedFeature" title="baskerville.features.base_feature.TimeBasedFeature">
+           TimeBasedFeature
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.TimeBasedFeature.date_format" title="baskerville.features.base_feature.TimeBasedFeature.date_format">
+            date_format
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.features.base_feature.UpdateableFeature" title="baskerville.features.base_feature.UpdateableFeature">
+           UpdateableFeature
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.UpdateableFeature.compute_type" title="baskerville.features.base_feature.UpdateableFeature.compute_type">
+            compute_type
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.UpdateableFeature.current_features_column" title="baskerville.features.base_feature.UpdateableFeature.current_features_column">
+            current_features_column
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.UpdateableFeature.past_features_column" title="baskerville.features.base_feature.UpdateableFeature.past_features_column">
+            past_features_column
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.UpdateableFeature.update" title="baskerville.features.base_feature.UpdateableFeature.update">
+            update
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.features.base_feature.UpdateableFeature.updated_feature_col_name" title="baskerville.features.base_feature.UpdateableFeature.updated_feature_col_name">
+            updated_feature_col_name
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>

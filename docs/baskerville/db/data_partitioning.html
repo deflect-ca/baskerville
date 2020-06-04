@@ -1,52 +1,73 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.db.data_partitioning API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.db.data_partitioning</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">import dateutil.parser
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.db.data_partitioning API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.db.data_partitioning
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import dateutil.parser
 from datetime import datetime
 
-from baskerville.db.base import GeneratorBase
+from baskerville.db.base import GeneratorBase, TEMPLATE_FOLDER
 from baskerville.db.temporal_partition import TemporalPartitionedTable, \
     TimePeriod
 from baskerville.util.enums import PartitionByEnum
-from baskerville.util.helpers import get_default_data_path
 from jinja2 import Environment, FileSystemLoader
 
 
 class DataPartitioner(GeneratorBase):
-    &#34;&#34;&#34;
+    """
     Base partitioner, generates the data that the partitioning template needs
-    &#34;&#34;&#34;
+    """
 
     def __init__(
             self,
             parent_table,
             partition_field,
             index_by=None,
-            template_path=get_default_data_path(),
-            template_name=&#39;data_partitioning.jinja2&#39;
+            template_path=TEMPLATE_FOLDER,
+            template_name='data_partitioning.jinja2'
     ):
         super().__init__(
             template_path=template_path, template_name=template_name
@@ -61,9 +82,10 @@ class DataPartitioner(GeneratorBase):
 
 
 class TemporalDataPartitioner(DataPartitioner):
-    &#34;&#34;&#34;
+    """
     Partition data based on a date field. Generates
-    &#34;&#34;&#34;
+    """
+
     def __init__(
             self,
             partitioned_table_name,
@@ -72,10 +94,10 @@ class TemporalDataPartitioner(DataPartitioner):
             strict=False,
             partition_by=PartitionByEnum.w,
             index_by=None,
-            template_path=get_default_data_path(),
-            template_name=&#39;data_partitioning.jinja2&#39;
+            template_path=TEMPLATE_FOLDER,
+            template_name='data_partitioning.jinja2'
     ):
-        &#34;&#34;&#34;
+        """
         Partitions the parent table by a time period, e.g. w for per week
         partitions, m for per month partitions.
 
@@ -85,7 +107,7 @@ class TemporalDataPartitioner(DataPartitioner):
         partition data for, e.g. a year, starting from 1-1-2018 to 31-12-2018
         :param str split_by: w for week, m for month
         :param index_by: list of fields to index the partitions by
-        &#34;&#34;&#34;
+        """
         super().__init__(
             partitioned_table_name,
             partition_field,
@@ -109,7 +131,7 @@ class TemporalDataPartitioner(DataPartitioner):
 
 
 class AlphabeticalDataPartitioner(DataPartitioner):
-    partition_by = list(&#39;abcdefghijklmnopqrtsuvwxyz&#39;)
+    partition_by = list('abcdefghijklmnopqrtsuvwxyz')
 
 
 class RangeDataPartitioner(DataPartitioner):
@@ -117,7 +139,7 @@ class RangeDataPartitioner(DataPartitioner):
 
 
 def get_temporal_partitions(conf):
-    &#34;&#34;&#34;
+    """
     Given the database configuration, construct the sql to be executed to
     partition a table (set in the configuration) by dates, using a
     TemporalDataPartitioner
@@ -125,11 +147,11 @@ def get_temporal_partitions(conf):
     configuration
     :return: The string representation of the sql to be executed to partition
     a table by a time period.
-    &#34;&#34;&#34;
+    """
     from datetime import date
 
-    since = conf[&#39;data_partition&#39;][&#39;since&#39;]
-    until = conf[&#39;data_partition&#39;][&#39;until&#39;]
+    since = conf['data_partition']['since']
+    until = conf['data_partition']['until']
 
     if isinstance(since, date):
         since = datetime(*since.timetuple()[:6])
@@ -138,41 +160,53 @@ def get_temporal_partitions(conf):
         until = datetime(*until.timetuple()[:6])
 
     return str(TemporalDataPartitioner(
-            conf[&#39;partition_table&#39;],
-            conf[&#39;partition_field&#39;],
-            time_window=TimePeriod(
-                since,
-                until
-            ),
-            partition_by=conf[&#39;partition_by&#39;],
-            index_by=conf[&#39;data_partition&#39;][&#39;index_by&#39;],
-            template_path=conf[&#39;template_folder&#39;],
-            template_name=conf[&#39;data_partition&#39;][&#39;template&#39;]
-        )
+        conf['partition_table'],
+        conf['partition_field'],
+        time_window=TimePeriod(
+            since,
+            until
+        ),
+        partition_by=conf['partition_by'],
+        index_by=conf['data_partition']['index_by'],
+        template_path=conf['template_folder'] or TEMPLATE_FOLDER,
+        template_name=conf['data_partition']['template']
+    )
     )
 
 
-if __name__ == &#39;__main__&#39;:
+if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        &#39;parentname&#39;, help=&#39;The name of the table to be partitioned&#39;
+        'parentname', help='The name of the table to be partitioned'
     )
-    parser.add_argument(&#39;field&#39;, help=&#39;The table field to partition by&#39;)
-    parser.add_argument(&#39;ptype&#39;, help=&#39;The type of data partitioner, e.g. temporal&#39;)
-    parser.add_argument(&#39;-s&#39;, &#39;--since&#39;, help=&#39;Optional&#39;, type=dateutil.parser.parse)
-    parser.add_argument(&#39;-u&#39;, &#39;--until&#39;, help=&#39;The type of data partitioner&#39;, type=dateutil.parser.parse)
-    parser.add_argument(&#39;-b&#39;, &#39;--splitby&#39;, help=&#39;Split the data by week or month&#39;)
+    parser.add_argument('field', help='The table field to partition by')
     parser.add_argument(
-        &#39;-i&#39;, &#39;--indexby&#39;, help=&#39;Index the data&#39;, dest=&#39;indexby&#39;,
-        type=lambda s: [str(item) for item in s.split(&#39;,&#39;)]
+        'ptype', help='The type of data partitioner, e.g. temporal'
+    )
+    parser.add_argument(
+        '-s', '--since', help='Optional', type=dateutil.parser.parse
+    )
+    parser.add_argument(
+        '-u', '--until', help='The type of data partitioner',
+        type=dateutil.parser.parse
+    )
+    parser.add_argument(
+        '-b', '--splitby', help='Split the data by week or month'
+    )
+    parser.add_argument('-st', '--strict', help='tbd', default=False)
+    parser.add_argument(
+        '-i', '--indexby', help='Index the data', dest='indexby',
+        type=lambda s: [str(item) for item in s.split(',')]
     )
     args = parser.parse_args()
 
-    if args.ptype == &#39;temporal&#39;:
+    if args.ptype == 'temporal':
         if not args.since or not args.until or not args.splitby:
-            raise ValueError(&#39;Temporal partitioner needs since and until and splitby&#39;)
+            raise ValueError(
+                'Temporal partitioner needs since and until and splitby'
+            )
 
     tp = TemporalDataPartitioner(
         args.parentname,
@@ -184,44 +218,63 @@ if __name__ == &#39;__main__&#39;:
 
     print(tp.partitions)
     # Create the jinja2 environment - trim_blocks helps control whitespace.
-    j2_env = Environment(loader=FileSystemLoader(get_default_data_path()),
+    j2_env = Environment(loader=FileSystemLoader(TEMPLATE_FOLDER),
                          trim_blocks=True)
     # get template and render
-    template = j2_env.get_template(&#34;data_partitioning.jinja2&#34;)
-    template.globals[&#39;now&#39;] = datetime.utcnow
+    template = j2_env.get_template("data_partitioning.jinja2")
+    template.globals['now'] = datetime.utcnow
     rendered_data = template.render(tp.to_dict())
 
-    with open(&#39;test.sql&#39;, &#39;wb&#39;) as out_file:
-        out_file.write(bytes(rendered_data.encode(&#39;utf-8&#39;)))
+    with open('test.sql', 'wb') as out_file:
+        out_file.write(bytes(rendered_data.encode('utf-8')))
 
 
 # https://stackoverflow.com/a/23206636/3433323</code></pre>
-</details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="baskerville.db.data_partitioning.get_temporal_partitions"><code class="name flex">
-<span>def <span class="ident">get_temporal_partitions</span></span>(<span>conf)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Given the database configuration, construct the sql to be executed to
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-functions">
+      Functions
+     </h2>
+     <dl>
+      <dt id="baskerville.db.data_partitioning.get_temporal_partitions">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_temporal_partitions
+         </span>
+        </span>
+        (
+        <span>
+         conf)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Given the database configuration, construct the sql to be executed to
 partition a table (set in the configuration) by dates, using a
 TemporalDataPartitioner
 :param dict[str, T] conf: the dict representation of the database
 configuration
 :return: The string representation of the sql to be executed to partition
-a table by a time period.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_temporal_partitions(conf):
-    &#34;&#34;&#34;
+a table by a time period.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_temporal_partitions(conf):
+    """
     Given the database configuration, construct the sql to be executed to
     partition a table (set in the configuration) by dates, using a
     TemporalDataPartitioner
@@ -229,11 +282,11 @@ a table by a time period.</p></section>
     configuration
     :return: The string representation of the sql to be executed to partition
     a table by a time period.
-    &#34;&#34;&#34;
+    """
     from datetime import date
 
-    since = conf[&#39;data_partition&#39;][&#39;since&#39;]
-    until = conf[&#39;data_partition&#39;][&#39;until&#39;]
+    since = conf['data_partition']['since']
+    until = conf['data_partition']['until']
 
     if isinstance(since, date):
         since = datetime(*since.timetuple()[:6])
@@ -242,74 +295,135 @@ a table by a time period.</p></section>
         until = datetime(*until.timetuple()[:6])
 
     return str(TemporalDataPartitioner(
-            conf[&#39;partition_table&#39;],
-            conf[&#39;partition_field&#39;],
-            time_window=TimePeriod(
-                since,
-                until
-            ),
-            partition_by=conf[&#39;partition_by&#39;],
-            index_by=conf[&#39;data_partition&#39;][&#39;index_by&#39;],
-            template_path=conf[&#39;template_folder&#39;],
-            template_name=conf[&#39;data_partition&#39;][&#39;template&#39;]
-        )
+        conf['partition_table'],
+        conf['partition_field'],
+        time_window=TimePeriod(
+            since,
+            until
+        ),
+        partition_by=conf['partition_by'],
+        index_by=conf['data_partition']['index_by'],
+        template_path=conf['template_folder'] or TEMPLATE_FOLDER,
+        template_name=conf['data_partition']['template']
+    )
     )</code></pre>
-</details>
-</dd>
-</dl>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="baskerville.db.data_partitioning.AlphabeticalDataPartitioner"><code class="flex name class">
-<span>class <span class="ident">AlphabeticalDataPartitioner</span></span>
-<span>(</span><span>parent_table, partition_field, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/baskerville/src/baskerville/util/../../../data', template_name='data_partitioning.jinja2')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base partitioner, generates the data that the partitioning template needs</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AlphabeticalDataPartitioner(DataPartitioner):
-    partition_by = list(&#39;abcdefghijklmnopqrtsuvwxyz&#39;)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.db.data_partitioning.DataPartitioner" href="#baskerville.db.data_partitioning.DataPartitioner">DataPartitioner</a></li>
-<li><a title="baskerville.db.base.GeneratorBase" href="base.html#baskerville.db.base.GeneratorBase">GeneratorBase</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="baskerville.db.data_partitioning.AlphabeticalDataPartitioner.partition_by"><code class="name">var <span class="ident">partition_by</span></code></dt>
-<dd>
-<section class="desc"><p>list() -&gt; new empty list
-list(iterable) -&gt; new list initialized from iterable's items</p></section>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.db.data_partitioning.DataPartitioner"><code class="flex name class">
-<span>class <span class="ident">DataPartitioner</span></span>
-<span>(</span><span>parent_table, partition_field, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/baskerville/src/baskerville/util/../../../data', template_name='data_partitioning.jinja2')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base partitioner, generates the data that the partitioning template needs</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DataPartitioner(GeneratorBase):
-    &#34;&#34;&#34;
+       </details>
+      </dd>
+     </dl>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.db.data_partitioning.AlphabeticalDataPartitioner">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          AlphabeticalDataPartitioner
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         parent_table, partition_field, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/opensource/baskerville/src/baskerville/util/../../../data/templates', template_name='data_partitioning.jinja2')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Base partitioner, generates the data that the partitioning template needs
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class AlphabeticalDataPartitioner(DataPartitioner):
+    partition_by = list('abcdefghijklmnopqrtsuvwxyz')</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.db.data_partitioning.DataPartitioner" title="baskerville.db.data_partitioning.DataPartitioner">
+          DataPartitioner
+         </a>
+        </li>
+        <li>
+         <a href="base.html#baskerville.db.base.GeneratorBase" title="baskerville.db.base.GeneratorBase">
+          GeneratorBase
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Class variables
+       </h3>
+       <dl>
+        <dt id="baskerville.db.data_partitioning.AlphabeticalDataPartitioner.partition_by">
+         <code class="name">
+          var
+          <span class="ident">
+           partition_by
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           list() -&gt; new empty list
+list(iterable) -&gt; new list initialized from iterable's items
+          </p>
+         </section>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.db.data_partitioning.DataPartitioner">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          DataPartitioner
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         parent_table, partition_field, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/opensource/baskerville/src/baskerville/util/../../../data/templates', template_name='data_partitioning.jinja2')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Base partitioner, generates the data that the partitioning template needs
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class DataPartitioner(GeneratorBase):
+    """
     Base partitioner, generates the data that the partitioning template needs
-    &#34;&#34;&#34;
+    """
 
     def __init__(
             self,
             parent_table,
             partition_field,
             index_by=None,
-            template_path=get_default_data_path(),
-            template_name=&#39;data_partitioning.jinja2&#39;
+            template_path=TEMPLATE_FOLDER,
+            template_name='data_partitioning.jinja2'
     ):
         super().__init__(
             template_path=template_path, template_name=template_name
@@ -321,75 +435,162 @@ list(iterable) -&gt; new list initialized from iterable's items</p></section>
 
     def to_dict(self):
         return self.__dict__</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.db.base.GeneratorBase" href="base.html#baskerville.db.base.GeneratorBase">GeneratorBase</a></li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="baskerville.db.data_partitioning.TemporalDataPartitioner" href="#baskerville.db.data_partitioning.TemporalDataPartitioner">TemporalDataPartitioner</a></li>
-<li><a title="baskerville.db.data_partitioning.AlphabeticalDataPartitioner" href="#baskerville.db.data_partitioning.AlphabeticalDataPartitioner">AlphabeticalDataPartitioner</a></li>
-<li><a title="baskerville.db.data_partitioning.RangeDataPartitioner" href="#baskerville.db.data_partitioning.RangeDataPartitioner">RangeDataPartitioner</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="baskerville.db.data_partitioning.DataPartitioner.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_dict(self):
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="base.html#baskerville.db.base.GeneratorBase" title="baskerville.db.base.GeneratorBase">
+          GeneratorBase
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.db.data_partitioning.TemporalDataPartitioner" title="baskerville.db.data_partitioning.TemporalDataPartitioner">
+          TemporalDataPartitioner
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.db.data_partitioning.AlphabeticalDataPartitioner" title="baskerville.db.data_partitioning.AlphabeticalDataPartitioner">
+          AlphabeticalDataPartitioner
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.db.data_partitioning.RangeDataPartitioner" title="baskerville.db.data_partitioning.RangeDataPartitioner">
+          RangeDataPartitioner
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.db.data_partitioning.DataPartitioner.to_dict">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            to_dict
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def to_dict(self):
     return self.__dict__</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.db.data_partitioning.RangeDataPartitioner"><code class="flex name class">
-<span>class <span class="ident">RangeDataPartitioner</span></span>
-<span>(</span><span>parent_table, partition_field, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/baskerville/src/baskerville/util/../../../data', template_name='data_partitioning.jinja2')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Base partitioner, generates the data that the partitioning template needs</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class RangeDataPartitioner(DataPartitioner):
+         </details>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.db.data_partitioning.RangeDataPartitioner">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          RangeDataPartitioner
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         parent_table, partition_field, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/opensource/baskerville/src/baskerville/util/../../../data/templates', template_name='data_partitioning.jinja2')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Base partitioner, generates the data that the partitioning template needs
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class RangeDataPartitioner(DataPartitioner):
     pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.db.data_partitioning.DataPartitioner" href="#baskerville.db.data_partitioning.DataPartitioner">DataPartitioner</a></li>
-<li><a title="baskerville.db.base.GeneratorBase" href="base.html#baskerville.db.base.GeneratorBase">GeneratorBase</a></li>
-</ul>
-</dd>
-<dt id="baskerville.db.data_partitioning.TemporalDataPartitioner"><code class="flex name class">
-<span>class <span class="ident">TemporalDataPartitioner</span></span>
-<span>(</span><span>partitioned_table_name, partition_field, time_window, strict=False, partition_by=week, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/baskerville/src/baskerville/util/../../../data', template_name='data_partitioning.jinja2')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Partition data based on a date field. Generates</p>
-<p>Partitions the parent table by a time period, e.g. w for per week
-partitions, m for per month partitions.</p>
-<p>:param str partitioned_table_name: the name of the parent table
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.db.data_partitioning.DataPartitioner" title="baskerville.db.data_partitioning.DataPartitioner">
+          DataPartitioner
+         </a>
+        </li>
+        <li>
+         <a href="base.html#baskerville.db.base.GeneratorBase" title="baskerville.db.base.GeneratorBase">
+          GeneratorBase
+         </a>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.db.data_partitioning.TemporalDataPartitioner">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          TemporalDataPartitioner
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         partitioned_table_name, partition_field, time_window, strict=False, partition_by=week, index_by=None, template_path='/Users/mariakaranasou/Projects/EQualitie/opensource/baskerville/src/baskerville/util/../../../data/templates', template_name='data_partitioning.jinja2')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Partition data based on a date field. Generates
+        </p>
+        <p>
+         Partitions the parent table by a time period, e.g. w for per week
+partitions, m for per month partitions.
+        </p>
+        <p>
+         :param str partitioned_table_name: the name of the parent table
 :param str partition_field: the name of the field to partition by
 :param baskerville.db.base.TimePeriod time_window: the period to
 partition data for, e.g. a year, starting from 1-1-2018 to 31-12-2018
 :param str split_by: w for week, m for month
-:param index_by: list of fields to index the partitions by</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class TemporalDataPartitioner(DataPartitioner):
-    &#34;&#34;&#34;
+:param index_by: list of fields to index the partitions by
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class TemporalDataPartitioner(DataPartitioner):
+    """
     Partition data based on a date field. Generates
-    &#34;&#34;&#34;
+    """
+
     def __init__(
             self,
             partitioned_table_name,
@@ -398,10 +599,10 @@ partition data for, e.g. a year, starting from 1-1-2018 to 31-12-2018
             strict=False,
             partition_by=PartitionByEnum.w,
             index_by=None,
-            template_path=get_default_data_path(),
-            template_name=&#39;data_partitioning.jinja2&#39;
+            template_path=TEMPLATE_FOLDER,
+            template_name='data_partitioning.jinja2'
     ):
-        &#34;&#34;&#34;
+        """
         Partitions the parent table by a time period, e.g. w for per week
         partitions, m for per month partitions.
 
@@ -411,7 +612,7 @@ partition data for, e.g. a year, starting from 1-1-2018 to 31-12-2018
         partition data for, e.g. a year, starting from 1-1-2018 to 31-12-2018
         :param str split_by: w for week, m for month
         :param index_by: list of fields to index the partitions by
-        &#34;&#34;&#34;
+        """
         super().__init__(
             partitioned_table_name,
             partition_field,
@@ -432,80 +633,197 @@ partition data for, e.g. a year, starting from 1-1-2018 to 31-12-2018
 
     def to_dict(self):
         return self.partitioned_table.to_dict()</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.db.data_partitioning.DataPartitioner" href="#baskerville.db.data_partitioning.DataPartitioner">DataPartitioner</a></li>
-<li><a title="baskerville.db.base.GeneratorBase" href="base.html#baskerville.db.base.GeneratorBase">GeneratorBase</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="baskerville.db.data_partitioning.TemporalDataPartitioner.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_dict(self):
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.db.data_partitioning.DataPartitioner" title="baskerville.db.data_partitioning.DataPartitioner">
+          DataPartitioner
+         </a>
+        </li>
+        <li>
+         <a href="base.html#baskerville.db.base.GeneratorBase" title="baskerville.db.base.GeneratorBase">
+          GeneratorBase
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.db.data_partitioning.TemporalDataPartitioner.to_dict">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            to_dict
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def to_dict(self):
     return self.partitioned_table.to_dict()</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-</dl>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville.db" href="index.html">baskerville.db</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="baskerville.db.data_partitioning.get_temporal_partitions" href="#baskerville.db.data_partitioning.get_temporal_partitions">get_temporal_partitions</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="baskerville.db.data_partitioning.AlphabeticalDataPartitioner" href="#baskerville.db.data_partitioning.AlphabeticalDataPartitioner">AlphabeticalDataPartitioner</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.db.data_partitioning.AlphabeticalDataPartitioner.partition_by" href="#baskerville.db.data_partitioning.AlphabeticalDataPartitioner.partition_by">partition_by</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.db.data_partitioning.DataPartitioner" href="#baskerville.db.data_partitioning.DataPartitioner">DataPartitioner</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.db.data_partitioning.DataPartitioner.to_dict" href="#baskerville.db.data_partitioning.DataPartitioner.to_dict">to_dict</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.db.data_partitioning.RangeDataPartitioner" href="#baskerville.db.data_partitioning.RangeDataPartitioner">RangeDataPartitioner</a></code></h4>
-</li>
-<li>
-<h4><code><a title="baskerville.db.data_partitioning.TemporalDataPartitioner" href="#baskerville.db.data_partitioning.TemporalDataPartitioner">TemporalDataPartitioner</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.db.data_partitioning.TemporalDataPartitioner.to_dict" href="#baskerville.db.data_partitioning.TemporalDataPartitioner.to_dict">to_dict</a></code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+         </details>
+        </dd>
+       </dl>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.db">
+          baskerville.db
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-functions">
+        Functions
+       </a>
+      </h3>
+      <ul class="">
+       <li>
+        <code>
+         <a href="#baskerville.db.data_partitioning.get_temporal_partitions" title="baskerville.db.data_partitioning.get_temporal_partitions">
+          get_temporal_partitions
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.db.data_partitioning.AlphabeticalDataPartitioner" title="baskerville.db.data_partitioning.AlphabeticalDataPartitioner">
+           AlphabeticalDataPartitioner
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.db.data_partitioning.AlphabeticalDataPartitioner.partition_by" title="baskerville.db.data_partitioning.AlphabeticalDataPartitioner.partition_by">
+            partition_by
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.db.data_partitioning.DataPartitioner" title="baskerville.db.data_partitioning.DataPartitioner">
+           DataPartitioner
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.db.data_partitioning.DataPartitioner.to_dict" title="baskerville.db.data_partitioning.DataPartitioner.to_dict">
+            to_dict
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.db.data_partitioning.RangeDataPartitioner" title="baskerville.db.data_partitioning.RangeDataPartitioner">
+           RangeDataPartitioner
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.db.data_partitioning.TemporalDataPartitioner" title="baskerville.db.data_partitioning.TemporalDataPartitioner">
+           TemporalDataPartitioner
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.db.data_partitioning.TemporalDataPartitioner.to_dict" title="baskerville.db.data_partitioning.TemporalDataPartitioner.to_dict">
+            to_dict
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>

@@ -1,3 +1,9 @@
+[comment]: # Copyright (c) 2020, eQualit.ie inc.
+[comment]: # All rights reserved.
+
+[comment]: # This source code is licensed under the BSD-style license found in the 
+[comment]: # LICENSE file in the root directory of this source tree.
+
 
 # Feature Overview
 
@@ -57,3 +63,8 @@ request interval, such that the bucket feature values may be considered
 approximations of the population feature values. If this holds, it begs the
 question of whether it is worth updating feature values at all, or if they
 should just be replaced following each time bucket.
+
+
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+<img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />
+This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
