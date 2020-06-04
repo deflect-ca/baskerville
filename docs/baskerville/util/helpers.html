@@ -1,30 +1,52 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.util.helpers API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.util.helpers</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">import datetime
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.util.helpers API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.util.helpers
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import datetime
 import os
 import logging
 import re
@@ -33,26 +55,12 @@ from functools import wraps
 
 import yaml
 
-months = {
-    &#39;Jan&#39;: &#39;01&#39;,
-    &#39;Feb&#39;: &#39;02&#39;,
-    &#39;Mar&#39;: &#39;03&#39;,
-    &#39;Apr&#39;: &#39;04&#39;,
-    &#39;May&#39;: &#39;05&#39;,
-    &#39;Jun&#39;: &#39;06&#39;,
-    &#39;Jul&#39;: &#39;07&#39;,
-    &#39;Aug&#39;: &#39;08&#39;,
-    &#39;Sep&#39;: &#39;09&#39;,
-    &#39;Oct&#39;: &#39;10&#39;,
-    &#39;Nov&#39;: &#39;11&#39;,
-    &#39;Dec&#39;: &#39;12&#39;
-}
-
-UNREASONABLE_SIZE = 100 * 1024 * 1024  # 100MB
+FOLDER_MODELS = 'models'
+FOLDER_CACHE = 'cache'
 
 
-def parse_config(path=None, data=None, tag=&#39;!ENV&#39;):
-    &#34;&#34;&#34;
+def parse_config(path=None, data=None, tag='!ENV'):
+    """
     Load a yaml configuration file and resolve any environment variables
     The environment variables must have !ENV before them and be in this format
     to be parsed: ${VAR_NAME}.
@@ -62,35 +70,35 @@ def parse_config(path=None, data=None, tag=&#39;!ENV&#39;):
         host: !ENV ${HOST}
         port: !ENV ${PORT}
     engine:
-        log_path: !ENV &#39;/var/${LOG_PATH}&#39;
-        something_else: !ENV &#39;${AWESOME_ENV_VAR}/var/${WOOHOO_VAR}&#39;
+        log_path: !ENV '/var/${LOG_PATH}'
+        something_else: !ENV '${AWESOME_ENV_VAR}/var/${WOOHOO_VAR}'
 
     :param path: the path to the yaml file
     :param data: the yaml data itself as a stream
     :param tag: the tag to look for
     :return: the dict configuration
     :rtype: dict[str, T]
-    &#34;&#34;&#34;
+    """
     # pattern for global vars
-    pattern = re.compile(&#39;.*?\${(\w+)}.*?&#39;)
+    pattern = re.compile(r'.*?\${(\w+)}.*?')
     loader = yaml.SafeLoader
     loader.add_implicit_resolver(tag, pattern, None)
 
     def constructor_env_variables(loader, node):
-        &#34;&#34;&#34;
-        Extracts the environment variable from the node&#39;s value
+        """
+        Extracts the environment variable from the node's value
         :param yaml.Loader loader: the yaml loader
         :param node: the current node in the yaml
         :return: the parsed string that contains the value of the environment
         variable
-        &#34;&#34;&#34;
+        """
         value = loader.construct_scalar(node)
         match = pattern.findall(value)
         if match:
             full_value = value
             for g in match:
                 full_value = full_value.replace(
-                    f&#39;${{{g}}}&#39;, os.environ.get(g, g)
+                    f'${{{g}}}', os.environ.get(g, g)
                 )
             return full_value
         return value
@@ -103,20 +111,20 @@ def parse_config(path=None, data=None, tag=&#39;!ENV&#39;):
     elif data:
         return yaml.load(data, Loader=loader)
     else:
-        raise ValueError(&#39;Either a path or data should be defined as input&#39;)
+        raise ValueError('Either a path or data should be defined as input')
 
 
 def get_logger(
-        name, logging_level=logging.DEBUG, output_file=&#39;baskerville.log&#39;
+        name, logging_level=logging.DEBUG, output_file='baskerville.log'
 ):
-    &#34;&#34;&#34;
+    """
     Creates a logger that logs to file and console with the same logging level
     :param str name: the logger name
     :param int logging_level: the logging level
     :param str output_file: the file to save to
     :return: the initialized logger
     :rtype: logger
-    &#34;&#34;&#34;
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging_level)
     if not len(logger.handlers):
@@ -128,8 +136,8 @@ def get_logger(
 
         # create formatter and add it to the handlers
         formatter = logging.Formatter(
-            &#39;%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s&#39;
-            &#39; [%(process)d] %(message)s&#39;
+            '%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s'
+            ' [%(process)d] %(message)s'
         )
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
@@ -140,67 +148,67 @@ def get_logger(
 
 
 def caller_info(f):
-    &#34;&#34;&#34;
+    """
     Log the caller of a callable
     :param callable f: the callable to wrap
     :return: the wrapper
-    &#34;&#34;&#34;
+    """
 
     @wraps(f)
     def func(*args, **kwargs):
         import inspect
         caller = inspect.stack()[1]
         module = inspect.getmodule(caller[0])
-        print(&#39;[{}]&#39;.format(module.__name__))
+        print('[{}]'.format(module.__name__))
         return f(*args, **kwargs)
 
     return func
 
 
 def generate_random_ip():
-    &#34;&#34;&#34;
+    """
     Returns a random IP as a string
     :return: a random stringified ip
     :rtype: str
-    &#34;&#34;&#34;
+    """
     from random import randint
-    return &#39;.&#39;.join(str(randint(0, 255)) for _ in range(4))
+    return '.'.join(str(randint(0, 255)) for _ in range(4))
 
 
-def randomize_data(path_to_json, output_path=&#39;test_data_1k.json&#39;, take=1000):
-    &#34;&#34;&#34;
+def randomize_data(path_to_json, output_path='test_data_1k.json', take=1000):
+    """
     Randomize log values and drop unnecessary columns
     :param str path_to_json: full path to json file that contains the logs in
     lines
     :param str output_path: where to save, defaults to json 1k
-    :param int take: how many lines to keep, defaulst to 1000
+    :param int take: how many lines to keep, defaults to 1000
     :return: None
-    &#34;&#34;&#34;
+    """
     import pandas as pd
     import random
 
     df = pd.read_json(
         path_to_json,
-        orient=&#39;records&#39;,
+        orient='records',
         lines=True,
-        encoding=&#39;utf-8&#39;
+        encoding='utf-8'
     )
 
     if 0 &lt; take &lt;= len(df):
         df = df[:take]
-    df = df.drop(&#39;_metadata&#39;, axis=1)
-    df[&#39;dnet&#39;] = df[&#39;dnet&#39;].apply(
-        lambda x: &#39;&#39;.join(random.sample(x, len(x))))
-    df[&#39;ISP&#39;] = df[&#39;ISP&#39;].apply(
-        lambda x: &#39;&#39;.join(random.sample(x, len(x))))
-    df[&#39;host&#39;] = df[&#39;host&#39;].apply(
-        lambda x: &#39;testhost.&#39; + &#39;.&#39;.join(x.split(&#39;.&#39;)[1:]))
-    df[&#39;type&#39;] = &#39;testdata&#39;
-    df[&#39;client_request_host&#39;] = &#39;testhost.net&#39;
-    df[&#39;client_ip&#39;] = df[&#39;client_ip&#39;].apply(generate_random_ip)
+    df = df.drop('_metadata', axis=1)
+    df['dnet'] = df['dnet'].apply(
+        lambda x: ''.join(random.sample(x, len(x))))
+    df['ISP'] = df['ISP'].apply(
+        lambda x: ''.join(random.sample(x, len(x))))
+    df['host'] = df['host'].apply(
+        lambda x: 'testhost.' + '.'.join(x.split('.')[1:]))
+    df['type'] = 'testdata'
+    df['client_request_host'] = 'testhost.net'
+    df['client_ip'] = df['client_ip'].apply(generate_random_ip)
     df.to_json(
         output_path,
-        orient=&#39;records&#39;,
+        orient='records',
         lines=True
     )
 
@@ -209,30 +217,28 @@ def get_objects_attributes(obj, exclude=()):
     return [
         attr
         for attr in dir(obj)
-        if attr not in exclude
-           and not attr.startswith(&#39;_&#39;)
-           and not callable(getattr(obj, attr))
+        if attr not in exclude and not attr.startswith('_') and not callable(getattr(obj, attr))
     ]
 
 
 def have_common_elements(first_list, second_list):
-    &#34;&#34;&#34;
+    """
     Retuns True if all the elements in the first list are also in the second.
     :param list[T] first_list:
     :param list[T] second_list:
     :return: True if lists are the same, else False
-    &#34;&#34;&#34;
+    """
     return len(set(first_list).intersection(
         set(second_list))) == len(second_list)
 
 
 def lines_in_file(path):
-    &#34;&#34;&#34;
+    """
     Returns the number of lines in a file
     :param str path:
     :return: the number of lines
     :rtype: int
-    &#34;&#34;&#34;
+    """
     with open(path) as f:
         position = f.tell()
         f.seek(0, 2)  # seek to end
@@ -244,8 +250,8 @@ def lines_in_file(path):
 
 def periods_overlap(
         start, end, other_start, other_end, allow_closed_interval=False
-):
-    &#34;&#34;&#34;
+) -&gt; bool:
+    """
     Checks if this time period overlaps with another time period.
     It checks against the following cases:
 
@@ -279,30 +285,34 @@ def periods_overlap(
     means that they overlap at that point.
     :return: True if they overlap, False otherwise
     :rtype: bool
-    &#34;&#34;&#34;
+    """
     if allow_closed_interval:
         # the not overlaping check does not take equality into account
         return not (other_start &lt; start and other_end &lt; start) and \
-               not (other_start &gt; end and other_end &gt; end)
-    return not (other_start &lt; start and other_end &lt;= start) and \
-           not (other_start &gt;= end and other_end &gt; end)
+            not (other_start &gt; end and other_end &gt; end)
+    return not (other_start &lt; start and other_end &lt;= start) and not (other_start &gt;= end and other_end &gt; end)
 
 
-def get_default_data_path():
-    &#34;&#34;&#34;
+def get_default_data_path() -&gt; str:
+    """
     Returns the absolute path to the data folder
     :return:
-    &#34;&#34;&#34;
-    return f&#39;{os.path.dirname(os.path.realpath(__file__))}/../../../data&#39;
+    """
+    baskerville_root = os.environ.get('BASKERVILLE_ROOT')
+    if baskerville_root:
+        return os.path.join(baskerville_root, 'data')
+    return os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data'
+    )
 
 
 def get_days_in_year(year):
-    &#34;&#34;&#34;
+    """
     Returns the number of days in a specific year
     :param int year: the number of the year
     :return: the number of days in the specific year
     :rtype: int
-    &#34;&#34;&#34;
+    """
     from calendar import Calendar
     days_in_year = 0
     for m in Calendar().yeardays2calendar(year, width=12)[0]:
@@ -314,13 +324,13 @@ def get_days_in_year(year):
 
 
 def get_days_in_month(year, month):
-    &#34;&#34;&#34;
+    """
     Returns the number of days in the month of a specific year
     :param int year: the year of the month
     :param int month: the number of the month
     :return:
     :rtype: int
-    &#34;&#34;&#34;
+    """
     from calendar import monthrange
     return monthrange(year, month)[1]
 
@@ -330,31 +340,31 @@ class SerializableMixin(object):
     _remove = ()
 
     def to_dict(self, cols=()):
-        &#34;&#34;&#34;
+        """
 
         :param tuple cols:
         :return:
         :rtype: dict[str, T]
-        &#34;&#34;&#34;
+        """
         if not cols:
-            if getattr(self, &#39;__table__&#39;, None):
+            if getattr(self, '__table__', None):
                 cols = self.__table__.columns
                 basic_attrs = {c.name: getattr(self, c.name)
                                for c in cols
                                if c.name not in self._remove and
-                               not c.name.startswith(&#39;_&#39;)}
+                               not c.name.startswith('_')}
             else:
                 cols = dir(self)
                 basic_attrs = {c: getattr(self, c)
                                for c in cols
                                if c not in self._remove and
-                               not c.startswith(&#39;_&#39;) and not callable(
-                        getattr(self, c))}
+                               not c.startswith('_') and not callable(
+                    getattr(self, c))}
         else:
             basic_attrs = {c: getattr(self, c)
                            for c in cols
                            if c not in self._remove and
-                           not c.startswith(&#39;_&#39;)
+                           not c.startswith('_')
                            and not callable(getattr(self, c))}
 
         extra_attrs = {}
@@ -370,15 +380,19 @@ class SerializableMixin(object):
             basic_attrs.update(extra_attrs)
 
         for k, v in basic_attrs.items():
-            if isinstance(v, SerializableMixin) and hasattr(v, &#39;to_dict&#39;):
-                if hasattr(v, &#39;parent&#39;) and &#39;parent&#39; not in v._remove:
-                    v._remove += (&#39;parent&#39;)
+            if isinstance(v, SerializableMixin) and hasattr(v, 'to_dict'):
+                if hasattr(v, 'parent') and 'parent' not in v._remove:
+                    v._remove += ('parent')
                 basic_attrs[k] = v.to_dict()
 
         return basic_attrs
 
 
 class TimeBucket(object):
+    """
+    Representation of time bucket: seconds and timedelta
+    """
+
     def __init__(self, time_bucket=120):
         self._sec = time_bucket
         self._td = datetime.timedelta(seconds=self._sec)
@@ -389,110 +403,273 @@ class TimeBucket(object):
 
     @property
     def td(self):
-        return self._td</code></pre>
-</details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="baskerville.util.helpers.caller_info"><code class="name flex">
-<span>def <span class="ident">caller_info</span></span>(<span>f)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Log the caller of a callable
+        return self._td
+
+
+def instantiate_from_str(str_class, *args, **kwargs):
+    """
+    Get class instance from string
+    :param str_class: the full path to class, e.g. pyspark.sql.DataFrame
+    :return: the instance of the requested class
+    """
+    return class_from_str(str_class)(*args, **kwargs)
+
+
+def class_from_str(str_class):
+    """
+    Imports the module that contains the class requested and returns
+    the class
+    :param str_class: the full path to class, e.g. pyspark.sql.DataFrame
+    :return: the class requested
+    """
+    import importlib
+
+    split_str = str_class.split('.')
+    class_name = split_str[-1]
+    module_name = '.'.join(split_str[:-1])
+    module = importlib.import_module(module_name)
+
+    return getattr(module, class_name)
+
+
+def get_timestamp():
+    """
+    Get a string UTC timestamp
+    :return: YYYY_MM_DD__HH:MM
+    """
+    ts = datetime.datetime.utcnow()
+    return f'{ts.year:02}_{ts.month:02}_{ts.day:02}___{ts.hour:02}_{ts.minute:02}'
+
+
+def get_model_path(storage_path, model_name='model'):
+    """
+    Crete the model full path for the given storage and the name of the model\
+    :param storage_path: the path to the storage root folder
+    :param model_name:
+    :return: storage_path/models/mdel_name__2020_01_01__14:30
+    """
+    return os.path.join(storage_path,
+                        FOLDER_MODELS,
+                        f'{model_name}__{get_timestamp()}')</code></pre>
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-functions">
+      Functions
+     </h2>
+     <dl>
+      <dt id="baskerville.util.helpers.caller_info">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          caller_info
+         </span>
+        </span>
+        (
+        <span>
+         f)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Log the caller of a callable
 :param callable f: the callable to wrap
-:return: the wrapper</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def caller_info(f):
-    &#34;&#34;&#34;
+:return: the wrapper
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def caller_info(f):
+    """
     Log the caller of a callable
     :param callable f: the callable to wrap
     :return: the wrapper
-    &#34;&#34;&#34;
+    """
 
     @wraps(f)
     def func(*args, **kwargs):
         import inspect
         caller = inspect.stack()[1]
         module = inspect.getmodule(caller[0])
-        print(&#39;[{}]&#39;.format(module.__name__))
+        print('[{}]'.format(module.__name__))
         return f(*args, **kwargs)
 
     return func</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.generate_random_ip"><code class="name flex">
-<span>def <span class="ident">generate_random_ip</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns a random IP as a string
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.class_from_str">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          class_from_str
+         </span>
+        </span>
+        (
+        <span>
+         str_class)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Imports the module that contains the class requested and returns
+the class
+:param str_class: the full path to class, e.g. pyspark.sql.DataFrame
+:return: the class requested
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def class_from_str(str_class):
+    """
+    Imports the module that contains the class requested and returns
+    the class
+    :param str_class: the full path to class, e.g. pyspark.sql.DataFrame
+    :return: the class requested
+    """
+    import importlib
+
+    split_str = str_class.split('.')
+    class_name = split_str[-1]
+    module_name = '.'.join(split_str[:-1])
+    module = importlib.import_module(module_name)
+
+    return getattr(module, class_name)</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.generate_random_ip">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          generate_random_ip
+         </span>
+        </span>
+        (
+        <span>
+         )
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Returns a random IP as a string
 :return: a random stringified ip
-:rtype: str</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def generate_random_ip():
-    &#34;&#34;&#34;
+:rtype: str
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def generate_random_ip():
+    """
     Returns a random IP as a string
     :return: a random stringified ip
     :rtype: str
-    &#34;&#34;&#34;
+    """
     from random import randint
-    return &#39;.&#39;.join(str(randint(0, 255)) for _ in range(4))</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.get_days_in_month"><code class="name flex">
-<span>def <span class="ident">get_days_in_month</span></span>(<span>year, month)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns the number of days in the month of a specific year
+    return '.'.join(str(randint(0, 255)) for _ in range(4))</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.get_days_in_month">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_days_in_month
+         </span>
+        </span>
+        (
+        <span>
+         year, month)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Returns the number of days in the month of a specific year
 :param int year: the year of the month
 :param int month: the number of the month
 :return:
-:rtype: int</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_days_in_month(year, month):
-    &#34;&#34;&#34;
+:rtype: int
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_days_in_month(year, month):
+    """
     Returns the number of days in the month of a specific year
     :param int year: the year of the month
     :param int month: the number of the month
     :return:
     :rtype: int
-    &#34;&#34;&#34;
+    """
     from calendar import monthrange
     return monthrange(year, month)[1]</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.get_days_in_year"><code class="name flex">
-<span>def <span class="ident">get_days_in_year</span></span>(<span>year)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns the number of days in a specific year
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.get_days_in_year">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_days_in_year
+         </span>
+        </span>
+        (
+        <span>
+         year)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Returns the number of days in a specific year
 :param int year: the number of the year
 :return: the number of days in the specific year
-:rtype: int</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_days_in_year(year):
-    &#34;&#34;&#34;
+:rtype: int
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_days_in_year(year):
+    """
     Returns the number of days in a specific year
     :param int year: the number of the year
     :return: the number of days in the specific year
     :rtype: int
-    &#34;&#34;&#34;
+    """
     from calendar import Calendar
     days_in_year = 0
     for m in Calendar().yeardays2calendar(year, width=12)[0]:
@@ -501,51 +678,90 @@ class TimeBucket(object):
             # len(list(filter((0).__ne__, w)))
 
     return days_in_year</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.get_default_data_path"><code class="name flex">
-<span>def <span class="ident">get_default_data_path</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns the absolute path to the data folder
-:return:</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_default_data_path():
-    &#34;&#34;&#34;
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.get_default_data_path">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_default_data_path
+         </span>
+        </span>
+        (
+        <span>
+         )
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Returns the absolute path to the data folder
+:return:
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_default_data_path() -&gt; str:
+    """
     Returns the absolute path to the data folder
     :return:
-    &#34;&#34;&#34;
-    return f&#39;{os.path.dirname(os.path.realpath(__file__))}/../../../data&#39;</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.get_logger"><code class="name flex">
-<span>def <span class="ident">get_logger</span></span>(<span>name, logging_level=10, output_file='baskerville.log')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Creates a logger that logs to file and console with the same logging level
+    """
+    baskerville_root = os.environ.get('BASKERVILLE_ROOT')
+    if baskerville_root:
+        return os.path.join(baskerville_root, 'data')
+    return os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data'
+    )</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.get_logger">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_logger
+         </span>
+        </span>
+        (
+        <span>
+         name, logging_level=10, output_file='baskerville.log')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Creates a logger that logs to file and console with the same logging level
 :param str name: the logger name
 :param int logging_level: the logging level
 :param str output_file: the file to save to
 :return: the initialized logger
-:rtype: logger</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_logger(
-        name, logging_level=logging.DEBUG, output_file=&#39;baskerville.log&#39;
+:rtype: logger
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_logger(
+        name, logging_level=logging.DEBUG, output_file='baskerville.log'
 ):
-    &#34;&#34;&#34;
+    """
     Creates a logger that logs to file and console with the same logging level
     :param str name: the logger name
     :param int logging_level: the logging level
     :param str output_file: the file to save to
     :return: the initialized logger
     :rtype: logger
-    &#34;&#34;&#34;
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging_level)
     if not len(logger.handlers):
@@ -557,8 +773,8 @@ class TimeBucket(object):
 
         # create formatter and add it to the handlers
         formatter = logging.Formatter(
-            &#39;%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s&#39;
-            &#39; [%(process)d] %(message)s&#39;
+            '%(asctime)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s'
+            ' [%(process)d] %(message)s'
         )
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
@@ -566,69 +782,229 @@ class TimeBucket(object):
         logger.addHandler(file_handler)
         logger.addHandler(console_handler)
     return logger</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.get_objects_attributes"><code class="name flex">
-<span>def <span class="ident">get_objects_attributes</span></span>(<span>obj, exclude=())</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_objects_attributes(obj, exclude=()):
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.get_model_path">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_model_path
+         </span>
+        </span>
+        (
+        <span>
+         storage_path, model_name='model')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Crete the model full path for the given storage and the name of the model
+:param storage_path: the path to the storage root folder
+:param model_name:
+:return: storage_path/models/mdel_name__2020_01_01__14:30
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_model_path(storage_path, model_name='model'):
+    """
+    Crete the model full path for the given storage and the name of the model\
+    :param storage_path: the path to the storage root folder
+    :param model_name:
+    :return: storage_path/models/mdel_name__2020_01_01__14:30
+    """
+    return os.path.join(storage_path,
+                        FOLDER_MODELS,
+                        f'{model_name}__{get_timestamp()}')</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.get_objects_attributes">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_objects_attributes
+         </span>
+        </span>
+        (
+        <span>
+         obj, exclude=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_objects_attributes(obj, exclude=()):
     return [
         attr
         for attr in dir(obj)
-        if attr not in exclude
-           and not attr.startswith(&#39;_&#39;)
-           and not callable(getattr(obj, attr))
+        if attr not in exclude and not attr.startswith('_') and not callable(getattr(obj, attr))
     ]</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.have_common_elements"><code class="name flex">
-<span>def <span class="ident">have_common_elements</span></span>(<span>first_list, second_list)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Retuns True if all the elements in the first list are also in the second.
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.get_timestamp">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_timestamp
+         </span>
+        </span>
+        (
+        <span>
+         )
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Get a string UTC timestamp
+:return: YYYY_MM_DD__HH:MM
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_timestamp():
+    """
+    Get a string UTC timestamp
+    :return: YYYY_MM_DD__HH:MM
+    """
+    ts = datetime.datetime.utcnow()
+    return f'{ts.year:02}_{ts.month:02}_{ts.day:02}___{ts.hour:02}_{ts.minute:02}'</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.have_common_elements">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          have_common_elements
+         </span>
+        </span>
+        (
+        <span>
+         first_list, second_list)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Retuns True if all the elements in the first list are also in the second.
 :param list[T] first_list:
 :param list[T] second_list:
-:return: True if lists are the same, else False</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def have_common_elements(first_list, second_list):
-    &#34;&#34;&#34;
+:return: True if lists are the same, else False
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def have_common_elements(first_list, second_list):
+    """
     Retuns True if all the elements in the first list are also in the second.
     :param list[T] first_list:
     :param list[T] second_list:
     :return: True if lists are the same, else False
-    &#34;&#34;&#34;
+    """
     return len(set(first_list).intersection(
         set(second_list))) == len(second_list)</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.lines_in_file"><code class="name flex">
-<span>def <span class="ident">lines_in_file</span></span>(<span>path)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Returns the number of lines in a file
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.instantiate_from_str">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          instantiate_from_str
+         </span>
+        </span>
+        (
+        <span>
+         str_class, *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Get class instance from string
+:param str_class: the full path to class, e.g. pyspark.sql.DataFrame
+:return: the instance of the requested class
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def instantiate_from_str(str_class, *args, **kwargs):
+    """
+    Get class instance from string
+    :param str_class: the full path to class, e.g. pyspark.sql.DataFrame
+    :return: the instance of the requested class
+    """
+    return class_from_str(str_class)(*args, **kwargs)</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.lines_in_file">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          lines_in_file
+         </span>
+        </span>
+        (
+        <span>
+         path)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Returns the number of lines in a file
 :param str path:
 :return: the number of lines
-:rtype: int</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def lines_in_file(path):
-    &#34;&#34;&#34;
+:rtype: int
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def lines_in_file(path):
+    """
     Returns the number of lines in a file
     :param str path:
     :return: the number of lines
     :rtype: int
-    &#34;&#34;&#34;
+    """
     with open(path) as f:
         position = f.tell()
         f.seek(0, 2)  # seek to end
@@ -636,33 +1012,54 @@ class TimeBucket(object):
         f.seek(position)  # back
 
     return num_rows</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.parse_config"><code class="name flex">
-<span>def <span class="ident">parse_config</span></span>(<span>path=None, data=None, tag='!ENV')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Load a yaml configuration file and resolve any environment variables
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.parse_config">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          parse_config
+         </span>
+        </span>
+        (
+        <span>
+         path=None, data=None, tag='!ENV')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Load a yaml configuration file and resolve any environment variables
 The environment variables must have !ENV before them and be in this format
 to be parsed: ${VAR_NAME}.
-E.g.:</p>
-<p>database:
+E.g.:
+        </p>
+        <p>
+         database:
 host: !ENV ${HOST}
 port: !ENV ${PORT}
 engine:
 log_path: !ENV '/var/${LOG_PATH}'
-something_else: !ENV '${AWESOME_ENV_VAR}/var/${WOOHOO_VAR}'</p>
-<p>:param path: the path to the yaml file
+something_else: !ENV '${AWESOME_ENV_VAR}/var/${WOOHOO_VAR}'
+        </p>
+        <p>
+         :param path: the path to the yaml file
 :param data: the yaml data itself as a stream
 :param tag: the tag to look for
 :return: the dict configuration
-:rtype: dict[str, T]</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def parse_config(path=None, data=None, tag=&#39;!ENV&#39;):
-    &#34;&#34;&#34;
+:rtype: dict[str, T]
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def parse_config(path=None, data=None, tag='!ENV'):
+    """
     Load a yaml configuration file and resolve any environment variables
     The environment variables must have !ENV before them and be in this format
     to be parsed: ${VAR_NAME}.
@@ -672,35 +1069,35 @@ something_else: !ENV '${AWESOME_ENV_VAR}/var/${WOOHOO_VAR}'</p>
         host: !ENV ${HOST}
         port: !ENV ${PORT}
     engine:
-        log_path: !ENV &#39;/var/${LOG_PATH}&#39;
-        something_else: !ENV &#39;${AWESOME_ENV_VAR}/var/${WOOHOO_VAR}&#39;
+        log_path: !ENV '/var/${LOG_PATH}'
+        something_else: !ENV '${AWESOME_ENV_VAR}/var/${WOOHOO_VAR}'
 
     :param path: the path to the yaml file
     :param data: the yaml data itself as a stream
     :param tag: the tag to look for
     :return: the dict configuration
     :rtype: dict[str, T]
-    &#34;&#34;&#34;
+    """
     # pattern for global vars
-    pattern = re.compile(&#39;.*?\${(\w+)}.*?&#39;)
+    pattern = re.compile(r'.*?\${(\w+)}.*?')
     loader = yaml.SafeLoader
     loader.add_implicit_resolver(tag, pattern, None)
 
     def constructor_env_variables(loader, node):
-        &#34;&#34;&#34;
-        Extracts the environment variable from the node&#39;s value
+        """
+        Extracts the environment variable from the node's value
         :param yaml.Loader loader: the yaml loader
         :param node: the current node in the yaml
         :return: the parsed string that contains the value of the environment
         variable
-        &#34;&#34;&#34;
+        """
         value = loader.construct_scalar(node)
         match = pattern.findall(value)
         if match:
             full_value = value
             for g in match:
                 full_value = full_value.replace(
-                    f&#39;${{{g}}}&#39;, os.environ.get(g, g)
+                    f'${{{g}}}', os.environ.get(g, g)
                 )
             return full_value
         return value
@@ -713,36 +1110,102 @@ something_else: !ENV '${AWESOME_ENV_VAR}/var/${WOOHOO_VAR}'</p>
     elif data:
         return yaml.load(data, Loader=loader)
     else:
-        raise ValueError(&#39;Either a path or data should be defined as input&#39;)</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.periods_overlap"><code class="name flex">
-<span>def <span class="ident">periods_overlap</span></span>(<span>start, end, other_start, other_end, allow_closed_interval=False)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Checks if this time period overlaps with another time period.
-It checks against the following cases:</p>
-<p>if not allow_closed_interval</p>
-<p>|----o==========o----.<strong><em>*</em></strong><strong><em>*</em></strong>***.------|
+        raise ValueError('Either a path or data should be defined as input')</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.periods_overlap">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          periods_overlap
+         </span>
+        </span>
+        (
+        <span>
+         start, end, other_start, other_end, allow_closed_interval=False)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Checks if this time period overlaps with another time period.
+It checks against the following cases:
+        </p>
+        <p>
+         if not allow_closed_interval
+        </p>
+        <p>
+         |----o==========o----.
+         <strong>
+          <em>
+           *
+          </em>
+         </strong>
+         <strong>
+          <em>
+           *
+          </em>
+         </strong>
+         ***.------|
 ostart
 oend
 start
-end</p>
-<p>|-----.<strong><em>*</em></strong>**.------o===========o----------|
+end
+        </p>
+        <p>
+         |-----.
+         <strong>
+          <em>
+           *
+          </em>
+         </strong>
+         **.------o===========o----------|
 start
 end
 ostart
-oend</p>
-<p>if allow_closed_interval (oend/start or end/ostart are allowed to be equal)</p>
-<p>|----o==========o.<strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong>***.&mdash;|
+oend
+        </p>
+        <p>
+         if allow_closed_interval (oend/start or end/ostart are allowed to be equal)
+        </p>
+        <p>
+         |----o==========o.
+         <strong>
+          <em>
+           *
+          </em>
+         </strong>
+         <strong>
+          <em>
+           *
+          </em>
+         </strong>
+         <strong>
+          <em>
+           *
+          </em>
+         </strong>
+         ***.—|
 ostart
 oend/start
-end</p>
-<p>|-----.<strong><em>*</em></strong>**.o===========o----------------|
+end
+        </p>
+        <p>
+         |-----.
+         <strong>
+          <em>
+           *
+          </em>
+         </strong>
+         **.o===========o----------------|
 start
 end/ostart
-oend</p>
-<p>:param datetime.datetime start: the start time of the first period to
+oend
+        </p>
+        <p>
+         :param datetime.datetime start: the start time of the first period to
 check against
 :param datetime.datetime end: the end time of the first period to
 check against
@@ -754,15 +1217,19 @@ to check against
 start as not overlapping, False to consider that e.g. same oend and start
 means that they overlap at that point.
 :return: True if they overlap, False otherwise
-:rtype: bool</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def periods_overlap(
+:rtype: bool
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def periods_overlap(
         start, end, other_start, other_end, allow_closed_interval=False
-):
-    &#34;&#34;&#34;
+) -&gt; bool:
+    """
     Checks if this time period overlaps with another time period.
     It checks against the following cases:
 
@@ -796,112 +1263,145 @@ means that they overlap at that point.
     means that they overlap at that point.
     :return: True if they overlap, False otherwise
     :rtype: bool
-    &#34;&#34;&#34;
+    """
     if allow_closed_interval:
         # the not overlaping check does not take equality into account
         return not (other_start &lt; start and other_end &lt; start) and \
-               not (other_start &gt; end and other_end &gt; end)
-    return not (other_start &lt; start and other_end &lt;= start) and \
-           not (other_start &gt;= end and other_end &gt; end)</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.randomize_data"><code class="name flex">
-<span>def <span class="ident">randomize_data</span></span>(<span>path_to_json, output_path='test_data_1k.json', take=1000)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Randomize log values and drop unnecessary columns
+            not (other_start &gt; end and other_end &gt; end)
+    return not (other_start &lt; start and other_end &lt;= start) and not (other_start &gt;= end and other_end &gt; end)</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.util.helpers.randomize_data">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          randomize_data
+         </span>
+        </span>
+        (
+        <span>
+         path_to_json, output_path='test_data_1k.json', take=1000)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Randomize log values and drop unnecessary columns
 :param str path_to_json: full path to json file that contains the logs in
 lines
 :param str output_path: where to save, defaults to json 1k
-:param int take: how many lines to keep, defaulst to 1000
-:return: None</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def randomize_data(path_to_json, output_path=&#39;test_data_1k.json&#39;, take=1000):
-    &#34;&#34;&#34;
+:param int take: how many lines to keep, defaults to 1000
+:return: None
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def randomize_data(path_to_json, output_path='test_data_1k.json', take=1000):
+    """
     Randomize log values and drop unnecessary columns
     :param str path_to_json: full path to json file that contains the logs in
     lines
     :param str output_path: where to save, defaults to json 1k
-    :param int take: how many lines to keep, defaulst to 1000
+    :param int take: how many lines to keep, defaults to 1000
     :return: None
-    &#34;&#34;&#34;
+    """
     import pandas as pd
     import random
 
     df = pd.read_json(
         path_to_json,
-        orient=&#39;records&#39;,
+        orient='records',
         lines=True,
-        encoding=&#39;utf-8&#39;
+        encoding='utf-8'
     )
 
     if 0 &lt; take &lt;= len(df):
         df = df[:take]
-    df = df.drop(&#39;_metadata&#39;, axis=1)
-    df[&#39;dnet&#39;] = df[&#39;dnet&#39;].apply(
-        lambda x: &#39;&#39;.join(random.sample(x, len(x))))
-    df[&#39;ISP&#39;] = df[&#39;ISP&#39;].apply(
-        lambda x: &#39;&#39;.join(random.sample(x, len(x))))
-    df[&#39;host&#39;] = df[&#39;host&#39;].apply(
-        lambda x: &#39;testhost.&#39; + &#39;.&#39;.join(x.split(&#39;.&#39;)[1:]))
-    df[&#39;type&#39;] = &#39;testdata&#39;
-    df[&#39;client_request_host&#39;] = &#39;testhost.net&#39;
-    df[&#39;client_ip&#39;] = df[&#39;client_ip&#39;].apply(generate_random_ip)
+    df = df.drop('_metadata', axis=1)
+    df['dnet'] = df['dnet'].apply(
+        lambda x: ''.join(random.sample(x, len(x))))
+    df['ISP'] = df['ISP'].apply(
+        lambda x: ''.join(random.sample(x, len(x))))
+    df['host'] = df['host'].apply(
+        lambda x: 'testhost.' + '.'.join(x.split('.')[1:]))
+    df['type'] = 'testdata'
+    df['client_request_host'] = 'testhost.net'
+    df['client_ip'] = df['client_ip'].apply(generate_random_ip)
     df.to_json(
         output_path,
-        orient=&#39;records&#39;,
+        orient='records',
         lines=True
     )</code></pre>
-</details>
-</dd>
-</dl>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="baskerville.util.helpers.SerializableMixin"><code class="flex name class">
-<span>class <span class="ident">SerializableMixin</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class SerializableMixin(object):
+       </details>
+      </dd>
+     </dl>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.util.helpers.SerializableMixin">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          SerializableMixin
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class SerializableMixin(object):
     _extra_cols = ()
     _remove = ()
 
     def to_dict(self, cols=()):
-        &#34;&#34;&#34;
+        """
 
         :param tuple cols:
         :return:
         :rtype: dict[str, T]
-        &#34;&#34;&#34;
+        """
         if not cols:
-            if getattr(self, &#39;__table__&#39;, None):
+            if getattr(self, '__table__', None):
                 cols = self.__table__.columns
                 basic_attrs = {c.name: getattr(self, c.name)
                                for c in cols
                                if c.name not in self._remove and
-                               not c.name.startswith(&#39;_&#39;)}
+                               not c.name.startswith('_')}
             else:
                 cols = dir(self)
                 basic_attrs = {c: getattr(self, c)
                                for c in cols
                                if c not in self._remove and
-                               not c.startswith(&#39;_&#39;) and not callable(
-                        getattr(self, c))}
+                               not c.startswith('_') and not callable(
+                    getattr(self, c))}
         else:
             basic_attrs = {c: getattr(self, c)
                            for c in cols
                            if c not in self._remove and
-                           not c.startswith(&#39;_&#39;)
+                           not c.startswith('_')
                            and not callable(getattr(self, c))}
 
         extra_attrs = {}
@@ -917,60 +1417,101 @@ lines
             basic_attrs.update(extra_attrs)
 
         for k, v in basic_attrs.items():
-            if isinstance(v, SerializableMixin) and hasattr(v, &#39;to_dict&#39;):
-                if hasattr(v, &#39;parent&#39;) and &#39;parent&#39; not in v._remove:
-                    v._remove += (&#39;parent&#39;)
+            if isinstance(v, SerializableMixin) and hasattr(v, 'to_dict'):
+                if hasattr(v, 'parent') and 'parent' not in v._remove:
+                    v._remove += ('parent')
                 basic_attrs[k] = v.to_dict()
 
         return basic_attrs</code></pre>
-</details>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="baskerville.features.base_feature.BaseFeature" href="../features/base_feature.html#baskerville.features.base_feature.BaseFeature">BaseFeature</a></li>
-<li><a title="baskerville.models.config.ConfigError" href="../models/config.html#baskerville.models.config.ConfigError">ConfigError</a></li>
-<li><a title="baskerville.models.config.Config" href="../models/config.html#baskerville.models.config.Config">Config</a></li>
-<li><a title="baskerville.models.log_parsers.JSONLogParser" href="../models/log_parsers.html#baskerville.models.log_parsers.JSONLogParser">JSONLogParser</a></li>
-<li><a title="baskerville.models.log_parsers.JSONLogSparkParser" href="../models/log_parsers.html#baskerville.models.log_parsers.JSONLogSparkParser">JSONLogSparkParser</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="baskerville.util.helpers.SerializableMixin.to_dict"><code class="name flex">
-<span>def <span class="ident">to_dict</span></span>(<span>self, cols=())</span>
-</code></dt>
-<dd>
-<section class="desc"><p>:param tuple cols:
+       </details>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="../features/base_feature.html#baskerville.features.base_feature.BaseFeature" title="baskerville.features.base_feature.BaseFeature">
+          BaseFeature
+         </a>
+        </li>
+        <li>
+         <a href="../models/config.html#baskerville.models.config.ConfigError" title="baskerville.models.config.ConfigError">
+          ConfigError
+         </a>
+        </li>
+        <li>
+         <a href="../models/config.html#baskerville.models.config.Config" title="baskerville.models.config.Config">
+          Config
+         </a>
+        </li>
+        <li>
+         <a href="../models/log_parsers.html#baskerville.models.log_parsers.JSONLogParser" title="baskerville.models.log_parsers.JSONLogParser">
+          JSONLogParser
+         </a>
+        </li>
+        <li>
+         <a href="../models/log_parsers.html#baskerville.models.log_parsers.JSONLogSparkParser" title="baskerville.models.log_parsers.JSONLogSparkParser">
+          JSONLogSparkParser
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.util.helpers.SerializableMixin.to_dict">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            to_dict
+           </span>
+          </span>
+          (
+          <span>
+           self, cols=())
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           :param tuple cols:
 :return:
-:rtype: dict[str, T]</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def to_dict(self, cols=()):
-    &#34;&#34;&#34;
+:rtype: dict[str, T]
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def to_dict(self, cols=()):
+    """
 
     :param tuple cols:
     :return:
     :rtype: dict[str, T]
-    &#34;&#34;&#34;
+    """
     if not cols:
-        if getattr(self, &#39;__table__&#39;, None):
+        if getattr(self, '__table__', None):
             cols = self.__table__.columns
             basic_attrs = {c.name: getattr(self, c.name)
                            for c in cols
                            if c.name not in self._remove and
-                           not c.name.startswith(&#39;_&#39;)}
+                           not c.name.startswith('_')}
         else:
             cols = dir(self)
             basic_attrs = {c: getattr(self, c)
                            for c in cols
                            if c not in self._remove and
-                           not c.startswith(&#39;_&#39;) and not callable(
-                    getattr(self, c))}
+                           not c.startswith('_') and not callable(
+                getattr(self, c))}
     else:
         basic_attrs = {c: getattr(self, c)
                        for c in cols
                        if c not in self._remove and
-                       not c.startswith(&#39;_&#39;)
+                       not c.startswith('_')
                        and not callable(getattr(self, c))}
 
     extra_attrs = {}
@@ -986,27 +1527,49 @@ lines
         basic_attrs.update(extra_attrs)
 
     for k, v in basic_attrs.items():
-        if isinstance(v, SerializableMixin) and hasattr(v, &#39;to_dict&#39;):
-            if hasattr(v, &#39;parent&#39;) and &#39;parent&#39; not in v._remove:
-                v._remove += (&#39;parent&#39;)
+        if isinstance(v, SerializableMixin) and hasattr(v, 'to_dict'):
+            if hasattr(v, 'parent') and 'parent' not in v._remove:
+                v._remove += ('parent')
             basic_attrs[k] = v.to_dict()
 
     return basic_attrs</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="baskerville.util.helpers.TimeBucket"><code class="flex name class">
-<span>class <span class="ident">TimeBucket</span></span>
-<span>(</span><span>time_bucket=120)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class TimeBucket(object):
+         </details>
+        </dd>
+       </dl>
+      </dd>
+      <dt id="baskerville.util.helpers.TimeBucket">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          TimeBucket
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         time_bucket=120)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Representation of time bucket: seconds and timedelta
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class TimeBucket(object):
+    """
+    Representation of time bucket: seconds and timedelta
+    """
+
     def __init__(self, time_bucket=120):
         self._sec = time_bucket
         self._td = datetime.timedelta(seconds=self._sec)
@@ -1018,89 +1581,284 @@ lines
     @property
     def td(self):
         return self._td</code></pre>
-</details>
-<h3>Instance variables</h3>
-<dl>
-<dt id="baskerville.util.helpers.TimeBucket.sec"><code class="name">var <span class="ident">sec</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+       </details>
+       <h3>
+        Instance variables
+       </h3>
+       <dl>
+        <dt id="baskerville.util.helpers.TimeBucket.sec">
+         <code class="name">
+          var
+          <span class="ident">
+           sec
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def sec(self):
     return self._sec</code></pre>
-</details>
-</dd>
-<dt id="baskerville.util.helpers.TimeBucket.td"><code class="name">var <span class="ident">td</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
+         </details>
+        </dd>
+        <dt id="baskerville.util.helpers.TimeBucket.td">
+         <code class="name">
+          var
+          <span class="ident">
+           td
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
 def td(self):
     return self._td</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-</dl>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville.util" href="index.html">baskerville.util</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="baskerville.util.helpers.caller_info" href="#baskerville.util.helpers.caller_info">caller_info</a></code></li>
-<li><code><a title="baskerville.util.helpers.generate_random_ip" href="#baskerville.util.helpers.generate_random_ip">generate_random_ip</a></code></li>
-<li><code><a title="baskerville.util.helpers.get_days_in_month" href="#baskerville.util.helpers.get_days_in_month">get_days_in_month</a></code></li>
-<li><code><a title="baskerville.util.helpers.get_days_in_year" href="#baskerville.util.helpers.get_days_in_year">get_days_in_year</a></code></li>
-<li><code><a title="baskerville.util.helpers.get_default_data_path" href="#baskerville.util.helpers.get_default_data_path">get_default_data_path</a></code></li>
-<li><code><a title="baskerville.util.helpers.get_logger" href="#baskerville.util.helpers.get_logger">get_logger</a></code></li>
-<li><code><a title="baskerville.util.helpers.get_objects_attributes" href="#baskerville.util.helpers.get_objects_attributes">get_objects_attributes</a></code></li>
-<li><code><a title="baskerville.util.helpers.have_common_elements" href="#baskerville.util.helpers.have_common_elements">have_common_elements</a></code></li>
-<li><code><a title="baskerville.util.helpers.lines_in_file" href="#baskerville.util.helpers.lines_in_file">lines_in_file</a></code></li>
-<li><code><a title="baskerville.util.helpers.parse_config" href="#baskerville.util.helpers.parse_config">parse_config</a></code></li>
-<li><code><a title="baskerville.util.helpers.periods_overlap" href="#baskerville.util.helpers.periods_overlap">periods_overlap</a></code></li>
-<li><code><a title="baskerville.util.helpers.randomize_data" href="#baskerville.util.helpers.randomize_data">randomize_data</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="baskerville.util.helpers.SerializableMixin" href="#baskerville.util.helpers.SerializableMixin">SerializableMixin</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.util.helpers.SerializableMixin.to_dict" href="#baskerville.util.helpers.SerializableMixin.to_dict">to_dict</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="baskerville.util.helpers.TimeBucket" href="#baskerville.util.helpers.TimeBucket">TimeBucket</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.util.helpers.TimeBucket.sec" href="#baskerville.util.helpers.TimeBucket.sec">sec</a></code></li>
-<li><code><a title="baskerville.util.helpers.TimeBucket.td" href="#baskerville.util.helpers.TimeBucket.td">td</a></code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+         </details>
+        </dd>
+       </dl>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.util">
+          baskerville.util
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-functions">
+        Functions
+       </a>
+      </h3>
+      <ul class="">
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.caller_info" title="baskerville.util.helpers.caller_info">
+          caller_info
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.class_from_str" title="baskerville.util.helpers.class_from_str">
+          class_from_str
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.generate_random_ip" title="baskerville.util.helpers.generate_random_ip">
+          generate_random_ip
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.get_days_in_month" title="baskerville.util.helpers.get_days_in_month">
+          get_days_in_month
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.get_days_in_year" title="baskerville.util.helpers.get_days_in_year">
+          get_days_in_year
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.get_default_data_path" title="baskerville.util.helpers.get_default_data_path">
+          get_default_data_path
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.get_logger" title="baskerville.util.helpers.get_logger">
+          get_logger
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.get_model_path" title="baskerville.util.helpers.get_model_path">
+          get_model_path
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.get_objects_attributes" title="baskerville.util.helpers.get_objects_attributes">
+          get_objects_attributes
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.get_timestamp" title="baskerville.util.helpers.get_timestamp">
+          get_timestamp
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.have_common_elements" title="baskerville.util.helpers.have_common_elements">
+          have_common_elements
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.instantiate_from_str" title="baskerville.util.helpers.instantiate_from_str">
+          instantiate_from_str
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.lines_in_file" title="baskerville.util.helpers.lines_in_file">
+          lines_in_file
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.parse_config" title="baskerville.util.helpers.parse_config">
+          parse_config
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.periods_overlap" title="baskerville.util.helpers.periods_overlap">
+          periods_overlap
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.util.helpers.randomize_data" title="baskerville.util.helpers.randomize_data">
+          randomize_data
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.helpers.SerializableMixin" title="baskerville.util.helpers.SerializableMixin">
+           SerializableMixin
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.helpers.SerializableMixin.to_dict" title="baskerville.util.helpers.SerializableMixin.to_dict">
+            to_dict
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.helpers.TimeBucket" title="baskerville.util.helpers.TimeBucket">
+           TimeBucket
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.util.helpers.TimeBucket.sec" title="baskerville.util.helpers.TimeBucket.sec">
+            sec
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.helpers.TimeBucket.td" title="baskerville.util.helpers.TimeBucket.td">
+            td
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>

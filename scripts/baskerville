@@ -1,20 +1,33 @@
-#!/usr/bin/env python
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+# Main baskerville script
+
+
 import argparse
 import atexit
+import json
 import os
 import time
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
+from dateutil.tz import tzutc
 from prometheus_client import start_http_server
 
 from baskerville import src_dir
+from baskerville.db import set_up_db
+from baskerville.db.models import Model
+from baskerville.models.anomaly_model_sklearn import AnomalyModelSklearn
+from baskerville.models.config import DatabaseConfig
 from baskerville.models.engine import BaskervilleAnalyticsEngine
 from baskerville.simulation.real_timeish_simulation import simulation
 from baskerville.util.helpers import get_logger, parse_config, \
     get_default_data_path
 
-# Main baskerville script
 
 PROCESS_LIST = []
 baskerville_engine = None
@@ -62,19 +75,31 @@ def run_simulation(conf, spark=None):
     print('Set up Simulation...')
 
 
-def populate_with_test_data(database_config):
+def add_model_to_database(database_config):
     """
-    Load the test data and save them in the database
+    Load the test model and save it in the database
     :param dict[str, T] database_config:
     :return:
     """
     global logger
-    from baskerville.util.model_serialization import import_pickled_model
-    path = os.path.join(get_default_data_path(), 'samples', 'sample_model')
-    test_model_path = os.path.join(
-        get_default_data_path(), 'samples', 'test_model')
-    logger.info(f'Loading test model from: {test_model_path}')
-    import_pickled_model(database_config, path, test_model_path)
+    path = os.path.join(get_default_data_path(), 'samples', 'models', 'AnomalyModel')
+    logger.info(f'Loading test model from: {path}')
+    model = AnomalyModelSklearn()
+    model.load(path=path)
+
+    db_cfg = DatabaseConfig(database_config).validate()
+    session, _ = set_up_db(db_cfg.__dict__, partition=False)
+
+    db_model = Model()
+    db_model.algorithm = 'baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn'
+    db_model.created_at = datetime.now(tz=tzutc())
+    db_model.parameters = json.dumps(model.get_params())
+    db_model.classifier = bytearray(path.encode('utf8'))
+
+    # save to db
+    session.add(db_model)
+    session.commit()
+    session.close()
 
 
 def main():
@@ -113,6 +138,13 @@ def main():
         help="Path to config file"
     )
 
+    parser.add_argument(
+        "-t", "--testmodel", dest="test_model",
+        help="Add a test model in the models table",
+        default=False,
+        action="store_true"
+    )
+
     args = parser.parse_args()
     conf = parse_config(path=args.conf_file)
 
@@ -146,7 +178,7 @@ def main():
 
     # populate with test data if specified
     if args.test_model:
-        populate_with_test_data(conf['database'])
+        add_model_to_database(conf['database'])
 
     for p in PROCESS_LIST[::-1]:
         print(f"{p.name} starting...")

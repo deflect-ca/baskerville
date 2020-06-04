@@ -1,29 +1,50 @@
-BSD 3-Clause License
-
-Copyright (c) 2020, eQualitie
+Copyright (c) 2020, eQualit.ie inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
+   1. Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+   3. Neither the name of eQualit.ie inc. nor the names of its contributors may
+      be used to endorse or promote products derived from this software without
+      specific prior written permission.
+   4. While redistributing the original work under a modified license, or any
+      modification of the work under any license, you may act only on your own
+      behalf and on your sole responsibility, not on behalf of eQualit.ie inc.
+      or its contributors, and only if you agree to indemnify, defend, and hold
+      each of them harmless for any liability incurred by, or claims asserted
+      against, any of them by reason of your accepting any such warranty or
+      additional liability.
+   5. eQualit.ie and each contributor hereby grant you a perpetual, worldwide,
+      non-exclusive, no-charge, royalty-free, irrevocable (except as stated in
+      this condition) patent license to make, have made, use, offer to sell,
+      sell, import, and otherwise transfer the work, where such license applies
+      only to those patent claims licensable by them that are necessarily
+      infringed by their contribution(s) alone or by combination of their
+      contribution(s) with the work to which such contribution(s) was submitted.
+      If you institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the work or a
+      contribution incorporated within the work constitutes direct or
+      contributory patent infringement, then any patent licenses granted to you
+      under this license for that work shall terminate as of the date such
+      litigation is filed.
 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS, IMPLIED, OR STATUTORY WARRANTIES, CONDITIONS, OR REPRESENTATIONS,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT ARE DISCLAIMED.
 
-3. Neither the name of the copyright holder nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
+IN NO EVENT SHALL EQUALIT.IE INC. BE LIABLE FOR ANY DAMAGE, COST, LOSS, EXPENSE,
+INJURY, OR DEATH, INCLUDING MORAL OR EXEMPLARY DAMAGES, WHETHER SPECIFIC,
+CONSECUTIVE, INDIRECT, INCIDENTAL, DELICTUAL, CONTRACTUAL, TORTIOUS, OR
+INCIDENTAL, ARISING IN ANY WAY OUT OF ANY USE, DECISION, OR OTHER ACT MADE ON
+THE BASIS OF THIS SOFTWARE, EVEN IF ADVISED OF SUCH A POSSIBILITY.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+This license is governed by the laws of the Province of Quebec, without regard
+to conflict of laws principles that would require the application of the laws
+of another jurisdiction. The parties irrevocably submit to the exclusive
+jurisdiction of the courts of the Province of Quebec.

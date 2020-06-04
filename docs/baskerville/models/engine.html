@@ -1,30 +1,54 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
-<title>baskerville.models.engine API documentation</title>
-<meta name="description" content="" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
-<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-</head>
-<body>
-<main>
-<article id="content">
-<header>
-<h1 class="title">Module <code>baskerville.models.engine</code></h1>
-</header>
-<section id="section-intro">
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">from baskerville.models.base import BaskervilleBase
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.models.engine API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.models.engine
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+from collections import defaultdict
+
+from baskerville.models.base import BaskervilleBase
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_factory import PipelineFactory
 from baskerville.util.helpers import get_logger
@@ -32,63 +56,67 @@ from baskerville.models.metrics.registry import metrics_registry
 
 
 class BaskervilleAnalyticsEngine(BaskervilleBase):
-    &#34;&#34;&#34;
-    The Baskerville Analytics Engine&#39;s main.
+    """
+    The Baskerville Analytics Engine's main.
     Sets up the pipeline and runs it.
-    &#34;&#34;&#34;
-    def __init__(self, run_type, conf):
+    """
+
+    def __init__(self, run_type, conf, register_metrics=True):
         super(BaskervilleAnalyticsEngine, self).__init__(conf)
         self.run_type = run_type
         self.pipeline = None
         self.performance_stats = None
 
-        # set config&#39;s logger
+        # set config's logger
         BaskervilleConfig.set_logger(
-            conf[&#39;engine&#39;][&#39;log_level&#39;],
-            conf[&#39;engine&#39;][&#39;logpath&#39;]
+            conf['engine']['log_level'],
+            conf['engine']['logpath']
         )
         self.config = BaskervilleConfig(self.config).validate()
 
         self.register_metrics = (
-                self.config.engine.metrics and self.config.engine.metrics.flag
+            self.config.engine.metrics and register_metrics
         )
 
         self.logger = get_logger(
             self.__class__.__name__,
-            logging_level=self.config.engine.log_level,
-            output_file=self.config.engine.logpath
+            logging_level=conf['engine']['log_level'],
+            output_file=conf['engine']['logpath']
         )
 
     def _set_up_pipeline(self):
-        self.logger.debug(&#39;Setting up the pipeline&#39;)
+        self.logger.debug('Setting up the pipeline')
         return PipelineFactory().get_pipeline(self.run_type, self.config)
 
     def _register_metrics(self):
         if self.register_metrics:
             if self.config.engine.metrics.performance:
                 self.performance_stats = self._register_performance_stats()
+            # register progress metrics
+            if self.config.engine.metrics.progress:
+                self.register_pipeline_metrics()
 
     def _register_performance_stats(self):
-        &#34;&#34;&#34;
+        """
         Registers the performance metrics configured:
         Pipeline metrics: Which methods to time
         Cache metrics: Which methods to cache
         Feature metrics: Time the compute / update methods of features
         :return: an instance of PerformanceStatsRegistry
         :rtype: PerformanceStatsRegistry
-        &#34;&#34;&#34;
+        """
 
         # time pipeline methods
-        if self.config.engine.metrics.performance.get(&#39;pipeline&#39;):
+        if self.config.engine.metrics.performance.get('pipeline'):
             method_to_action = {
                 v.__name__: k
                 for k, v
                 in self.pipeline.step_to_action.items()
             }
-            for f_name in self.config.engine.metrics.performance[&#39;pipeline&#39;]:
+            for f_name in self.config.engine.metrics.performance['pipeline']:
                 if hasattr(self.pipeline, f_name):
                     wrapper_f = metrics_registry.register_timer(
-                        f&#39;timer_for_pipeline_{f_name}&#39;,
+                        f'timer_for_pipeline_{f_name}',
                         getattr(self.pipeline, f_name)
                     )
                     setattr(
@@ -102,13 +130,14 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
                         self.pipeline.step_to_action[step_name] = wrapper_f
 
         # time cache
-        if self.config.engine.metrics.performance.get(&#39;request_set_cache&#39;):
+        if self.pipeline.request_set_cache and \
+                self.config.engine.metrics.performance.get('request_set_cache'):
             for f_name in self.config.engine.metrics.performance[
-                &#39;request_set_cache&#39;
+                'request_set_cache'
             ]:
                 if hasattr(self.pipeline.request_set_cache, f_name):
                     wrapper_f = metrics_registry.register_timer(
-                        f&#39;timer_for_request_set_cache_{f_name}&#39;,
+                        f'timer_for_request_set_cache_{f_name}',
                         getattr(self.pipeline.request_set_cache, f_name)
                     )
                     setattr(
@@ -118,33 +147,118 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
                     )
 
         # time feature computation
-        if self.config.engine.metrics.performance.get(&#39;features&#39;):
+        if self.config.engine.metrics.performance.get('features'):
             # todo: time the update method too
-            for feature in self.pipeline.feature_manager.active_features:
-                wrapper_f = metrics_registry.register_timer(
-                    f&#39;timer_for_feature_{feature.feature_name}&#39;,
-                    getattr(feature, &#39;compute&#39;)
-                )
-                setattr(
-                    feature,
-                    &#39;compute&#39;,
-                    wrapper_f
-                )
-        # register progress metrics
-        if self.config.engine.metrics.progress:
-            self.pipeline.register_metrics()
+            if 'feature_manager' in self.pipeline.__dict__:
+                for feature in self.pipeline.feature_manager.active_features:
+                    wrapper_f = metrics_registry.register_timer(
+                        f'timer_for_feature_{feature.feature_name}',
+                        getattr(feature, 'compute')
+                    )
+                    setattr(
+                        feature,
+                        'compute',
+                        wrapper_f
+                    )
 
         return metrics_registry
 
+    def register_pipeline_metrics(self):
+        """
+        Registers action hooks for:
+        - step_to_action: enum metric to show the progress
+        - get_data:
+            - 'total_number_of_requests': increments the metric counter by
+            the self.logs_df.count()
+            - 'current_number_of_requests': sets the metric counter to the
+            current self.logs_df.count()
+        - filter_columns:
+            - `total number of requests after filtering`
+        - group_by:
+            - `current_number_of_request_sets`:increments the metric counter by
+            the self.logs_df.count()
+
+        - save_df_to_table: average host prediction
+
+        :return: None
+        """
+        from baskerville.models.metrics.registry import metrics_registry
+        from baskerville.util.enums import MetricClassEnum
+        from baskerville.models.metrics.helpers import (
+            incr_counter_for_logs_df,
+            update_avg_hosts_counter,
+            set_counter_for_logs_df,
+            set_accumulators
+        )
+        set_accumulators(self.pipeline.spark)
+
+        # wrap step_to_action
+        self.pipeline.step_to_action = metrics_registry.register_states(
+            'baskerville_steps',
+            'Tracks which step Baskerville is currently executing',
+            self.pipeline.step_to_action
+        )
+
+        # total number of requests in current df
+        get_data = metrics_registry.register_action_hook(
+            self.pipeline.get_data,
+            incr_counter_for_logs_df,
+            metric_name='total_number_of_requests'
+        )
+        # current number of requests in current df
+        get_data = metrics_registry.register_action_hook(
+            get_data,
+            set_counter_for_logs_df,
+            metric_cls=MetricClassEnum.gauge,
+            metric_name='current_number_of_requests'
+        )
+        # current number of requests in current df
+        filter_columns = metrics_registry.register_action_hook(
+            self.pipeline.filter_columns,
+            incr_counter_for_logs_df,
+            metric_cls=MetricClassEnum.counter,
+            metric_name='total_number_of_requests_after_filtering'
+        )
+        # number of request_sets in current df after group by
+        group_by = metrics_registry.register_action_hook(
+            self.pipeline.group_by,
+            incr_counter_for_logs_df,
+            metric_name='current_number_of_request_sets'
+        )
+
+        # set the average prediction for each host, per batch
+        save_df_to_table = metrics_registry.register_action_hook(
+            self.pipeline.save_df_to_table,
+            update_avg_hosts_counter,
+            metric_cls=MetricClassEnum.gauge,
+            metric_name='avg_host_prediction',
+            labelnames=['target']
+        )
+
+        # set wrapped methods
+        setattr(self.pipeline, 'get_data', get_data)
+        setattr(self.pipeline, 'filter_columns', filter_columns)
+        setattr(self.pipeline, 'group_by', group_by)
+        setattr(self.pipeline, 'save_df_to_table', save_df_to_table)
+
+        if self.config.engine.metrics.exported_dashboard_file:
+            from baskerville.models.metrics.dashboard_exporter import \
+                DashboardExporter
+            dashboard = DashboardExporter('Baskerville Metrics')
+            dashboard.export(
+                self.config.engine.metrics.exported_dashboard_file)
+
+        self.logger.info('Registered metrics.')
+
     def run(self) -&gt; None:
-        &#34;&#34;&#34;
+        """
         Run steps:
         - Set up a pipeline,
         - initialize it,
         - register metrics (if configured)
         - run the pipeline
         :return: None
-        &#34;&#34;&#34;
+        """
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
         self._register_metrics()
@@ -153,97 +267,121 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
     def finish_up(self):
         import sys
         self.logger.info(
-            &#39;Exiting: please, hold while {} pipeline finishes up...&#39;.format(
+            'Exiting: please, hold while {} pipeline finishes up...'.format(
                 self.pipeline.__class__.__name__
             )
         )
         if self.pipeline:
             self.pipeline.finish_up()
-        self.logger.info(&#39;{} says \&#39;Goodbye\&#39;.&#39;.format(
-                self.__class__.__name__
-            )
+        self.logger.info('{} says \'Goodbye\'.'.format(
+            self.__class__.__name__
+        )
         )
         sys.exit(0)</code></pre>
-</details>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="baskerville.models.engine.BaskervilleAnalyticsEngine"><code class="flex name class">
-<span>class <span class="ident">BaskervilleAnalyticsEngine</span></span>
-<span>(</span><span>run_type, conf)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>The Baskerville Analytics Engine's main.
-Sets up the pipeline and runs it.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class BaskervilleAnalyticsEngine(BaskervilleBase):
-    &#34;&#34;&#34;
-    The Baskerville Analytics Engine&#39;s main.
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.models.engine.BaskervilleAnalyticsEngine">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          BaskervilleAnalyticsEngine
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         run_type, conf, register_metrics=True)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         The Baskerville Analytics Engine's main.
+Sets up the pipeline and runs it.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class BaskervilleAnalyticsEngine(BaskervilleBase):
+    """
+    The Baskerville Analytics Engine's main.
     Sets up the pipeline and runs it.
-    &#34;&#34;&#34;
-    def __init__(self, run_type, conf):
+    """
+
+    def __init__(self, run_type, conf, register_metrics=True):
         super(BaskervilleAnalyticsEngine, self).__init__(conf)
         self.run_type = run_type
         self.pipeline = None
         self.performance_stats = None
 
-        # set config&#39;s logger
+        # set config's logger
         BaskervilleConfig.set_logger(
-            conf[&#39;engine&#39;][&#39;log_level&#39;],
-            conf[&#39;engine&#39;][&#39;logpath&#39;]
+            conf['engine']['log_level'],
+            conf['engine']['logpath']
         )
         self.config = BaskervilleConfig(self.config).validate()
 
         self.register_metrics = (
-                self.config.engine.metrics and self.config.engine.metrics.flag
+            self.config.engine.metrics and register_metrics
         )
 
         self.logger = get_logger(
             self.__class__.__name__,
-            logging_level=self.config.engine.log_level,
-            output_file=self.config.engine.logpath
+            logging_level=conf['engine']['log_level'],
+            output_file=conf['engine']['logpath']
         )
 
     def _set_up_pipeline(self):
-        self.logger.debug(&#39;Setting up the pipeline&#39;)
+        self.logger.debug('Setting up the pipeline')
         return PipelineFactory().get_pipeline(self.run_type, self.config)
 
     def _register_metrics(self):
         if self.register_metrics:
             if self.config.engine.metrics.performance:
                 self.performance_stats = self._register_performance_stats()
+            # register progress metrics
+            if self.config.engine.metrics.progress:
+                self.register_pipeline_metrics()
 
     def _register_performance_stats(self):
-        &#34;&#34;&#34;
+        """
         Registers the performance metrics configured:
         Pipeline metrics: Which methods to time
         Cache metrics: Which methods to cache
         Feature metrics: Time the compute / update methods of features
         :return: an instance of PerformanceStatsRegistry
         :rtype: PerformanceStatsRegistry
-        &#34;&#34;&#34;
+        """
 
         # time pipeline methods
-        if self.config.engine.metrics.performance.get(&#39;pipeline&#39;):
+        if self.config.engine.metrics.performance.get('pipeline'):
             method_to_action = {
                 v.__name__: k
                 for k, v
                 in self.pipeline.step_to_action.items()
             }
-            for f_name in self.config.engine.metrics.performance[&#39;pipeline&#39;]:
+            for f_name in self.config.engine.metrics.performance['pipeline']:
                 if hasattr(self.pipeline, f_name):
                     wrapper_f = metrics_registry.register_timer(
-                        f&#39;timer_for_pipeline_{f_name}&#39;,
+                        f'timer_for_pipeline_{f_name}',
                         getattr(self.pipeline, f_name)
                     )
                     setattr(
@@ -257,13 +395,14 @@ Sets up the pipeline and runs it.</p></section>
                         self.pipeline.step_to_action[step_name] = wrapper_f
 
         # time cache
-        if self.config.engine.metrics.performance.get(&#39;request_set_cache&#39;):
+        if self.pipeline.request_set_cache and \
+                self.config.engine.metrics.performance.get('request_set_cache'):
             for f_name in self.config.engine.metrics.performance[
-                &#39;request_set_cache&#39;
+                'request_set_cache'
             ]:
                 if hasattr(self.pipeline.request_set_cache, f_name):
                     wrapper_f = metrics_registry.register_timer(
-                        f&#39;timer_for_request_set_cache_{f_name}&#39;,
+                        f'timer_for_request_set_cache_{f_name}',
                         getattr(self.pipeline.request_set_cache, f_name)
                     )
                     setattr(
@@ -273,33 +412,118 @@ Sets up the pipeline and runs it.</p></section>
                     )
 
         # time feature computation
-        if self.config.engine.metrics.performance.get(&#39;features&#39;):
+        if self.config.engine.metrics.performance.get('features'):
             # todo: time the update method too
-            for feature in self.pipeline.feature_manager.active_features:
-                wrapper_f = metrics_registry.register_timer(
-                    f&#39;timer_for_feature_{feature.feature_name}&#39;,
-                    getattr(feature, &#39;compute&#39;)
-                )
-                setattr(
-                    feature,
-                    &#39;compute&#39;,
-                    wrapper_f
-                )
-        # register progress metrics
-        if self.config.engine.metrics.progress:
-            self.pipeline.register_metrics()
+            if 'feature_manager' in self.pipeline.__dict__:
+                for feature in self.pipeline.feature_manager.active_features:
+                    wrapper_f = metrics_registry.register_timer(
+                        f'timer_for_feature_{feature.feature_name}',
+                        getattr(feature, 'compute')
+                    )
+                    setattr(
+                        feature,
+                        'compute',
+                        wrapper_f
+                    )
 
         return metrics_registry
 
+    def register_pipeline_metrics(self):
+        """
+        Registers action hooks for:
+        - step_to_action: enum metric to show the progress
+        - get_data:
+            - 'total_number_of_requests': increments the metric counter by
+            the self.logs_df.count()
+            - 'current_number_of_requests': sets the metric counter to the
+            current self.logs_df.count()
+        - filter_columns:
+            - `total number of requests after filtering`
+        - group_by:
+            - `current_number_of_request_sets`:increments the metric counter by
+            the self.logs_df.count()
+
+        - save_df_to_table: average host prediction
+
+        :return: None
+        """
+        from baskerville.models.metrics.registry import metrics_registry
+        from baskerville.util.enums import MetricClassEnum
+        from baskerville.models.metrics.helpers import (
+            incr_counter_for_logs_df,
+            update_avg_hosts_counter,
+            set_counter_for_logs_df,
+            set_accumulators
+        )
+        set_accumulators(self.pipeline.spark)
+
+        # wrap step_to_action
+        self.pipeline.step_to_action = metrics_registry.register_states(
+            'baskerville_steps',
+            'Tracks which step Baskerville is currently executing',
+            self.pipeline.step_to_action
+        )
+
+        # total number of requests in current df
+        get_data = metrics_registry.register_action_hook(
+            self.pipeline.get_data,
+            incr_counter_for_logs_df,
+            metric_name='total_number_of_requests'
+        )
+        # current number of requests in current df
+        get_data = metrics_registry.register_action_hook(
+            get_data,
+            set_counter_for_logs_df,
+            metric_cls=MetricClassEnum.gauge,
+            metric_name='current_number_of_requests'
+        )
+        # current number of requests in current df
+        filter_columns = metrics_registry.register_action_hook(
+            self.pipeline.filter_columns,
+            incr_counter_for_logs_df,
+            metric_cls=MetricClassEnum.counter,
+            metric_name='total_number_of_requests_after_filtering'
+        )
+        # number of request_sets in current df after group by
+        group_by = metrics_registry.register_action_hook(
+            self.pipeline.group_by,
+            incr_counter_for_logs_df,
+            metric_name='current_number_of_request_sets'
+        )
+
+        # set the average prediction for each host, per batch
+        save_df_to_table = metrics_registry.register_action_hook(
+            self.pipeline.save_df_to_table,
+            update_avg_hosts_counter,
+            metric_cls=MetricClassEnum.gauge,
+            metric_name='avg_host_prediction',
+            labelnames=['target']
+        )
+
+        # set wrapped methods
+        setattr(self.pipeline, 'get_data', get_data)
+        setattr(self.pipeline, 'filter_columns', filter_columns)
+        setattr(self.pipeline, 'group_by', group_by)
+        setattr(self.pipeline, 'save_df_to_table', save_df_to_table)
+
+        if self.config.engine.metrics.exported_dashboard_file:
+            from baskerville.models.metrics.dashboard_exporter import \
+                DashboardExporter
+            dashboard = DashboardExporter('Baskerville Metrics')
+            dashboard.export(
+                self.config.engine.metrics.exported_dashboard_file)
+
+        self.logger.info('Registered metrics.')
+
     def run(self) -&gt; None:
-        &#34;&#34;&#34;
+        """
         Run steps:
         - Set up a pipeline,
         - initialize it,
         - register metrics (if configured)
         - run the pipeline
         :return: None
-        &#34;&#34;&#34;
+        """
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
         self._register_metrics()
@@ -308,112 +532,354 @@ Sets up the pipeline and runs it.</p></section>
     def finish_up(self):
         import sys
         self.logger.info(
-            &#39;Exiting: please, hold while {} pipeline finishes up...&#39;.format(
+            'Exiting: please, hold while {} pipeline finishes up...'.format(
                 self.pipeline.__class__.__name__
             )
         )
         if self.pipeline:
             self.pipeline.finish_up()
-        self.logger.info(&#39;{} says \&#39;Goodbye\&#39;.&#39;.format(
-                self.__class__.__name__
-            )
+        self.logger.info('{} says \'Goodbye\'.'.format(
+            self.__class__.__name__
+        )
         )
         sys.exit(0)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="baskerville.models.base.BaskervilleBase" href="base.html#baskerville.models.base.BaskervilleBase">BaskervilleBase</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="baskerville.models.engine.BaskervilleAnalyticsEngine.finish_up"><code class="name flex">
-<span>def <span class="ident">finish_up</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def finish_up(self):
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="base.html#baskerville.models.base.BaskervilleBase" title="baskerville.models.base.BaskervilleBase">
+          BaskervilleBase
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.engine.BaskervilleAnalyticsEngine.finish_up">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            finish_up
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def finish_up(self):
     import sys
     self.logger.info(
-        &#39;Exiting: please, hold while {} pipeline finishes up...&#39;.format(
+        'Exiting: please, hold while {} pipeline finishes up...'.format(
             self.pipeline.__class__.__name__
         )
     )
     if self.pipeline:
         self.pipeline.finish_up()
-    self.logger.info(&#39;{} says \&#39;Goodbye\&#39;.&#39;.format(
-            self.__class__.__name__
-        )
+    self.logger.info('{} says \'Goodbye\'.'.format(
+        self.__class__.__name__
+    )
     )
     sys.exit(0)</code></pre>
-</details>
-</dd>
-<dt id="baskerville.models.engine.BaskervilleAnalyticsEngine.run"><code class="name flex">
-<span>def <span class="ident">run</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Run steps:
+         </details>
+        </dd>
+        <dt id="baskerville.models.engine.BaskervilleAnalyticsEngine.register_pipeline_metrics">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            register_pipeline_metrics
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Registers action hooks for:
+- step_to_action: enum metric to show the progress
+- get_data:
+- 'total_number_of_requests': increments the metric counter by
+the self.logs_df.count()
+- 'current_number_of_requests': sets the metric counter to the
+current self.logs_df.count()
+- filter_columns:
+-
+           <code>
+            total number of requests after filtering
+           </code>
+           - group_by:
+-
+           <code>
+            current_number_of_request_sets
+           </code>
+           :increments the metric counter by
+the self.logs_df.count()
+          </p>
+          <ul>
+           <li>
+            save_df_to_table: average host prediction
+           </li>
+          </ul>
+          <p>
+           :return: None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def register_pipeline_metrics(self):
+    """
+    Registers action hooks for:
+    - step_to_action: enum metric to show the progress
+    - get_data:
+        - 'total_number_of_requests': increments the metric counter by
+        the self.logs_df.count()
+        - 'current_number_of_requests': sets the metric counter to the
+        current self.logs_df.count()
+    - filter_columns:
+        - `total number of requests after filtering`
+    - group_by:
+        - `current_number_of_request_sets`:increments the metric counter by
+        the self.logs_df.count()
+
+    - save_df_to_table: average host prediction
+
+    :return: None
+    """
+    from baskerville.models.metrics.registry import metrics_registry
+    from baskerville.util.enums import MetricClassEnum
+    from baskerville.models.metrics.helpers import (
+        incr_counter_for_logs_df,
+        update_avg_hosts_counter,
+        set_counter_for_logs_df,
+        set_accumulators
+    )
+    set_accumulators(self.pipeline.spark)
+
+    # wrap step_to_action
+    self.pipeline.step_to_action = metrics_registry.register_states(
+        'baskerville_steps',
+        'Tracks which step Baskerville is currently executing',
+        self.pipeline.step_to_action
+    )
+
+    # total number of requests in current df
+    get_data = metrics_registry.register_action_hook(
+        self.pipeline.get_data,
+        incr_counter_for_logs_df,
+        metric_name='total_number_of_requests'
+    )
+    # current number of requests in current df
+    get_data = metrics_registry.register_action_hook(
+        get_data,
+        set_counter_for_logs_df,
+        metric_cls=MetricClassEnum.gauge,
+        metric_name='current_number_of_requests'
+    )
+    # current number of requests in current df
+    filter_columns = metrics_registry.register_action_hook(
+        self.pipeline.filter_columns,
+        incr_counter_for_logs_df,
+        metric_cls=MetricClassEnum.counter,
+        metric_name='total_number_of_requests_after_filtering'
+    )
+    # number of request_sets in current df after group by
+    group_by = metrics_registry.register_action_hook(
+        self.pipeline.group_by,
+        incr_counter_for_logs_df,
+        metric_name='current_number_of_request_sets'
+    )
+
+    # set the average prediction for each host, per batch
+    save_df_to_table = metrics_registry.register_action_hook(
+        self.pipeline.save_df_to_table,
+        update_avg_hosts_counter,
+        metric_cls=MetricClassEnum.gauge,
+        metric_name='avg_host_prediction',
+        labelnames=['target']
+    )
+
+    # set wrapped methods
+    setattr(self.pipeline, 'get_data', get_data)
+    setattr(self.pipeline, 'filter_columns', filter_columns)
+    setattr(self.pipeline, 'group_by', group_by)
+    setattr(self.pipeline, 'save_df_to_table', save_df_to_table)
+
+    if self.config.engine.metrics.exported_dashboard_file:
+        from baskerville.models.metrics.dashboard_exporter import \
+            DashboardExporter
+        dashboard = DashboardExporter('Baskerville Metrics')
+        dashboard.export(
+            self.config.engine.metrics.exported_dashboard_file)
+
+    self.logger.info('Registered metrics.')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.engine.BaskervilleAnalyticsEngine.run">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            run
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Run steps:
 - Set up a pipeline,
 - initialize it,
 - register metrics (if configured)
 - run the pipeline
-:return: None</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def run(self) -&gt; None:
-    &#34;&#34;&#34;
+:return: None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def run(self) -&gt; None:
+    """
     Run steps:
     - Set up a pipeline,
     - initialize it,
     - register metrics (if configured)
     - run the pipeline
     :return: None
-    &#34;&#34;&#34;
+    """
     self.pipeline = self._set_up_pipeline()
     self.pipeline.initialize()
     self._register_metrics()
     self.pipeline.run()</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-</dl>
-</section>
-</article>
-<nav id="sidebar">
-<h1>Index</h1>
-<div class="toc">
-<ul></ul>
-</div>
-<ul id="index">
-<li><h3>Super-module</h3>
-<ul>
-<li><code><a title="baskerville.models" href="index.html">baskerville.models</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="baskerville.models.engine.BaskervilleAnalyticsEngine" href="#baskerville.models.engine.BaskervilleAnalyticsEngine">BaskervilleAnalyticsEngine</a></code></h4>
-<ul class="">
-<li><code><a title="baskerville.models.engine.BaskervilleAnalyticsEngine.finish_up" href="#baskerville.models.engine.BaskervilleAnalyticsEngine.finish_up">finish_up</a></code></li>
-<li><code><a title="baskerville.models.engine.BaskervilleAnalyticsEngine.run" href="#baskerville.models.engine.BaskervilleAnalyticsEngine.run">run</a></code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</nav>
-</main>
-<footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
-</body>
+         </details>
+        </dd>
+       </dl>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.models">
+          baskerville.models
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.engine.BaskervilleAnalyticsEngine" title="baskerville.models.engine.BaskervilleAnalyticsEngine">
+           BaskervilleAnalyticsEngine
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.engine.BaskervilleAnalyticsEngine.finish_up" title="baskerville.models.engine.BaskervilleAnalyticsEngine.finish_up">
+            finish_up
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.engine.BaskervilleAnalyticsEngine.register_pipeline_metrics" title="baskerville.models.engine.BaskervilleAnalyticsEngine.register_pipeline_metrics">
+            register_pipeline_metrics
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.engine.BaskervilleAnalyticsEngine.run" title="baskerville.models.engine.BaskervilleAnalyticsEngine.run">
+            run
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
 </html>
