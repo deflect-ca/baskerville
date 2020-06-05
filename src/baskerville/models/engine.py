@@ -5,8 +5,6 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from collections import defaultdict
-
 from baskerville.models.base import BaskervilleBase
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_factory import PipelineFactory
@@ -33,9 +31,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         )
         self.config = BaskervilleConfig(self.config).validate()
 
-        self.register_metrics = (
-            self.config.engine.metrics and register_metrics
-        )
+        self.register_metrics = (self.config.engine.metrics and register_metrics)
 
         self.logger = get_logger(
             self.__class__.__name__,
