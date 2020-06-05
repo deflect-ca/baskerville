@@ -37,6 +37,7 @@ jobs:
         mkdir ./src/baskerville/logs/
     - name: Lint with flake8
       run: |
+        cd ./src
         flake8 . --count --ignore=C901,W503,W504,E226 --max-line-length=127 --statistics
 
     - name: Test with pytest
