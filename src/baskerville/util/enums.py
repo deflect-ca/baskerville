@@ -125,5 +125,5 @@ class PartitionByEnum(BaseStrEnum):
 
 
 class ModelEnum(BaseStrEnum):
-    isolation_forest_sklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
-    isolation_forest = "baskerville.models.anomaly_model.AnomalyModel"
+    AnomalyModelSklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
+    AnomalyModel = "baskerville.models.anomaly_model.AnomalyModel"

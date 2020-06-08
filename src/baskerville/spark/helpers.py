@@ -9,7 +9,6 @@ from typing import T, Any, Mapping
 
 from baskerville.spark import get_spark_session
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import class_from_str
 from pyspark import AccumulatorParam
 from pyspark import StorageLevel
 from pyspark.sql import functions as F
@@ -164,34 +163,6 @@ def reset_spark_storage():
 
     spark.catalog.clearCache()
     # self.spark.sparkContext._jvm.System.gc()
-
-
-def load_model_from_path(model_type, path):
-    """
-    Loads a spark ml model from a path
-    :param str | AlgorithmEnum | ScalerEnum model_type: the string
-    representation of the model import, e.g.
-    `pyspark.ml.feature.StandardScaler`
-    :param str path:
-    :return:
-    """
-    return class_from_str(model_type).load(path)
-
-
-def save_model(model, path, mode='overwrite'):
-    """
-    Save a Pyspark ML model to disk / hdfs
-    :param Estimator model:
-    :param str path:
-    :param str mode:
-    :return:
-    """
-    writer = model.write()
-    if mode == 'overwrite':
-        writer = writer.overwrite()
-    else:
-        writer = writer.option('mode', mode)
-    writer.save(path)
 
 
 def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
