@@ -13,7 +13,7 @@ import pyspark
 from baskerville.models.config import EngineConfig, DatabaseConfig, SparkConfig
 from baskerville.spark import get_or_create_spark_session
 from baskerville.spark.helpers import reset_spark_storage
-from baskerville.util.enums import Step
+from baskerville.util.enums import Step, ModelEnum
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.db.models import Model
 
@@ -85,7 +85,7 @@ class TrainingPipeline(PipelineBase):
         :return:
         """
         self.spark = get_or_create_spark_session(self.spark_conf)
-        self.model = instantiate_from_str(self.training_conf.model)
+        self.model = instantiate_from_str(ModelEnum[self.training_conf.model].value)
         self.model.set_params(**self.engine_conf.training.model_parameters)
 
         conf = self.db_conf
