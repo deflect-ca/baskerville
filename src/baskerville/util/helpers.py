@@ -14,6 +14,8 @@ from functools import wraps
 
 import yaml
 
+from baskerville.util.enums import ModelEnum
+
 FOLDER_MODELS = 'models'
 FOLDER_CACHE = 'cache'
 
@@ -246,9 +248,8 @@ def periods_overlap(
     :rtype: bool
     """
     if allow_closed_interval:
-        # the not overlaping check does not take equality into account
-        return not (other_start < start and other_end < start) and \
-            not (other_start > end and other_end > end)
+        # the not overlapping check does not take equality into account
+        return not (other_start < start and other_end < start) and not (other_start > end and other_end > end)
     return not (other_start < start and other_end <= start) and not (other_start >= end and other_end > end)
 
 
@@ -317,8 +318,7 @@ class SerializableMixin(object):
                 basic_attrs = {c: getattr(self, c)
                                for c in cols
                                if c not in self._remove and
-                               not c.startswith('_') and not callable(
-                    getattr(self, c))}
+                               not c.startswith('_') and not callable(getattr(self, c))}
         else:
             basic_attrs = {c: getattr(self, c)
                            for c in cols
@@ -410,3 +410,19 @@ def get_model_path(storage_path, model_name='model'):
     return os.path.join(storage_path,
                         FOLDER_MODELS,
                         f'{model_name}__{get_timestamp()}')
+
+
+def load_model_from_path(model_path, spark=None):
+    """
+    Instantiate the proper model and load from the path.
+    :param model_path: the full path to the model.
+    :param spark: The spark context. Not required for local paths.
+    :return: The instance of the loaded model
+    """
+    name = os.path.basename(model_path).split('_')[0]
+    if name not in [e.name for e in ModelEnum]:
+        raise RuntimeError(
+            f'Model path {model_path} is invalid. Model name {name} is not in {[e.name for e in ModelEnum]}')
+    model = instantiate_from_str(ModelEnum[name].value)
+    model.load(model_path, spark)
+    return model

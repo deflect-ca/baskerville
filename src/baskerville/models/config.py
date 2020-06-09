@@ -461,8 +461,7 @@ class TrainingConfig(Config):
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
-        self.allowed_models = list(
-            vars(ModelEnum)['_value2member_map_'].keys())
+        self.allowed_models = [e.name for e in ModelEnum]
 
     def validate(self):
         logger.debug('Validating TrainingConfig...')

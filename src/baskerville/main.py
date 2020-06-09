@@ -138,13 +138,6 @@ def main():
         help="Path to config file"
     )
 
-    parser.add_argument(
-        "-t", "--testmodel", dest="test_model",
-        help="Add a test model in the models table",
-        default=False,
-        action="store_true"
-    )
-
     args = parser.parse_args()
     conf = parse_config(path=args.conf_file)
 

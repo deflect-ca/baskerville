@@ -21,7 +21,7 @@ database:
 engine:
   storage_path: !ENV '${BASKERVILLE_ROOT}/data/'
   training:                           # Optional: only for the Training pipeline
-    model: 'baskerville.models.anomaly_model.AnomalyModel' # which model to use, see baskerville.util.enums.ModelEnum
+    model: 'AnomalyModel' # which model to use, see baskerville.util.enums.ModelEnum
     data_parameters:                  # to define the training period, either use training_days or from/ to date
 #      training_days: 30               # today - training_days
       from_date: '2020-03-01 20:59:59'
