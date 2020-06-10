@@ -426,3 +426,19 @@ def load_model_from_path(model_path, spark=None):
     model = instantiate_from_str(ModelEnum[name].value)
     model.load(model_path, spark)
     return model
+
+
+class Singleton(object):
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '_instance'):
+            cls._instance = super(Singleton, cls).__new__(cls)
+        return cls._instance
+
+
+class Borg(object):
+    _shared_state = {}
+
+    def __new__(cls, *args, **kwargs):
+        obj = super(Borg, cls).__new__(cls)
+        obj.__dict__ = cls._shared_state
+        return obj

@@ -83,7 +83,8 @@ class AnomalyModel(ModelInterface):
             df = index_model.transform(df)
             index_columns.append(index_model.getOutputCol())
 
-        df = df.withColumn('features_all', udf_add_to_dense_vector(feature_column, array(*index_columns))) \
+        df = df.withColumn('features_all', udf_add_to_dense_vector(
+            feature_column, array(*index_columns))) \
             .drop(*index_columns, feature_column) \
             .withColumnRenamed('features_all', feature_column)
         return df
@@ -126,7 +127,9 @@ class AnomalyModel(ModelInterface):
         df = self.build_features_vectors(df)
         df = self.scaler_model.transform(df)
         if len(self.categorical_features):
-            df = self._add_categorical_features(df, self.features_values_scaled)
+            df = self._add_categorical_features(
+                df, self.features_values_scaled
+            )
         df = self.iforest_model.transform(df)
         df = df.withColumnRenamed('anomalyScore', self.score_column)
         return df

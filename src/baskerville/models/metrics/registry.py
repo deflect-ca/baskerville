@@ -13,6 +13,8 @@ from baskerville.util.enums import MetricClassEnum, MetricTypeEnum
 from prometheus_client import Counter, Gauge, Summary, Histogram, Info, Enum, \
     Metric
 
+from baskerville.util.helpers import Singleton
+
 
 @dataclass
 class StatsHook(object):
@@ -21,7 +23,7 @@ class StatsHook(object):
     hooks_to_callbacks: dict
 
 
-class MetricsRegistry(object):
+class MetricsRegistry(Singleton):
     """
     A Singleton class that keeps a registry with metrics of the following
     types:
@@ -55,13 +57,6 @@ class MetricsRegistry(object):
         MetricClassEnum.enum: Enum,
     }
     __func_name_to_state = {}
-
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, '_instance'):
-            cls._instance = super(MetricsRegistry, cls).__new__(
-                cls, *args, **kwargs
-            )
-        return cls._instance
 
     def __len__(self):
         return len(self.registry)

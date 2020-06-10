@@ -16,10 +16,10 @@ from baskerville.spark.helpers import StorageLevel
 from pyspark.sql import functions as F
 
 from baskerville.util.file_manager import FileManager
-from baskerville.util.helpers import get_logger
+from baskerville.util.helpers import get_logger, Singleton
 
 
-class RequestSetSparkCache(object):
+class RequestSetSparkCache(Singleton):
 
     def __init__(
             self,
