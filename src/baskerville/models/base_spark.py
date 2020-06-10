@@ -879,6 +879,8 @@ class SparkPipelineBase(PipelineBase):
         requires feature averaging where there is an existing request_set.
 `        :return: None
         """
+        import pdb
+        pdb.set_trace()
         if self.model:
             self.logs_df = self.model.predict(self.logs_df)
         else:

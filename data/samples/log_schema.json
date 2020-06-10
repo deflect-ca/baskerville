@@ -92,8 +92,11 @@
       "geoip.location.lon": {
          "type": "string",
          "format": "number"
+      },
+      "geoip.country_name": {
+         "type": "string"
       }
    },
-   "required": ["@timestamp", "client_ip", "client_request_host", "client_ua", "client_url", "content_type", "http_response_code", "querystring", "reply_length_bytes", "geoip.location.lat", "geoip.location.lon"],
+   "required": ["@timestamp", "client_ip", "client_request_host", "client_ua", "client_url", "content_type", "http_response_code", "querystring", "reply_length_bytes", "geoip.location.lat", "geoip.location.lon", "geoip.country_name"],
    "additionalProperties": false
 }
