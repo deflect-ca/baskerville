@@ -461,7 +461,7 @@ class TrainingConfig(Config):
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
-        self.allowed_models = [e.name for e in ModelEnum]
+        self.allowed_models = [e.value for e in ModelEnum]
 
     def validate(self):
         logger.debug('Validating TrainingConfig...')

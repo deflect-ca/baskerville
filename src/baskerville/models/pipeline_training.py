@@ -85,7 +85,7 @@ class TrainingPipeline(PipelineBase):
         :return:
         """
         self.spark = get_or_create_spark_session(self.spark_conf)
-        self.model = instantiate_from_str(ModelEnum[self.training_conf.model].value)
+        self.model = instantiate_from_str(self.training_conf.model)
         self.model.set_params(**self.engine_conf.training.model_parameters)
 
         conf = self.db_conf
