@@ -13,7 +13,7 @@ import pyspark
 from baskerville.models.config import EngineConfig, DatabaseConfig, SparkConfig
 from baskerville.spark import get_or_create_spark_session
 from baskerville.spark.helpers import reset_spark_storage
-from baskerville.util.enums import Step, ModelEnum
+from baskerville.util.enums import Step
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.db.models import Model
 
