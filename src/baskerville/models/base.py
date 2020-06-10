@@ -20,7 +20,8 @@ from baskerville.models.config import BaskervilleConfig
 from baskerville.models.feature_manager import FeatureManager
 from baskerville.spark.helpers import reset_spark_storage
 from baskerville.spark.schemas import get_cache_schema
-from baskerville.util.helpers import get_logger, TimeBucket, FOLDER_CACHE
+from baskerville.util.helpers import get_logger, TimeBucket, FOLDER_CACHE, \
+    Borg, instantiate_from_str
 from baskerville.models.request_set_cache import RequestSetSparkCache
 from pyspark.sql import functions as F
 
@@ -148,35 +149,39 @@ class Task(object, metaclass=abc.ABCMeta):
             output_file=self.config.engine.logpath
         )
         self.time_bucket = TimeBucket(self.config.engine.time_bucket)
-        self.spark_task = RunnableSparkTaskWithCache(self.config)
+        self.start_time = datetime.datetime.utcnow()
+        self.service_provider = ServiceProvider(self.config)
 
     def __str__(self):
-        return f'{self.__class__.__name__} with steps: ' \
-               f'{",".join(step.__class__.__name__ for step in self.steps)}'
+        name = f'{self.__class__.__name__} '
+        if self.steps:
+               name += f'{",".join(step.__class__.__name__ for step in self.steps)}'
+        return name
+
+    def __getattr__(self, item):
+        if hasattr(self.service_provider, item):
+            return getattr(self.service_provider, item)
+        raise AttributeError(f'No such attribute {item}')
 
     @property
     def spark(self):
-        return self.spark_task.spark
-
-    @property
-    def tools(self):
-        return self.spark_task.tools
-
-    @property
-    def db_tools(self):
-        return self.spark_task.tools
-
-    @property
-    def request_set_cache(self):
-        return self.spark_task.request_set_cache
+        return self.service_provider.spark
 
     @property
     def runtime(self):
-        return self.spark_task.runtime
+        return self.service_provider.runtime
 
     @runtime.setter
     def runtime(self, value):
-        self.spark_task.runtime = value
+        self.service_provider.runtime = value
+
+    @property
+    def tools(self):
+        return self.service_provider.tools
+
+    @property
+    def db_tools(self):
+        return self.service_provider.tools
 
     def set_df(self, df):
         self.df = df
@@ -184,10 +189,11 @@ class Task(object, metaclass=abc.ABCMeta):
 
     def initialize(self):
         print(f'{self.__class__} initialize...')
-        self.spark_task.initialize()
-        # # do stuff
-        # for step in self.steps:
-        #     step.initialize()
+        self.service_provider.initialize_db_tools_service()
+        self.service_provider.initialize_spark_service()
+
+        for step in self.steps:
+            step.initialize()
 
     def run(self):
         """
@@ -196,7 +202,6 @@ class Task(object, metaclass=abc.ABCMeta):
         :param kwargs:
         :return:
         """
-        self.initialize()
         self.remaining_steps = list(self.step_to_action.keys())
         for descr, task in self.step_to_action.items():
             self.logger.info('Starting step {}'.format(descr))
@@ -206,97 +211,62 @@ class Task(object, metaclass=abc.ABCMeta):
         return self.df
 
     def finish_up(self):
-        pass
+        self.service_provider.finish_up()
 
     def reset(self):
-        self.spark_task.reset()
+        self.service_provider.reset()
 
-class TaskWithCache(Task):
+
+class CacheTask(Task):
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
-        self.spark_task = RunnableSparkTaskWithCache(self.config)
+
+    def initialize(self):
+        super().initialize()
+        self.service_provider.initialize_request_set_cache_service()
+
+    @property
+    def request_set_cache(self):
+        return self.service_provider.request_set_cache
 
 
-class Singleton(object):
-    def __init__(self, config):
+class MLTask(CacheTask):
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+
+    def initialize(self):
+        super().initialize()
+        self.service_provider.initalize_ml_services()
+
+    @property
+    def model(self):
+        return self.service_provider.model
+
+    @property
+    def model_index(self):
+        return self.service_provider.model_index
+
+    @property
+    def feature_manager(self):
+        return self.service_provider.feature_manager
+
+
+class ServiceProvider(Borg):
+    def __init__(self, config: BaskervilleConfig):
         self.config = config
-
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, '_instance'):
-            cls._instance = super(Singleton, cls).__new__(cls)
-        return cls._instance
-
-
-class Borg(object):
-    _shared_state = {}
-
-    def __init__(self, config):
-        self.config = config
-
-    def __new__(cls, *args, **kwargs):
-        obj = super(Borg, cls).__new__(cls)
-        obj.__dict__ = cls._shared_state
-        return obj
-
-
-class RunnableSparkTask(Borg):
-
-    def __init__(self,
-                 config: BaskervilleConfig):
-        super().__init__(config)
         self.start_time = datetime.datetime.utcnow()
+        self.runtime = None
         self.request_set_cache = None
         self.spark = None
         self.tools = None
+        self.request_set_cache = None
+        self.model = None
+        self.model_index = None
+        self.feature_manager = None
         self.spark_conf = self.config.spark
         self.db_url = get_jdbc_url(self.config.database)
         self.time_bucket = TimeBucket(self.config.engine.time_bucket)
-        self.logger = get_logger(
-            self.__class__.__name__,
-            logging_level=self.config.engine.log_level,
-            output_file=self.config.engine.logpath
-        )
 
-    def initialize(self):
-        print(f'{self.__class__} initialize...')
-        if not self.spark:
-            from baskerville.spark import get_or_create_spark_session
-            self.spark = get_or_create_spark_session(self.spark_conf)
-        if not self.tools:
-            from baskerville.util.baskerville_tools import BaskervilleDBTools
-            self.tools = BaskervilleDBTools(self.config.database)
-            self.tools.connect_to_db()
-
-    def create_runtime(self):
-        self.runtime = self.tools.create_runtime(
-            start=self.start_time,
-            conf=self.config.engine
-        )
-
-    def finish_up(self):
-        """
-        Unpersist all
-        :return:
-        """
-        reset_spark_storage()
-
-    def reset(self):
-        """
-        Unpersist rdds and dataframes and call GC - see broadcast memory
-        release issue
-        :return:
-        """
-        import gc
-
-        reset_spark_storage()
-        gc.collect()
-
-
-class RunnableSparkTaskWithCache(RunnableSparkTask):
-    def __init__(self,
-                 config: BaskervilleConfig):
-        super().__init__(config)
-        self.request_set_cache = None
         self.cache_columns = [
             'target',
             'ip',
@@ -311,17 +281,25 @@ class RunnableSparkTaskWithCache(RunnableSparkTask):
             'user': self.config.database.user,
             'password': self.config.database.password
         }
+        self.logger = get_logger(
+            self.__class__.__name__,
+            logging_level=self.config.engine.log_level,
+            output_file=self.config.engine.logpath
+        )
 
-    def initialize(self):
-        """
-        Set up an instance of RequestSetSparkCache using the cache
-        configuration. Also, load past (start_time - expiry_time)
-        if cache_load_past is configured.
-        :return:
-        """
-        print(f'{self.__class__} initialize...')
-        super().initialize()
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            start=self.start_time,
+            conf=self.config.engine
+        )
+        self.logger.info(f'Created runtime {self.runtime.id}')
 
+    def initialize_spark_service(self):
+        if not self.spark:
+            from baskerville.spark import get_or_create_spark_session
+            self.spark = get_or_create_spark_session(self.spark_conf)
+
+    def initialize_request_set_cache_service(self):
         if not isinstance(self.request_set_cache, RequestSetSparkCache):
             self.request_set_cache = RequestSetSparkCache(
                 cache_config=self.cache_config,
@@ -336,14 +314,15 @@ class RunnableSparkTaskWithCache(RunnableSparkTask):
                     F.col('updated_at')
                 ),
                 expire_if_longer_than=self.config.engine.cache_expire_time,
-                path=os.path.join(self.config.engine.storage_path, FOLDER_CACHE)
+                path=os.path.join(self.config.engine.storage_path,
+                                  FOLDER_CACHE)
             )
             if self.config.engine.cache_load_past:
                 self.request_set_cache = self.request_set_cache.load(
                     update_date=(
-                        self.start_time - datetime.timedelta(
-                            seconds=self.config.engine.cache_expire_time
-                        )
+                            self.start_time - datetime.timedelta(
+                        seconds=self.config.engine.cache_expire_time
+                    )
                     ).replace(tzinfo=tzutc()),
                     extra_filters=(
                             F.col('time_bucket') == self.time_bucket.sec
@@ -355,6 +334,40 @@ class RunnableSparkTaskWithCache(RunnableSparkTask):
             self.logger.info(f'In cache: {self.request_set_cache.count()}')
 
             return self.request_set_cache
+
+    def initialize_db_tools_service(self):
+        if not self.tools:
+            from baskerville.util.baskerville_tools import BaskervilleDBTools
+            self.tools = BaskervilleDBTools(self.config.database)
+            self.tools.connect_to_db()
+
+    def initialize_model_service(self):
+        if not self.model:
+            if self.config.engine.model_id:
+                self.model_index = self.tools.get_ml_model_from_db(
+                    self.config.engine.model_id)
+                self.model = instantiate_from_str(self.model_index.algorithm)
+                self.model.load(bytes.decode(
+                    self.model_index.classifier, 'utf8'), self.spark)
+                if not self.feature_manager:
+                    self.initialize_feature_manager_service()
+                self._can_predict = self.feature_manager.feature_config_is_valid() \
+                                    and self.model.iforest_model
+            else:
+                self.model = None
+        self.model_index.can_predict = self.feature_manager. \
+            feature_config_is_valid()
+        self._can_predict = self.feature_manager.feature_config_is_valid() \
+                            and self.model
+
+    def initialize_feature_manager_service(self):
+        if not self.feature_manager:
+            self.feature_manager = FeatureManager(self.config.engine)
+            self.feature_manager.initialize()
+
+    def initalize_ml_services(self):
+        self.initialize_feature_manager_service()
+        self.initialize_model_service()
 
     def refresh_cache(self, df):
         """
@@ -396,3 +409,22 @@ class RunnableSparkTaskWithCache(RunnableSparkTask):
         self.logger.debug(
             f'****** > # of rows in cache: {self.request_set_cache.count()}')
         return df
+
+    def finish_up(self):
+        """
+        Unpersist all
+        :return:
+        """
+        reset_spark_storage()
+
+    def reset(self):
+        """
+        Unpersist rdds and dataframes and call GC - see broadcast memory
+        release issue
+        :return:
+        """
+        import gc
+
+        reset_spark_storage()
+        gc.collect()
+

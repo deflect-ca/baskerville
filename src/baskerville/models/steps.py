@@ -9,15 +9,11 @@ from pyspark.sql import functions as F, types as T
 from pyspark.streaming import StreamingContext
 
 from baskerville.db.models import RequestSet
-from baskerville.models.base import RunnableSparkTaskWithCache, \
-    RunnableSparkTask, Task
+from baskerville.models.base import Task, MLTask
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.feature_manager import FeatureManager
-from baskerville.models.anomaly_model import AnomalyModel
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window
 from baskerville.spark.schemas import prediction_schema
-from baskerville.util.helpers import instantiate_from_str
 
 
 class GetDataKafka(Task):
@@ -36,12 +32,6 @@ class GetDataKafka(Task):
         super(GetDataKafka, self).initialize()
         self.ssc = StreamingContext(
             self.spark.sparkContext, self.config.engine.time_bucket
-        )
-
-    def create_runtime(self):
-        self.runtime = self.tools.create_runtime(
-            start=self.start_time,
-            conf=self.config.engine
         )
 
     def get_data(self):
@@ -128,12 +118,6 @@ class GetDataKafkaStreaming(Task):
             .option(
             "kafka.bootstrap.servers", self.config.kafka.bootstrap_servers
         ).option("subscribe", self.config.kafka.prediction_reply_topic)
-
-    def create_runtime(self):
-        self.runtime = self.tools.create_runtime(
-            start=self.start_time,
-            conf=self.config.engine
-        )
 
     def get_data(self):
         self.stream_df.load()
@@ -352,7 +336,7 @@ class GetDataPostgres(Task):
         return super().run()
 
 
-class Preprocess(Task):
+class Preprocess(MLTask):
     def __init__(
             self,
             config,
@@ -360,9 +344,6 @@ class Preprocess(Task):
             group_by_cols=('client_request_host', 'client_ip'),
     ):
         super().__init__(config, steps)
-        self.feature_manager = FeatureManager(self.config.engine)
-        self.model = None
-        self.model_index = None
         self.data_parser = self.config.engine.data_config.parser
         self.group_by_cols = list(set(group_by_cols))
         self.group_by_aggs = None
@@ -373,20 +354,7 @@ class Preprocess(Task):
 
     def initialize(self):
         print(f'{self.__class__} Preprocess initialize...')
-        super().initialize()
-        if self.config.engine.model_id:
-            self.model_index = self.tools.get_ml_model_from_db(
-                self.config.engine.model_id)
-            self.model = instantiate_from_str(self.model_index.algorithm)
-            self.model.load(bytes.decode(self.model_index.classifier, 'utf8'),
-                            self.spark)
-        else:
-            self.model = None
-        self.feature_manager.initialize()
-        self.model_index.can_predict = self.feature_manager. \
-            feature_config_is_valid()
-        self._can_predict = self.feature_manager.feature_config_is_valid() \
-                            and self.model
+        MLTask.initialize(self)
         self.drop_if_missing_filter = self.data_parser.drop_if_missing_filter()
 
         # gather calculations
@@ -580,7 +548,7 @@ class Preprocess(Task):
         self.df = self.df.withColumn(
             'target', F.col('client_request_host')
         )
-        self.df = self.spark_task.add_cache_columns(self.df)
+        self.df = self.service_provider.add_cache_columns(self.df)
 
         for k, v in self.get_post_group_by_calculations().items():
             self.df = self.df.withColumn(k, v)
@@ -747,28 +715,19 @@ class Preprocess(Task):
         return super().run()
 
 
-class Predict(Task):
+class Predict(MLTask):
     def __init__(self, config: BaskervilleConfig, steps=()):
         super().__init__(config, steps)
-        self.feature_manager = FeatureManager(self.config.engine)
-        self.model_manager = AnomalyModel()
         self._can_predict = False
         self._is_initialized = False
-        self.anomaly_model = None
-
-    def initialize(self):
-        print('Predict initialize')
-        # todo model interface ...
-        self.feature_manager.initialize()
-        self.model_manager.can_predict = self.feature_manager. \
-            feature_config_is_valid()
-
-        self._can_predict = self.feature_manager.feature_config_is_valid() \
-                            and self.model_manager.iforest_model
 
     def predict(self):
-        self.df = self.model_manager.predict(self.df)
-        return super(Predict, self).run()
+        self.df = self.model.predict(self.df)
+
+    def run(self):
+        self.predict()
+        self.df = super(Predict, self).run()
+        return self.df
 
 
 class Train(Task):
@@ -814,22 +773,22 @@ class SaveInStorage(Task):
             mode=self.mode,
             db_driver=self.config.spark.db_driver
         )
-        self.spark_task.refresh_cache(self.df)
+        self.service_provider.refresh_cache(self.df)
         self.df = super().run()
         return self.df
 
 
-class PredictionOutput(RunnableSparkTask):
+class PredictionOutput(Task):
     pass
 
 
-class PredictionInput(RunnableSparkTask):
+class PredictionInput(Task):
     pass
 
 
-class Evaluate(RunnableSparkTaskWithCache):
+class Evaluate(Task):
     pass
 
 
-class ModelUpdate(RunnableSparkTaskWithCache):
+class ModelUpdate(MLTask):
     pass

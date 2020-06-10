@@ -120,8 +120,9 @@ class AnomalyModel(ModelInterface):
             else:
                 columns.append(f'{self.prefix_feature}{feature}')
 
-        df = df.withColumn('features_all', udf_add_to_dense_vector(feature_column, array(*columns))) \
-            .drop(*columns, feature_column) \
+        df = df.withColumn('features_all', udf_add_to_dense_vector(
+            feature_column, array(*index_columns))) \
+            .drop(*index_columns, feature_column) \
             .withColumnRenamed('features_all', feature_column)
         return df
 
@@ -167,10 +168,10 @@ class AnomalyModel(ModelInterface):
     def predict(self, df):
         df = self._create_regular_features_vector(df)
         df = self.scaler_model.transform(df)
-        df = df.drop(self.features_vector)
-        df = self._create_feature_columns(df)
-        df = self._add_categorical_features(df, self.features_vector_scaled)
-        df = self._drop_feature_columns(df)
+        if len(self.categorical_features):
+            df = self._add_categorical_features(
+                df, self.features_values_scaled
+            )
         df = self.iforest_model.transform(df)
         df = df.withColumnRenamed('anomalyScore', self.score_column)
         df = df.drop(self.features_vector_scaled)
