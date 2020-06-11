@@ -44,8 +44,11 @@ class RunType(BaseStrEnum):
     rawlog = 'rawlog'
     kafka = 'kafka'
     training = 'training'
-    client = 'client'
     irawlog = 'irawlog'
+    ikafka = 'ikafka'
+    itraining = 'itraining'
+    client = 'client'
+    prediction = 'prediction'
 
 
 class Step(BaseStrEnum):

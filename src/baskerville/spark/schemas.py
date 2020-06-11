@@ -19,6 +19,12 @@ prediction_schema = T.StructType([
     T.StructField("threshold", T.FloatType(), True)
 ])
 
+client_prediction_schema = T.StructType([
+    T.StructField("id_client", T.StringType(), False),
+    T.StructField("id_group", T.StringType(), True),
+    T.StructField("features", T.StringType(), True)
+])
+
 
 def get_cache_schema():
     return T.StructType([
