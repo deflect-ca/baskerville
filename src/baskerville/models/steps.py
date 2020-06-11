@@ -14,7 +14,7 @@ from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window
 from baskerville.spark.schemas import prediction_schema, \
-    client_prediction_schema
+    client_prediction_schema, feature_vectors_schema
 
 
 class GetDataKafka(Task):
@@ -99,6 +99,83 @@ class GetDataKafka(Task):
         return self.df
 
 
+class GetPredictionsKafka(Task):
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.data_parser = self.config.engine.data_config.parser
+        self.kafka_params = {
+            # 'bootstrap.servers': self.kafka_conf.bootstrap_servers,
+            'metadata.broker.list': self.config.kafka.bootstrap_servers,
+            'auto.offset.reset': 'largest',
+            'group.id': self.config.kafka.consume_group,
+            'auto.create.topics.enable': 'true'
+        }
+
+    def initialize(self):
+        super().initialize()
+        self.ssc = StreamingContext(
+            self.spark.sparkContext, self.config.engine.time_bucket
+        )
+
+    def get_data(self):
+        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+            client_prediction_schema
+        ).persist(
+            self.config.spark.storage_level
+        )
+        json_schema = self.spark.read.json(
+            self.df.limit(1).rdd.map(lambda row: row.features)
+        ).schema
+        self.df = self.df.withColumn(
+            'features',
+            F.from_json('features', json_schema)
+        )
+
+    def run(self):
+        self.create_runtime()
+
+        from pyspark.streaming.kafka import KafkaUtils
+        kafkaStream = KafkaUtils.createDirectStream(
+            self.ssc,
+            [self.config.kafka.consume_predictions_topic],
+            kafkaParams=self.kafka_params,
+        )
+
+        def process_subsets(time, rdd):
+            global CLIENT_PREDICTION_ACCUMULATOR, CLIENT_REQUEST_SET_COUNT
+
+            self.logger.info('Data until {}'.format(time))
+            if not rdd.isEmpty():
+                try:
+                    self.df = rdd
+                    self.get_data()
+                    self.df.show()
+                    self.remaining_steps = list(self.step_to_action.keys())
+
+                    super(GetPredictionsKafka, self).run()
+
+                    items_to_unpersist = self.spark.sparkContext._jsc. \
+                        getPersistentRDDs().items()
+                    self.logger.debug(
+                        f'_jsc.getPersistentRDDs().items():'
+                        f'{len(items_to_unpersist)}')
+                    rdd.unpersist()
+                    del rdd
+                except Exception as e:
+                    traceback.print_exc()
+                    self.logger.error(e)
+                finally:
+                    self.reset()
+            else:
+                self.logger.info('Empty RDD...')
+
+        kafkaStream.foreachRDD(process_subsets)
+
+        self.ssc.start()
+        self.ssc.awaitTermination()
+        return self.df
+
+
 class GetDataKafkaStreaming(Task):
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
@@ -123,7 +200,7 @@ class GetDataKafkaStreaming(Task):
             ).option(
                 "subscribe", self.config.kafka.consume_predictions_topic
             ).option(
-                "startingOffsets", "latest"
+                "startingOffsets", "earliest"
             )
 
     def get_data(self):
@@ -140,8 +217,17 @@ class GetDataKafkaStreaming(Task):
                 client_prediction_schema
             )
         )
-        self.df = super(GetDataKafkaStreaming, self).run()
-        query = self.df.writeStream.format('console').start().awaitTermination()
+
+        def process_row(row):
+            print(row)
+            # self.df = row
+            # self.df = super(GetDataKafkaStreaming, self).run()
+
+        df = self.df.writeStream.format(
+            'console'
+        ).foreach(
+            process_row
+        ).start().awaitTermination()
 
         return self.df
 
@@ -733,7 +819,9 @@ class Predict(MLTask):
         self._is_initialized = False
 
     def predict(self):
-        self.df = self.model.predict(self.df)
+        self.df = self.model.predict(self.df).drop(
+            'features_values', 'features_values_scaled'
+        )
 
     def run(self):
         self.predict()
@@ -795,14 +883,42 @@ class PredictionOutput(Task):
         self.streaming_df = None
 
     def run(self):
-        self.streaming_df = self.df \
-            .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)") \
-            .writeStream \
-            .format("kafka") \
-            .option(
-            "kafka.bootstrap.servers", self.config.kafka.bootstrap_servers) \
-            .option("topic", self.config.kafka.prediction_reply_topic) \
-            .start()
+        TOPIC_BC = self.spark.sparkContext.broadcast(self.config.kafka.prediction_reply_topic)
+        KAFKA_URL_BC = self.spark.sparkContext.broadcast(self.config.kafka.bootstrap_servers)
+        def send_to_kafka(id_client, id_group, features, prediction, score):
+            from confluent_kafka import Producer
+            producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
+            producer.produce(
+                TOPIC_BC.value,
+                json.dumps(
+                    {
+                        'id_client': id_client,
+                        'id_group': id_group,
+                        'features': features,
+                        'prediction': prediction,
+                        'score': score
+                    }).encode('utf-8')
+            )
+            producer.poll(2)
+            return True
+
+        self.df = self.df.withColumn(
+            'sent',
+            F.udf(send_to_kafka, T.BooleanType())(*self.df.columns)
+        )
+        self.df.show()
+        # self.df = self.df.select(
+        #         F.col('id_client').alias('key'),
+        #         F.to_json(
+        #             F.struct([self.df[x] for x in self.df.columns])
+        #         ).alias('value')
+        #     ) \
+        #     .write \
+        #     .format("kafka") \
+        #     .option("kafka.bootstrap.servers", self.config.kafka.bootstrap_servers) \
+        #     .option("topic", self.config.kafka.prediction_reply_topic) \
+        #     .save()
+        return self.df
 
 
 class PredictionInput(Task):
