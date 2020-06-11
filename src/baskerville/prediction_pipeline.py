@@ -1,12 +1,12 @@
 from baskerville.models.base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.steps import GetDataKafkaStreaming, \
+from baskerville.models.steps import GetPredictionsKafka, \
     PredictionOutput, Predict
 
 
 def set_up_prediction_pipeline(config: BaskervilleConfig):
     predict_tasks = [
-      GetDataKafkaStreaming(
+      GetPredictionsKafka(
            config,
            steps=[
                   Predict(config),

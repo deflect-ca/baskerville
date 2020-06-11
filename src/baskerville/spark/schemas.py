@@ -21,10 +21,13 @@ prediction_schema = T.StructType([
 
 client_prediction_schema = T.StructType([
     T.StructField("id_client", T.StringType(), False),
-    T.StructField("id_group", T.StringType(), True),
-    T.StructField("features", T.StringType(), True)
+    T.StructField("id_group", T.StringType(), False),
+    T.StructField("features", T.StringType(), False)
 ])
 
+feature_vectors_schema = T.StructField(
+    'features', T.MapType(T.StringType(), T.FloatType()), False
+)
 
 def get_cache_schema():
     return T.StructType([
