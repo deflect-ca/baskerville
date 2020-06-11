@@ -44,6 +44,12 @@ class PipelineFactory(object):
         elif run_type == RunType.irawlog:
             from baskerville.rawlog_pipeline import set_up_irawlog_pipeline
             return set_up_irawlog_pipeline(config)
+        elif run_type == RunType.ikafka:
+            from baskerville.kafka_pipeline import set_up_ikafka_pipeline
+            return set_up_ikafka_pipeline(config)
+        elif run_type == RunType.prediction:
+            from baskerville.prediction_pipeline import set_up_prediction_pipeline
+            return set_up_prediction_pipeline(config)
 
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'

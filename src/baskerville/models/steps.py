@@ -13,7 +13,8 @@ from baskerville.models.base import Task, MLTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window
-from baskerville.spark.schemas import prediction_schema
+from baskerville.spark.schemas import prediction_schema, \
+    client_prediction_schema
 
 
 class GetDataKafka(Task):
@@ -76,7 +77,7 @@ class GetDataKafka(Task):
 
                     super().run()
 
-                    items_to_unpersist = self.spark.sparkContext._jsc.\
+                    items_to_unpersist = self.spark.sparkContext._jsc. \
                         getPersistentRDDs().items()
                     self.logger.debug(
                         f'_jsc.getPersistentRDDs().items():'
@@ -107,7 +108,8 @@ class GetDataKafkaStreaming(Task):
             'metadata.broker.list': self.config.kafka.bootstrap_servers,
             'auto.offset.reset': 'largest',
             'group.id': self.config.kafka.consume_group,
-            'auto.create.topics.enable': 'true'
+            'auto.create.topics.enable': 'true',
+            'partition.assignment.strategy': 'range'
         }
 
     def initialize(self):
@@ -116,12 +118,16 @@ class GetDataKafkaStreaming(Task):
             .readStream \
             .format("kafka") \
             .option(
-            "kafka.bootstrap.servers", self.config.kafka.bootstrap_servers
-        ).option("subscribe", self.config.kafka.prediction_reply_topic)
+                "kafka.bootstrap.servers",
+                self.config.kafka.bootstrap_servers
+            ).option(
+                "subscribe", self.config.kafka.consume_predictions_topic
+            ).option(
+                "startingOffsets", "latest"
+            )
 
     def get_data(self):
-        self.stream_df.load()
-        self.stream_df.selectExpr(
+        self.stream_df = self.stream_df.load().selectExpr(
             "CAST(key AS STRING)", "CAST(value AS STRING)"
         )
 
@@ -129,16 +135,20 @@ class GetDataKafkaStreaming(Task):
         self.create_runtime()
         self.get_data()
         self.df = self.stream_df.select(
-            F.from_json(F.col("value").cast("string"), prediction_schema)
+            F.from_json(
+                F.col("value").cast("string"),
+                client_prediction_schema
+            )
         )
-        # todo: match with redis
         self.df = super(GetDataKafkaStreaming, self).run()
+        query = self.df.writeStream.format('console').start().awaitTermination()
 
         return self.df
 
 
 class GetDataLog(Task):
-    def __init__(self, config, steps=(), group_by_cols=('client_request_host', 'client_ip'),):
+    def __init__(self, config, steps=(),
+                 group_by_cols=('client_request_host', 'client_ip'), ):
         super().__init__(config, steps)
         self.log_paths = self.config.engine.raw_log.paths
         self.group_by_cols = group_by_cols
@@ -151,7 +161,7 @@ class GetDataLog(Task):
         super().initialize()
         for step in self.steps:
             step.initialize()
-    
+
     def create_runtime(self):
         self.runtime = self.tools.create_runtime(
             file_name=self.current_log_path,
@@ -159,7 +169,7 @@ class GetDataLog(Task):
             comment=f'batch runtime {self.batch_i} of {self.batch_n}'
         )
         self.logger.info('Created runtime {}'.format(self.runtime.id))
-    
+
     def get_data(self):
         """
         Gets the dataframe according to the configuration
@@ -168,7 +178,8 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        ).persist(self.config.spark.storage_level)  # .repartition(*self.group_by_cols)
+        ).persist(
+            self.config.spark.storage_level)  # .repartition(*self.group_by_cols)
 
         self.logger.info('Got dataframe of #{} records'.format(
             self.df.count())
@@ -178,7 +189,7 @@ class GetDataLog(Task):
             self.config.engine.load_test,
             self.config.spark.storage_level
         )
-        
+
     def process_data(self):
         """
         Splits the data into time bucket length windows and executes all the steps
@@ -196,7 +207,7 @@ class GetDataLog(Task):
                 self.remaining_steps = list(self.step_to_action.keys())
                 self.df = super().run()
                 self.reset()
-    
+
     def run(self):
         for log in self.log_paths:
             self.logger.info(f'Processing {log}...')
@@ -222,10 +233,10 @@ class GetDataPostgres(Task):
         self.columns_to_keep = columns_to_keep
         self.n_rows = -1
         self.conn_properties = {
-                'user': self.config.database.user,
-                'password': self.config.database.password,
-                'driver': self.config.database.db_driver,
-            }
+            'user': self.config.database.user,
+            'password': self.config.database.password,
+            'driver': self.config.database.db_driver,
+        }
 
     def get_data(self):
         """
@@ -323,7 +334,7 @@ class GetDataPostgres(Task):
                 table=q,
                 numPartitions=int(self.spark.conf.get(
                     'spark.sql.shuffle.partitions'
-                )) or os.cpu_count()*2,
+                )) or os.cpu_count() * 2,
                 column='id',
                 lowerBound=bounds.min_id,
                 upperBound=bounds.max_id + 1,
@@ -633,7 +644,7 @@ class Preprocess(MLTask):
                 ).cast('float')
         self.df = self.df.withColumn('total_seconds', diff)
         self.df = self.df.drop(*self.cols_to_drop)
-        
+
     def feature_calculation(self):
         """
         Add calculation cols, extract features, and update.
@@ -711,7 +722,7 @@ class Preprocess(MLTask):
         self.add_calc_columns()
         self.group_by()
         self.feature_calculation()
-        
+
         return super().run()
 
 
@@ -779,7 +790,19 @@ class SaveInStorage(Task):
 
 
 class PredictionOutput(Task):
-    pass
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.streaming_df = None
+
+    def run(self):
+        self.streaming_df = self.df \
+            .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)") \
+            .writeStream \
+            .format("kafka") \
+            .option(
+            "kafka.bootstrap.servers", self.config.kafka.bootstrap_servers) \
+            .option("topic", self.config.kafka.prediction_reply_topic) \
+            .start()
 
 
 class PredictionInput(Task):

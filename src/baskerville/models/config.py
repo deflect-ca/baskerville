@@ -695,6 +695,7 @@ class KafkaConfig(Config):
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
     consume_topic = 'deflect.logs'
+    consume_predictions_topic = 'predictions'
     publish_logs = 'baskerville.logs'
     publish_stats = 'baskerville.stats'
     publish_predictions = 'baskerville.predictions'
