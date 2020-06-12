@@ -13,7 +13,7 @@ import os
 from baskerville.models.base import PipelineBase
 from baskerville.models.feature_manager import FeatureManager
 from baskerville.spark.helpers import save_df_to_table, reset_spark_storage, set_unknown_prediction
-from baskerville.spark.schemas import get_cache_schema
+from baskerville.spark.schemas import rs_cache_schema
 from baskerville.util.helpers import TimeBucket, FOLDER_CACHE, instantiate_from_str, load_model_from_path
 from pyspark.sql import types as T, DataFrame
 
@@ -622,7 +622,7 @@ class SparkPipelineBase(PipelineBase):
                 )  # todo: & (F.col("id_runtime") == self.runtime.id)?
             )
         else:
-            self.request_set_cache.load_empty(get_cache_schema())
+            self.request_set_cache.load_empty(rs_cache_schema)
 
         self.logger.info(f'In cache: {self.request_set_cache.count()}')
 

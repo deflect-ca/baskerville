@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import datetime
 import itertools
 import json
@@ -13,16 +20,21 @@ from baskerville.models.base import Task, MLTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window
-from baskerville.spark.schemas import prediction_schema, \
-    client_prediction_schema, feature_vectors_schema
+from baskerville.spark.schemas import client_prediction_schema
 
 
 class GetDataKafka(Task):
-    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+            group_by_cols=('client_request_host', 'client_ip')
+    ):
         super().__init__(config, steps)
+        self.ssc = None
+        self.group_by_cols = group_by_cols
         self.data_parser = self.config.engine.data_config.parser
         self.kafka_params = {
-            # 'bootstrap.servers': self.kafka_conf.bootstrap_servers,
             'metadata.broker.list': self.config.kafka.bootstrap_servers,
             'auto.offset.reset': 'largest',
             'group.id': self.config.kafka.consume_group,
@@ -75,7 +87,7 @@ class GetDataKafka(Task):
                     self.get_data()
                     self.remaining_steps = list(self.step_to_action.keys())
 
-                    super().run()
+                    super(GetDataKafka, self).run()
 
                     items_to_unpersist = self.spark.sparkContext._jsc. \
                         getPersistentRDDs().items()
@@ -100,11 +112,13 @@ class GetDataKafka(Task):
 
 
 class GetPredictionsKafka(Task):
+    """
+    Listens to the prediction input topic
+    """
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
         self.data_parser = self.config.engine.data_config.parser
         self.kafka_params = {
-            # 'bootstrap.servers': self.kafka_conf.bootstrap_servers,
             'metadata.broker.list': self.config.kafka.bootstrap_servers,
             'auto.offset.reset': 'largest',
             'group.id': self.config.kafka.consume_group,
@@ -799,6 +813,18 @@ class Preprocess(MLTask):
 
         return basic_aggs
 
+    def add_ids(self):
+        self.df = self.df.withColumn(
+            'id_client', F.lit(self.config.engine.id_client)
+        ).withColumn(
+            'id_group', F.monotonically_increasing_id()
+        ).withColumn(
+            'id_group', F.concat_ws('_', F.col('id_client'), F.col('id_group'))
+        )
+        # todo: monotonically_increasing_id guarantees uniqueness within
+        #  the current batch, this will cause conflicts with caching - use
+        # e.g. the timestamp too to avoid this
+
     def run(self):
         self.handle_missing_columns()
         self.rename_columns()
@@ -808,6 +834,7 @@ class Preprocess(MLTask):
         self.add_calc_columns()
         self.group_by()
         self.feature_calculation()
+        self.add_ids()
 
         return super().run()
 
@@ -857,6 +884,8 @@ class SaveInStorage(Task):
         for c in not_common:
             request_set_columns.remove(c)
 
+        if self.config.engine.client_mode:
+            request_set_columns.remove('score')
         # filter the logs df with the request_set columns
         self.df = self.df.select(request_set_columns)
 
@@ -878,35 +907,58 @@ class SaveInStorage(Task):
 
 
 class PredictionOutput(Task):
-    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+            output_columns=(
+                    'id_client', 'id_group', 'features', 'prediction', 'score'
+            ),
+            output_topic='',
+            client_mode=False
+    ):
         super().__init__(config, steps)
         self.streaming_df = None
+        self.output_columns = output_columns
+        self.output_topic = output_topic or self.config.kafka.prediction_reply_topic
+        self.client_mode=client_mode
 
     def run(self):
-        TOPIC_BC = self.spark.sparkContext.broadcast(self.config.kafka.prediction_reply_topic)
-        KAFKA_URL_BC = self.spark.sparkContext.broadcast(self.config.kafka.bootstrap_servers)
-        def send_to_kafka(id_client, id_group, features, prediction, score):
+        TOPIC_BC = self.spark.sparkContext.broadcast(
+            self.output_topic
+        )
+        KAFKA_URL_BC = self.spark.sparkContext.broadcast(
+            self.config.kafka.bootstrap_servers
+        )
+        CLIENT_MODE_BC = self.spark.sparkContext.broadcast(
+            self.client_mode
+        )
+
+        def send_to_kafka(*args):
             from confluent_kafka import Producer
             producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
+            topic = TOPIC_BC.value
+            if CLIENT_MODE_BC.value:
+                topic=f'{args[0]}.{args[1]}{topic}'
             producer.produce(
-                TOPIC_BC.value,
+                topic,
                 json.dumps(
-                    {
-                        'id_client': id_client,
-                        'id_group': id_group,
-                        'features': features,
-                        'prediction': prediction,
-                        'score': score
-                    }).encode('utf-8')
+                    # needs python 3.8:
+                    # {f'{i=}'.split('=')[0]: i for i in args}
+                    {k: i for i in args for k, v in locals().items() if v == i}
+                ).encode('utf-8')
             )
             producer.poll(2)
             return True
 
         self.df = self.df.withColumn(
             'sent',
-            F.udf(send_to_kafka, T.BooleanType())(*self.df.columns)
+            F.udf(send_to_kafka, T.BooleanType())(
+                *self.output_columns
+            )
         )
         self.df.show()
+        # does no work, possible jar conflict
         # self.df = self.df.select(
         #         F.col('id_client').alias('key'),
         #         F.to_json(
