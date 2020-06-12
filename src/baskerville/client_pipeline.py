@@ -1,7 +1,14 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 from baskerville.models.base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.steps import GetDataKafka, Preprocess, \
-    PredictionOutput, SaveInStorage, PredictionInput
+    SaveInStorage, PredictionInput, PredictionOutput
 
 
 def set_up_client_processing_pipeline(config: BaskervilleConfig):
@@ -11,10 +18,12 @@ def set_up_client_processing_pipeline(config: BaskervilleConfig):
            config,
            steps=[
                   Preprocess(config),
-                  PredictionOutput(config),
+                  PredictionOutput(
+                      config,
+                      output_columns=('id_client', 'id_group', 'features')
+                  ),
                   SaveInStorage(config),
       ]),
-      PredictionInput(config)
     ]
 
     client_pipeline = Task(config, client_tasks)

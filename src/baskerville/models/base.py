@@ -19,7 +19,7 @@ from baskerville.db.models import RequestSet
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.feature_manager import FeatureManager
 from baskerville.spark.helpers import reset_spark_storage
-from baskerville.spark.schemas import get_cache_schema
+from baskerville.spark.schemas import rs_cache_schema
 from baskerville.util.helpers import get_logger, TimeBucket, FOLDER_CACHE, \
     Borg, instantiate_from_str
 from baskerville.models.request_set_cache import RequestSetSparkCache
@@ -218,6 +218,9 @@ class Task(object, metaclass=abc.ABCMeta):
 
 
 class CacheTask(Task):
+    """
+    A task that utilizes RequestSetCache
+    """
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
 
@@ -231,6 +234,9 @@ class CacheTask(Task):
 
 
 class MLTask(CacheTask):
+    """
+    A task that uses AnomalyModel, Model and FeatureManager
+    """
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
 
@@ -252,6 +258,13 @@ class MLTask(CacheTask):
 
 
 class ServiceProvider(Borg):
+    """
+    Provides the following services:
+    - spark session
+    - request set cache
+    - db connection / db tools
+    - ml related stuff: model, model index, feature manager
+    """
     def __init__(self, config: BaskervilleConfig):
         self.config = config
         self.start_time = datetime.datetime.utcnow()
@@ -329,7 +342,7 @@ class ServiceProvider(Borg):
                     )  # todo: & (F.col("id_runtime") == self.runtime.id)?
                 )
             else:
-                self.request_set_cache.load_empty(get_cache_schema())
+                self.request_set_cache.load_empty(rs_cache_schema)
 
             self.logger.info(f'In cache: {self.request_set_cache.count()}')
 
