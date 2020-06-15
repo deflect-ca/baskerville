@@ -11,7 +11,7 @@ from baskerville.models.steps import Preprocess, SaveInStorage, \
     Predict, GetDataLog
 
 
-def set_up_irawlog_pipeline(config: BaskervilleConfig):
+def set_up_isac_rawlog_pipeline(config: BaskervilleConfig):
 
     predict_tasks = [
       GetDataLog(

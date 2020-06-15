@@ -24,6 +24,10 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.jars', spark_conf.jars)
     conf.set('spark.master', spark_conf.master)
     conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
+    if spark_conf.redis_host:
+        conf.set('spark.redis.host', spark_conf.get('redis_host', 'localhost'))
+        conf.set('spark.redis.port', spark_conf.get('redis_port', '6379'))
+        # conf.set('spark.redis.auth', 'passwd')
 
     if spark_conf.spark_executor_instances:
         conf.set('spark.executor.instances',

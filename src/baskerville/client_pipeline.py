@@ -8,7 +8,8 @@
 from baskerville.models.base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.steps import GetDataKafka, Preprocess, \
-    SaveInStorage, PredictionInput, PredictionOutput
+    SaveInStorage, SaveInRedis, PredictionInput, PredictionOutput, \
+    GetPredictionsClientKafka, RetrieveRsFromRedis
 
 
 def set_up_client_processing_pipeline(config: BaskervilleConfig):
@@ -20,9 +21,10 @@ def set_up_client_processing_pipeline(config: BaskervilleConfig):
                   Preprocess(config),
                   PredictionOutput(
                       config,
-                      output_columns=('id_client', 'id_group', 'features')
+                      output_columns=('id_client', 'id_group', 'features'),
+                      client_mode=True
                   ),
-                  SaveInStorage(config),
+                  SaveInRedis(config),
       ]),
     ]
 
@@ -34,10 +36,10 @@ def set_up_client_processing_pipeline(config: BaskervilleConfig):
 def set_up_client_prediction_pipeline(config: BaskervilleConfig):
 
     client_tasks = [
-      GetDataKafka(
+      GetPredictionsClientKafka(
            config,
            steps=[
-                  PredictionInput(config),
+                  RetrieveRsFromRedis(config),
                   SaveInStorage(config),
       ]),
     ]

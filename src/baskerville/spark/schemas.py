@@ -25,6 +25,14 @@ client_prediction_schema = T.StructType([
     T.StructField("features", T.StringType(), False)
 ])
 
+client_prediction_input_schema = T.StructType([
+    T.StructField("id_client", T.StringType(), False),
+    T.StructField("id_group", T.StringType(), False),
+    T.StructField("features", T.StringType(), False),
+    T.StructField("prediction", T.FloatType(), False),
+    T.StructField("score", T.FloatType(), False)
+])
+
 feature_vectors_schema = T.StructField(
     'features', T.MapType(T.StringType(), T.FloatType()), False
 )
