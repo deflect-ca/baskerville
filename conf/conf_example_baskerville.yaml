@@ -39,7 +39,7 @@ misp:
   misp_verifycert: True
 
 engine:
-  client_mode: True     # whether the pipeline will run in client mode
+  client_mode: False     # whether the pipeline will run in client mode
   id_client: 'some_id'  # the unique client id - assigned by baskerville team
   time_bucket: 120  # seconds: NOTE: this is the default value, model training is dependent upon this, this should not be set under normal circumstances
   load_test: 10     # multiply the dataset x times and add random ips - only used for load testing, default false, can be omitted.

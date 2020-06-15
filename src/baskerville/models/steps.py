@@ -20,7 +20,8 @@ from baskerville.models.base import Task, MLTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window
-from baskerville.spark.schemas import client_prediction_schema
+from baskerville.spark.schemas import client_prediction_schema, \
+    client_prediction_input_schema
 
 
 class GetDataKafka(Task):
@@ -40,11 +41,18 @@ class GetDataKafka(Task):
             'group.id': self.config.kafka.consume_group,
             'auto.create.topics.enable': 'true'
         }
+        self.consume_topic = self.config.kafka.consume_topic
 
     def initialize(self):
         super(GetDataKafka, self).initialize()
         self.ssc = StreamingContext(
             self.spark.sparkContext, self.config.engine.time_bucket
+        )
+        from pyspark.streaming.kafka import KafkaUtils
+        self.kafkaStream = KafkaUtils.createDirectStream(
+            self.ssc,
+            [self.consume_topic],
+            kafkaParams=self.kafka_params,
         )
 
     def get_data(self):
@@ -64,16 +72,7 @@ class GetDataKafka(Task):
 
     def run(self):
         self.create_runtime()
-
-        from pyspark.streaming.kafka import KafkaUtils
-        kafkaStream = KafkaUtils.createDirectStream(
-            self.ssc,
-            [self.config.kafka.consume_topic],
-            kafkaParams=self.kafka_params,
-        )
-
         def process_subsets(time, rdd):
-            global CLIENT_PREDICTION_ACCUMULATOR, CLIENT_REQUEST_SET_COUNT
 
             self.logger.info('Data until {}'.format(time))
             if not rdd.isEmpty():
@@ -104,32 +103,20 @@ class GetDataKafka(Task):
             else:
                 self.logger.info('Empty RDD...')
 
-        kafkaStream.foreachRDD(process_subsets)
+        self.kafkaStream.foreachRDD(process_subsets)
 
         self.ssc.start()
         self.ssc.awaitTermination()
         return self.df
 
 
-class GetPredictionsKafka(Task):
+class GetPredictionsKafka(GetDataKafka):
     """
     Listens to the prediction input topic
     """
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
-        self.data_parser = self.config.engine.data_config.parser
-        self.kafka_params = {
-            'metadata.broker.list': self.config.kafka.bootstrap_servers,
-            'auto.offset.reset': 'largest',
-            'group.id': self.config.kafka.consume_group,
-            'auto.create.topics.enable': 'true'
-        }
-
-    def initialize(self):
-        super().initialize()
-        self.ssc = StreamingContext(
-            self.spark.sparkContext, self.config.engine.time_bucket
-        )
+        self.consume_topic = self.config.kafka.consume_predictions_topic
 
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
@@ -145,49 +132,29 @@ class GetPredictionsKafka(Task):
             F.from_json('features', json_schema)
         )
 
-    def run(self):
-        self.create_runtime()
 
-        from pyspark.streaming.kafka import KafkaUtils
-        kafkaStream = KafkaUtils.createDirectStream(
-            self.ssc,
-            [self.config.kafka.consume_predictions_topic],
-            kafkaParams=self.kafka_params,
+class GetPredictionsClientKafka(GetDataKafka):
+    """
+    Listens to the prediction input topic
+    """
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.consume_topic = self.config.kafka.consume_client_predictions_topic
+
+    def get_data(self):
+        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+            client_prediction_input_schema
+        ).persist(
+            self.config.spark.storage_level
         )
-
-        def process_subsets(time, rdd):
-            global CLIENT_PREDICTION_ACCUMULATOR, CLIENT_REQUEST_SET_COUNT
-
-            self.logger.info('Data until {}'.format(time))
-            if not rdd.isEmpty():
-                try:
-                    self.df = rdd
-                    self.get_data()
-                    self.df.show()
-                    self.remaining_steps = list(self.step_to_action.keys())
-
-                    super(GetPredictionsKafka, self).run()
-
-                    items_to_unpersist = self.spark.sparkContext._jsc. \
-                        getPersistentRDDs().items()
-                    self.logger.debug(
-                        f'_jsc.getPersistentRDDs().items():'
-                        f'{len(items_to_unpersist)}')
-                    rdd.unpersist()
-                    del rdd
-                except Exception as e:
-                    traceback.print_exc()
-                    self.logger.error(e)
-                finally:
-                    self.reset()
-            else:
-                self.logger.info('Empty RDD...')
-
-        kafkaStream.foreachRDD(process_subsets)
-
-        self.ssc.start()
-        self.ssc.awaitTermination()
-        return self.df
+        self.df.show()
+        # json_schema = self.spark.read.json(
+        #     self.df.limit(1).rdd.map(lambda row: row.features)
+        # ).schema
+        # self.df = self.df.withColumn(
+        #     'features',
+        #     F.from_json('features', json_schema)
+        # )
 
 
 class GetDataKafkaStreaming(Task):
@@ -257,7 +224,6 @@ class GetDataLog(Task):
         self.current_log_path = None
 
     def initialize(self):
-        print(f'{self.__class__} GetDataLog initialize...')
         super().initialize()
         for step in self.steps:
             step.initialize()
@@ -464,7 +430,6 @@ class Preprocess(MLTask):
         self.cols_to_drop = None
 
     def initialize(self):
-        print(f'{self.__class__} Preprocess initialize...')
         MLTask.initialize(self)
         self.drop_if_missing_filter = self.data_parser.drop_if_missing_filter()
 
@@ -886,9 +851,16 @@ class SaveInStorage(Task):
 
         if self.config.engine.client_mode:
             request_set_columns.remove('score')
+
+        if len(self.df.columns) != len(request_set_columns):
+            # log and let it blow up; we need to know that we cannot save
+            self.logger.error(
+                'The input df columns are different than '
+                'the actual table columns'
+            )
+
         # filter the logs df with the request_set columns
         self.df = self.df.select(request_set_columns)
-
         # save request_sets
         self.logger.debug('Saving request_sets')
         self.config.database.conn_str = self.db_url
@@ -902,6 +874,62 @@ class SaveInStorage(Task):
             db_driver=self.config.spark.db_driver
         )
         self.service_provider.refresh_cache(self.df)
+        self.df = super().run()
+        return self.df
+
+
+class SaveInRedis(Task):
+    def __init__(
+            self,
+            config,
+            steps=(),
+            table_name=RequestSet.__tablename__,
+    ):
+        super().__init__(config, steps)
+        self.table_name = table_name
+        self.ttl = self.config.engine.ttl
+
+    def run(self):
+        self.df.write.format(
+            'org.apache.spark.sql.redis'
+        ).mode(
+            'append'
+        ).option(
+            'table', self.table_name
+        ).option(
+            'ttl', self.ttl
+        ).option(
+            'key.column', 'id_group'
+        ).save()
+        self.df = super().run()
+        return self.df
+
+
+class RetrieveRsFromRedis(Task):
+    def __init__(
+            self,
+            config,
+            steps=(),
+            table_name=RequestSet.__tablename__,
+    ):
+        super().__init__(config, steps)
+        self.redis_df = None
+        self.table_name = table_name
+
+    def run(self):
+        self.redis_df = self.spark.read.format(
+            'org.apache.spark.sql.redis'
+        ).option(
+            'table', self.table_name
+        ).option(
+            'key.column', 'id_group'
+        ).load().alias('redis_df')
+
+        self.df = self.df.drop('features').alias('df')
+        self.df = self.redis_df.join(
+            self.df, on=['id_client', 'id_group']
+        ).drop('df.id_client', 'df.id_group')
+
         self.df = super().run()
         return self.df
 
@@ -920,8 +948,8 @@ class PredictionOutput(Task):
         super().__init__(config, steps)
         self.streaming_df = None
         self.output_columns = output_columns
-        self.output_topic = output_topic or self.config.kafka.prediction_reply_topic
-        self.client_mode=client_mode
+        self.output_topic = output_topic or self.config.kafka.publish_predictions
+        self.client_mode = client_mode
 
     def run(self):
         TOPIC_BC = self.spark.sparkContext.broadcast(
@@ -934,30 +962,39 @@ class PredictionOutput(Task):
             self.client_mode
         )
 
+        OUTPUT_COLS_BC = self.spark.sparkContext.broadcast(
+            self.output_columns
+        )
+
         def send_to_kafka(*args):
             from confluent_kafka import Producer
             producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
             topic = TOPIC_BC.value
-            if CLIENT_MODE_BC.value:
-                topic=f'{args[0]}.{args[1]}{topic}'
+            if not CLIENT_MODE_BC.value:
+                # topic = f'{args[0]}.{topic}'
+                topic = f'id_client.{topic}'  # todo: debugging
+
+            data = dict(zip(OUTPUT_COLS_BC.value, args))
+            print('>>>>>>>> ', data)
+            print('>>>>>>>> ', args)
             producer.produce(
                 topic,
                 json.dumps(
                     # needs python 3.8:
                     # {f'{i=}'.split('=')[0]: i for i in args}
-                    {k: i for i in args for k, v in locals().items() if v == i}
+                    data
                 ).encode('utf-8')
             )
             producer.poll(2)
-            return True
+            return topic
 
         self.df = self.df.withColumn(
             'sent',
-            F.udf(send_to_kafka, T.BooleanType())(
+            F.udf(send_to_kafka, T.StringType())(
                 *self.output_columns
             )
         )
-        self.df.show()
+        self.df.show(10, False)
         # does no work, possible jar conflict
         # self.df = self.df.select(
         #         F.col('id_client').alias('key'),
@@ -966,15 +1003,17 @@ class PredictionOutput(Task):
         #         ).alias('value')
         #     ) \
         #     .write \
-        #     .format("kafka") \
-        #     .option("kafka.bootstrap.servers", self.config.kafka.bootstrap_servers) \
-        #     .option("topic", self.config.kafka.prediction_reply_topic) \
+        #     .format('kafka') \
+        #     .option('kafka.bootstrap.servers', self.config.kafka.bootstrap_servers) \
+        #     .option('topic', self.config.kafka.prediction_reply_topic) \
         #     .save()
         return self.df
 
 
 class PredictionInput(Task):
-    pass
+    def run(self):
+        self.df.show()
+        return self.df
 
 
 class Evaluate(Task):

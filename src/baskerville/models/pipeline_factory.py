@@ -38,16 +38,19 @@ class PipelineFactory(object):
                 config.engine,
                 config.spark
             )
-        elif run_type == RunType.client:
+        elif run_type == RunType.client_preprocessing:
             from baskerville.client_pipeline import set_up_client_processing_pipeline
             return set_up_client_processing_pipeline(config)
+        elif run_type == RunType.client_prediction:
+            from baskerville.client_pipeline import set_up_client_prediction_pipeline
+            return set_up_client_prediction_pipeline(config)
         elif run_type == RunType.irawlog:
-            from baskerville.rawlog_pipeline import set_up_irawlog_pipeline
-            return set_up_irawlog_pipeline(config)
+            from baskerville.rawlog_pipeline import set_up_isac_rawlog_pipeline
+            return set_up_isac_rawlog_pipeline(config)
         elif run_type == RunType.ikafka:
-            from baskerville.kafka_pipeline import set_up_ikafka_pipeline
-            return set_up_ikafka_pipeline(config)
-        elif run_type == RunType.prediction:
+            from baskerville.kafka_pipeline import set_up_isac_kafka_pipeline
+            return set_up_isac_kafka_pipeline(config)
+        elif run_type == RunType.isac_prediction:
             from baskerville.prediction_pipeline import set_up_prediction_pipeline
             return set_up_prediction_pipeline(config)
 

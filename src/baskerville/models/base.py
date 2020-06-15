@@ -188,7 +188,6 @@ class Task(object, metaclass=abc.ABCMeta):
         return self
 
     def initialize(self):
-        print(f'{self.__class__} initialize...')
         self.service_provider.initialize_db_tools_service()
         self.service_provider.initialize_spark_service()
 

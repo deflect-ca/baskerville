@@ -47,8 +47,9 @@ class RunType(BaseStrEnum):
     irawlog = 'irawlog'
     ikafka = 'ikafka'
     itraining = 'itraining'
-    client = 'client'
-    prediction = 'prediction'
+    client_preprocessing = 'client_preprocessing'
+    client_prediction = 'client_prediction'
+    isac_prediction = 'prediction'
 
 
 class Step(BaseStrEnum):

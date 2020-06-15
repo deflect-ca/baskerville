@@ -11,7 +11,7 @@ from baskerville.models.steps import Preprocess, SaveInStorage, \
     Predict, GetDataKafka
 
 
-def set_up_ikafka_pipeline(config: BaskervilleConfig):
+def set_up_isac_kafka_pipeline(config: BaskervilleConfig):
 
     kafka_tasks = [
       GetDataKafka(

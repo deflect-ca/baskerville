@@ -696,10 +696,10 @@ class KafkaConfig(Config):
     zookeeper = 'localhost:2181'
     consume_topic = 'deflect.logs'
     consume_predictions_topic = 'predictions'
+    consume_client_predictions_topic = 'id_client_predictions'
     publish_logs = 'baskerville.logs'
     publish_stats = 'baskerville.stats'
     publish_predictions = 'baskerville.predictions'
-    prediction_reply_topic = 'baskerville.predictions.reply'
     security_protocol = ''
     ssl_truststore_location = ''
     ssl_truststore_password = ''
@@ -770,6 +770,8 @@ class SparkConfig(Config):
     spark_python_profile = False
     storage_level = None
     off_heap_size = None
+    redis_host = None
+    redis_port = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
