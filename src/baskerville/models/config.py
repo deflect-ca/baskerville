@@ -702,6 +702,10 @@ class KafkaConfig(Config):
     ssl_keystore_password = ''
     ssl_key_password = ''
     ssl_endpoint_identification_algorithm = ''
+    ssl_check_hostname = ''
+    ssl_cafile = ''
+    ssl_certfile = ''
+    ssl_keyfile = ''
 
     def __init__(self, config):
         super(KafkaConfig, self).__init__(config)

@@ -50,6 +50,7 @@ def set__self__(fn):
     def wrapped_f(self, func_to_watch_for, *args, **kwargs):
         if not has_self(func_to_watch_for):
             if not is_wrapped_method(func_to_watch_for):
+                print(f'{func_to_watch_for.__name__} is not a bound method -')
                 raise ValueError(
                     f'{func_to_watch_for.__name__} is not a bound method -'
                     f'currently unsupported.'
@@ -61,7 +62,7 @@ def set__self__(fn):
     return wrapped_f
 
 
-def update_avg_hosts_counter(metric, self):
+def update_avg_hosts_counter(metric, self, result):
     """
     Averages the host predictions and increments the metric by labels
     :param metric:
@@ -77,7 +78,7 @@ def update_avg_hosts_counter(metric, self):
             metric.labels(k).set(v1[k])
 
 
-def incr_counter_for_logs_df(metric, self):
+def incr_counter_for_logs_df(metric, self, result):
     """
     Increment by the number of requests / request sets
     :param metric:
@@ -87,7 +88,7 @@ def incr_counter_for_logs_df(metric, self):
     metric.inc(self.logs_df.count())
 
 
-def set_counter_for_logs_df(metric, self):
+def set_counter_for_logs_df(metric, self, result):
     """
     Increment by the number of requests / request sets
     :param metric:

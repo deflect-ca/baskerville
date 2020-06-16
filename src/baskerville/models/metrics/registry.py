@@ -146,7 +146,7 @@ class MetricsRegistry(Singleton):
         def wrapper_f(*args, **kwargs):
             result = fn(*args, **kwargs)
             stats_h = self.registry[metric_name]
-            stats_h.hooks_to_callbacks['after'](stats_h.metric, fn.__self__)
+            stats_h.hooks_to_callbacks['after'](stats_h.metric, fn.__self__, result)
             return result
 
         # restore __self__ because wrapping loses it.

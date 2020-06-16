@@ -142,3 +142,13 @@ spark:
   # number of ParallelGCThreads cannot go above the number of cores
   # ConcGCThreads=2 : two per core is a reasonable option that works well on most cases
   # InitiatingHeapOccupancyPercent=25: allocate 25% for heap - this has to be tested on your machine to see which percentage works well
+
+kafka:
+  bootstrap_servers: '127.0.0.1:9092'
+  banjax_report_topic: 'banjax_report_topic'
+  banjax_command_topic: 'banjax_command_topic'
+  security_protocol: 'SSL'
+  ssl_check_hostname: False
+  ssl_cafile: '~/code/equalitie/baskerville/caroot.pem'
+  ssl_certfile: '~/code/equalitie/baskerville/certificate.pem'
+  ssl_keyfile: '~/code/equalitie/baskerville/key.pem'

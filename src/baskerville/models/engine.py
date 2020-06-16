@@ -4,12 +4,14 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import threading
 
 from baskerville.models.base import BaskervilleBase
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_factory import PipelineFactory
 from baskerville.util.helpers import get_logger
 from baskerville.models.metrics.registry import metrics_registry
+from baskerville.models.status_consumer import StatusConsumer
 
 
 class BaskervilleAnalyticsEngine(BaskervilleBase):
@@ -194,11 +196,44 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
             labelnames=['target']
         )
 
+        def incr_counter_for_ip_failed_challenge(metric, self, return_value):
+            metric.labels(return_value.get('value_ip'), return_value.get('value_site')).inc()
+            return return_value
+
+        consume_ip_failed_challenge_message = metrics_registry.register_action_hook(
+            self.status_consumer.consume_ip_failed_challenge_message,
+            incr_counter_for_ip_failed_challenge,
+            metric_name='ip_failed_challenge_on_website',
+            metric_cls=MetricClassEnum.counter,
+            labelnames=['ip', 'website']
+        )
+
         # set wrapped methods
         setattr(self.pipeline, 'get_data', get_data)
         setattr(self.pipeline, 'filter_columns', filter_columns)
         setattr(self.pipeline, 'group_by', group_by)
         setattr(self.pipeline, 'save_df_to_table', save_df_to_table)
+        setattr(self.status_consumer, 'consume_ip_failed_challenge_message', consume_ip_failed_challenge_message)
+
+        for field_name in self.status_consumer.status_message_fields:
+            target_method = getattr(self.status_consumer, f"consume_{field_name}")
+
+            def setter_for_field(field_name_inner):
+                def label_with_id_and_set(metric, self, return_value):
+                    metric.labels(return_value.get('id')).set(return_value.get(field_name_inner))
+                    return return_value
+                return label_with_id_and_set
+
+            patched_method = metrics_registry.register_action_hook(
+                target_method,
+                setter_for_field(field_name),
+                metric_name=field_name.replace('.', '_'),
+                metric_cls=MetricClassEnum.gauge,
+                labelnames=['banjax_id']
+            )
+
+            setattr(self.status_consumer, f"consume_{field_name}", patched_method)
+            self.logger.info(f"Registered metric for {field_name}")
 
         if self.config.engine.metrics.exported_dashboard_file:
             from baskerville.models.metrics.dashboard_exporter import \
@@ -220,6 +255,9 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         """
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
+        self.status_consumer = StatusConsumer(self.config, self.logger)
+        t1 = threading.Thread(target=self.status_consumer.run)
+        t1.start()
         self._register_metrics()
         self.pipeline.run()
 
