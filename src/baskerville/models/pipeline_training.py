@@ -9,6 +9,7 @@ import os
 from collections import OrderedDict
 import json
 import pyspark
+from pyspark.sql.types import StructField, StringType, StructType
 
 from baskerville.models.config import EngineConfig, DatabaseConfig, SparkConfig
 from baskerville.spark import get_or_create_spark_session
@@ -86,8 +87,23 @@ class TrainingPipeline(PipelineBase):
         """
         self.spark = get_or_create_spark_session(self.spark_conf)
         self.model = instantiate_from_str(self.training_conf.model)
-        self.model.set_params(**self.engine_conf.training.model_parameters)
+        params = self.engine_conf.training.model_parameters
 
+        # convert a list of features to the dictionary supported by the model:
+        # {
+        #     'feature1': {'categorical': False},
+        #     'feature2': {'categorical': True, 'string': True}
+        # }
+        model_features = {}
+        for feature in params['features']:
+            features_class = self.engine_conf.all_features[feature]
+            model_features[feature] = {
+                'categorical': features_class.is_categorical(),
+                'string': features_class.spark_type() == StringType()
+            }
+        params['features'] = model_features
+
+        self.model.set_params(**params)
         conf = self.db_conf
         conf.maintenance = None
         self.db_tools = BaskervilleDBTools(conf)
@@ -104,18 +120,18 @@ class TrainingPipeline(PipelineBase):
         """
         self.data = self.load().persist(self.spark_conf.storage_level)
 
-        # since features are stored as json, we need to expand them to create
-        # vectors
-        json_schema = self.spark.read.json(
-            self.data.limit(1).rdd.map(lambda row: row.features)
-        ).schema
+        schema = StructType()
+        for feature in self.model.features:
+            features_class = self.engine_conf.all_features[feature]
+            schema.add(StructField(
+                name=feature,
+                dataType=features_class.spark_type(),
+                nullable=True))
+
         self.data = self.data.withColumn(
             'features',
-            F.from_json('features', json_schema)
+            F.from_json('features', schema)
         )
-
-        # get the active feature names and transform the features to list
-        self.active_features = json_schema.fieldNames()
 
         self.training_row_n = self.data.count()
         self.logger.debug(f'Loaded #{self.training_row_n} of request sets...')
@@ -129,8 +145,6 @@ class TrainingPipeline(PipelineBase):
         # )
         :return: None
         """
-        if not self.model.features:
-            self.model.features = self.active_features
         self.model.train(self.data)
         self.data.unpersist()
 
@@ -175,9 +189,10 @@ class TrainingPipeline(PipelineBase):
         :param str field: date field
         :return:
         """
-        where = f'{field}>=\'{from_date}\' '
-        if to_date:
-            where += f'AND {field}<=\'{to_date}\' '
+        # where = f'{field}>=\'{from_date}\' '
+        # if to_date:
+        #     where += f'AND {field}<=\'{to_date}\' '
+        where = 'id_runtime = 898 or id_runtime = 899'
         q = f"(select min(id) as min_id, " \
             f"max(id) as max_id, " \
             f"count(id) as rows " \
@@ -226,7 +241,7 @@ class TrainingPipeline(PipelineBase):
             table=q,
             numPartitions=int(self.spark.conf.get(
                 'spark.sql.shuffle.partitions'
-            )) or os.cpu_count()*2,
+            )) or os.cpu_count() * 2,
             column='id',
             lowerBound=bounds.min_id,
             upperBound=bounds.max_id + 1,

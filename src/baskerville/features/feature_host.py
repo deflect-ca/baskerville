@@ -9,20 +9,17 @@ from pyspark.sql.types import StringType
 from baskerville.features.updateable_features import UpdaterReplace
 
 
-class FeatureCountry(UpdaterReplace):
+class FeatureHost(UpdaterReplace):
     """
     The country of IP
     """
-    COLUMNS = ['geoip_country_name']
+    COLUMNS = ['client_request_host']
 
     def __init__(self):
-        super(FeatureCountry, self).__init__()
+        super(FeatureHost, self).__init__()
 
         self.group_by_aggs = {
-            'country_first': F.first(F.col('geoip_country_name'))
-        }
-        self.columns_renamed = {
-            'geoip.country_name': 'geoip_country_name'
+            'host_first': F.first(F.col('client_request_host'))
         }
 
     @classmethod
@@ -36,6 +33,6 @@ class FeatureCountry(UpdaterReplace):
     def compute(self, df):
         from pyspark.sql import functions as F
         df = df.withColumn(
-            self.feature_name, F.col('country_first')
+            self.feature_name, F.col('host_first')
         )
         return df

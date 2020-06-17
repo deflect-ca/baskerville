@@ -7,7 +7,6 @@
 
 from pyspark.ml.feature import StandardScaler, StandardScalerModel, StringIndexer, StringIndexerModel
 from pyspark.sql.functions import array
-
 from baskerville.models.model_interface import ModelInterface
 from baskerville.spark.helpers import map_to_array, StorageLevelFactory
 from baskerville.spark.udfs import udf_to_dense_vector, udf_add_to_dense_vector
@@ -15,13 +14,13 @@ from pyspark_iforest.ml.iforest import IForest, IForestModel
 import os
 
 from baskerville.util.file_manager import FileManager
+from pyspark.sql import functions as F
 
 
 class AnomalyModel(ModelInterface):
 
     def __init__(self, feature_map_column='features',
                  features=None,
-                 categorical_features=[],
                  prediction_column="prediction",
                  threshold=0.5,
                  score_column="score",
@@ -44,7 +43,6 @@ class AnomalyModel(ModelInterface):
         self.scaler_with_mean = scaler_with_mean
         self.scaler_with_std = scaler_with_std
         self.features = features
-        self.categorical_features = categorical_features
         self.feature_map_column = feature_map_column
         self.storage_level = storage_level
 
@@ -52,60 +50,102 @@ class AnomalyModel(ModelInterface):
         self.iforest_model = None
         self.threshold = threshold
         self.indexes = None
-        self.features_values_column = 'features_values'
-        self.features_values_scaled = 'features_values_scaled'
+        self.features_vector = 'features_values'
+        self.features_vector_scaled = 'features_values_scaled'
+        self.prefix_feature = 'cf_'
+        self.prefix_index = 'cf_index_'
 
-    def build_features_vectors(self, df):
+    def _create_regular_features_vector(self, df):
+        if not isinstance(self.features, dict):
+            raise RuntimeError('AnomalyModel expects a dictionary of features '
+                               '{feature1: {categorical: True, string=True}, '
+                               ' feature2: {categorical: False}}')
         res = map_to_array(
             df,
             map_col=self.feature_map_column,
-            array_col=self.features_values_column,
-            map_keys=self.features
+            array_col=self.features_vector,
+            map_keys=[k for k, v in self.features.items() if not v['categorical']]
         ).persist(StorageLevelFactory.get_storage_level(self.storage_level))
         df.unpersist()
 
         return res.withColumn(
-            self.features_values_column,
-            udf_to_dense_vector(self.features_values_column)
+            self.features_vector,
+            udf_to_dense_vector(self.features_vector)
         )
 
+    def categorical_features(self):
+        categorical_features = []
+        for feature, v in self.features.items():
+            if 'categorical' not in v or not v['categorical']:
+                continue
+            categorical_features.append(feature)
+        return categorical_features
+
+    def categorical_string_features(self):
+        categorical_features = []
+        for feature, v in self.features.items():
+            if 'categorical' not in v or not v['categorical']:
+                continue
+            if 'string' not in v or not v['string']:
+                continue
+            categorical_features.append(feature)
+        return categorical_features
+
+    def _create_feature_columns(self, df):
+        for feature in self.categorical_features():
+            df = df.withColumn(f'{self.prefix_feature}{feature}', F.col(f'{self.feature_map_column}.{feature}'))
+        return df
+
+    def _drop_feature_columns(self, df):
+        return df.drop(*[f'{self.prefix_feature}{feature}' for feature in self.categorical_features()])
+
     def _create_indexes(self, df):
-        self.indexes = []
-        for c in self.categorical_features:
-            indexer = StringIndexer(inputCol=c, outputCol=f'{c}_index') \
+        self.indexes = {}
+        for feature in self.categorical_string_features():
+            indexer = StringIndexer(inputCol=f'{self.prefix_feature}{feature}',
+                                    outputCol=f'{self.prefix_index}{feature}') \
                 .setHandleInvalid('keep') \
                 .setStringOrderType('alphabetAsc')
-            self.indexes.append(indexer.fit(df))
+            self.indexes[feature] = indexer.fit(df)
 
     def _add_categorical_features(self, df, feature_column):
-        index_columns = []
-        for index_model in self.indexes:
-            df = index_model.transform(df)
-            index_columns.append(index_model.getOutputCol())
+        columns = []
+        for feature in self.categorical_features():
+            if feature in self.indexes:
+                indexer = self.indexes[feature]
+                df = indexer.transform(df)
+                if indexer.getOutputCol() not in df.columns:
+                    df = df.withColumn(indexer.getOutputCol(), F.lit(None))
+                columns.append(indexer.getOutputCol())
+            else:
+                columns.append(f'{self.prefix_feature}{feature}')
 
-        df = df.withColumn('features_all', udf_add_to_dense_vector(feature_column, array(*index_columns))) \
-            .drop(*index_columns, feature_column) \
+        df = df.withColumn('features_all', udf_add_to_dense_vector(feature_column, array(*columns))) \
+            .drop(*columns, feature_column) \
             .withColumnRenamed('features_all', feature_column)
         return df
 
     def train(self, df):
-        df = self.build_features_vectors(df)
+        df = self._create_regular_features_vector(df)
 
         scaler = StandardScaler()
-        scaler.setInputCol(self.features_values_column)
-        scaler.setOutputCol(self.features_values_scaled)
+        scaler.setInputCol(self.features_vector)
+        scaler.setOutputCol(self.features_vector_scaled)
         scaler.setWithMean(self.scaler_with_mean)
         scaler.setWithStd(self.scaler_with_std)
         self.scaler_model = scaler.fit(df)
         df = self.scaler_model.transform(df).persist(
             StorageLevelFactory.get_storage_level(self.storage_level)
         )
-        if len(self.categorical_features):
-            self._create_indexes(df)
-            self._add_categorical_features(df, self.features_values_scaled)
+        df = df.drop(self.features_vector)
+
+        df = self._create_feature_columns(df)
+        self._create_indexes(df)
+        df = self._add_categorical_features(df, self.features_vector_scaled)
+        df = self._drop_feature_columns(df)
 
         iforest = IForest(
-            featuresCol=self.features_values_scaled,
+            featuresCol=self.features_vector_scaled,
             predictionCol=self.prediction_column,
             # anomalyScore=self.score_column,
             numTrees=self.num_trees,
@@ -115,20 +155,25 @@ class AnomalyModel(ModelInterface):
             contamination=self.contamination,
             bootstrap=self.bootstrap,
             approxQuantileRelativeError=self.approximate_quantile_relative_error,
-            # numCategoricalFeatures=len(self.categorical_features)
+            numCategoricalFeatures=len(self.categorical_features())
         )
         iforest.setSeed(self.seed)
         params = {'threshold': self.threshold}
         self.iforest_model = iforest.fit(df, params)
+
+        df = df.drop(self.features_vector_scaled)
         df.unpersist()
 
     def predict(self, df):
-        df = self.build_features_vectors(df)
+        df = self._create_regular_features_vector(df)
         df = self.scaler_model.transform(df)
-        if len(self.categorical_features):
-            df = self._add_categorical_features(df, self.features_values_scaled)
+        df = df.drop(self.features_vector)
+        df = self._create_feature_columns(df)
+        df = self._add_categorical_features(df, self.features_vector_scaled)
+        df = self._drop_feature_columns(df)
         df = self.iforest_model.transform(df)
         df = df.withColumnRenamed('anomalyScore', self.score_column)
+        df = df.drop(self.features_vector_scaled)
         return df
 
     def _get_params_path(self, path):
@@ -149,9 +194,8 @@ class AnomalyModel(ModelInterface):
         self.iforest_model.write().overwrite().save(self._get_iforest_path(path))
         self.scaler_model.write().overwrite().save(self._get_scaler_path(path))
 
-        if len(self.categorical_features):
-            for feature, index in zip(self.categorical_features, self.indexes):
-                index.write().overwrite().save(self._get_index_path(path, feature))
+        for feature, index in self.indexes.items():
+            index.write().overwrite().save(self._get_index_path(path, feature))
 
     def load(self, path, spark_session=None):
         self.iforest_model = IForestModel.load(self._get_iforest_path(path))
@@ -161,6 +205,6 @@ class AnomalyModel(ModelInterface):
         params = file_manager.load_from_file(self._get_params_path(path), format='json')
         self.set_params(**params)
 
-        self.indexes = []
-        for feature in self.categorical_features:
-            self.indexes.append(StringIndexerModel.load(self._get_index_path(path, feature)))
+        self.indexes = {}
+        for feature in self.categorical_string_features():
+            self.indexes[feature] = StringIndexerModel.load(self._get_index_path(path, feature))
