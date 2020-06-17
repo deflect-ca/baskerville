@@ -12,8 +12,7 @@ import random
 import time
 import traceback
 
-from baskerville.util.helpers import get_logger, lines_in_file
-from dateutil.tz import tzutc
+from baskerville.util.helpers import get_logger
 from pyspark.sql import functions as F, types as T
 
 logger = get_logger(__name__)
@@ -21,16 +20,6 @@ logger = get_logger(__name__)
 COUNTER = 0
 SESSION_COUNTER = 0
 topic_name = 'predictions'
-
-
-def load_logs(path):
-    """
-    Load json logs from a path
-    :param str path: the path to file.json
-    :return: a pandas Dataframe with the logs
-    :rtype: pandas.DataFrame
-    """
-    return pd.read_json(path, orient='records', lines=True, encoding='utf-8')
 
 
 def simulation(
@@ -65,11 +54,7 @@ def simulation(
     # a short delay for warming up the pipeline
     # time.sleep(30)
 
-    producer = None
-
     if topic_name:
-        from confluent_kafka import Producer
-        producer = Producer({'bootstrap.servers': kafka_url})
         active_columns = ['id_client', 'id_group', 'features']
 
         if not spark:

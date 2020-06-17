@@ -9,7 +9,7 @@ from typing import T, Any, Mapping
 
 from baskerville.spark import get_spark_session
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import class_from_str, TimeBucket
+from baskerville.util.helpers import TimeBucket
 from pyspark import AccumulatorParam
 from pyspark import StorageLevel
 from pyspark.sql import functions as F
@@ -235,8 +235,8 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str):
             window_df.unpersist(blocking=True)
             del window_df
         filter_ = (
-                (F.col('timestamp') >= current_window_start) &
-                (F.col('timestamp') < current_end)
+            (F.col('timestamp') >= current_window_start) &
+            (F.col('timestamp') < current_end)
         )
         window_df = df.where(filter_).persist(storage_level)
         if not window_df.rdd.isEmpty():

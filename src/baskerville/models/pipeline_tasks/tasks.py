@@ -190,8 +190,8 @@ class GetDataKafkaStreaming(Task):
             .readStream \
             .format("kafka") \
             .option(
-                    "kafka.bootstrap.servers",
-                    self.config.kafka.bootstrap_servers
+                "kafka.bootstrap.servers",
+                self.config.kafka.bootstrap_servers
             ).option(
                 "subscribe", self.config.kafka.consume_predictions_topic
             ).option(
@@ -428,7 +428,7 @@ class GetDataPostgres(Task):
                 upperBound=bounds.max_id + 1,
                 properties=self.conn_properties
             )
-        raise NotImplementedError(f'No implementation for "extra_filters"')
+        raise NotImplementedError('No implementation for "extra_filters"')
 
     def run(self):
         self.df = self.get_data()
@@ -979,7 +979,7 @@ class PredictionOutput(Task):
             config: BaskervilleConfig,
             steps: list = (),
             output_columns=(
-                    'id_client', 'id_group', 'features', 'prediction', 'score'
+                'id_client', 'id_group', 'features', 'prediction', 'score'
             ),
             output_topic='',
             client_mode=False
@@ -1018,19 +1018,17 @@ class PredictionOutput(Task):
             if not CLIENT_MODE_BC.value:
                 topic = f'{args[0]}.{topic}'  # id_client.topic
 
+            # needs python 3.8:
+            # {f'{i=}'.split('=')[0]: i for i in args}
             data = dict(zip(OUTPUT_COLS_BC.value, args))
             try:
                 producer.produce(
                     topic,
-                    json.dumps(
-                        # needs python 3.8:
-                        # {f'{i=}'.split('=')[0]: i for i in args}
-                        data
-                    ).encode('utf-8')
+                    json.dumps(data).encode('utf-8')
                 )
                 producer.poll(2)
                 return topic
-            except Exception as e:
+            except Exception:
                 traceback.print_exc()
                 return 'ERROR'
 
