@@ -284,9 +284,10 @@ class RequestSetSparkCache(Singleton):
         #     # time.sleep(1)
 
         to_drop = [
-            'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime', 'features',
-            'start', 'stop', 'subset_count', 'num_requests', 'total_seconds',
-            'time_bucket', 'model_version', 'to_update', 'label', 'id_attribute'
+            'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
+            'features', 'start', 'stop', 'subset_count', 'num_requests',
+            'total_seconds', 'time_bucket', 'model_version', 'to_update',
+            'label', 'id_attribute'
         ]
         now = datetime.datetime.utcnow()
         source_df = source_df.persist(self.storage_level).alias('sd')

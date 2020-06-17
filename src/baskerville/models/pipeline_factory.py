@@ -6,7 +6,8 @@
 
 
 from baskerville.models.pipeline_training import TrainingPipeline
-from baskerville.models.pipelines import RawLogPipeline, ElasticsearchPipeline, KafkaPipeline
+from baskerville.models.pipelines import RawLogPipeline, \
+    ElasticsearchPipeline, KafkaPipeline
 from baskerville.util.enums import RunType
 
 
@@ -39,19 +40,24 @@ class PipelineFactory(object):
                 config.spark
             )
         elif run_type == RunType.client_preprocessing:
-            from baskerville.models.pipeline_tasks.client_pipeline import set_up_client_processing_pipeline
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_client_processing_pipeline
             return set_up_client_processing_pipeline(config)
         elif run_type == RunType.client_prediction:
-            from baskerville.models.pipeline_tasks.client_pipeline import set_up_client_prediction_pipeline
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_client_prediction_pipeline
             return set_up_client_prediction_pipeline(config)
         elif run_type == RunType.irawlog:
-            from baskerville.models.pipeline_tasks.rawlog_pipeline import set_up_isac_rawlog_pipeline
+            from baskerville.models.pipeline_tasks.rawlog_pipeline \
+                import set_up_isac_rawlog_pipeline
             return set_up_isac_rawlog_pipeline(config)
         elif run_type == RunType.ikafka:
-            from baskerville.models.pipeline_tasks.tasks_base import set_up_isac_kafka_pipeline
+            from baskerville.models.pipeline_tasks.tasks_base \
+                import set_up_isac_kafka_pipeline
             return set_up_isac_kafka_pipeline(config)
         elif run_type == RunType.isac_prediction:
-            from baskerville.models.pipeline_tasks.prediction_pipeline import set_up_prediction_pipeline
+            from baskerville.models.pipeline_tasks.prediction_pipeline \
+                import set_up_prediction_pipeline
             return set_up_prediction_pipeline(config)
 
         raise RuntimeError(

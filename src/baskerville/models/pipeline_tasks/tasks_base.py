@@ -44,7 +44,7 @@ class Task(object, metaclass=abc.ABCMeta):
     def __str__(self):
         name = f'{self.__class__.__name__} '
         if self.steps:
-               name += f'{",".join(step.__class__.__name__ for step in self.steps)}'
+            name += ",".join(step.__class__.__name__ for step in self.steps)
         return name
 
     def __getattr__(self, item):
@@ -225,8 +225,8 @@ class ServiceProvider(Borg):
                 self.request_set_cache = self.request_set_cache.load(
                     update_date=(
                             self.start_time - datetime.timedelta(
-                        seconds=self.config.engine.cache_expire_time
-                    )
+                                seconds=self.config.engine.cache_expire_time
+                            )
                     ).replace(tzinfo=tzutc()),
                     extra_filters=(
                             F.col('time_bucket') == self.time_bucket.sec
@@ -255,14 +255,14 @@ class ServiceProvider(Borg):
                     self.model_index.classifier, 'utf8'), self.spark)
                 if not self.feature_manager:
                     self.initialize_feature_manager_service()
-                self._can_predict = self.feature_manager.feature_config_is_valid() \
-                                    and self.model.iforest_model
+                self._can_predict = self.feature_manager.\
+                    feature_config_is_valid() and self.model.iforest_model
             else:
                 self.model = None
         self.model_index.can_predict = self.feature_manager. \
             feature_config_is_valid()
-        self._can_predict = self.feature_manager.feature_config_is_valid() \
-                            and self.model
+        self._can_predict = self.feature_manager\
+                                .feature_config_is_valid() and self.model
 
     def initialize_feature_manager_service(self):
         if not self.feature_manager:

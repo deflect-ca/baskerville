@@ -31,7 +31,9 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         )
         self.config = BaskervilleConfig(self.config).validate()
 
-        self.register_metrics = (self.config.engine.metrics and register_metrics)
+        self.register_metrics = (
+                self.config.engine.metrics and register_metrics
+        )
 
         self.logger = get_logger(
             self.__class__.__name__,
@@ -86,7 +88,9 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
 
         # time cache
         if self.pipeline.request_set_cache and \
-                self.config.engine.metrics.performance.get('request_set_cache'):
+                self.config.engine.metrics.performance.get(
+                    'request_set_cache'
+                ):
             for f_name in self.config.engine.metrics.performance[
                 'request_set_cache'
             ]:

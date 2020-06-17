@@ -85,7 +85,9 @@ class ElasticsearchPipeline(SparkPipelineBase):
                            == self.manual_conf.hosts[0])
             if len(self.manual_conf.hosts) > 1:
                 for h in self.manual_conf.hosts[1:]:
-                    host_filter = host_filter | (F.col('client_request_host') == h)
+                    host_filter = host_filter | (
+                            F.col('client_request_host') == h
+                    )
             filter_condition = filter_condition & host_filter
 
         self.logs_df = self.es_storage.get(
@@ -110,7 +112,8 @@ class ElasticsearchPipeline(SparkPipelineBase):
         )
 
         if self.save_logs_dir:
-            log_name = f'/{self.runtime.start.strftime("%Y-%m-%d-%H%M%S")}_' + \
+            log_name = f'/{self.runtime.start.strftime("%Y-%m-%d-%H%M%S")}' \
+                       f'_' + \
                        f'{self.runtime.stop.strftime("%Y-%m-%d-%H%M%S")}'
             if self.runtime.target:
                 log_name += f'_{"_".join(self.runtime.target)}' \
@@ -217,7 +220,8 @@ class RawLogPipeline(SparkPipelineBase):
 
         self.logs_df = self.spark.read.json(
             self.current_log_path
-        ).persist(self.spark_conf.storage_level)  # .repartition(*self.group_by_cols)
+        ).persist(self.spark_conf.storage_level)
+        # .repartition(*self.group_by_cols)
 
         self.logger.info('Got dataframe of #{} records'.format(
             self.logs_df.count())
@@ -262,7 +266,8 @@ class KafkaPipeline(SparkPipelineBase):
 
         self.logs_df = self.logs_df.map(lambda l: json.loads(l[1])).toDF(
             self.data_parser.schema
-        ).repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
+        ).repartition(*self.group_by_cols).persist(
+            self.spark_conf.storage_level)
 
         self.load_test()
 
@@ -274,14 +279,17 @@ class KafkaPipeline(SparkPipelineBase):
             'metadata.broker.list': self.kafka_conf.bootstrap_servers,
             'auto.offset.reset': 'largest',
             # 'security.protocol': self.kafka_conf.security_protocol,
-            # 'ssl.truststore.location': self.kafka_conf.ssl_truststore_location,
-            # 'ssl.truststore.password': self.kafka_conf.ssl_truststore_password,
+            # 'ssl.truststore.location': self.kafka_conf
+            # .ssl_truststore_location,
+            # 'ssl.truststore.password': self.kafka_conf
+            # .ssl_truststore_password,
             # 'ssl.keystore.type': 'JKS',
             # 'ssl.truststore.type': 'JKS',
             # 'ssl.keystore.location': self.kafka_conf.ssl_keystore_location,
             # 'ssl.keystore.password': self.kafka_conf.ssl_keystore_password,
             # 'ssl.key.password': self.kafka_conf.ssl_key_password,
-            # 'ssl.endpoint.identification.algorithm': self.kafka_conf.ssl_endpoint_identification_algorithm,
+            # 'ssl.endpoint.identification.algorithm':
+            # self.kafka_conf.ssl_endpoint_identification_algorithm,
 
             'group.id': self.kafka_conf.consume_group,
             # 'auto.create.topics.enable': 'true'
@@ -291,7 +299,8 @@ class KafkaPipeline(SparkPipelineBase):
             self.ssc,
             [self.kafka_conf.consume_topic],
             kafkaParams=kafkaParams,
-            # fromOffsets={TopicAndPartition(self.kafka_conf.consume_topic, 0): 0}
+            # fromOffsets={TopicAndPartition(
+            # self.kafka_conf.consume_topic, 0): 0}
         )
 
         # from pympler import muppy, summary, tracker
@@ -304,7 +313,8 @@ class KafkaPipeline(SparkPipelineBase):
             if not rdd.isEmpty():
                 # print('*-' * 25, 'BEFORE', '*-' * 25)
                 # all_objects = muppy.get_objects()
-                # self.logger.debug(f'**** Length of all objects BEFORE: {len(all_objects)}')
+                # self.logger.debug(f'**** Length of all objects BEFORE:
+                # {len(all_objects)}')
                 # tr.print_diff()
                 try:
                     # set dataframe to process later on
@@ -324,11 +334,13 @@ class KafkaPipeline(SparkPipelineBase):
                     # print('*'*50, 'AFTER', '*'*50)
                     # all_objects = muppy.get_objects()
                     # self.logger.debug(
-                    #     f'**** Length of all objects AFTER: {len(all_objects)}')
+                    #     f'**** Length of all objects AFTER:
+                    #     {len(all_objects)}')
                     # tr.print_diff()
                     self.logger.debug(
-                        f'self.spark.sparkContext._jsc.getPersistentRDDs().items() '
-                        f'{ len(self.spark.sparkContext._jsc.getPersistentRDDs().items())}')
+                        f'self.spark.sparkContext.'
+                        f'_jsc.getPersistentRDDs().items() '
+                        f'{ len(self.spark.sparkContext._jsc.getPersistentRDDs().items())}')  # noqa
                     rdd.unpersist()
                     del rdd
                 except Exception as e:
@@ -403,11 +415,11 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
         # .option("kafka.partition.assignment.strategy", "range") \
         # .option("security.protocol", "SSL") \
         # .option("ssl.truststore.location",
-        # "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/
+        # "/deflect-analytics-ecosystem/
         # containers/kafka/local_cert/client.truststore.jks") \
         # .option("ssl.truststore.password", "kafkadocker") \
         # .option("ssl.keystore.location",
-        # "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/kafka/
+        # "/deflect-analytics-ecosystem/containers/kafka/
         # local_cert/kafka.server.keystore.jks") \
         # .option("ssl.keystore.password", "kafkadocker") \
         # .option("ssl.key.password", "kafkadocker") \
@@ -424,11 +436,11 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
         #     .option("auto.offset.reset", "earliest") \
         #     .option("security.protocol", "SSL") \
         #     .option("ssl.truststore.location",
-        #             "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/containers/
+        #             "/deflect-analytics-ecosystem/containers/
         #             kafka/local_cert/client.truststore.jks") \
         #     .option("ssl.truststore.password", "kafkadocker") \
         #     .option("ssl.keystore.location",
-        #             "/Users/mariakaranasou/Projects/EQualitie/deflect-analytics-ecosystem/
+        #             "/deflect-analytics-ecosystem/
         #             containers/kafka/local_cert/kafka.server.keystore.jks") \
         #     .option("ssl.keystore.password", "kafkadocker") \
         #     .option("ssl.key.password", "kafkadocker") \
@@ -436,7 +448,8 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
         #
         # import pyspark.sql.functions as F
         # df1 = kafkaStream.selectExpr("CAST(value AS STRING)",
-        #                     "CAST(timestamp AS TIMESTAMP)").select(F.from_json("value", self.data_parser.schema))
+        #                     "CAST(timestamp AS TIMESTAMP)"
+        #       ).select(F.from_json("value", self.data_parser.schema))
         #
         # q = df1.writeStream.format("console") \
         #         .option("truncate","false")\
@@ -444,8 +457,8 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
         #         .awaitTermination()
         # # .option("kafka.partition.assignment.strategy", "range") \
         #
-        # # NOTE: make sure kafka 8 jar is in the spark.jars, won't work with 10
-        # # https://elephant.tech/spark-2-0-streaming-from-ssl-kafka-with-hdp-2-4/
+        # NOTE: make sure kafka 8 jar is in the spark.jars, won't work with 10
+        # https://elephant.tech/spark-2-0-streaming-from-ssl-kafka-with-hdp-2-4/  # noqa
 
         # topicPartion = TopicAndPartition(self.kafka_conf.consume_topic, 0)
 
@@ -456,12 +469,15 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
                 # 'bootstrap.servers': self.kafka_conf.zookeeper,
                 'metadata.broker.list': self.kafka_conf.url,
                 # "kafka.sasl.kerberos.service.name": "kafka",
-                # "kafka.sasl.kerberos.service.name": "/usr/lib/jvm/jdk1.8.0_162/jre/lib/security/cacerts",
+                # "kafka.sasl.kerberos.service.name":
+                # "/usr/lib/jvm/jdk1.8.0_162/jre/lib/security/cacerts",
                 'group.id': self.kafka_conf.consume_group,
                 # 'auto.offset.reset': 'largest',
                 # 'security.protocol': self.kafka_conf.security_protocol,
-                # "kafka.ssl.truststore.location": self.kafka_conf.ssl_truststore_location,
-                # "kafka.ssl.truststore.password": self.kafka_conf.ssl_truststore_password
+                # "kafka.ssl.truststore.location":
+                # self.kafka_conf.ssl_truststore_location,
+                # "kafka.ssl.truststore.password":
+                # self.kafka_conf.ssl_truststore_password
             }
             # fromOffset={topicPartion: int(0)}
         )
@@ -476,7 +492,8 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
         # time.sleep(10)  # sleep 10 seconds
         # query.stop()
         # windowed_stream = kafkaStream.withWatermark("@timestamp",
-        # f"{self.engine_conf.time_bucket} seconds").selectExpr("CAST(value AS STRING)",
+        # f"{self.engine_conf.time_bucket} seconds").selectExpr(
+        # "CAST(value AS STRING)",
         # "CAST(timestamp AS TIMESTAMP)").toDF('log', 'timestamp')
         #
         # q = kafkaStream.writeStream \
