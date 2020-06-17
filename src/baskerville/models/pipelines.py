@@ -86,7 +86,7 @@ class ElasticsearchPipeline(SparkPipelineBase):
             if len(self.manual_conf.hosts) > 1:
                 for h in self.manual_conf.hosts[1:]:
                     host_filter = host_filter | (
-                            F.col('client_request_host') == h
+                        F.col('client_request_host') == h
                     )
             filter_condition = filter_condition & host_filter
 

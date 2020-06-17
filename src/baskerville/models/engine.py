@@ -32,7 +32,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.config = BaskervilleConfig(self.config).validate()
 
         self.register_metrics = (
-                self.config.engine.metrics and register_metrics
+            self.config.engine.metrics and register_metrics
         )
 
         self.logger = get_logger(

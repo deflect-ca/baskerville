@@ -223,13 +223,11 @@ class ServiceProvider(Borg):
             )
             if self.config.engine.cache_load_past:
                 self.request_set_cache = self.request_set_cache.load(
-                    update_date=(
-                            self.start_time - datetime.timedelta(
-                                seconds=self.config.engine.cache_expire_time
-                            )
+                    update_date=(self.start_time - datetime.timedelta(
+                        seconds=self.config.engine.cache_expire_time)
                     ).replace(tzinfo=tzutc()),
                     extra_filters=(
-                            F.col('time_bucket') == self.time_bucket.sec
+                        F.col('time_bucket') == self.time_bucket.sec
                     )  # todo: & (F.col("id_runtime") == self.runtime.id)?
                 )
             else:
