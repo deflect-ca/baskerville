@@ -8,7 +8,6 @@
 import abc
 
 from baskerville.db import get_jdbc_url
-from baskerville.models.feature_manager import FeatureManager
 from baskerville.util.helpers import get_logger
 
 
