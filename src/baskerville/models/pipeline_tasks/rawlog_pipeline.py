@@ -5,9 +5,9 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from baskerville.models.base import Task
+from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.steps import Preprocess, SaveInStorage, \
+from baskerville.models.pipeline_tasks.tasks import Preprocess, SaveRsInPostgres, \
     Predict, GetDataLog
 
 
@@ -19,7 +19,7 @@ def set_up_isac_rawlog_pipeline(config: BaskervilleConfig):
            steps=[
                   Preprocess(config),
                   Predict(config),
-                  SaveInStorage(config),
+                  SaveRsInPostgres(config),
       ]),
     ]
 

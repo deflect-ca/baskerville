@@ -5,9 +5,9 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from baskerville.models.base import Task
+from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.steps import GetPredictionsKafka, \
+from baskerville.models.pipeline_tasks.tasks import GetPredictionsKafka, \
     PredictionOutput, Predict
 
 

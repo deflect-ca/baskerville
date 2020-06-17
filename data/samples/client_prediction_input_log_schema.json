@@ -1,0 +1,22 @@
+{
+   "name": "PredictionInputVectors",
+   "properties": {
+      "id_client": {
+         "type": "string"
+      },
+      "id_group": {
+         "type": "string"
+      },
+      "features": {
+         "type": "object"
+      },
+      "prediction": {
+         "type": "number"
+      },
+      "score": {
+         "type": "number"
+      }
+   },
+   "required": ["id_client", "id_group", "features", "prediction", "score"],
+   "additionalProperties": false
+}

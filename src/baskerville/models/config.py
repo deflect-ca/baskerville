@@ -921,7 +921,7 @@ class DataParsingConfig(Config):
     schema = None
     schema_obj = None
     parser = 'JSONLogSparkParser'
-    group_by_cols = ['client_request_host', 'client_ip']
+    group_by_cols = ('client_request_host', 'client_ip')
     timestamp_column = '@timestamp'
 
     def __init__(self, config_dict):
