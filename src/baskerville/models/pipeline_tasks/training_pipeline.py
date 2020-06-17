@@ -5,10 +5,10 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from baskerville.models.base import Task
+from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.steps import SaveInStorage, GetDataPostgres, Train, \
-    Evaluate, ModelUpdate
+from baskerville.models.pipeline_tasks.tasks import GetDataPostgres, Train, \
+    Evaluate, ModelUpdate, SaveDfInPostgres
 
 
 def set_up_itraining_pipeline(config: BaskervilleConfig):
@@ -18,7 +18,7 @@ def set_up_itraining_pipeline(config: BaskervilleConfig):
            steps=[
                   Train(config),
                   Evaluate(config),
-                  SaveInStorage(config),
+                  SaveDfInPostgres(config),
                   ModelUpdate(config),
       ]),
 

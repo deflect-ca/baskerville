@@ -16,15 +16,25 @@ from pyspark.sql import functions as F, types as T
 from pyspark.streaming import StreamingContext
 
 from baskerville.db.models import RequestSet
-from baskerville.models.base import Task, MLTask
+from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window
 from baskerville.spark.schemas import client_prediction_schema, \
     client_prediction_input_schema
 
+# broadcasts
+TOPIC_BC = None
+KAFKA_URL_BC = None
+CLIENT_MODE_BC = None
+OUTPUT_COLS_BC = None
+
 
 class GetDataKafka(Task):
+    """
+    Retrieves data from Kafka in batches of time_bucket seconds.
+    For every batch, the configured steps are executed.
+    """
     def __init__(
             self,
             config: BaskervilleConfig,
@@ -33,6 +43,7 @@ class GetDataKafka(Task):
     ):
         super().__init__(config, steps)
         self.ssc = None
+        self.kafka_stream = None
         self.group_by_cols = group_by_cols
         self.data_parser = self.config.engine.data_config.parser
         self.kafka_params = {
@@ -49,7 +60,7 @@ class GetDataKafka(Task):
             self.spark.sparkContext, self.config.engine.time_bucket
         )
         from pyspark.streaming.kafka import KafkaUtils
-        self.kafkaStream = KafkaUtils.createDirectStream(
+        self.kafka_stream = KafkaUtils.createDirectStream(
             self.ssc,
             [self.consume_topic],
             kafkaParams=self.kafka_params,
@@ -103,7 +114,7 @@ class GetDataKafka(Task):
             else:
                 self.logger.info('Empty RDD...')
 
-        self.kafkaStream.foreachRDD(process_subsets)
+        self.kafka_stream.foreachRDD(process_subsets)
 
         self.ssc.start()
         self.ssc.awaitTermination()
@@ -112,7 +123,7 @@ class GetDataKafka(Task):
 
 class GetPredictionsKafka(GetDataKafka):
     """
-    Listens to the prediction input topic
+    Listens to the prediction input topic on the ISAC side
     """
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
@@ -120,7 +131,7 @@ class GetPredictionsKafka(GetDataKafka):
 
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
-            client_prediction_schema
+            client_prediction_schema  # todo: dataparser.schema
         ).persist(
             self.config.spark.storage_level
         )
@@ -135,7 +146,7 @@ class GetPredictionsKafka(GetDataKafka):
 
 class GetPredictionsClientKafka(GetDataKafka):
     """
-    Listens to the prediction input topic
+    Listens to the prediction input topic on the client side
     """
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
@@ -143,7 +154,7 @@ class GetPredictionsClientKafka(GetDataKafka):
 
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
-            client_prediction_input_schema
+            client_prediction_input_schema  # todo: dataparser.schema
         ).persist(
             self.config.spark.storage_level
         )
@@ -214,6 +225,9 @@ class GetDataKafkaStreaming(Task):
 
 
 class GetDataLog(Task):
+    """
+    Reads json files.
+    """
     def __init__(self, config, steps=(),
                  group_by_cols=('client_request_host', 'client_ip'), ):
         super().__init__(config, steps)
@@ -288,6 +302,9 @@ class GetDataLog(Task):
 
 
 class GetDataPostgres(Task):
+    """
+    Reads data from RequestSet's table in Postgres - used for training
+    """
 
     def __init__(
             self,
@@ -410,7 +427,8 @@ class GetDataPostgres(Task):
 
     def run(self):
         self.df = self.get_data()
-        return super().run()
+        self.df = super().run()
+        return self.df
 
 
 class Preprocess(MLTask):
@@ -418,11 +436,12 @@ class Preprocess(MLTask):
             self,
             config,
             steps=(),
-            group_by_cols=('client_request_host', 'client_ip'),
     ):
         super().__init__(config, steps)
         self.data_parser = self.config.engine.data_config.parser
-        self.group_by_cols = list(set(group_by_cols))
+        self.group_by_cols = list(set(
+            self.config.engine.data_config.group_by_cols
+        ))
         self.group_by_aggs = None
         self.post_group_by_aggs = None
         self.columns_to_filter_by = None
@@ -784,7 +803,12 @@ class Preprocess(MLTask):
         ).withColumn(
             'id_group', F.monotonically_increasing_id()
         ).withColumn(
-            'id_group', F.concat_ws('_', F.col('id_client'), F.col('id_group'))
+            'id_group',
+            F.concat_ws(
+                '_',
+                F.col('id_client'),
+                F.col('id_group'),
+                F.col('start').cast('long').cast('string'))
         )
         # todo: monotonically_increasing_id guarantees uniqueness within
         #  the current batch, this will cause conflicts with caching - use
@@ -805,6 +829,9 @@ class Preprocess(MLTask):
 
 
 class Predict(MLTask):
+    """
+    Adds prediction and score columns, given a features column
+    """
     def __init__(self, config: BaskervilleConfig, steps=()):
         super().__init__(config, steps)
         self._can_predict = False
@@ -821,11 +848,7 @@ class Predict(MLTask):
         return self.df
 
 
-class Train(Task):
-    pass
-
-
-class SaveInStorage(Task):
+class SaveDfInPostgres(Task):
     def __init__(
             self,
             config,
@@ -840,6 +863,26 @@ class SaveInStorage(Task):
         self.mode = mode
 
     def run(self):
+        self.config.database.conn_str = self.db_url
+        save_df_to_table(
+            self.df,
+            self.table_name,
+            self.config.database.__dict__,
+            json_cols=self.json_cols,
+            storage_level=self.config.spark.storage_level,
+            mode=self.mode,
+            db_driver=self.config.spark.db_driver
+        )
+        self.df = super().run()
+        return self.df
+
+
+class SaveRsInPostgres(SaveDfInPostgres):
+    """
+    Saves dataframe in Postgres (current backend)
+    """
+
+    def run(self):
         request_set_columns = RequestSet.columns[:]
         not_common = {
             'prediction', 'model_version', 'label', 'id_attribute',
@@ -852,7 +895,7 @@ class SaveInStorage(Task):
         if self.config.engine.client_mode:
             request_set_columns.remove('score')
 
-        if len(self.df.columns) != len(request_set_columns):
+        if len(self.df.columns) < len(request_set_columns):
             # log and let it blow up; we need to know that we cannot save
             self.logger.error(
                 'The input df columns are different than '
@@ -863,22 +906,12 @@ class SaveInStorage(Task):
         self.df = self.df.select(request_set_columns)
         # save request_sets
         self.logger.debug('Saving request_sets')
-        self.config.database.conn_str = self.db_url
-        save_df_to_table(
-            self.df,
-            self.table_name,
-            self.config.database.__dict__,
-            json_cols=self.json_cols,
-            storage_level=self.config.spark.storage_level,
-            mode=self.mode,
-            db_driver=self.config.spark.db_driver
-        )
-        self.service_provider.refresh_cache(self.df)
         self.df = super().run()
+        self.service_provider.refresh_cache(self.df)
         return self.df
 
 
-class SaveInRedis(Task):
+class SaveRsInRedis(Task):
     def __init__(
             self,
             config,
@@ -948,10 +981,13 @@ class PredictionOutput(Task):
         super().__init__(config, steps)
         self.streaming_df = None
         self.output_columns = output_columns
-        self.output_topic = output_topic or self.config.kafka.publish_predictions
+        self.output_topic = output_topic or \
+                            self.config.kafka.publish_predictions
         self.client_mode = client_mode
 
-    def run(self):
+    def initialize(self):
+        global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
+        super(PredictionOutput, self).initialize()
         TOPIC_BC = self.spark.sparkContext.broadcast(
             self.output_topic
         )
@@ -966,27 +1002,31 @@ class PredictionOutput(Task):
             self.output_columns
         )
 
+    def run(self):
+        global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
+
         def send_to_kafka(*args):
             from confluent_kafka import Producer
             producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
             topic = TOPIC_BC.value
             if not CLIENT_MODE_BC.value:
-                # topic = f'{args[0]}.{topic}'
-                topic = f'id_client.{topic}'  # todo: debugging
+                topic = f'{args[0]}.{topic}'  # id_client.topic
 
             data = dict(zip(OUTPUT_COLS_BC.value, args))
-            print('>>>>>>>> ', data)
-            print('>>>>>>>> ', args)
-            producer.produce(
-                topic,
-                json.dumps(
-                    # needs python 3.8:
-                    # {f'{i=}'.split('=')[0]: i for i in args}
-                    data
-                ).encode('utf-8')
-            )
-            producer.poll(2)
-            return topic
+            try:
+                producer.produce(
+                    topic,
+                    json.dumps(
+                        # needs python 3.8:
+                        # {f'{i=}'.split('=')[0]: i for i in args}
+                        data
+                    ).encode('utf-8')
+                )
+                producer.poll(2)
+                return topic
+            except Exception as e:
+                traceback.print_exc()
+                return 'ERROR'
 
         self.df = self.df.withColumn(
             'sent',
@@ -1010,10 +1050,8 @@ class PredictionOutput(Task):
         return self.df
 
 
-class PredictionInput(Task):
-    def run(self):
-        self.df.show()
-        return self.df
+class Train(Task):
+    pass
 
 
 class Evaluate(Task):

@@ -214,10 +214,12 @@ class JSONLogSparkParser(JSONLogParser, SerializableMixin):
 
     def check_for_missing_columns(self, df, required_only=True):
         """
-
-        :param df:
+        Checks if any columns are missing from the dataframe.
+        Returns a list of the missing columns
+        :param pyspark.sql.DataFrame df:
         :param boolean required_only: look only for missing required columns
-        :return:
+        :return: the list of missing column names
+        :rtype: list[str]
         """
         cols = self.__json_schema['properties'].keys()
         if required_only:

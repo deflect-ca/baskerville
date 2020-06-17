@@ -5,10 +5,10 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from baskerville.models.base import Task
+from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.steps import GetDataKafka, Preprocess, \
-    SaveInStorage, SaveInRedis, PredictionInput, PredictionOutput, \
+from baskerville.models.pipeline_tasks.tasks import GetDataKafka, Preprocess, \
+    SaveRsInPostgres, SaveRsInRedis, PredictionOutput, \
     GetPredictionsClientKafka, RetrieveRsFromRedis
 
 
@@ -24,7 +24,7 @@ def set_up_client_processing_pipeline(config: BaskervilleConfig):
                       output_columns=('id_client', 'id_group', 'features'),
                       client_mode=True
                   ),
-                  SaveInRedis(config),
+                  SaveRsInRedis(config),
       ]),
     ]
 
@@ -40,7 +40,7 @@ def set_up_client_prediction_pipeline(config: BaskervilleConfig):
            config,
            steps=[
                   RetrieveRsFromRedis(config),
-                  SaveInStorage(config),
+                  SaveRsInPostgres(config),
       ]),
     ]
 
