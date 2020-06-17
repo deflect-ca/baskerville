@@ -24,35 +24,19 @@ topic_name = 'predictions'
 
 def simulation(
         path,
-        time_window,
         kafka_url='0.0.0.0:9092',
-        zookeeper_url='localhost:2181',
         topic_name='deflect.logs',
-        sleep=True,
-        verbose=False,
         spark=None,
-        use_spark=False
 ):
     """
-    Loads raw logs, groups them by the defined time window and publishes
-    the grouped raw logs in Kafka if a producer is given, else, it prints out
-    the groups. After publishing the logs line by line, it will sleep for the
-    x remaining seconds of the time window if any.
-    :param str path: the path to raw logs as they are stored in ELS
-    :param timedelta time_window: the time window for the interval
+    Loads feature vectors with id_client and id_group and publishes them one by
+    one with some random delay to the defined topic. This is used
+    :param str path: the path to feature vector samples
     :param str kafka_url: the url to kafka, defaults to '0.0.0.0:9092'
-    :param str zookeeper_url: the url to zookeeper, defaults to
-    'localhost:2181'
-    :param bytes topic_name: the topic name to publish to
-    :param bool sleep: if True, the program will sleep after publishing each
-    group of time windowed logs, for the remaining seconds until a time window
-    is complete.
-    :param bool verbose: verbose flag
+    :param str topic_name: the topic name to publish to
+    :param pyspark.SparkSession spark: the spark session
     :return: None
     """
-
-    # a short delay for warming up the pipeline
-    # time.sleep(30)
 
     if topic_name:
         active_columns = ['id_client', 'id_group', 'features']
@@ -104,22 +88,24 @@ def simulation(
 
 if __name__ == '__main__':
     curr_working_dir = os.path.abspath('')
-    path_to_raw_logs = f'{curr_working_dir}' \
-                       f'/../../../data/samples/sample_vectors/*'
-    time_window = datetime.timedelta(seconds=120)
+    path_to_raw_logs = os.path.join(
+        curr_working_dir,
+        '..', '..', '..',
+        'data', 'samples', 'sample_vectors',
+        '*'
+    )
     kafka_url = '0.0.0.0:9092'
     simulation(
         path_to_raw_logs,
-        time_window,
         kafka_url,
         topic_name=topic_name,
-        verbose=True,
-        sleep=True,
-        use_spark=True
     )
 
-# dd = self.data.withColumn('id_client',
-#                           F.monotonically_increasing_id()).withColumn(
-#     'id_group', F.monotonically_increasing_id())
-# dd.select('id_client', 'id_group', 'features').write.format('json').save(
-#     '/Users/mariakaranasou/Projects/EQualitie/opensource/baskerville/data/samples/sample_vectors')
+# data = self.data.withColumn(
+#   'id_client',
+#   F.monotonically_increasing_id()
+# ).withColumn(
+#     'id_group', F.monotonically_increasing_id()
+# )
+# data.select('id_client', 'id_group', 'features').write.format('json').save(
+#     '/path/to/baskerville/data/samples/sample_vectors')
