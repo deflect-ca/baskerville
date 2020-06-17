@@ -13,19 +13,18 @@ from baskerville.models.pipeline_tasks.tasks import GetDataKafka, Preprocess, \
 
 
 def set_up_client_processing_pipeline(config: BaskervilleConfig):
-
     client_tasks = [
-      GetDataKafka(
-           config,
-           steps=[
-                  Preprocess(config),
-                  PredictionOutput(
-                      config,
-                      output_columns=('id_client', 'id_group', 'features'),
-                      client_mode=True
-                  ),
-                  SaveRsInRedis(config),
-      ]),
+        GetDataKafka(
+            config,
+            steps=[
+                Preprocess(config),
+                PredictionOutput(
+                    config,
+                    output_columns=('id_client', 'id_group', 'features'),
+                    client_mode=True
+                ),
+                SaveRsInRedis(config),
+            ]),
     ]
 
     client_pipeline = Task(config, client_tasks)
@@ -34,14 +33,13 @@ def set_up_client_processing_pipeline(config: BaskervilleConfig):
 
 
 def set_up_client_prediction_pipeline(config: BaskervilleConfig):
-
     client_tasks = [
-      GetPredictionsClientKafka(
-           config,
-           steps=[
-                  RetrieveRsFromRedis(config),
-                  SaveRsInPostgres(config),
-      ]),
+        GetPredictionsClientKafka(
+            config,
+            steps=[
+                RetrieveRsFromRedis(config),
+                SaveRsInPostgres(config),
+            ]),
     ]
 
     client_pipeline = Task(config, client_tasks)

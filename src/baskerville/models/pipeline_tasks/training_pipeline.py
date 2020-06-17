@@ -13,14 +13,14 @@ from baskerville.models.pipeline_tasks.tasks import GetDataPostgres, Train, \
 
 def set_up_itraining_pipeline(config: BaskervilleConfig):
     training_tasks = [
-      GetDataPostgres(  # or any other source
-           config,
-           steps=[
-                  Train(config),
-                  Evaluate(config),
-                  SaveDfInPostgres(config),
-                  ModelUpdate(config),
-      ]),
+        GetDataPostgres(  # or any other source
+            config,
+            steps=[
+                Train(config),
+                Evaluate(config),
+                SaveDfInPostgres(config),
+                ModelUpdate(config),
+            ]),
 
     ]
 

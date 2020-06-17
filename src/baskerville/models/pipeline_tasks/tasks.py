@@ -35,6 +35,7 @@ class GetDataKafka(Task):
     Retrieves data from Kafka in batches of time_bucket seconds.
     For every batch, the configured steps are executed.
     """
+
     def __init__(
             self,
             config: BaskervilleConfig,
@@ -83,8 +84,8 @@ class GetDataKafka(Task):
 
     def run(self):
         self.create_runtime()
-        def process_subsets(time, rdd):
 
+        def process_subsets(time, rdd):
             self.logger.info('Data until {}'.format(time))
             if not rdd.isEmpty():
                 try:
@@ -125,6 +126,7 @@ class GetPredictionsKafka(GetDataKafka):
     """
     Listens to the prediction input topic on the ISAC side
     """
+
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
         self.consume_topic = self.config.kafka.consume_predictions_topic
@@ -148,6 +150,7 @@ class GetPredictionsClientKafka(GetDataKafka):
     """
     Listens to the prediction input topic on the client side
     """
+
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
         self.consume_topic = self.config.kafka.consume_client_predictions_topic
@@ -187,8 +190,8 @@ class GetDataKafkaStreaming(Task):
             .readStream \
             .format("kafka") \
             .option(
-                "kafka.bootstrap.servers",
-                self.config.kafka.bootstrap_servers
+                    "kafka.bootstrap.servers",
+                    self.config.kafka.bootstrap_servers
             ).option(
                 "subscribe", self.config.kafka.consume_predictions_topic
             ).option(
@@ -215,7 +218,7 @@ class GetDataKafkaStreaming(Task):
             # self.df = row
             # self.df = super(GetDataKafkaStreaming, self).run()
 
-        df = self.df.writeStream.format(
+        self.df.writeStream.format(
             'console'
         ).foreach(
             process_row
@@ -228,6 +231,7 @@ class GetDataLog(Task):
     """
     Reads json files.
     """
+
     def __init__(self, config, steps=(),
                  group_by_cols=('client_request_host', 'client_ip'), ):
         super().__init__(config, steps)
@@ -259,7 +263,7 @@ class GetDataLog(Task):
         self.df = self.spark.read.json(
             self.current_log_path
         ).persist(
-            self.config.spark.storage_level)  # .repartition(*self.group_by_cols)
+            self.config.spark.storage_level)
 
         self.logger.info('Got dataframe of #{} records'.format(
             self.df.count())
@@ -272,7 +276,8 @@ class GetDataLog(Task):
 
     def process_data(self):
         """
-        Splits the data into time bucket length windows and executes all the steps
+        Splits the data into time bucket length windows and executes all
+        the steps
         :return:
         """
         if self.df.count() == 0:
@@ -832,6 +837,7 @@ class Predict(MLTask):
     """
     Adds prediction and score columns, given a features column
     """
+
     def __init__(self, config: BaskervilleConfig, steps=()):
         super().__init__(config, steps)
         self._can_predict = False
@@ -982,7 +988,7 @@ class PredictionOutput(Task):
         self.streaming_df = None
         self.output_columns = output_columns
         self.output_topic = output_topic or \
-                            self.config.kafka.publish_predictions
+            self.config.kafka.publish_predictions
         self.client_mode = client_mode
 
     def initialize(self):
@@ -1044,7 +1050,8 @@ class PredictionOutput(Task):
         #     ) \
         #     .write \
         #     .format('kafka') \
-        #     .option('kafka.bootstrap.servers', self.config.kafka.bootstrap_servers) \
+        #     .option('kafka.bootstrap.servers',
+        #     self.config.kafka.bootstrap_servers) \
         #     .option('topic', self.config.kafka.prediction_reply_topic) \
         #     .save()
         return self.df

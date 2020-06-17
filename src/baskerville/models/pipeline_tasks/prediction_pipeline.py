@@ -13,12 +13,12 @@ from baskerville.models.pipeline_tasks.tasks import GetPredictionsKafka, \
 
 def set_up_prediction_pipeline(config: BaskervilleConfig):
     predict_tasks = [
-      GetPredictionsKafka(
-           config,
-           steps=[
-                  Predict(config),
-                  PredictionOutput(config),
-      ]),
+        GetPredictionsKafka(
+            config,
+            steps=[
+                Predict(config),
+                PredictionOutput(config),
+            ]),
     ]
 
     predict_pipeline = Task(config, predict_tasks)

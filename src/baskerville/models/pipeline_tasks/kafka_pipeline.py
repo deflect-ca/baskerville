@@ -7,20 +7,19 @@
 
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.pipeline_tasks.tasks import Preprocess, SaveRsInPostgres, \
-    Predict, GetDataKafka
+from baskerville.models.pipeline_tasks.tasks import Preprocess, \
+    SaveRsInPostgres, Predict, GetDataKafka
 
 
 def set_up_isac_kafka_pipeline(config: BaskervilleConfig):
-
     kafka_tasks = [
-      GetDataKafka(
-           config,
-           steps=[
-                  Preprocess(config),
-                  Predict(config),
-                  SaveRsInPostgres(config),
-      ]),
+        GetDataKafka(
+            config,
+            steps=[
+                Preprocess(config),
+                Predict(config),
+                SaveRsInPostgres(config),
+            ]),
     ]
 
     kafka_pipeline = Task(config, kafka_tasks)
