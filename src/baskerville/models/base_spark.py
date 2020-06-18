@@ -324,8 +324,8 @@ class SparkPipelineBase(PipelineBase):
         :return:
         """
         df = self.logs_df.select(
-            F.col('client_request_host').alias('target'),
-            F.col('client_ip').alias('ip'),
+            F.col('target'),
+            F.col('ip'),
         ).distinct().alias('a').persist(self.spark_conf.storage_level)
 
         self.request_set_cache.filter_by(df)
@@ -440,8 +440,12 @@ class SparkPipelineBase(PipelineBase):
         Group the logs df by the given group-by columns (normally IP, host).
         :return: None
         """
+        self.logs_df = self.logs_df.withColumn('ip', F.col('client_ip'))
+        self.logs_df = self.logs_df.withColumn(
+            'target', F.col('client_request_host')
+        )
         self.logs_df = self.logs_df.groupBy(
-            *self.group_by_cols
+            'ip', 'target'
         ).agg(
             *self.group_by_aggs.values()
         )
@@ -750,11 +754,6 @@ class SparkPipelineBase(PipelineBase):
 
         :return: None
         """
-        # todo: shouldn't this be a renaming?
-        self.logs_df = self.logs_df.withColumn('ip', F.col('client_ip'))
-        self.logs_df = self.logs_df.withColumn(
-            'target', F.col('client_request_host')
-        )
         self.add_cache_columns()
 
         for k, v in self.get_post_group_by_calculations().items():
