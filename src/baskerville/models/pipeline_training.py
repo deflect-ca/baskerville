@@ -189,10 +189,9 @@ class TrainingPipeline(PipelineBase):
         :param str field: date field
         :return:
         """
-        # where = f'{field}>=\'{from_date}\' '
-        # if to_date:
-        #     where += f'AND {field}<=\'{to_date}\' '
-        where = 'id_runtime = 898 or id_runtime = 899'
+        where = f'{field}>=\'{from_date}\' '
+        if to_date:
+            where += f'AND {field}<=\'{to_date}\' '
         q = f"(select min(id) as min_id, " \
             f"max(id) as max_id, " \
             f"count(id) as rows " \
