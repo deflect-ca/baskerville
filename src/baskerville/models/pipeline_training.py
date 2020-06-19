@@ -120,6 +120,15 @@ class TrainingPipeline(PipelineBase):
         """
         self.data = self.load().persist(self.spark_conf.storage_level)
 
+        if self.training_conf.max_samples_per_host:
+            counts = self.data.groupby('target').count()
+            counts = counts.withColumn('fraction', self.training_conf.max_samples_per_host / F.col('count'))
+            fractions = dict(counts.select('target', 'fraction').collect())
+            for key, value in fractions.items():
+                if value > 1.0:
+                    fractions[key] = 1.0
+            self.data = self.data.sampleBy('target', fractions, 777)
+
         schema = StructType()
         for feature in self.model.features:
             features_class = self.engine_conf.all_features[feature]
