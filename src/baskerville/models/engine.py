@@ -255,7 +255,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         """
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
-        self.status_consumer = StatusConsumer(self.config, self.logger)
+        self.status_consumer = StatusConsumer(self.config.kafka, self.logger)
         t1 = threading.Thread(target=self.status_consumer.run)
         t1.start()
         self._register_metrics()

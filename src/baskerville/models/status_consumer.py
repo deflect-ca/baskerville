@@ -27,8 +27,8 @@ class StatusConsumer(object):
         "proxy.process.eventloop.time.max"
     ]
 
-    def __init__(self, config, logger):
-        self.config = config
+    def __init__(self, config_dict, logger):
+        self.config = config_dict
         self.logger = logger
 
         # XXX i think the metrics registry swizzling code is passing
@@ -41,13 +41,13 @@ class StatusConsumer(object):
 
     def run(self):
         consumer = KafkaConsumer(
-            self.config.kafka.get('banjax_report_topic'),
-            bootstrap_servers=self.config.kafka.get('bootstrap_servers'),
-            security_protocol=self.config.kafka.get('security_protocol'),
-            ssl_check_hostname=self.config.kafka.get('ssl_check_hostname'),
-            ssl_cafile=self.config.kafka.get('ssl_cafile'),
-            ssl_certfile=self.config.kafka.get('ssl_certfile'),
-            ssl_keyfile=self.config.kafka.get('ssl_keyfile'),
+            self.config.banjax_report_topic,
+            bootstrap_servers=self.config.bootstrap_servers,
+            security_protocol=self.config.security_protocol,
+            ssl_check_hostname=self.config.ssl_check_hostname,
+            ssl_cafile=self.config.ssl_cafile,
+            ssl_certfile=self.config.ssl_certfile,
+            ssl_keyfile=self.config.ssl_keyfile,
         )
 
         for message in consumer:
@@ -95,12 +95,12 @@ class ChallengeProducer(object):
 
     def run(self):
         producer = KafkaProducer(
-            bootstrap_servers=self.config.kafka.get('bootstrap_servers'),
-            security_protocol=self.config.kafka.get('security_protocol'),
-            ssl_check_hostname=self.config.kafka.get('ssl_check_hostname'),
-            ssl_cafile=self.config.kafka.get('ssl_cafile'),
-            ssl_certfile=self.config.kafka.get('ssl_certfile'),
-            ssl_keyfile=self.config.kafka.get('ssl_keyfile'),
+            bootstrap_servers=self.config.bootstrap_servers,
+            security_protocol=self.config.security_protocol,
+            ssl_check_hostname=self.config.ssl_check_hostname,
+            ssl_cafile=self.config.ssl_cafile,
+            ssl_certfile=self.config.ssl_certfile,
+            ssl_keyfile=self.config.ssl_keyfile,
         )
 
         number = 0
@@ -108,7 +108,7 @@ class ChallengeProducer(object):
             for _ in range(0, 10):
                 domain = f"example-{number}.com:8080"
                 command = {'name': 'challenge_host', 'value': domain}
-                producer.send(self.config.kafka.get('banjax_command_topic'), json.dumps(command).encode('utf-8'))
+                producer.send(self.config.get('banjax_command_topic'), json.dumps(command).encode('utf-8'))
                 self.logger.info("sent a command")
                 number = number + 1
             time.sleep(0.1)
@@ -138,15 +138,15 @@ if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logger = logging.getLogger()
 
-    config = KafkaConfig(parse_config(path=args.conf_file)).validate()
+    config_dict = KafkaConfig(parse_config(path=args.conf_file)).validate()
 
     if args.start_consumer:
-        status_consumer = StatusConsumer(config, logger)
+        status_consumer = StatusConsumer(config_dict, logger)
         consumer_thread = threading.Thread(target=status_consumer.run)
         consumer_thread.start()
 
     if args.start_producer:
-        challenge_producer = ChallengeProducer(config, logger)
+        challenge_producer = ChallengeProducer(config_dict, logger)
         producer_thread = threading.Thread(target=challenge_producer.run)
         producer_thread.start()
 
