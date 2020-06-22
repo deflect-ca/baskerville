@@ -1,3 +1,5 @@
+![Unit tests](https://github.com/equalitie/baskerville/workflows/Unit%20tests/badge.svg)
+
 ## Contents
 
 - [What is Baskerville](#what-is-baskerville)
