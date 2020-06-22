@@ -13,28 +13,13 @@ from baskerville.models.config import BaskervilleConfig
 from baskerville.models.request_set_cache import RequestSetSparkCache
 from tests.unit.baskerville_tests.helpers.spark_testing_base import \
     SQLTestCaseLatestSpark
+from tests.unit.baskerville_tests.helpers.utils import test_baskerville_conf
 
 
 class TestServiceProvider(SQLTestCaseLatestSpark):
     def setUp(self):
         super(TestServiceProvider, self).setUp()
-        self.test_conf = {
-            'database': {
-                'name': 'test_db',
-                'user': 'postgres',
-                'password': '***',
-                'host': 'localhost'
-            },
-            'spark': {
-                'db_driver': 'test',
-                'storage_level': 'MEMORY_AND_DISK',
-            },
-            'engine': {
-                'raw_log': {},
-                'extra_features': ['css_to_html_ratio', ]
-
-            }
-        }
+        self.test_conf = test_baskerville_conf
         self.baskerville_config = BaskervilleConfig(self.test_conf).validate()
 
     def tearDown(self) -> None:
