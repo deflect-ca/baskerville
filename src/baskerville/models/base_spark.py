@@ -429,10 +429,10 @@ class SparkPipelineBase(PipelineBase):
         """
 
         self.handle_missing_columns()
+        self.normalize_host_names()
         self.rename_columns()
         self.filter_columns()
         self.handle_missing_values()
-        self.normalize_host_names()
         self.add_calc_columns()
 
     def group_by(self):
@@ -648,8 +648,12 @@ class SparkPipelineBase(PipelineBase):
         columns should be renamed to something else, e.g. `geo_ip_lat`
         :return:
         """
+        cols = self.logs_df.columns
         for k, v in self.feature_manager.column_renamings:
-            self.logs_df = self.logs_df.withColumnRenamed(k, v)
+            if k in cols:
+                self.logs_df = self.logs_df.withColumnRenamed(k, v)
+            else:
+                self.logs_df = self.logs_df.withColumn(v, F.col(k))
 
     def filter_columns(self):
         """

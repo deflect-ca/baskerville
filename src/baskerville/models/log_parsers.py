@@ -138,16 +138,27 @@ class JSONLogSparkParser(JSONLogParser, SerializableMixin):
         super().__init__(schema, drop_row_if_missing)
 
         # back up json schema
-        self.__json_schema = self.schema
-        self.__schema = T.StructType([
-            T.StructField(
-                name,
-                self.str_to_type[v['type']](v.get('default')),
-                not v.get('required', False)
-            )
-            for name, v in self.__json_schema['properties'].items()
-        ]
-        )
+        self.__json_schema = schema
+
+        def add_json_item(parent, name, value):
+            if 'type' in value.keys():
+                parent.add(T.StructField(
+                    name,
+                    self.str_to_type[value['type']](value.get('default')),
+                    not value.get('required', False)
+                ))
+                return
+
+            struct_value = T.StructType()
+            for child_name, child_value in value.items():
+                add_json_item(struct_value, child_name, child_value)
+
+            parent.add(T.StructField(name, struct_value))
+
+        self.__schema = T.StructType()
+        for child_name, child_value in schema['properties'].items():
+            add_json_item(self.__schema, child_name, child_value)
+
         self.schema = self.__schema
         self.__schema_class = self.__json_schema
 
