@@ -49,5 +49,6 @@ jobs:
         export PYTHONPATH="./src:./esretriever/src"
         pip install wheel
         pip install pdoc3
+        pip install pykafka
         pdoc3 --html --force --output-dir docs baskerville
         python ./src/baskerville/util/licensing.py
