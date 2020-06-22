@@ -110,11 +110,12 @@ class Config(SerializableMixin):
     _remove = ('parent', 'errors', 'serialized_errors')
 
     def __init__(self, config_dict, parent=None):
-        self.__dict__.update(**{
-            k: v for k, v in self.__class__.__dict__.items()
-            if '__' not in k and not callable(v)
-        })
-        self.__dict__.update(**config_dict)
+        if config_dict:
+            self.__dict__.update(**{
+                k: v for k, v in self.__class__.__dict__.items()
+                if '__' not in k and not callable(v)
+            })
+            self.__dict__.update(**config_dict)
         self.parent = parent
         self._is_validated = False
         self._is_valid = False
@@ -255,7 +256,7 @@ class EngineConfig(Config):
     metrics = None
     data_config = None
     logpath = 'baskerville.log'
-    log_level = None
+    log_level = 'INFO'
     time_bucket = 120
     all_features = None
     load_test = False
@@ -289,10 +290,7 @@ class EngineConfig(Config):
         if self.load_test:
             self.load_test = int(self.load_test)
         if not self.es_log and not self.raw_log and not self.training:
-            self.add_error(ConfigError(
-                'Either es_log or raw_log config must be provided',
-                ['es_log', 'raw_log'],
-            ))
+            logger.warn('es_log or raw_log config are not provided')
         if self.model_id and self.model_path:
             self.add_error(ConfigError(
                 'Model version id and model path cannot both be specified.',
