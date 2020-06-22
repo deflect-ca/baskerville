@@ -685,6 +685,7 @@ class SparkPipelineBase(PipelineBase):
         """
         from baskerville.spark.udfs import udf_normalize_host_name
 
+        self.logs_df = self.logs_df.fillna({'client_request_host': ''})
         self.logs_df = self.logs_df.withColumn(
             'client_request_host',
             udf_normalize_host_name(
