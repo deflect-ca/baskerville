@@ -44,3 +44,7 @@ jobs:
       run: |
         export PYTHONPATH="./src:./esretriever/src"
         pytest ./tests/unit
+    - name: Docs update and License check
+      run: |
+        pdoc3 --html --force --output-dir docs baskerville
+        python ./src/baskerville/util/licensing.py
