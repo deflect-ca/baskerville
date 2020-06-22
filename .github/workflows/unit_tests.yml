@@ -46,5 +46,6 @@ jobs:
         pytest ./tests/unit
     - name: Docs update and License check
       run: |
+        pip install pdoc3
         pdoc3 --html --force --output-dir docs baskerville
         python ./src/baskerville/util/licensing.py
