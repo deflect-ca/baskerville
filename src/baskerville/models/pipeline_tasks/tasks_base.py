@@ -1,3 +1,10 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 import abc
 import datetime
 from collections import OrderedDict
@@ -8,7 +15,6 @@ import pyspark
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.service_provider import ServiceProvider
 from baskerville.util.helpers import get_logger, TimeBucket
-from pyspark.sql import functions as F
 
 
 class Task(object, metaclass=abc.ABCMeta):
@@ -137,4 +143,3 @@ class MLTask(CacheTask):
     @property
     def feature_manager(self):
         return self.service_provider.feature_manager
-
