@@ -123,10 +123,11 @@ class ServiceProvider(Borg):
                     self.initialize_feature_manager_service()
                 self._can_predict = self.feature_manager.\
                     feature_config_is_valid() and self.model.iforest_model
+                self.model_index.can_predict = self.feature_manager. \
+                    feature_config_is_valid()
             else:
                 self.model = None
-        self.model_index.can_predict = self.feature_manager. \
-            feature_config_is_valid()
+
         self._can_predict = self.feature_manager\
                                 .feature_config_is_valid() and self.model
 
@@ -170,6 +171,7 @@ class ServiceProvider(Borg):
         Add columns from the cache to facilitate the
         feature extraction, prediction, and save processes
         :return:
+        :rtype: pyspark.sql.DataFrame
         """
         df = df.alias('df')
         self.filter_cache(df)
