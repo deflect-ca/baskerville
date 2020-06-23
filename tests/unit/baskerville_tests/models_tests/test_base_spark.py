@@ -541,7 +541,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.spark_pipeline.logs_df = df
 
         mock_feature = mock.MagicMock()
-        mock_feature.group_by_aggs =  {'1': F.collect_set(F.col('ip'))}
+        mock_feature.group_by_aggs = {'1': F.collect_set(F.col('ip'))}
         mock_feature.columns = []
 
         self.spark_pipeline.feature_manager.get_active_features = mock.MagicMock()
@@ -565,7 +565,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             F.count(F.col('@timestamp')).alias('num_requests'),
             F.collect_set(F.col('client_ip')).alias('1')
         )
-        grouped_df = grouped_df.withColumnRenamed('client_ip', 'ip').\
+        grouped_df = grouped_df.withColumnRenamed('client_ip', 'ip'). \
             withColumnRenamed('client_request_host', 'target')
 
         self.assertEqual(self.spark_pipeline.logs_df.count(), 2)
@@ -620,7 +620,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             F.max(F.col('@timestamp')).alias('last_request'),
             F.count(F.col('@timestamp')).alias('num_requests'),
         )
-        grouped_df = grouped_df.withColumnRenamed('client_ip', 'ip').\
+        grouped_df = grouped_df.withColumnRenamed('client_ip', 'ip'). \
             withColumnRenamed('client_request_host', 'target')
 
         self.assertEqual(self.spark_pipeline.logs_df.count(), 2)
