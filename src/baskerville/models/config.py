@@ -696,9 +696,9 @@ class KafkaConfig(Config):
     """
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
-    consume_topic = 'deflect.logs'
+    logs_topic = 'deflect.logs'
     consume_predictions_topic = 'predictions'
-    consume_client_predictions_topic = 'id_client_predictions'
+    predictions_topic = 'id_client_predictions'
     publish_logs = 'baskerville.logs'
     publish_stats = 'baskerville.stats'
     publish_predictions = 'baskerville.predictions'
@@ -724,7 +724,7 @@ class KafkaConfig(Config):
         if not self.zookeeper:
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
-        if not self.consume_topic:
+        if not self.logs_topic:
             warnings.warn('Consume topic is empty. If you are not using '
                           'simulation or Realtime pipeline ignore this')
         if not self.publish_logs:

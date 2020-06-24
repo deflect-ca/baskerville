@@ -107,7 +107,7 @@ engine:
 kafka:
   bootstrap_servers: '0.0.0.0:9092'       # ip: port for kafka
   zookeeper: 'localhost:2181'             # ip: port for zookeeper
-  consume_topic: 'incoming.logs'          # which should baskerville consume
+  logs_topic: 'incoming.logs'          # which should baskerville consume
   consume_group: 'baskerville'            # a name for the consume group
 
 spark:

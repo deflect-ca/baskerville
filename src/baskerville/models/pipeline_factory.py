@@ -39,14 +39,14 @@ class PipelineFactory(object):
                 config.engine,
                 config.spark
             )
-        elif run_type == RunType.client_preprocessing:
+        elif run_type == RunType.preprocessing:
             from baskerville.models.pipeline_tasks.client_pipeline \
-                import set_up_client_processing_pipeline
-            return set_up_client_processing_pipeline(config)
-        elif run_type == RunType.client_prediction:
+                import set_up_preprocessing_pipeline
+            return set_up_preprocessing_pipeline(config)
+        elif run_type == RunType.postprocessing:
             from baskerville.models.pipeline_tasks.client_pipeline \
-                import set_up_client_prediction_pipeline
-            return set_up_client_prediction_pipeline(config)
+                import set_up_postprocessing_pipeline
+            return set_up_postprocessing_pipeline(config)
         elif run_type == RunType.irawlog:
             from baskerville.models.pipeline_tasks.rawlog_pipeline \
                 import set_up_isac_rawlog_pipeline
@@ -55,7 +55,7 @@ class PipelineFactory(object):
             from baskerville.models.pipeline_tasks.tasks_base \
                 import set_up_isac_kafka_pipeline
             return set_up_isac_kafka_pipeline(config)
-        elif run_type == RunType.isac_prediction:
+        elif run_type == RunType.prediction:
             from baskerville.models.pipeline_tasks.prediction_pipeline \
                 import set_up_prediction_pipeline
             return set_up_prediction_pipeline(config)

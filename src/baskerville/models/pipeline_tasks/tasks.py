@@ -53,7 +53,7 @@ class GetDataKafka(Task):
             'group.id': self.config.kafka.consume_group,
             'auto.create.topics.enable': 'true'
         }
-        self.consume_topic = self.config.kafka.consume_topic
+        self.consume_topic = self.config.kafka.logs_topic
 
     def initialize(self):
         super(GetDataKafka, self).initialize()
@@ -122,7 +122,7 @@ class GetDataKafka(Task):
         return self.df
 
 
-class GetPredictionsKafka(GetDataKafka):
+class GetFeatures(GetDataKafka):
     """
     Listens to the prediction input topic on the ISAC side
     """
@@ -146,14 +146,14 @@ class GetPredictionsKafka(GetDataKafka):
         )
 
 
-class GetPredictionsClientKafka(GetDataKafka):
+class GetPredictions(GetDataKafka):
     """
     Listens to the prediction input topic on the client side
     """
 
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
-        self.consume_topic = self.config.kafka.consume_client_predictions_topic
+        self.consume_topic = self.config.kafka.predictions_topic
 
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
@@ -436,7 +436,7 @@ class GetDataPostgres(Task):
         return self.df
 
 
-class Preprocess(MLTask):
+class GenerateFeatures(MLTask):
     def __init__(
             self,
             config,
@@ -883,7 +883,7 @@ class SaveDfInPostgres(Task):
         return self.df
 
 
-class SaveRsInPostgres(SaveDfInPostgres):
+class Save(SaveDfInPostgres):
     """
     Saves dataframe in Postgres (current backend)
     """
@@ -917,7 +917,7 @@ class SaveRsInPostgres(SaveDfInPostgres):
         return self.df
 
 
-class SaveRsInRedis(Task):
+class CacheData(Task):
     def __init__(
             self,
             config,
@@ -944,7 +944,7 @@ class SaveRsInRedis(Task):
         return self.df
 
 
-class RetrieveRsFromRedis(Task):
+class MergeWithCachedData(Task):
     def __init__(
             self,
             config,
@@ -973,7 +973,7 @@ class RetrieveRsFromRedis(Task):
         return self.df
 
 
-class PredictionOutput(Task):
+class SendFeatures(Task):
     def __init__(
             self,
             config: BaskervilleConfig,
@@ -993,7 +993,7 @@ class PredictionOutput(Task):
 
     def initialize(self):
         global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
-        super(PredictionOutput, self).initialize()
+        super(SendFeatures, self).initialize()
         TOPIC_BC = self.spark.sparkContext.broadcast(
             self.output_topic
         )
