@@ -50,7 +50,7 @@ from typing import T, Any, Mapping
 
 from baskerville.spark import get_spark_session
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import class_from_str
+from baskerville.util.helpers import TimeBucket
 from pyspark import AccumulatorParam
 from pyspark import StorageLevel
 from pyspark.sql import functions as F
@@ -207,34 +207,6 @@ def reset_spark_storage():
     # self.spark.sparkContext._jvm.System.gc()
 
 
-def load_model_from_path(model_type, path):
-    """
-    Loads a spark ml model from a path
-    :param str | AlgorithmEnum | ScalerEnum model_type: the string
-    representation of the model import, e.g.
-    `pyspark.ml.feature.StandardScaler`
-    :param str path:
-    :return:
-    """
-    return class_from_str(model_type).load(path)
-
-
-def save_model(model, path, mode='overwrite'):
-    """
-    Save a Pyspark ML model to disk / hdfs
-    :param Estimator model:
-    :param str path:
-    :param str mode:
-    :return:
-    """
-    writer = model.write()
-    if mode == 'overwrite':
-        writer = writer.overwrite()
-    else:
-        writer = writer.option('mode', mode)
-    writer.save(path)
-
-
 def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
     """
     Sets the preset unknown value for prediction and score
@@ -244,7 +216,81 @@ def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
     """
     for c in columns:
         df = df.withColumn(c, F.lit(LabelEnum.unknown.value))
-    return df</code></pre>
+    return df
+
+
+def load_test(df, load_test_num, storage_level):
+    """
+    If the user has set the load_test configuration, then multiply the
+    traffic by `EngineConfig.load_test` times to do load testing.
+    :return:
+    """
+    if load_test_num &gt; 0:
+        df = df.persist(storage_level)
+
+        for i in range(load_test_num - 1):
+            temp_df = df.withColumn(
+                'client_ip', F.round(F.rand(42)).cast('string')
+            )
+            df = df.union(temp_df).persist(storage_level)
+
+        print(f'---- Count after multiplication: {df.count()}')
+    return df
+
+
+def columns_to_dict(df, col_name, columns_to_gather):
+    """
+    Convert the columns to dictionary
+    :param string column: the name of the column to use as output
+    :return: None
+    """
+    import itertools
+    from pyspark.sql import functions as F
+
+    return df.withColumn(
+        col_name,
+        F.create_map(
+            *list(
+                itertools.chain(
+                    *[
+                        (F.lit(f), F.col(f))
+                        for f in columns_to_gather
+                    ]
+                )
+            ))
+    )
+
+
+def get_window(df, time_bucket: TimeBucket, storage_level: str):
+    df = df.withColumn(
+        'timestamp', F.col('@timestamp').cast('timestamp')
+    )
+    df = df.sort('timestamp')
+    current_window_start = df.agg({"timestamp": "min"}).collect()[0][0]
+    stop = df.agg({"timestamp": "max"}).collect()[0][0]
+    window_df = None
+    current_end = current_window_start + time_bucket.td
+
+    while True:
+        if window_df:
+            window_df.unpersist(blocking=True)
+            del window_df
+        filter_ = (
+            (F.col('timestamp') &gt;= current_window_start) &amp;
+            (F.col('timestamp') &lt; current_end)
+        )
+        window_df = df.where(filter_).persist(storage_level)
+        if not window_df.rdd.isEmpty():
+            print(f'# Request sets = {window_df.count()}')
+            yield window_df
+        else:
+            print(f'Empty window df for {str(filter_._jc)}')
+        current_window_start = current_window_start + time_bucket.td
+        current_end = current_window_start + time_bucket.td
+        if current_window_start &gt;= stop:
+            window_df.unpersist(blocking=True)
+            del window_df
+            break</code></pre>
      </details>
     </section>
     <section>
@@ -304,30 +350,135 @@ def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
     )</code></pre>
        </details>
       </dd>
-      <dt id="baskerville.spark.helpers.load_model_from_path">
+      <dt id="baskerville.spark.helpers.columns_to_dict">
        <code class="name flex">
         <span>
          def
          <span class="ident">
-          load_model_from_path
+          columns_to_dict
          </span>
         </span>
         (
         <span>
-         model_type, path)
+         df, col_name, columns_to_gather)
         </span>
        </code>
       </dt>
       <dd>
        <section class="desc">
         <p>
-         Loads a spark ml model from a path
-:param str | AlgorithmEnum | ScalerEnum model_type: the string
-representation of the model import, e.g.
+         Convert the columns to dictionary
+:param string column: the name of the column to use as output
+:return: None
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def columns_to_dict(df, col_name, columns_to_gather):
+    """
+    Convert the columns to dictionary
+    :param string column: the name of the column to use as output
+    :return: None
+    """
+    import itertools
+    from pyspark.sql import functions as F
+
+    return df.withColumn(
+        col_name,
+        F.create_map(
+            *list(
+                itertools.chain(
+                    *[
+                        (F.lit(f), F.col(f))
+                        for f in columns_to_gather
+                    ]
+                )
+            ))
+    )</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.spark.helpers.get_window">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          get_window
+         </span>
+        </span>
+        (
+        <span>
+         df, time_bucket, storage_level)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def get_window(df, time_bucket: TimeBucket, storage_level: str):
+    df = df.withColumn(
+        'timestamp', F.col('@timestamp').cast('timestamp')
+    )
+    df = df.sort('timestamp')
+    current_window_start = df.agg({"timestamp": "min"}).collect()[0][0]
+    stop = df.agg({"timestamp": "max"}).collect()[0][0]
+    window_df = None
+    current_end = current_window_start + time_bucket.td
+
+    while True:
+        if window_df:
+            window_df.unpersist(blocking=True)
+            del window_df
+        filter_ = (
+            (F.col('timestamp') &gt;= current_window_start) &amp;
+            (F.col('timestamp') &lt; current_end)
+        )
+        window_df = df.where(filter_).persist(storage_level)
+        if not window_df.rdd.isEmpty():
+            print(f'# Request sets = {window_df.count()}')
+            yield window_df
+        else:
+            print(f'Empty window df for {str(filter_._jc)}')
+        current_window_start = current_window_start + time_bucket.td
+        current_end = current_window_start + time_bucket.td
+        if current_window_start &gt;= stop:
+            window_df.unpersist(blocking=True)
+            del window_df
+            break</code></pre>
+       </details>
+      </dd>
+      <dt id="baskerville.spark.helpers.load_test">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          load_test
+         </span>
+        </span>
+        (
+        <span>
+         df, load_test_num, storage_level)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         If the user has set the load_test configuration, then multiply the
+traffic by
          <code>
-          pyspark.ml.feature.StandardScaler
+          EngineConfig.load_test
          </code>
-         :param str path:
+         times to do load testing.
 :return:
         </p>
        </section>
@@ -337,16 +488,23 @@ representation of the model import, e.g.
           Expand source code
          </span>
         </summary>
-        <pre><code class="python">def load_model_from_path(model_type, path):
+        <pre><code class="python">def load_test(df, load_test_num, storage_level):
     """
-    Loads a spark ml model from a path
-    :param str | AlgorithmEnum | ScalerEnum model_type: the string
-    representation of the model import, e.g.
-    `pyspark.ml.feature.StandardScaler`
-    :param str path:
+    If the user has set the load_test configuration, then multiply the
+    traffic by `EngineConfig.load_test` times to do load testing.
     :return:
     """
-    return class_from_str(model_type).load(path)</code></pre>
+    if load_test_num &gt; 0:
+        df = df.persist(storage_level)
+
+        for i in range(load_test_num - 1):
+            temp_df = df.withColumn(
+                'client_ip', F.round(F.rand(42)).cast('string')
+            )
+            df = df.union(temp_df).persist(storage_level)
+
+        print(f'---- Count after multiplication: {df.count()}')
+    return df</code></pre>
        </details>
       </dd>
       <dt id="baskerville.spark.helpers.map_to_array">
@@ -539,52 +697,6 @@ options
         reWriteBatchedInserts=True,
         useServerPrepStmts=False,
     ).mode(mode).save()</code></pre>
-       </details>
-      </dd>
-      <dt id="baskerville.spark.helpers.save_model">
-       <code class="name flex">
-        <span>
-         def
-         <span class="ident">
-          save_model
-         </span>
-        </span>
-        (
-        <span>
-         model, path, mode='overwrite')
-        </span>
-       </code>
-      </dt>
-      <dd>
-       <section class="desc">
-        <p>
-         Save a Pyspark ML model to disk / hdfs
-:param Estimator model:
-:param str path:
-:param str mode:
-:return:
-        </p>
-       </section>
-       <details class="source">
-        <summary>
-         <span>
-          Expand source code
-         </span>
-        </summary>
-        <pre><code class="python">def save_model(model, path, mode='overwrite'):
-    """
-    Save a Pyspark ML model to disk / hdfs
-    :param Estimator model:
-    :param str path:
-    :param str mode:
-    :return:
-    """
-    writer = model.write()
-    if mode == 'overwrite':
-        writer = writer.overwrite()
-    else:
-        writer = writer.option('mode', mode)
-    writer.save(path)</code></pre>
        </details>
       </dd>
       <dt id="baskerville.spark.helpers.set_unknown_prediction">
@@ -892,8 +1004,22 @@ def get_storage_level(level):
        </li>
        <li>
         <code>
-         <a href="#baskerville.spark.helpers.load_model_from_path" title="baskerville.spark.helpers.load_model_from_path">
-          load_model_from_path
+         <a href="#baskerville.spark.helpers.columns_to_dict" title="baskerville.spark.helpers.columns_to_dict">
+          columns_to_dict
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.helpers.get_window" title="baskerville.spark.helpers.get_window">
+          get_window
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
+         <a href="#baskerville.spark.helpers.load_test" title="baskerville.spark.helpers.load_test">
+          load_test
          </a>
         </code>
        </li>
@@ -915,13 +1041,6 @@ def get_storage_level(level):
         <code>
          <a href="#baskerville.spark.helpers.save_df_to_table" title="baskerville.spark.helpers.save_df_to_table">
           save_df_to_table
-         </a>
-        </code>
-       </li>
-       <li>
-        <code>
-         <a href="#baskerville.spark.helpers.save_model" title="baskerville.spark.helpers.save_model">
-          save_model
          </a>
         </code>
        </li>

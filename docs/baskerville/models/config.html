@@ -151,11 +151,12 @@ class Config(SerializableMixin):
     _remove = ('parent', 'errors', 'serialized_errors')
 
     def __init__(self, config_dict, parent=None):
-        self.__dict__.update(**{
-            k: v for k, v in self.__class__.__dict__.items()
-            if '__' not in k and not callable(v)
-        })
-        self.__dict__.update(**config_dict)
+        if config_dict:
+            self.__dict__.update(**{
+                k: v for k, v in self.__class__.__dict__.items()
+                if '__' not in k and not callable(v)
+            })
+            self.__dict__.update(**config_dict)
         self.parent = parent
         self._is_validated = False
         self._is_valid = False
@@ -296,7 +297,7 @@ class EngineConfig(Config):
     metrics = None
     data_config = None
     logpath = 'baskerville.log'
-    log_level = None
+    log_level = 'INFO'
     time_bucket = 120
     all_features = None
     load_test = False
@@ -330,10 +331,7 @@ class EngineConfig(Config):
         if self.load_test:
             self.load_test = int(self.load_test)
         if not self.es_log and not self.raw_log and not self.training:
-            self.add_error(ConfigError(
-                'Either es_log or raw_log config must be provided',
-                ['es_log', 'raw_log'],
-            ))
+            logger.warn('es_log or raw_log config are not provided')
         if self.model_id and self.model_path:
             self.add_error(ConfigError(
                 'Model version id and model path cannot both be specified.',
@@ -502,8 +500,7 @@ class TrainingConfig(Config):
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
-        self.allowed_models = list(
-            vars(ModelEnum)['_value2member_map_'].keys())
+        self.allowed_models = [e.value for e in ModelEnum]
 
     def validate(self):
         logger.debug('Validating TrainingConfig...')
@@ -740,7 +737,9 @@ class KafkaConfig(Config):
     """
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
-    consume_topic = 'deflect.logs'
+    logs_topic = 'deflect.logs'
+    consume_predictions_topic = 'predictions'
+    predictions_topic = 'id_client_predictions'
     publish_logs = 'baskerville.logs'
     publish_stats = 'baskerville.stats'
     publish_predictions = 'baskerville.predictions'
@@ -766,7 +765,7 @@ class KafkaConfig(Config):
         if not self.zookeeper:
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
-        if not self.consume_topic:
+        if not self.logs_topic:
             warnings.warn('Consume topic is empty. If you are not using '
                           'simulation or Realtime pipeline ignore this')
         if not self.publish_logs:
@@ -814,6 +813,8 @@ class SparkConfig(Config):
     spark_python_profile = False
     storage_level = None
     off_heap_size = None
+    redis_host = None
+    redis_port = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
@@ -959,7 +960,7 @@ class DataParsingConfig(Config):
     schema = None
     schema_obj = None
     parser = 'JSONLogSparkParser'
-    group_by_cols = ['client_request_host', 'client_ip']
+    group_by_cols = ('client_request_host', 'client_ip')
     timestamp_column = '@timestamp'
 
     def __init__(self, config_dict):
@@ -1372,11 +1373,12 @@ class DataParsingConfig(Config):
     _remove = ('parent', 'errors', 'serialized_errors')
 
     def __init__(self, config_dict, parent=None):
-        self.__dict__.update(**{
-            k: v for k, v in self.__class__.__dict__.items()
-            if '__' not in k and not callable(v)
-        })
-        self.__dict__.update(**config_dict)
+        if config_dict:
+            self.__dict__.update(**{
+                k: v for k, v in self.__class__.__dict__.items()
+                if '__' not in k and not callable(v)
+            })
+            self.__dict__.update(**config_dict)
         self.parent = parent
         self._is_validated = False
         self._is_valid = False
@@ -2221,7 +2223,7 @@ errors defaults to 'strict'.
     schema = None
     schema_obj = None
     parser = 'JSONLogSparkParser'
-    group_by_cols = ['client_request_host', 'client_ip']
+    group_by_cols = ('client_request_host', 'client_ip')
     timestamp_column = '@timestamp'
 
     def __init__(self, config_dict):
@@ -2288,8 +2290,11 @@ errors defaults to 'strict'.
         <dd>
          <section class="desc">
           <p>
-           list() -&gt; new empty list
-list(iterable) -&gt; new list initialized from iterable's items
+           tuple() -&gt; empty tuple
+tuple(iterable) -&gt; tuple initialized from iterable's items
+          </p>
+          <p>
+           If the argument is a tuple, the return value is the same object.
           </p>
          </section>
         </dd>
@@ -3543,7 +3548,7 @@ errors defaults to 'strict'.
     metrics = None
     data_config = None
     logpath = 'baskerville.log'
-    log_level = None
+    log_level = 'INFO'
     time_bucket = 120
     all_features = None
     load_test = False
@@ -3577,10 +3582,7 @@ errors defaults to 'strict'.
         if self.load_test:
             self.load_test = int(self.load_test)
         if not self.es_log and not self.raw_log and not self.training:
-            self.add_error(ConfigError(
-                'Either es_log or raw_log config must be provided',
-                ['es_log', 'raw_log'],
-            ))
+            logger.warn('es_log or raw_log config are not provided')
         if self.model_id and self.model_path:
             self.add_error(ConfigError(
                 'Model version id and model path cannot both be specified.',
@@ -3837,6 +3839,23 @@ The class bool is a subclass of the class int, and cannot be subclassed.
         </dt>
         <dd>
          <section class="desc">
+          <p>
+           str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
+          </p>
+          <p>
+           Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.
+           <strong>
+            str
+           </strong>
+           () (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.
+          </p>
          </section>
         </dd>
         <dt id="baskerville.models.config.EngineConfig.logpath">
@@ -4065,10 +4084,7 @@ The class bool is a subclass of the class int, and cannot be subclassed.
     if self.load_test:
         self.load_test = int(self.load_test)
     if not self.es_log and not self.raw_log and not self.training:
-        self.add_error(ConfigError(
-            'Either es_log or raw_log config must be provided',
-            ['es_log', 'raw_log'],
-        ))
+        logger.warn('es_log or raw_log config are not provided')
     if self.model_id and self.model_path:
         self.add_error(ConfigError(
             'Model version id and model path cannot both be specified.',
@@ -4178,7 +4194,9 @@ The class bool is a subclass of the class int, and cannot be subclassed.
     """
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
-    consume_topic = 'deflect.logs'
+    logs_topic = 'deflect.logs'
+    consume_predictions_topic = 'predictions'
+    predictions_topic = 'id_client_predictions'
     publish_logs = 'baskerville.logs'
     publish_stats = 'baskerville.stats'
     publish_predictions = 'baskerville.predictions'
@@ -4204,7 +4222,7 @@ The class bool is a subclass of the class int, and cannot be subclassed.
         if not self.zookeeper:
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
-        if not self.consume_topic:
+        if not self.logs_topic:
             warnings.warn('Consume topic is empty. If you are not using '
                           'simulation or Realtime pipeline ignore this')
         if not self.publish_logs:
@@ -4269,11 +4287,69 @@ errors defaults to 'strict'.
           </p>
          </section>
         </dd>
-        <dt id="baskerville.models.config.KafkaConfig.consume_topic">
+        <dt id="baskerville.models.config.KafkaConfig.consume_predictions_topic">
          <code class="name">
           var
           <span class="ident">
-           consume_topic
+           consume_predictions_topic
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
+          </p>
+          <p>
+           Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.
+           <strong>
+            str
+           </strong>
+           () (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.models.config.KafkaConfig.logs_topic">
+         <code class="name">
+          var
+          <span class="ident">
+           logs_topic
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
+          </p>
+          <p>
+           Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.
+           <strong>
+            str
+           </strong>
+           () (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.models.config.KafkaConfig.predictions_topic">
+         <code class="name">
+          var
+          <span class="ident">
+           predictions_topic
           </span>
          </code>
         </dt>
@@ -4656,7 +4732,7 @@ errors defaults to 'strict'.
     if not self.zookeeper:
         # kafka client can be used without zookeeper
         warnings.warn('Zookeeper url is empty.')
-    if not self.consume_topic:
+    if not self.logs_topic:
         warnings.warn('Consume topic is empty. If you are not using '
                       'simulation or Realtime pipeline ignore this')
     if not self.publish_logs:
@@ -5924,6 +6000,8 @@ The class bool is a subclass of the class int, and cannot be subclassed.
     spark_python_profile = False
     storage_level = None
     off_heap_size = None
+    redis_host = None
+    redis_port = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
@@ -6295,6 +6373,30 @@ errors defaults to 'strict'.
          <section class="desc">
          </section>
         </dd>
+        <dt id="baskerville.models.config.SparkConfig.redis_host">
+         <code class="name">
+          var
+          <span class="ident">
+           redis_host
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+        </dd>
+        <dt id="baskerville.models.config.SparkConfig.redis_port">
+         <code class="name">
+          var
+          <span class="ident">
+           redis_port
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+        </dd>
         <dt id="baskerville.models.config.SparkConfig.serializer">
          <code class="name">
           var
@@ -6632,8 +6734,7 @@ Model Parameters:
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
-        self.allowed_models = list(
-            vars(ModelEnum)['_value2member_map_'].keys())
+        self.allowed_models = [e.value for e in ModelEnum]
 
     def validate(self):
         logger.debug('Validating TrainingConfig...')
@@ -7525,8 +7626,22 @@ Base 0 means to interpret the base from the string as an integer literal.
          </li>
          <li>
           <code>
-           <a href="#baskerville.models.config.KafkaConfig.consume_topic" title="baskerville.models.config.KafkaConfig.consume_topic">
-            consume_topic
+           <a href="#baskerville.models.config.KafkaConfig.consume_predictions_topic" title="baskerville.models.config.KafkaConfig.consume_predictions_topic">
+            consume_predictions_topic
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.config.KafkaConfig.logs_topic" title="baskerville.models.config.KafkaConfig.logs_topic">
+            logs_topic
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.config.KafkaConfig.predictions_topic" title="baskerville.models.config.KafkaConfig.predictions_topic">
+            predictions_topic
            </a>
           </code>
          </li>
@@ -7950,6 +8065,20 @@ Base 0 means to interpret the base from the string as an integer literal.
           <code>
            <a href="#baskerville.models.config.SparkConfig.parallelism" title="baskerville.models.config.SparkConfig.parallelism">
             parallelism
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.config.SparkConfig.redis_host" title="baskerville.models.config.SparkConfig.redis_host">
+            redis_host
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.config.SparkConfig.redis_port" title="baskerville.models.config.SparkConfig.redis_port">
+            redis_port
            </a>
           </code>
          </li>
