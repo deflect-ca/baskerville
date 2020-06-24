@@ -988,7 +988,7 @@ class SendFeatures(Task):
         self.streaming_df = None
         self.output_columns = output_columns
         self.output_topic = output_topic or \
-            self.config.kafka.publish_predictions
+            self.config.kafka.predictions_topic
         self.client_mode = client_mode
 
     def initialize(self):
