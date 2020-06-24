@@ -44,6 +44,7 @@ jobs:
       run: |
         export PYTHONPATH="./src:./esretriever/src"
         pytest ./tests/unit
-    - name: Docs update and License check
+    - name: License check
       run: |
+        pip install beautifulsoup4
         python ./src/baskerville/util/licensing.py
