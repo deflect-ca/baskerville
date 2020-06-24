@@ -46,9 +46,4 @@ jobs:
         pytest ./tests/unit
     - name: Docs update and License check
       run: |
-        export PYTHONPATH="./src:./esretriever/src"
-        pip install wheel
-        pip install pdoc3
-        pip install pykafka
-        pdoc3 --html --force --output-dir docs baskerville
         python ./src/baskerville/util/licensing.py
