@@ -7,41 +7,41 @@
 
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.pipeline_tasks.tasks import GetDataKafka, Preprocess, \
-    SaveRsInPostgres, SaveRsInRedis, PredictionOutput, \
-    GetPredictionsClientKafka, RetrieveRsFromRedis
+from baskerville.models.pipeline_tasks.tasks import GetDataKafka, GenerateFeatures, \
+    Save, CacheData, SendFeatures, \
+    GetPredictions, MergeWithCachedData
 
 
-def set_up_client_processing_pipeline(config: BaskervilleConfig):
-    client_tasks = [
+def set_up_preprocessing_pipeline(config: BaskervilleConfig):
+    task = [
         GetDataKafka(
             config,
             steps=[
-                Preprocess(config),
-                PredictionOutput(
+                GenerateFeatures(config),
+                SendFeatures(
                     config,
                     output_columns=('id_client', 'id_group', 'features'),
                     client_mode=True
                 ),
-                SaveRsInRedis(config),
+                CacheData(config),
             ]),
     ]
 
-    client_pipeline = Task(config, client_tasks)
-    client_pipeline.name = 'Client Pipeline'
-    return client_pipeline
+    main_task = Task(config, task)
+    main_task.name = 'Preprocessing Pipeline'
+    return main_task
 
 
-def set_up_client_prediction_pipeline(config: BaskervilleConfig):
-    client_tasks = [
-        GetPredictionsClientKafka(
+def set_up_postprocessing_pipeline(config: BaskervilleConfig):
+    tasks = [
+        GetPredictions(
             config,
             steps=[
-                RetrieveRsFromRedis(config),
-                SaveRsInPostgres(config),
+                MergeWithCachedData(config),
+                Save(config),
             ]),
     ]
 
-    client_pipeline = Task(config, client_tasks)
-    client_pipeline.name = 'Client Pipeline'
-    return client_pipeline
+    main_task = Task(config, tasks)
+    main_task.name = 'Postprocessing Pipeline'
+    return main_task

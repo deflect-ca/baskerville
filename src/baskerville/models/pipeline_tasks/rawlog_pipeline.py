@@ -7,8 +7,8 @@
 
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.pipeline_tasks.tasks import Preprocess, \
-    SaveRsInPostgres, \
+from baskerville.models.pipeline_tasks.tasks import GenerateFeatures, \
+    Save, \
     Predict, GetDataLog
 
 
@@ -17,9 +17,9 @@ def set_up_isac_rawlog_pipeline(config: BaskervilleConfig):
         GetDataLog(
             config,
             steps=[
-                Preprocess(config),
+                GenerateFeatures(config),
                 Predict(config),
-                SaveRsInPostgres(config),
+                Save(config),
             ]),
     ]
 

@@ -7,20 +7,20 @@
 
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.pipeline_tasks.tasks import GetPredictionsKafka, \
-    PredictionOutput, Predict
+from baskerville.models.pipeline_tasks.tasks import GetFeatures, \
+    SendFeatures, Predict
 
 
 def set_up_prediction_pipeline(config: BaskervilleConfig):
-    predict_tasks = [
-        GetPredictionsKafka(
+    tasks = [
+        GetFeatures(
             config,
             steps=[
                 Predict(config),
-                PredictionOutput(config),
+                SendFeatures(config),
             ]),
     ]
 
-    predict_pipeline = Task(config, predict_tasks)
-    predict_pipeline.name = 'Prediction Pipeline'
-    return predict_pipeline
+    main_task = Task(config, tasks)
+    main_task.name = 'Prediction Pipeline'
+    return main_task

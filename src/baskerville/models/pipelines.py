@@ -296,7 +296,7 @@ class KafkaPipeline(SparkPipelineBase):
 
         kafkaStream = KafkaUtils.createDirectStream(
             self.ssc,
-            [self.kafka_conf.consume_topic],
+            [self.kafka_conf.logs_topic],
             kafkaParams=kafkaParams,
             # fromOffsets={TopicAndPartition(
             # self.kafka_conf.consume_topic, 0): 0}
@@ -463,7 +463,7 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
 
         kafkaStream = KafkaUtils.createDirectStream(
             self.ssc,
-            [self.kafka_conf.consume_topic],
+            [self.kafka_conf.logs_topic],
             {
                 # 'bootstrap.servers': self.kafka_conf.zookeeper,
                 'metadata.broker.list': self.kafka_conf.url,

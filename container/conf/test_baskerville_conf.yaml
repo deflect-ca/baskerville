@@ -83,7 +83,7 @@ engine:
 kafka:
   bootstrap_servers: !ENV '${KAFKA_HOST}'
   zookeeper: !ENV '${ZOOKEEPER_HOST}'
-  consume_topic: 'deflect.logs'
+  logs_topic: 'deflect.logs'
   consume_group: 'baskerville'
 
 spark:
