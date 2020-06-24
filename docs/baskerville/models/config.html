@@ -738,11 +738,8 @@ class KafkaConfig(Config):
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
     logs_topic = 'deflect.logs'
-    consume_predictions_topic = 'predictions'
-    predictions_topic = 'id_client_predictions'
-    publish_logs = 'baskerville.logs'
-    publish_stats = 'baskerville.stats'
-    publish_predictions = 'baskerville.predictions'
+    features_topic = 'features'
+    predictions_topic = 'predictions'
     security_protocol = ''
     ssl_truststore_location = ''
     ssl_truststore_password = ''
@@ -766,14 +763,11 @@ class KafkaConfig(Config):
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
         if not self.logs_topic:
-            warnings.warn('Consume topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_logs:
-            warnings.warn('Publish logs is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_stats:
-            warnings.warn('Publish stats topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
+            warnings.warn('Logs topic is empty.')
+        if not self.features_topic:
+            warnings.warn('Features topic is empty')
+        if not self.predictions_topic:
+            warnings.warn('Predictions topic is empty.')
         if not self.publish_predictions:
             warnings.warn(
                 'Publish predictions topic is empty. If you are not using '
@@ -4195,11 +4189,8 @@ The class bool is a subclass of the class int, and cannot be subclassed.
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
     logs_topic = 'deflect.logs'
-    consume_predictions_topic = 'predictions'
-    predictions_topic = 'id_client_predictions'
-    publish_logs = 'baskerville.logs'
-    publish_stats = 'baskerville.stats'
-    publish_predictions = 'baskerville.predictions'
+    features_topic = 'features'
+    predictions_topic = 'predictions'
     security_protocol = ''
     ssl_truststore_location = ''
     ssl_truststore_password = ''
@@ -4223,14 +4214,11 @@ The class bool is a subclass of the class int, and cannot be subclassed.
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
         if not self.logs_topic:
-            warnings.warn('Consume topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_logs:
-            warnings.warn('Publish logs is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_stats:
-            warnings.warn('Publish stats topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
+            warnings.warn('Logs topic is empty.')
+        if not self.features_topic:
+            warnings.warn('Features topic is empty')
+        if not self.predictions_topic:
+            warnings.warn('Predictions topic is empty.')
         if not self.publish_predictions:
             warnings.warn(
                 'Publish predictions topic is empty. If you are not using '
@@ -4287,11 +4275,11 @@ errors defaults to 'strict'.
           </p>
          </section>
         </dd>
-        <dt id="baskerville.models.config.KafkaConfig.consume_predictions_topic">
+        <dt id="baskerville.models.config.KafkaConfig.features_topic">
          <code class="name">
           var
           <span class="ident">
-           consume_predictions_topic
+           features_topic
           </span>
          </code>
         </dt>
@@ -4350,93 +4338,6 @@ errors defaults to 'strict'.
           var
           <span class="ident">
            predictions_topic
-          </span>
-         </code>
-        </dt>
-        <dd>
-         <section class="desc">
-          <p>
-           str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
-          </p>
-          <p>
-           Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.
-           <strong>
-            str
-           </strong>
-           () (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.
-          </p>
-         </section>
-        </dd>
-        <dt id="baskerville.models.config.KafkaConfig.publish_logs">
-         <code class="name">
-          var
-          <span class="ident">
-           publish_logs
-          </span>
-         </code>
-        </dt>
-        <dd>
-         <section class="desc">
-          <p>
-           str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
-          </p>
-          <p>
-           Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.
-           <strong>
-            str
-           </strong>
-           () (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.
-          </p>
-         </section>
-        </dd>
-        <dt id="baskerville.models.config.KafkaConfig.publish_predictions">
-         <code class="name">
-          var
-          <span class="ident">
-           publish_predictions
-          </span>
-         </code>
-        </dt>
-        <dd>
-         <section class="desc">
-          <p>
-           str(object='') -&gt; str
-str(bytes_or_buffer[, encoding[, errors]]) -&gt; str
-          </p>
-          <p>
-           Create a new string object from the given object. If encoding or
-errors is specified, then the object must expose a data buffer
-that will be decoded using the given encoding and error handler.
-Otherwise, returns the result of object.
-           <strong>
-            str
-           </strong>
-           () (if defined)
-or repr(object).
-encoding defaults to sys.getdefaultencoding().
-errors defaults to 'strict'.
-          </p>
-         </section>
-        </dd>
-        <dt id="baskerville.models.config.KafkaConfig.publish_stats">
-         <code class="name">
-          var
-          <span class="ident">
-           publish_stats
           </span>
          </code>
         </dt>
@@ -4733,14 +4634,11 @@ errors defaults to 'strict'.
         # kafka client can be used without zookeeper
         warnings.warn('Zookeeper url is empty.')
     if not self.logs_topic:
-        warnings.warn('Consume topic is empty. If you are not using '
-                      'simulation or Realtime pipeline ignore this')
-    if not self.publish_logs:
-        warnings.warn('Publish logs is empty. If you are not using '
-                      'simulation or Realtime pipeline ignore this')
-    if not self.publish_stats:
-        warnings.warn('Publish stats topic is empty. If you are not using '
-                      'simulation or Realtime pipeline ignore this')
+        warnings.warn('Logs topic is empty.')
+    if not self.features_topic:
+        warnings.warn('Features topic is empty')
+    if not self.predictions_topic:
+        warnings.warn('Predictions topic is empty.')
     if not self.publish_predictions:
         warnings.warn(
             'Publish predictions topic is empty. If you are not using '
@@ -7626,8 +7524,8 @@ Base 0 means to interpret the base from the string as an integer literal.
          </li>
          <li>
           <code>
-           <a href="#baskerville.models.config.KafkaConfig.consume_predictions_topic" title="baskerville.models.config.KafkaConfig.consume_predictions_topic">
-            consume_predictions_topic
+           <a href="#baskerville.models.config.KafkaConfig.features_topic" title="baskerville.models.config.KafkaConfig.features_topic">
+            features_topic
            </a>
           </code>
          </li>
@@ -7642,27 +7540,6 @@ Base 0 means to interpret the base from the string as an integer literal.
           <code>
            <a href="#baskerville.models.config.KafkaConfig.predictions_topic" title="baskerville.models.config.KafkaConfig.predictions_topic">
             predictions_topic
-           </a>
-          </code>
-         </li>
-         <li>
-          <code>
-           <a href="#baskerville.models.config.KafkaConfig.publish_logs" title="baskerville.models.config.KafkaConfig.publish_logs">
-            publish_logs
-           </a>
-          </code>
-         </li>
-         <li>
-          <code>
-           <a href="#baskerville.models.config.KafkaConfig.publish_predictions" title="baskerville.models.config.KafkaConfig.publish_predictions">
-            publish_predictions
-           </a>
-          </code>
-         </li>
-         <li>
-          <code>
-           <a href="#baskerville.models.config.KafkaConfig.publish_stats" title="baskerville.models.config.KafkaConfig.publish_stats">
-            publish_stats
            </a>
           </code>
          </li>

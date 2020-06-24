@@ -693,11 +693,8 @@ class KafkaConfig(Config):
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
     logs_topic = 'deflect.logs'
-    consume_predictions_topic = 'predictions'
-    predictions_topic = 'id_client_predictions'
-    publish_logs = 'baskerville.logs'
-    publish_stats = 'baskerville.stats'
-    publish_predictions = 'baskerville.predictions'
+    features_topic = 'features'
+    predictions_topic = 'predictions'
     security_protocol = ''
     ssl_truststore_location = ''
     ssl_truststore_password = ''
@@ -721,14 +718,11 @@ class KafkaConfig(Config):
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
         if not self.logs_topic:
-            warnings.warn('Consume topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_logs:
-            warnings.warn('Publish logs is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_stats:
-            warnings.warn('Publish stats topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
+            warnings.warn('Logs topic is empty.')
+        if not self.features_topic:
+            warnings.warn('Features topic is empty')
+        if not self.predictions_topic:
+            warnings.warn('Predictions topic is empty.')
         if not self.publish_predictions:
             warnings.warn(
                 'Publish predictions topic is empty. If you are not using '

@@ -129,7 +129,7 @@ class GetFeatures(GetDataKafka):
 
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
-        self.consume_topic = self.config.kafka.consume_predictions_topic
+        self.consume_topic = self.config.kafka.features_topic
 
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
@@ -193,7 +193,7 @@ class GetDataKafkaStreaming(Task):
                 "kafka.bootstrap.servers",
                 self.config.kafka.bootstrap_servers
             ).option(
-                "subscribe", self.config.kafka.consume_predictions_topic
+                "subscribe", self.config.kafka.predictions_topic
             ).option(
                 "startingOffsets", "earliest"
             )
