@@ -5,7 +5,7 @@
   <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
   <meta content="pdoc 0.7.2" name="generator"/>
   <title>
-   baskerville.util.licensing API documentation
+   baskerville.simulation.real_timeish_feature_vector_simulation API documentation
   </title>
   <meta content="" name="description"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
@@ -28,7 +28,7 @@
      <h1 class="title">
       Module
       <code>
-       baskerville.util.licensing
+       baskerville.simulation.real_timeish_feature_vector_simulation
       </code>
      </h1>
     </header>
@@ -46,48 +46,109 @@
 # LICENSE file in the root directory of this source tree.
 
 
-try:
-    from BeautifulSoup import BeautifulSoup
-except ImportError:
-    from bs4 import BeautifulSoup
+import json
+import os
+import random
+import time
+import traceback
 
-html_license = """
-&lt;a rel="license" href="http://creativecommons.org/licenses/by/4.0/"&gt;
-&lt;img alt="Creative Commons Licence" style="border-width:0"
-src="https://i.creativecommons.org/l/by/4.0/80x15.png" /&gt;&lt;/a&gt;&lt;br /&gt;
-This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
-&lt;a rel="license" href="http://creativecommons.org/licenses/by/4.0/"&gt;
-Creative Commons Attribution 4.0 International License&lt;/a&gt;."""
+from baskerville.util.helpers import get_logger
+from pyspark.sql import functions as F, types as T
+
+logger = get_logger(__name__)
+
+COUNTER = 0
+SESSION_COUNTER = 0
+topic_name = 'predictions'
 
 
-def add_license_to_docs(dir_):
+def simulation(
+        path,
+        kafka_url='0.0.0.0:9092',
+        topic_name='deflect.logs',
+        spark=None,
+):
     """
-    Add license / copyright in the html docs
+    Loads feature vectors with id_client and id_group and publishes them one by
+    one with some random delay to the defined topic. This is used
+    :param str path: the path to feature vector samples
+    :param str kafka_url: the url to kafka, defaults to '0.0.0.0:9092'
+    :param str topic_name: the topic name to publish to
+    :param pyspark.SparkSession spark: the spark session
+    :return: None
     """
-    import os
 
-    for root, dirs, files in os.walk(dir_):
-        path = root.split(os.sep)
-        for file in files:
-            if '.html' in file:
-                full_path = os.path.join(root, file)
-                with open(full_path) as html_f:
-                    parsed_html = BeautifulSoup(html_f.read())
-                    if parsed_html:
-                        footer = parsed_html.body.find('footer')
-                        footer.append(
-                            BeautifulSoup(html_license, 'html.parser')
-                        )
-                with open(full_path, 'wb') as html_out_f:
-                    html_out_f.write(parsed_html.prettify("utf-8"))
-                    print('Wrote...', full_path)
+    if topic_name:
+        active_columns = ['id_client', 'id_group', 'features']
 
-            print(len(path) * '---', file)
-            print(os.path.join(root, file))
+        if not spark:
+            from baskerville.spark import get_spark_session
+            spark = get_spark_session()
+            spark.conf.set('spark.driver.memory', '8G')
+
+        print('Starting...')
+        df = spark.read.json(path).cache()
+        common_active_cols = [c for c in active_columns if c in df.columns]
+        df = df.select(*common_active_cols).sort('id_client')
+        print('Dataframe read...')
+        TOPIC_BC = spark.sparkContext.broadcast(topic_name)
+        KAFKA_URL_BC = spark.sparkContext.broadcast(kafka_url)
+
+        def send_to_kafka(id_client, id_group, features):
+            from confluent_kafka import Producer
+            producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
+            time.sleep(random.randrange(5, 20))
+            producer.produce(
+                TOPIC_BC.value,
+                json.dumps(
+                    {
+                        'id_client': id_client,
+                        'id_group': id_group,
+                        'features': features
+                    }).encode('utf-8')
+            )
+            producer.poll(2)
+            return True
+
+        try:
+            df = df.withColumn(
+                'sent',
+                F.udf(send_to_kafka, T.BooleanType())(*common_active_cols)
+            )
+            df.show(1000, False)
+        except Exception:
+            traceback.print_exc()
+            pass
+        finally:
+            if df:
+                df.unpersist()
+            if spark:
+                spark.catalog.clearCache()
 
 
 if __name__ == '__main__':
-    add_license_to_docs('./../../docs')</code></pre>
+    curr_working_dir = os.path.abspath('')
+    path_to_raw_logs = os.path.join(
+        curr_working_dir,
+        '..', '..', '..',
+        'data', 'samples', 'sample_vectors',
+        '*'
+    )
+    kafka_url = '0.0.0.0:9092'
+    simulation(
+        path_to_raw_logs,
+        kafka_url,
+        topic_name=topic_name,
+    )
+
+# data = self.data.withColumn(
+#   'id_client',
+#   F.monotonically_increasing_id()
+# ).withColumn(
+#     'id_group', F.monotonically_increasing_id()
+# )
+# data.select('id_client', 'id_group', 'features').write.format('json').save(
+#     '/path/to/baskerville/data/samples/sample_vectors')</code></pre>
      </details>
     </section>
     <section>
@@ -99,24 +160,30 @@ if __name__ == '__main__':
       Functions
      </h2>
      <dl>
-      <dt id="baskerville.util.licensing.add_license_to_docs">
+      <dt id="baskerville.simulation.real_timeish_feature_vector_simulation.simulation">
        <code class="name flex">
         <span>
          def
          <span class="ident">
-          add_license_to_docs
+          simulation
          </span>
         </span>
         (
         <span>
-         dir_)
+         path, kafka_url='0.0.0.0:9092', topic_name='deflect.logs', spark=None)
         </span>
        </code>
       </dt>
       <dd>
        <section class="desc">
         <p>
-         Add license / copyright in the html docs
+         Loads feature vectors with id_client and id_group and publishes them one by
+one with some random delay to the defined topic. This is used
+:param str path: the path to feature vector samples
+:param str kafka_url: the url to kafka, defaults to '0.0.0.0:9092'
+:param str topic_name: the topic name to publish to
+:param pyspark.SparkSession spark: the spark session
+:return: None
         </p>
        </section>
        <details class="source">
@@ -125,30 +192,68 @@ if __name__ == '__main__':
           Expand source code
          </span>
         </summary>
-        <pre><code class="python">def add_license_to_docs(dir_):
+        <pre><code class="python">def simulation(
+        path,
+        kafka_url='0.0.0.0:9092',
+        topic_name='deflect.logs',
+        spark=None,
+):
     """
-    Add license / copyright in the html docs
+    Loads feature vectors with id_client and id_group and publishes them one by
+    one with some random delay to the defined topic. This is used
+    :param str path: the path to feature vector samples
+    :param str kafka_url: the url to kafka, defaults to '0.0.0.0:9092'
+    :param str topic_name: the topic name to publish to
+    :param pyspark.SparkSession spark: the spark session
+    :return: None
     """
-    import os
 
-    for root, dirs, files in os.walk(dir_):
-        path = root.split(os.sep)
-        for file in files:
-            if '.html' in file:
-                full_path = os.path.join(root, file)
-                with open(full_path) as html_f:
-                    parsed_html = BeautifulSoup(html_f.read())
-                    if parsed_html:
-                        footer = parsed_html.body.find('footer')
-                        footer.append(
-                            BeautifulSoup(html_license, 'html.parser')
-                        )
-                with open(full_path, 'wb') as html_out_f:
-                    html_out_f.write(parsed_html.prettify("utf-8"))
-                    print('Wrote...', full_path)
+    if topic_name:
+        active_columns = ['id_client', 'id_group', 'features']
 
-            print(len(path) * '---', file)
-            print(os.path.join(root, file))</code></pre>
+        if not spark:
+            from baskerville.spark import get_spark_session
+            spark = get_spark_session()
+            spark.conf.set('spark.driver.memory', '8G')
+
+        print('Starting...')
+        df = spark.read.json(path).cache()
+        common_active_cols = [c for c in active_columns if c in df.columns]
+        df = df.select(*common_active_cols).sort('id_client')
+        print('Dataframe read...')
+        TOPIC_BC = spark.sparkContext.broadcast(topic_name)
+        KAFKA_URL_BC = spark.sparkContext.broadcast(kafka_url)
+
+        def send_to_kafka(id_client, id_group, features):
+            from confluent_kafka import Producer
+            producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
+            time.sleep(random.randrange(5, 20))
+            producer.produce(
+                TOPIC_BC.value,
+                json.dumps(
+                    {
+                        'id_client': id_client,
+                        'id_group': id_group,
+                        'features': features
+                    }).encode('utf-8')
+            )
+            producer.poll(2)
+            return True
+
+        try:
+            df = df.withColumn(
+                'sent',
+                F.udf(send_to_kafka, T.BooleanType())(*common_active_cols)
+            )
+            df.show(1000, False)
+        except Exception:
+            traceback.print_exc()
+            pass
+        finally:
+            if df:
+                df.unpersist()
+            if spark:
+                spark.catalog.clearCache()</code></pre>
        </details>
       </dd>
      </dl>
@@ -172,8 +277,8 @@ if __name__ == '__main__':
       <ul>
        <li>
         <code>
-         <a href="index.html" title="baskerville.util">
-          baskerville.util
+         <a href="index.html" title="baskerville.simulation">
+          baskerville.simulation
          </a>
         </code>
        </li>
@@ -188,8 +293,8 @@ if __name__ == '__main__':
       <ul class="">
        <li>
         <code>
-         <a href="#baskerville.util.licensing.add_license_to_docs" title="baskerville.util.licensing.add_license_to_docs">
-          add_license_to_docs
+         <a href="#baskerville.simulation.real_timeish_feature_vector_simulation.simulation" title="baskerville.simulation.real_timeish_feature_vector_simulation.simulation">
+          simulation
          </a>
         </code>
        </li>

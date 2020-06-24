@@ -156,7 +156,7 @@ def main():
         help="Pipeline to use: es, rawlog, or kafka",
     )
     parser.add_argument(
-        "-s", "--simulate", dest="simulate",  action="store_true",
+        "-s", "--simulate", dest="simulate", action="store_true",
         help="Simulate real-time run using kafka",
     )
     parser.add_argument(
@@ -177,13 +177,6 @@ def main():
         "-c", "--conf", action="store", dest="conf_file",
         default=os.path.join(src_dir, '..', 'conf', 'baskerville.yaml'),
         help="Path to config file"
-    )
-
-    parser.add_argument(
-        "-t", "--testmodel", dest="test_model",
-        help="Add a test model in the models table",
-        default=False,
-        action="store_true"
     )
 
     args = parser.parse_args()
@@ -211,7 +204,7 @@ def main():
     # start baskerville prometheus exporter if specified
     if args.start_exporter:
         if not baskerville_engine.config.engine.metrics:
-            raise RuntimeError(f'Cannot start exporter without metrics config')
+            raise RuntimeError('Cannot start exporter without metrics config')
         port = baskerville_engine.config.engine.metrics.port
         start_http_server(port)
         logger.info(f'Starting Baskerville Exporter at '
@@ -354,7 +347,7 @@ if __name__ == "__main__":
         help="Pipeline to use: es, rawlog, or kafka",
     )
     parser.add_argument(
-        "-s", "--simulate", dest="simulate",  action="store_true",
+        "-s", "--simulate", dest="simulate", action="store_true",
         help="Simulate real-time run using kafka",
     )
     parser.add_argument(
@@ -375,13 +368,6 @@ if __name__ == "__main__":
         "-c", "--conf", action="store", dest="conf_file",
         default=os.path.join(src_dir, '..', 'conf', 'baskerville.yaml'),
         help="Path to config file"
-    )
-
-    parser.add_argument(
-        "-t", "--testmodel", dest="test_model",
-        help="Add a test model in the models table",
-        default=False,
-        action="store_true"
     )
 
     args = parser.parse_args()
@@ -409,7 +395,7 @@ if __name__ == "__main__":
     # start baskerville prometheus exporter if specified
     if args.start_exporter:
         if not baskerville_engine.config.engine.metrics:
-            raise RuntimeError(f'Cannot start exporter without metrics config')
+            raise RuntimeError('Cannot start exporter without metrics config')
         port = baskerville_engine.config.engine.metrics.port
         start_http_server(port)
         logger.info(f'Starting Baskerville Exporter at '

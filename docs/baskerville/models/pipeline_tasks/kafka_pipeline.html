@@ -5,7 +5,7 @@
   <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
   <meta content="pdoc 0.7.2" name="generator"/>
   <title>
-   baskerville.simulation API documentation
+   baskerville.models.pipeline_tasks.kafka_pipeline API documentation
   </title>
   <meta content="" name="description"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
@@ -28,66 +28,95 @@
      <h1 class="title">
       Module
       <code>
-       baskerville.simulation
+       baskerville.models.pipeline_tasks.kafka_pipeline
       </code>
      </h1>
     </header>
     <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+from baskerville.models.pipeline_tasks.tasks_base import Task
+from baskerville.models.config import BaskervilleConfig
+from baskerville.models.pipeline_tasks.tasks import GenerateFeatures, \
+    Save, Predict, GetDataKafka
+
+
+def set_up_isac_kafka_pipeline(config: BaskervilleConfig):
+    kafka_tasks = [
+        GetDataKafka(
+            config,
+            steps=[
+                GenerateFeatures(config),
+                Predict(config),
+                Save(config),
+            ]),
+    ]
+
+    kafka_pipeline = Task(config, kafka_tasks)
+    kafka_pipeline.name = 'Kafka Pipeline'
+    return kafka_pipeline</code></pre>
+     </details>
     </section>
     <section>
-     <h2 class="section-title" id="header-submodules">
-      Sub-modules
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-functions">
+      Functions
      </h2>
      <dl>
-      <dt>
-       <code class="name">
-        <a href="confluent_kafka_consumer.html" title="baskerville.simulation.confluent_kafka_consumer">
-         baskerville.simulation.confluent_kafka_consumer
-        </a>
+      <dt id="baskerville.models.pipeline_tasks.kafka_pipeline.set_up_isac_kafka_pipeline">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          set_up_isac_kafka_pipeline
+         </span>
+        </span>
+        (
+        <span>
+         config)
+        </span>
        </code>
       </dt>
       <dd>
        <section class="desc">
        </section>
-      </dd>
-      <dt>
-       <code class="name">
-        <a href="dummy_consumer.html" title="baskerville.simulation.dummy_consumer">
-         baskerville.simulation.dummy_consumer
-        </a>
-       </code>
-      </dt>
-      <dd>
-       <section class="desc">
-       </section>
-      </dd>
-      <dt>
-       <code class="name">
-        <a href="real_timeish_feature_vector_simulation.html" title="baskerville.simulation.real_timeish_feature_vector_simulation">
-         baskerville.simulation.real_timeish_feature_vector_simulation
-        </a>
-       </code>
-      </dt>
-      <dd>
-       <section class="desc">
-       </section>
-      </dd>
-      <dt>
-       <code class="name">
-        <a href="real_timeish_simulation.html" title="baskerville.simulation.real_timeish_simulation">
-         baskerville.simulation.real_timeish_simulation
-        </a>
-       </code>
-      </dt>
-      <dd>
-       <section class="desc">
-       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def set_up_isac_kafka_pipeline(config: BaskervilleConfig):
+    kafka_tasks = [
+        GetDataKafka(
+            config,
+            steps=[
+                GenerateFeatures(config),
+                Predict(config),
+                Save(config),
+            ]),
+    ]
+
+    kafka_pipeline = Task(config, kafka_tasks)
+    kafka_pipeline.name = 'Kafka Pipeline'
+    return kafka_pipeline</code></pre>
+       </details>
       </dd>
      </dl>
-    </section>
-    <section>
-    </section>
-    <section>
     </section>
     <section>
     </section>
@@ -108,8 +137,8 @@
       <ul>
        <li>
         <code>
-         <a href="../index.html" title="baskerville">
-          baskerville
+         <a href="index.html" title="baskerville.models.pipeline_tasks">
+          baskerville.models.pipeline_tasks
          </a>
         </code>
        </li>
@@ -117,36 +146,15 @@
      </li>
      <li>
       <h3>
-       <a href="#header-submodules">
-        Sub-modules
+       <a href="#header-functions">
+        Functions
        </a>
       </h3>
-      <ul>
+      <ul class="">
        <li>
         <code>
-         <a href="confluent_kafka_consumer.html" title="baskerville.simulation.confluent_kafka_consumer">
-          baskerville.simulation.confluent_kafka_consumer
-         </a>
-        </code>
-       </li>
-       <li>
-        <code>
-         <a href="dummy_consumer.html" title="baskerville.simulation.dummy_consumer">
-          baskerville.simulation.dummy_consumer
-         </a>
-        </code>
-       </li>
-       <li>
-        <code>
-         <a href="real_timeish_feature_vector_simulation.html" title="baskerville.simulation.real_timeish_feature_vector_simulation">
-          baskerville.simulation.real_timeish_feature_vector_simulation
-         </a>
-        </code>
-       </li>
-       <li>
-        <code>
-         <a href="real_timeish_simulation.html" title="baskerville.simulation.real_timeish_simulation">
-          baskerville.simulation.real_timeish_simulation
+         <a href="#baskerville.models.pipeline_tasks.kafka_pipeline.set_up_isac_kafka_pipeline" title="baskerville.models.pipeline_tasks.kafka_pipeline.set_up_isac_kafka_pipeline">
+          set_up_isac_kafka_pipeline
          </a>
         </code>
        </li>

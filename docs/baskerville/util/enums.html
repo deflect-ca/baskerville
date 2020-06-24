@@ -85,6 +85,12 @@ class RunType(BaseStrEnum):
     rawlog = 'rawlog'
     kafka = 'kafka'
     training = 'training'
+    irawlog = 'irawlog'
+    ikafka = 'ikafka'
+    itraining = 'itraining'
+    preprocessing = 'preprocessing'
+    postprocessing = 'postprocessing'
+    prediction = 'prediction'
 
 
 class Step(BaseStrEnum):
@@ -166,8 +172,8 @@ class PartitionByEnum(BaseStrEnum):
 
 
 class ModelEnum(BaseStrEnum):
-    isolation_forest_sklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
-    isolation_forest = "baskerville.models.anomaly_model.AnomalyModel"</code></pre>
+    AnomalyModelSklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
+    AnomalyModel = "baskerville.models.anomaly_model.AnomalyModel"</code></pre>
      </details>
     </section>
     <section>
@@ -918,8 +924,8 @@ benign 0 &lt;= prediction &lt;= 1 malicious
          </span>
         </summary>
         <pre><code class="python">class ModelEnum(BaseStrEnum):
-    isolation_forest_sklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
-    isolation_forest = "baskerville.models.anomaly_model.AnomalyModel"</code></pre>
+    AnomalyModelSklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
+    AnomalyModel = "baskerville.models.anomaly_model.AnomalyModel"</code></pre>
        </details>
        <h3>
         Ancestors
@@ -938,11 +944,11 @@ benign 0 &lt;= prediction &lt;= 1 malicious
         Class variables
        </h3>
        <dl>
-        <dt id="baskerville.util.enums.ModelEnum.isolation_forest">
+        <dt id="baskerville.util.enums.ModelEnum.AnomalyModel">
          <code class="name">
           var
           <span class="ident">
-           isolation_forest
+           AnomalyModel
           </span>
          </code>
         </dt>
@@ -953,11 +959,11 @@ benign 0 &lt;= prediction &lt;= 1 malicious
           </p>
          </section>
         </dd>
-        <dt id="baskerville.util.enums.ModelEnum.isolation_forest_sklearn">
+        <dt id="baskerville.util.enums.ModelEnum.AnomalyModelSklearn">
          <code class="name">
           var
           <span class="ident">
-           isolation_forest_sklearn
+           AnomalyModelSklearn
           </span>
          </code>
         </dt>
@@ -1292,7 +1298,13 @@ benign 0 &lt;= prediction &lt;= 1 malicious
     es = 'es'
     rawlog = 'rawlog'
     kafka = 'kafka'
-    training = 'training'</code></pre>
+    training = 'training'
+    irawlog = 'irawlog'
+    ikafka = 'ikafka'
+    itraining = 'itraining'
+    preprocessing = 'preprocessing'
+    postprocessing = 'postprocessing'
+    prediction = 'prediction'</code></pre>
        </details>
        <h3>
         Ancestors
@@ -1326,11 +1338,101 @@ benign 0 &lt;= prediction &lt;= 1 malicious
           </p>
          </section>
         </dd>
+        <dt id="baskerville.util.enums.RunType.ikafka">
+         <code class="name">
+          var
+          <span class="ident">
+           ikafka
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.RunType.irawlog">
+         <code class="name">
+          var
+          <span class="ident">
+           irawlog
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.RunType.itraining">
+         <code class="name">
+          var
+          <span class="ident">
+           itraining
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
         <dt id="baskerville.util.enums.RunType.kafka">
          <code class="name">
           var
           <span class="ident">
            kafka
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.RunType.postprocessing">
+         <code class="name">
+          var
+          <span class="ident">
+           postprocessing
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.RunType.prediction">
+         <code class="name">
+          var
+          <span class="ident">
+           prediction
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           An enumeration.
+          </p>
+         </section>
+        </dd>
+        <dt id="baskerville.util.enums.RunType.preprocessing">
+         <code class="name">
+          var
+          <span class="ident">
+           preprocessing
           </span>
          </code>
         </dt>
@@ -1924,15 +2026,15 @@ benign 0 &lt;= prediction &lt;= 1 malicious
         <ul class="">
          <li>
           <code>
-           <a href="#baskerville.util.enums.ModelEnum.isolation_forest" title="baskerville.util.enums.ModelEnum.isolation_forest">
-            isolation_forest
+           <a href="#baskerville.util.enums.ModelEnum.AnomalyModel" title="baskerville.util.enums.ModelEnum.AnomalyModel">
+            AnomalyModel
            </a>
           </code>
          </li>
          <li>
           <code>
-           <a href="#baskerville.util.enums.ModelEnum.isolation_forest_sklearn" title="baskerville.util.enums.ModelEnum.isolation_forest_sklearn">
-            isolation_forest_sklearn
+           <a href="#baskerville.util.enums.ModelEnum.AnomalyModelSklearn" title="baskerville.util.enums.ModelEnum.AnomalyModelSklearn">
+            AnomalyModelSklearn
            </a>
           </code>
          </li>
@@ -2052,7 +2154,7 @@ benign 0 &lt;= prediction &lt;= 1 malicious
           </a>
          </code>
         </h4>
-        <ul class="">
+        <ul class="two-column">
          <li>
           <code>
            <a href="#baskerville.util.enums.RunType.es" title="baskerville.util.enums.RunType.es">
@@ -2062,8 +2164,50 @@ benign 0 &lt;= prediction &lt;= 1 malicious
          </li>
          <li>
           <code>
+           <a href="#baskerville.util.enums.RunType.ikafka" title="baskerville.util.enums.RunType.ikafka">
+            ikafka
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.irawlog" title="baskerville.util.enums.RunType.irawlog">
+            irawlog
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.itraining" title="baskerville.util.enums.RunType.itraining">
+            itraining
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
            <a href="#baskerville.util.enums.RunType.kafka" title="baskerville.util.enums.RunType.kafka">
             kafka
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.postprocessing" title="baskerville.util.enums.RunType.postprocessing">
+            postprocessing
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.prediction" title="baskerville.util.enums.RunType.prediction">
+            prediction
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.util.enums.RunType.preprocessing" title="baskerville.util.enums.RunType.preprocessing">
+            preprocessing
            </a>
           </code>
          </li>

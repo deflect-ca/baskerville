@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.models.pipeline_tasks.tasks_base API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.models.pipeline_tasks.tasks_base
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import abc
+import datetime
+from collections import OrderedDict
+from typing import List
+
+import pyspark
+
+from baskerville.models.config import BaskervilleConfig
+from baskerville.models.pipeline_tasks.service_provider import ServiceProvider
+from baskerville.util.helpers import get_logger, TimeBucket
+
+
+class Task(object, metaclass=abc.ABCMeta):
+    name: str
+    df: pyspark.sql.DataFrame
+    steps: List['Task']
+    config: BaskervilleConfig
+
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        self.df = None
+        self.config = config
+        self.steps = steps
+        self.step_to_action = OrderedDict({
+            str(step): step for step in self.steps
+        })
+        self.logger = get_logger(
+            self.__class__.__name__,
+            logging_level=self.config.engine.log_level,
+            output_file=self.config.engine.logpath
+        )
+        self.time_bucket = TimeBucket(self.config.engine.time_bucket)
+        self.start_time = datetime.datetime.utcnow()
+        self.service_provider = ServiceProvider(self.config)
+
+    def __str__(self):
+        name = f'{self.__class__.__name__} '
+        if self.steps:
+            name += ",".join(step.__class__.__name__ for step in self.steps)
+        return name
+
+    def __getattr__(self, item):
+        """
+        Look into service provider if attribute not found in current class
+        """
+        if hasattr(self.service_provider, item):
+            return getattr(self.service_provider, item)
+        raise AttributeError(f'No such attribute {item}')
+
+    @property
+    def spark(self):
+        return self.service_provider.spark
+
+    @property
+    def runtime(self):
+        return self.service_provider.runtime
+
+    @runtime.setter
+    def runtime(self, value):
+        self.service_provider.runtime = value
+
+    @property
+    def tools(self):
+        return self.service_provider.tools
+
+    @property
+    def db_tools(self):
+        return self.service_provider.tools
+
+    def set_df(self, df):
+        self.df = df
+        return self
+
+    def initialize(self):
+        self.service_provider.initialize_db_tools_service()
+        self.service_provider.initialize_spark_service()
+
+        for step in self.steps:
+            step.initialize()
+
+    def run(self):
+        """
+        For all defined steps, run the respective actions
+        :return: returns the dataframe (self.df) after all the computations.
+        :rtype: pyspark.sql.DataFrame
+        """
+        self.remaining_steps = list(self.step_to_action.keys())
+        for descr, task in self.step_to_action.items():
+            self.logger.info('Starting step {}'.format(descr))
+            self.df = task.set_df(self.df).run()
+            self.logger.info('Completed step {}'.format(descr))
+            self.remaining_steps.remove(descr)
+        return self.df
+
+    def finish_up(self):
+        self.service_provider.finish_up()
+
+    def reset(self):
+        self.service_provider.reset()
+
+
+class CacheTask(Task):
+    """
+    A task that utilizes RequestSetCache
+    """
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+
+    def initialize(self):
+        super().initialize()
+        self.service_provider.initialize_request_set_cache_service()
+
+    @property
+    def request_set_cache(self):
+        return self.service_provider.request_set_cache
+
+
+class MLTask(CacheTask):
+    """
+    A task that uses AnomalyModel, Model and FeatureManager
+    """
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+
+    def initialize(self):
+        super().initialize()
+        self.service_provider.initalize_ml_services()
+
+    @property
+    def model(self):
+        return self.service_provider.model
+
+    @property
+    def model_index(self):
+        return self.service_provider.model_index
+
+    @property
+    def feature_manager(self):
+        return self.service_provider.feature_manager</code></pre>
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.models.pipeline_tasks.tasks_base.CacheTask">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          CacheTask
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         A task that utilizes RequestSetCache
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class CacheTask(Task):
+    """
+    A task that utilizes RequestSetCache
+    """
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+
+    def initialize(self):
+        super().initialize()
+        self.service_provider.initialize_request_set_cache_service()
+
+    @property
+    def request_set_cache(self):
+        return self.service_provider.request_set_cache</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks_base.MLTask" title="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+          MLTask
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Instance variables
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.CacheTask.request_set_cache">
+         <code class="name">
+          var
+          <span class="ident">
+           request_set_cache
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
+def request_set_cache(self):
+    return self.service_provider.request_set_cache</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.CacheTask.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    super().initialize()
+    self.service_provider.initialize_request_set_cache_service()</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          MLTask
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         A task that uses AnomalyModel, Model and FeatureManager
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class MLTask(CacheTask):
+    """
+    A task that uses AnomalyModel, Model and FeatureManager
+    """
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+
+    def initialize(self):
+        super().initialize()
+        self.service_provider.initalize_ml_services()
+
+    @property
+    def model(self):
+        return self.service_provider.model
+
+    @property
+    def model_index(self):
+        return self.service_provider.model_index
+
+    @property
+    def feature_manager(self):
+        return self.service_provider.feature_manager</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks_base.CacheTask" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask">
+          CacheTask
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.GenerateFeatures" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures">
+          GenerateFeatures
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.Predict" title="baskerville.models.pipeline_tasks.tasks.Predict">
+          Predict
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.ModelUpdate" title="baskerville.models.pipeline_tasks.tasks.ModelUpdate">
+          ModelUpdate
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Instance variables
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.MLTask.feature_manager">
+         <code class="name">
+          var
+          <span class="ident">
+           feature_manager
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
+def feature_manager(self):
+    return self.service_provider.feature_manager</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.MLTask.model">
+         <code class="name">
+          var
+          <span class="ident">
+           model
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
+def model(self):
+    return self.service_provider.model</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.MLTask.model_index">
+         <code class="name">
+          var
+          <span class="ident">
+           model_index
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
+def model_index(self):
+    return self.service_provider.model_index</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.MLTask.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    super().initialize()
+    self.service_provider.initalize_ml_services()</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.CacheTask" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask">
+            CacheTask
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks_base.Task">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Task
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class Task(object, metaclass=abc.ABCMeta):
+    name: str
+    df: pyspark.sql.DataFrame
+    steps: List['Task']
+    config: BaskervilleConfig
+
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        self.df = None
+        self.config = config
+        self.steps = steps
+        self.step_to_action = OrderedDict({
+            str(step): step for step in self.steps
+        })
+        self.logger = get_logger(
+            self.__class__.__name__,
+            logging_level=self.config.engine.log_level,
+            output_file=self.config.engine.logpath
+        )
+        self.time_bucket = TimeBucket(self.config.engine.time_bucket)
+        self.start_time = datetime.datetime.utcnow()
+        self.service_provider = ServiceProvider(self.config)
+
+    def __str__(self):
+        name = f'{self.__class__.__name__} '
+        if self.steps:
+            name += ",".join(step.__class__.__name__ for step in self.steps)
+        return name
+
+    def __getattr__(self, item):
+        """
+        Look into service provider if attribute not found in current class
+        """
+        if hasattr(self.service_provider, item):
+            return getattr(self.service_provider, item)
+        raise AttributeError(f'No such attribute {item}')
+
+    @property
+    def spark(self):
+        return self.service_provider.spark
+
+    @property
+    def runtime(self):
+        return self.service_provider.runtime
+
+    @runtime.setter
+    def runtime(self, value):
+        self.service_provider.runtime = value
+
+    @property
+    def tools(self):
+        return self.service_provider.tools
+
+    @property
+    def db_tools(self):
+        return self.service_provider.tools
+
+    def set_df(self, df):
+        self.df = df
+        return self
+
+    def initialize(self):
+        self.service_provider.initialize_db_tools_service()
+        self.service_provider.initialize_spark_service()
+
+        for step in self.steps:
+            step.initialize()
+
+    def run(self):
+        """
+        For all defined steps, run the respective actions
+        :return: returns the dataframe (self.df) after all the computations.
+        :rtype: pyspark.sql.DataFrame
+        """
+        self.remaining_steps = list(self.step_to_action.keys())
+        for descr, task in self.step_to_action.items():
+            self.logger.info('Starting step {}'.format(descr))
+            self.df = task.set_df(self.df).run()
+            self.logger.info('Completed step {}'.format(descr))
+            self.remaining_steps.remove(descr)
+        return self.df
+
+    def finish_up(self):
+        self.service_provider.finish_up()
+
+    def reset(self):
+        self.service_provider.reset()</code></pre>
+       </details>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks_base.CacheTask" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask">
+          CacheTask
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.GetDataKafka" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka">
+          GetDataKafka
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming" title="baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming">
+          GetDataKafkaStreaming
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.GetDataLog" title="baskerville.models.pipeline_tasks.tasks.GetDataLog">
+          GetDataLog
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.GetDataPostgres" title="baskerville.models.pipeline_tasks.tasks.GetDataPostgres">
+          GetDataPostgres
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres" title="baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres">
+          SaveDfInPostgres
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.CacheData" title="baskerville.models.pipeline_tasks.tasks.CacheData">
+          CacheData
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.MergeWithCachedData" title="baskerville.models.pipeline_tasks.tasks.MergeWithCachedData">
+          MergeWithCachedData
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.SendFeatures" title="baskerville.models.pipeline_tasks.tasks.SendFeatures">
+          SendFeatures
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.Train" title="baskerville.models.pipeline_tasks.tasks.Train">
+          Train
+         </a>
+        </li>
+        <li>
+         <a href="tasks.html#baskerville.models.pipeline_tasks.tasks.Evaluate" title="baskerville.models.pipeline_tasks.tasks.Evaluate">
+          Evaluate
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Instance variables
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.db_tools">
+         <code class="name">
+          var
+          <span class="ident">
+           db_tools
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
+def db_tools(self):
+    return self.service_provider.tools</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.runtime">
+         <code class="name">
+          var
+          <span class="ident">
+           runtime
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
+def runtime(self):
+    return self.service_provider.runtime</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.spark">
+         <code class="name">
+          var
+          <span class="ident">
+           spark
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
+def spark(self):
+    return self.service_provider.spark</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.tools">
+         <code class="name">
+          var
+          <span class="ident">
+           tools
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">@property
+def tools(self):
+    return self.service_provider.tools</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.finish_up">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            finish_up
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def finish_up(self):
+    self.service_provider.finish_up()</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    self.service_provider.initialize_db_tools_service()
+    self.service_provider.initialize_spark_service()
+
+    for step in self.steps:
+        step.initialize()</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.reset">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            reset
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def reset(self):
+    self.service_provider.reset()</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            run
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           For all defined steps, run the respective actions
+:return: returns the dataframe (self.df) after all the computations.
+:rtype: pyspark.sql.DataFrame
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def run(self):
+    """
+    For all defined steps, run the respective actions
+    :return: returns the dataframe (self.df) after all the computations.
+    :rtype: pyspark.sql.DataFrame
+    """
+    self.remaining_steps = list(self.step_to_action.keys())
+    for descr, task in self.step_to_action.items():
+        self.logger.info('Starting step {}'.format(descr))
+        self.df = task.set_df(self.df).run()
+        self.logger.info('Completed step {}'.format(descr))
+        self.remaining_steps.remove(descr)
+    return self.df</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks_base.Task.set_df">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            set_df
+           </span>
+          </span>
+          (
+          <span>
+           self, df)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def set_df(self, df):
+    self.df = df
+    return self</code></pre>
+         </details>
+        </dd>
+       </dl>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.models.pipeline_tasks">
+          baskerville.models.pipeline_tasks
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks_base.CacheTask" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask">
+           CacheTask
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.CacheTask.initialize" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.CacheTask.request_set_cache" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask.request_set_cache">
+            request_set_cache
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks_base.MLTask" title="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+           MLTask
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.MLTask.feature_manager" title="baskerville.models.pipeline_tasks.tasks_base.MLTask.feature_manager">
+            feature_manager
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.MLTask.initialize" title="baskerville.models.pipeline_tasks.tasks_base.MLTask.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.MLTask.model" title="baskerville.models.pipeline_tasks.tasks_base.MLTask.model">
+            model
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.MLTask.model_index" title="baskerville.models.pipeline_tasks.tasks_base.MLTask.model_index">
+            model_index
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+           Task
+          </a>
+         </code>
+        </h4>
+        <ul class="two-column">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.db_tools" title="baskerville.models.pipeline_tasks.tasks_base.Task.db_tools">
+            db_tools
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.finish_up" title="baskerville.models.pipeline_tasks.tasks_base.Task.finish_up">
+            finish_up
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.initialize" title="baskerville.models.pipeline_tasks.tasks_base.Task.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.reset" title="baskerville.models.pipeline_tasks.tasks_base.Task.reset">
+            reset
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+            run
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.runtime" title="baskerville.models.pipeline_tasks.tasks_base.Task.runtime">
+            runtime
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.set_df" title="baskerville.models.pipeline_tasks.tasks_base.Task.set_df">
+            set_df
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.spark" title="baskerville.models.pipeline_tasks.tasks_base.Task.spark">
+            spark
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks_base.Task.tools" title="baskerville.models.pipeline_tasks.tasks_base.Task.tools">
+            tools
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
+</html>
