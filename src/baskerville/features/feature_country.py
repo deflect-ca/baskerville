@@ -34,7 +34,6 @@ class FeatureCountry(UpdaterReplace):
         return True
 
     def compute(self, df):
-        from pyspark.sql import functions as F
         df = df.withColumn(
             self.feature_name, F.col('country_first')
         )

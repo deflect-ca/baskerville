@@ -9,7 +9,7 @@ import os
 from collections import OrderedDict
 import json
 import pyspark
-from pyspark.sql.types import StructField, StringType, StructType
+from pyspark.sql.types import StructField, StringType
 
 from baskerville.models.config import EngineConfig, DatabaseConfig, SparkConfig
 from baskerville.spark import get_or_create_spark_session
@@ -129,8 +129,10 @@ class TrainingPipeline(PipelineBase):
                     fractions[key] = 1.0
             self.data = self.data.sampleBy('target', fractions, 777)
 
-        schema = StructType()
+        schema = self.spark.read.json(self.data.limit(1).rdd.map(lambda row: row.features)).schema
         for feature in self.model.features:
+            if feature in schema.fieldNames():
+                continue
             features_class = self.engine_conf.all_features[feature]
             schema.add(StructField(
                 name=feature,
