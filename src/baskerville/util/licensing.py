@@ -76,7 +76,11 @@ def check_license(dir_, ext=('py', 'md', 'html'), exclude_dirs=('alembic',)):
 
 if __name__ == '__main__':
     add_license_to_docs('./../../../docs')
-    errors = check_license('./../../../')
+    errors = check_license('./../../../src')
+    errors += check_license('./../../../tests')
+    errors += check_license('./../../../container')
+    errors += check_license('./../../../scripts')
+    errors += check_license('./../../../data')
     if errors:
         print(errors)
         sys.exit(1)
