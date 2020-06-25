@@ -208,3 +208,4 @@ class AnomalyModel(ModelInterface):
         self.indexes = {}
         for feature in self.categorical_string_features():
             self.indexes[feature] = StringIndexerModel.load(self._get_index_path(path, feature))
+    
