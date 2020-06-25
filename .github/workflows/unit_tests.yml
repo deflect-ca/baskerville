@@ -44,3 +44,6 @@ jobs:
       run: |
         export PYTHONPATH="./src:./esretriever/src"
         pytest ./tests/unit
+    - name: License check
+      run: |
+        python ./src/baskerville/util/licensing.py

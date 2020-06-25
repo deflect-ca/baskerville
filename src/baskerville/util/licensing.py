@@ -3,15 +3,22 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
+import os
+import sys
 
 try:
     from BeautifulSoup import BeautifulSoup
 except ImportError:
     from bs4 import BeautifulSoup
 
-html_license = """
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+py_license = """# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+"""
+
+html_license = """<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
 <img alt="Creative Commons Licence" style="border-width:0"
 src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />
 This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
@@ -45,5 +52,35 @@ def add_license_to_docs(dir_):
             print(os.path.join(root, file))
 
 
+def check_license(dir_, ext=('py', 'md', 'html'), exclude_dirs=('alembic',)):
+    """
+    Checks if all files with the defined extensions have the copyright license
+    """
+    licence_check = '(c) 2020, eQualit.ie inc.'
+    errors = []
+    for root, dirs, files in os.walk(dir_):
+
+        if [d for d in exclude_dirs if d in root]:
+            continue
+        for f_ in files:
+            f_ext = f_.rsplit('.', 1)[-1]
+            if f_ext in ext:
+                f_path = os.path.join(root, f_)
+                with open(f_path) as curr_f:
+                    contents = curr_f.read()
+                    if len(contents) > 1 and licence_check not in contents:
+                        errors.append(f_path)
+                        print('License NOT found in: ', f_path)
+    return errors
+
+
 if __name__ == '__main__':
     add_license_to_docs('./../../../docs')
+    errors = check_license('./../../../src')
+    errors += check_license('./../../../tests')
+    errors += check_license('./../../../container')
+    errors += check_license('./../../../scripts')
+    errors += check_license('./../../../data')
+    if errors:
+        print(errors)
+        sys.exit(1)
