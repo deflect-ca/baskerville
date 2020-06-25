@@ -6,11 +6,6 @@
 import os
 import sys
 
-try:
-    from BeautifulSoup import BeautifulSoup
-except ImportError:
-    from bs4 import BeautifulSoup
-
 py_license = """# Copyright (c) 2020, eQualit.ie inc.
 # All rights reserved.
 #
@@ -30,7 +25,10 @@ def add_license_to_docs(dir_):
     """
     Add license / copyright in the html docs
     """
-    import os
+    try:
+        from BeautifulSoup import BeautifulSoup
+    except ImportError:
+        from bs4 import BeautifulSoup
 
     for root, dirs, files in os.walk(dir_):
         path = root.split(os.sep)
@@ -75,7 +73,7 @@ def check_license(dir_, ext=('py', 'md', 'html'), exclude_dirs=('alembic',)):
 
 
 if __name__ == '__main__':
-    add_license_to_docs('./../../../docs')
+    # add_license_to_docs('./../../../docs')
     errors = check_license('./../../../src')
     errors += check_license('./../../../tests')
     errors += check_license('./../../../container')
