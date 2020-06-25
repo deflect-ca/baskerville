@@ -34,10 +34,10 @@
          "type": "string"
       },
       "content_type": {
-        "type": "string"
+         "type": "string"
       },
       "device": {
-        "type": "string"
+         "type": "string"
       },
       "dnet": {
          "type": "string"
@@ -79,21 +79,41 @@
       "ts_timestamp": {
          "type": "string"
       },
-      "type": {
-         "type": "string"
-      },
       "ua_name": {
          "type": "string"
       },
-      "geoip.location.lat": {
-         "type": "string",
-         "format": "number"
+      "geoip": {
+         "location": {
+            "lat": {
+               "type": "string",
+               "format": "number"
+            },
+            "lon": {
+               "type": "string",
+               "format": "number"
+            }
+         },
+         "country_name": {
+            "type": "string"
+         }
       },
-      "geoip.location.lon": {
-         "type": "string",
-         "format": "number"
+      "aaa": {
+         "bbb" : {
+            "type": "string"
+         }
       }
    },
-   "required": ["@timestamp", "client_ip", "client_request_host", "client_ua", "client_url", "content_type", "http_response_code", "querystring", "reply_length_bytes", "geoip.location.lat", "geoip.location.lon"],
+   "required": [
+      "@timestamp",
+      "client_ip",
+      "client_request_host",
+      "client_ua",
+      "client_url",
+      "content_type",
+      "http_response_code",
+      "querystring",
+      "reply_length_bytes",
+      "geoip"
+   ],
    "additionalProperties": false
 }

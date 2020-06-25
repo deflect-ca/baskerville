@@ -19,7 +19,6 @@ import numpy as np
 
 
 def normalize_host_name(host):
-
     if host[:4] == 'www.':
         host = host[4:]
     h_split = host.replace(':', '.').split('.')

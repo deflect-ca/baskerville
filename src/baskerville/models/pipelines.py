@@ -259,7 +259,6 @@ class KafkaPipeline(SparkPipelineBase):
         )
 
     def get_data(self):
-
         self.logs_df = self.logs_df.map(lambda l: json.loads(l[1])).toDF(
             self.data_parser.schema
         ).repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)

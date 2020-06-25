@@ -9,6 +9,8 @@ import abc
 import stringcase
 from collections import OrderedDict
 
+from pyspark.sql.types import DoubleType
+
 from baskerville.util.helpers import SerializableMixin
 from pyspark.sql import functions as F
 
@@ -58,6 +60,14 @@ class BaseFeature(SerializableMixin, metaclass=abc.ABCMeta):
     @property
     def feature_name(self):
         return stringcase.snakecase(self.__class__.__name__.replace(self._prefix, ''))
+
+    @classmethod
+    def spark_type(cls):
+        return DoubleType()
+
+    @classmethod
+    def is_categorical(cls):
+        return False
 
     @classmethod
     def feature_name_from_class(cls):

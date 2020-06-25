@@ -453,11 +453,7 @@ class TrainingConfig(Config):
     Model Parameters:  (optional)
         -
     """
-    classifier: str
-    scaler: str
-    model_parameters: dict
-    n_jobs: int = -1
-    max_number_of_records_to_read_from_db: int = None
+    model_parameters = dict
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)

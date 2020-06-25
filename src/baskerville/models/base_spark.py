@@ -324,8 +324,8 @@ class SparkPipelineBase(PipelineBase):
         :return:
         """
         df = self.logs_df.select(
-            F.col('client_request_host').alias('target'),
-            F.col('client_ip').alias('ip'),
+            F.col('target'),
+            F.col('ip'),
         ).distinct().alias('a').persist(self.spark_conf.storage_level)
 
         self.request_set_cache.filter_by(df)
@@ -429,10 +429,10 @@ class SparkPipelineBase(PipelineBase):
         """
 
         self.handle_missing_columns()
+        self.normalize_host_names()
         self.rename_columns()
         self.filter_columns()
         self.handle_missing_values()
-        self.normalize_host_names()
         self.add_calc_columns()
 
     def group_by(self):
@@ -440,8 +440,12 @@ class SparkPipelineBase(PipelineBase):
         Group the logs df by the given group-by columns (normally IP, host).
         :return: None
         """
+        self.logs_df = self.logs_df.withColumn('ip', F.col('client_ip'))
+        self.logs_df = self.logs_df.withColumn(
+            'target', F.col('client_request_host')
+        )
         self.logs_df = self.logs_df.groupBy(
-            *self.group_by_cols
+            'ip', 'target'
         ).agg(
             *self.group_by_aggs.values()
         )
@@ -644,8 +648,12 @@ class SparkPipelineBase(PipelineBase):
         columns should be renamed to something else, e.g. `geo_ip_lat`
         :return:
         """
+        cols = self.logs_df.columns
         for k, v in self.feature_manager.column_renamings:
-            self.logs_df = self.logs_df.withColumnRenamed(k, v)
+            if k in cols:
+                self.logs_df = self.logs_df.withColumnRenamed(k, v)
+            else:
+                self.logs_df = self.logs_df.withColumn(v, F.col(k))
 
     def filter_columns(self):
         """
@@ -677,6 +685,7 @@ class SparkPipelineBase(PipelineBase):
         """
         from baskerville.spark.udfs import udf_normalize_host_name
 
+        self.logs_df = self.logs_df.fillna({'client_request_host': ''})
         self.logs_df = self.logs_df.withColumn(
             'client_request_host',
             udf_normalize_host_name(
@@ -750,11 +759,6 @@ class SparkPipelineBase(PipelineBase):
 
         :return: None
         """
-        # todo: shouldn't this be a renaming?
-        self.logs_df = self.logs_df.withColumn('ip', F.col('client_ip'))
-        self.logs_df = self.logs_df.withColumn(
-            'target', F.col('client_request_host')
-        )
         self.add_cache_columns()
 
         for k, v in self.get_post_group_by_calculations().items():
