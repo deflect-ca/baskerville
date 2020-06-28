@@ -65,7 +65,7 @@ class AnomalyModel(ModelInterface):
             map_col=self.feature_map_column,
             array_col=self.features_vector,
             map_keys=[k for k, v in self.features.items() if not v['categorical']]
-        ).persist(StorageLevelFactory.get_storage_level(self.storage_level))
+        ) #.persist(StorageLevelFactory.get_storage_level(self.storage_level))
         df.unpersist()
 
         return res.withColumn(
@@ -134,9 +134,10 @@ class AnomalyModel(ModelInterface):
         scaler.setWithMean(self.scaler_with_mean)
         scaler.setWithStd(self.scaler_with_std)
         self.scaler_model = scaler.fit(df)
-        df = self.scaler_model.transform(df).persist(
-            StorageLevelFactory.get_storage_level(self.storage_level)
-        )
+        df = self.scaler_model.transform(df)
+        #.persist(
+        #     StorageLevelFactory.get_storage_level(self.storage_level)
+        # )
         df = df.drop(self.features_vector)
 
         df = self._create_feature_columns(df)
