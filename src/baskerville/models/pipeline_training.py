@@ -104,6 +104,7 @@ class TrainingPipeline(PipelineBase):
         params['features'] = model_features
 
         self.model.set_params(**params)
+        self.model.set_logger(self.logger)
         conf = self.db_conf
         conf.maintenance = None
         self.db_tools = BaskervilleDBTools(conf)
@@ -118,7 +119,7 @@ class TrainingPipeline(PipelineBase):
         transformations to get the features as a list \
         :return:
         """
-        self.data = self.load().persist(self.spark_conf.storage_level)
+        self.data = self.load() #.persist(self.spark_conf.storage_level)
 
         if self.training_conf.max_samples_per_host:
             counts = self.data.groupby('target').count()

@@ -6,11 +6,13 @@
 
 
 import inspect
+import logging
 
 
 class ModelInterface(object):
     def __init__(self):
         super().__init__()
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def get_param_names(self):
         return list(inspect.signature(self.__init__).parameters.keys())
@@ -43,3 +45,6 @@ class ModelInterface(object):
 
     def load(self, path, spark_session=None):
         pass
+
+    def set_logger(self, logger):
+        self.logger = logger

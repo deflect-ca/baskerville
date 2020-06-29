@@ -4,7 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-
 from pyspark.ml.feature import StandardScaler, StandardScalerModel, StringIndexer, StringIndexerModel
 from pyspark.sql.functions import array
 from baskerville.models.model_interface import ModelInterface
@@ -65,7 +64,7 @@ class AnomalyModel(ModelInterface):
             map_col=self.feature_map_column,
             array_col=self.features_vector,
             map_keys=[k for k, v in self.features.items() if not v['categorical']]
-        ).persist(StorageLevelFactory.get_storage_level(self.storage_level))
+        )#.persist(StorageLevelFactory.get_storage_level(self.storage_level))
         df.unpersist()
 
         return res.withColumn(
@@ -126,24 +125,31 @@ class AnomalyModel(ModelInterface):
         return df
 
     def train(self, df):
+        self.logger.info('Creating regular features...')
         df = self._create_regular_features_vector(df)
 
+        self.logger.info('Scaling...')
         scaler = StandardScaler()
         scaler.setInputCol(self.features_vector)
         scaler.setOutputCol(self.features_vector_scaled)
         scaler.setWithMean(self.scaler_with_mean)
         scaler.setWithStd(self.scaler_with_std)
         self.scaler_model = scaler.fit(df)
-        df = self.scaler_model.transform(df).persist(
-            StorageLevelFactory.get_storage_level(self.storage_level)
-        )
+        df = self.scaler_model.transform(df) #.persist(
+        #     StorageLevelFactory.get_storage_level(self.storage_level)
+        # )
         df = df.drop(self.features_vector)
 
+        self.logger.info('Creating feature columns...')
         df = self._create_feature_columns(df)
+
+        self.logger.info('Fitting string indexes...')
         self._create_indexes(df)
+        self.logger.info('Adding categorical features...')
         df = self._add_categorical_features(df, self.features_vector_scaled)
         df = self._drop_feature_columns(df)
 
+        self.logger.info('Fitting Isolation Forest model...')
         iforest = IForest(
             featuresCol=self.features_vector_scaled,
             predictionCol=self.prediction_column,
