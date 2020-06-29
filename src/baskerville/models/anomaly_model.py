@@ -65,7 +65,7 @@ class AnomalyModel(ModelInterface):
             array_col=self.features_vector,
             map_keys=[k for k, v in self.features.items() if not v['categorical']]
         )#.persist(StorageLevelFactory.get_storage_level(self.storage_level))
-        df.unpersist()
+        #df.unpersist()
 
         return res.withColumn(
             self.features_vector,
@@ -168,7 +168,7 @@ class AnomalyModel(ModelInterface):
         self.iforest_model = iforest.fit(df, params)
 
         df = df.drop(self.features_vector_scaled)
-        df.unpersist()
+        #df.unpersist()
 
     def predict(self, df):
         df = self._create_regular_features_vector(df)

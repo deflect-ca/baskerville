@@ -158,7 +158,7 @@ class TrainingPipeline(PipelineBase):
         :return: None
         """
         self.model.train(self.data)
-        self.data.unpersist()
+        #self.data.unpersist()
 
     def test(self):
         """
