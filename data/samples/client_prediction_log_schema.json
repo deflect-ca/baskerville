@@ -1,0 +1,16 @@
+{
+   "name": "PredictionVectors",
+   "properties": {
+      "id_client": {
+         "type": "string"
+      },
+      "id_group": {
+         "type": "string"
+      },
+      "features": {
+         "type": "object"
+      }
+   },
+   "required": ["id_client", "id_group", "features"],
+   "additionalProperties": false
+}

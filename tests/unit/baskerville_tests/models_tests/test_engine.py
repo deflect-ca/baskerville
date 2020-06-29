@@ -105,7 +105,7 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
         from baskerville.models.engine import BaskervilleAnalyticsEngine
         with mock.patch.object(
                 BaskervilleAnalyticsEngine, '_set_up_pipeline'
-        ) as _:
+        ):
             engine = BaskervilleAnalyticsEngine(
                 RunType.kafka, self.test_config
             )

@@ -39,6 +39,8 @@ misp:
   misp_verifycert: True
 
 engine:
+  client_mode: False      # used in isac mode: whether the pipeline will run in client mode
+  id_client: 'some_id'    # used in isac mode: the unique client id - assigned by baskerville team
   time_bucket: 120  # seconds: NOTE: this is the default value, model training is dependent upon this, this should not be set under normal circumstances
   load_test: 10     # multiply the dataset x times and add random ips - only used for load testing, default false, can be omitted.
   es_log:
@@ -105,7 +107,9 @@ engine:
 kafka:
   bootstrap_servers: '0.0.0.0:9092'       # ip: port for kafka
   zookeeper: 'localhost:2181'             # ip: port for zookeeper
-  consume_topic: 'incoming.logs'          # which should baskerville consume
+  logs_topic: 'incoming.logs'             # which should baskerville consume
+  features_topic: 'features'              # used in isac mode: where to send the feature vectors
+  predictions_topic: 'predictions'        # used in isac mode: where to send/ listen for predictions
   consume_group: 'baskerville'            # a name for the consume group
 
 spark:

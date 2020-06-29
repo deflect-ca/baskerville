@@ -47,7 +47,8 @@
 
 
 from baskerville.models.pipeline_training import TrainingPipeline
-from baskerville.models.pipelines import RawLogPipeline, ElasticsearchPipeline, KafkaPipeline
+from baskerville.models.pipelines import RawLogPipeline, \
+    ElasticsearchPipeline, KafkaPipeline
 from baskerville.util.enums import RunType
 
 
@@ -79,6 +80,27 @@ class PipelineFactory(object):
                 config.engine,
                 config.spark
             )
+        elif run_type == RunType.preprocessing:
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_preprocessing_pipeline
+            return set_up_preprocessing_pipeline(config)
+        elif run_type == RunType.postprocessing:
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_postprocessing_pipeline
+            return set_up_postprocessing_pipeline(config)
+        elif run_type == RunType.irawlog:
+            from baskerville.models.pipeline_tasks.rawlog_pipeline \
+                import set_up_isac_rawlog_pipeline
+            return set_up_isac_rawlog_pipeline(config)
+        elif run_type == RunType.ikafka:
+            from baskerville.models.pipeline_tasks.tasks_base \
+                import set_up_isac_kafka_pipeline
+            return set_up_isac_kafka_pipeline(config)
+        elif run_type == RunType.prediction:
+            from baskerville.models.pipeline_tasks.prediction_pipeline \
+                import set_up_prediction_pipeline
+            return set_up_prediction_pipeline(config)
+
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'
         )</code></pre>
@@ -148,6 +170,27 @@ class PipelineFactory(object):
                 config.engine,
                 config.spark
             )
+        elif run_type == RunType.preprocessing:
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_preprocessing_pipeline
+            return set_up_preprocessing_pipeline(config)
+        elif run_type == RunType.postprocessing:
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_postprocessing_pipeline
+            return set_up_postprocessing_pipeline(config)
+        elif run_type == RunType.irawlog:
+            from baskerville.models.pipeline_tasks.rawlog_pipeline \
+                import set_up_isac_rawlog_pipeline
+            return set_up_isac_rawlog_pipeline(config)
+        elif run_type == RunType.ikafka:
+            from baskerville.models.pipeline_tasks.tasks_base \
+                import set_up_isac_kafka_pipeline
+            return set_up_isac_kafka_pipeline(config)
+        elif run_type == RunType.prediction:
+            from baskerville.models.pipeline_tasks.prediction_pipeline \
+                import set_up_prediction_pipeline
+            return set_up_prediction_pipeline(config)
+
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'
         )</code></pre>
@@ -206,6 +249,27 @@ class PipelineFactory(object):
             config.engine,
             config.spark
         )
+    elif run_type == RunType.preprocessing:
+        from baskerville.models.pipeline_tasks.client_pipeline \
+            import set_up_preprocessing_pipeline
+        return set_up_preprocessing_pipeline(config)
+    elif run_type == RunType.postprocessing:
+        from baskerville.models.pipeline_tasks.client_pipeline \
+            import set_up_postprocessing_pipeline
+        return set_up_postprocessing_pipeline(config)
+    elif run_type == RunType.irawlog:
+        from baskerville.models.pipeline_tasks.rawlog_pipeline \
+            import set_up_isac_rawlog_pipeline
+        return set_up_isac_rawlog_pipeline(config)
+    elif run_type == RunType.ikafka:
+        from baskerville.models.pipeline_tasks.tasks_base \
+            import set_up_isac_kafka_pipeline
+        return set_up_isac_kafka_pipeline(config)
+    elif run_type == RunType.prediction:
+        from baskerville.models.pipeline_tasks.prediction_pipeline \
+            import set_up_prediction_pipeline
+        return set_up_prediction_pipeline(config)
+
     raise RuntimeError(
         'Cannot set up a pipeline with the current configuration.'
     )</code></pre>

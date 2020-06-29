@@ -34,7 +34,7 @@ class FeatureManager(object):
             output_file=engine_conf.logpath
         )
 
-    def initialize(self,):
+    def initialize(self):
         self.active_features = self.get_active_features()
         self.active_feature_names = self.get_active_feature_names()
         self.updateable_active_features = self.get_updateable_active_features()

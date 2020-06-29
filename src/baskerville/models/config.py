@@ -110,11 +110,12 @@ class Config(SerializableMixin):
     _remove = ('parent', 'errors', 'serialized_errors')
 
     def __init__(self, config_dict, parent=None):
-        self.__dict__.update(**{
-            k: v for k, v in self.__class__.__dict__.items()
-            if '__' not in k and not callable(v)
-        })
-        self.__dict__.update(**config_dict)
+        if config_dict:
+            self.__dict__.update(**{
+                k: v for k, v in self.__class__.__dict__.items()
+                if '__' not in k and not callable(v)
+            })
+            self.__dict__.update(**config_dict)
         self.parent = parent
         self._is_validated = False
         self._is_valid = False
@@ -255,7 +256,7 @@ class EngineConfig(Config):
     metrics = None
     data_config = None
     logpath = 'baskerville.log'
-    log_level = None
+    log_level = 'INFO'
     time_bucket = 120
     all_features = None
     load_test = False
@@ -289,10 +290,7 @@ class EngineConfig(Config):
         if self.load_test:
             self.load_test = int(self.load_test)
         if not self.es_log and not self.raw_log and not self.training:
-            self.add_error(ConfigError(
-                'Either es_log or raw_log config must be provided',
-                ['es_log', 'raw_log'],
-            ))
+            logger.warn('es_log or raw_log config are not provided')
         if self.model_id and self.model_path:
             self.add_error(ConfigError(
                 'Model version id and model path cannot both be specified.',
@@ -694,10 +692,9 @@ class KafkaConfig(Config):
     """
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
-    consume_topic = 'deflect.logs'
-    publish_logs = 'baskerville.logs'
-    publish_stats = 'baskerville.stats'
-    publish_predictions = 'baskerville.predictions'
+    logs_topic = 'deflect.logs'
+    features_topic = 'features'
+    predictions_topic = 'predictions'
     security_protocol = ''
     ssl_truststore_location = ''
     ssl_truststore_password = ''
@@ -720,15 +717,12 @@ class KafkaConfig(Config):
         if not self.zookeeper:
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
-        if not self.consume_topic:
-            warnings.warn('Consume topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_logs:
-            warnings.warn('Publish logs is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_stats:
-            warnings.warn('Publish stats topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
+        if not self.logs_topic:
+            warnings.warn('Logs topic is empty.')
+        if not self.features_topic:
+            warnings.warn('Features topic is empty')
+        if not self.predictions_topic:
+            warnings.warn('Predictions topic is empty.')
         if not self.publish_predictions:
             warnings.warn(
                 'Publish predictions topic is empty. If you are not using '
@@ -768,6 +762,8 @@ class SparkConfig(Config):
     spark_python_profile = False
     storage_level = None
     off_heap_size = None
+    redis_host = None
+    redis_port = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
@@ -913,7 +909,7 @@ class DataParsingConfig(Config):
     schema = None
     schema_obj = None
     parser = 'JSONLogSparkParser'
-    group_by_cols = ['client_request_host', 'client_ip']
+    group_by_cols = ('client_request_host', 'client_ip')
     timestamp_column = '@timestamp'
 
     def __init__(self, config_dict):

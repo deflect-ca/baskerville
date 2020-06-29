@@ -57,10 +57,10 @@ from baskerville.spark.helpers import StorageLevel
 from pyspark.sql import functions as F
 
 from baskerville.util.file_manager import FileManager
-from baskerville.util.helpers import get_logger
+from baskerville.util.helpers import get_logger, Singleton
 
 
-class RequestSetSparkCache(object):
+class RequestSetSparkCache(Singleton):
 
     def __init__(
             self,
@@ -325,9 +325,10 @@ class RequestSetSparkCache(object):
         #     # time.sleep(1)
 
         to_drop = [
-            'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime', 'features',
-            'start', 'stop', 'subset_count', 'num_requests', 'total_seconds',
-            'time_bucket', 'model_version', 'to_update', 'label', 'id_attribute'
+            'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
+            'features', 'start', 'stop', 'subset_count', 'num_requests',
+            'total_seconds', 'time_bucket', 'model_version', 'to_update',
+            'label', 'id_attribute'
         ]
         now = datetime.datetime.utcnow()
         source_df = source_df.persist(self.storage_level).alias('sd')
@@ -538,7 +539,7 @@ class RequestSetSparkCache(object):
           Expand source code
          </span>
         </summary>
-        <pre><code class="python">class RequestSetSparkCache(object):
+        <pre><code class="python">class RequestSetSparkCache(Singleton):
 
     def __init__(
             self,
@@ -803,9 +804,10 @@ class RequestSetSparkCache(object):
         #     # time.sleep(1)
 
         to_drop = [
-            'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime', 'features',
-            'start', 'stop', 'subset_count', 'num_requests', 'total_seconds',
-            'time_bucket', 'model_version', 'to_update', 'label', 'id_attribute'
+            'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
+            'features', 'start', 'stop', 'subset_count', 'num_requests',
+            'total_seconds', 'time_bucket', 'model_version', 'to_update',
+            'label', 'id_attribute'
         ]
         now = datetime.datetime.utcnow()
         source_df = source_df.persist(self.storage_level).alias('sd')
@@ -979,6 +981,16 @@ class RequestSetSparkCache(object):
     def __len__(self):
         return self.count()</code></pre>
        </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="../util/helpers.html#baskerville.util.helpers.Singleton" title="baskerville.util.helpers.Singleton">
+          Singleton
+         </a>
+        </li>
+       </ul>
        <h3>
         Instance variables
        </h3>
@@ -1739,9 +1751,10 @@ created)
     #     # time.sleep(1)
 
     to_drop = [
-        'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime', 'features',
-        'start', 'stop', 'subset_count', 'num_requests', 'total_seconds',
-        'time_bucket', 'model_version', 'to_update', 'label', 'id_attribute'
+        'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
+        'features', 'start', 'stop', 'subset_count', 'num_requests',
+        'total_seconds', 'time_bucket', 'model_version', 'to_update',
+        'label', 'id_attribute'
     ]
     now = datetime.datetime.utcnow()
     source_df = source_df.persist(self.storage_level).alias('sd')

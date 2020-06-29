@@ -46,4 +46,4 @@ def add_license_to_docs(dir_):
 
 
 if __name__ == '__main__':
-    add_license_to_docs('./../../docs')
+    add_license_to_docs('./../../../docs')
