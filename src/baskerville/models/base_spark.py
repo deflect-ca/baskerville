@@ -179,10 +179,12 @@ class SparkPipelineBase(PipelineBase):
             self.model = instantiate_from_str(self.model_index.algorithm)
             self.model.load(bytes.decode(
                 self.model_index.classifier, 'utf8'), self.spark)
+            self.model.set_logger(self.logger)
         elif self.engine_conf.model_path:
             self.model = load_model_from_path(
                 self.engine_conf.model_path, self.spark
             )
+            self.model.set_logger(self.logger)
         else:
             self.model = None
 
