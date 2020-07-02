@@ -26,7 +26,7 @@ def get_or_create_spark_session(spark_conf):
     conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
     if spark_conf.redis_host:
         conf.set('spark.redis.host', spark_conf.redis_host)
-        conf.set('spark.redis.port', spark_conf.redis_port or '6379')
+        conf.set('spark.redis.port', spark_conf.redis_port)
         # conf.set('spark.redis.auth', 'passwd')
 
     if spark_conf.spark_executor_instances:
@@ -86,7 +86,7 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.hadoop.parquet.enable.summary-metadata', 'false')
     conf.set('spark.sql.parquet.mergeSchema', 'false')
     conf.set('spark.sql.parquet.filterPushdown', 'true')
-    conf.set(' spark.sql.hive.metastorePartitionPruning', 'true')
+    conf.set('spark.sql.hive.metastorePartitionPruning', 'true')
 
     # https://spark.apache.org/docs/latest/monitoring.html
     # To view the web UI after the app has terminated

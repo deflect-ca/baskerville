@@ -8,7 +8,7 @@
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GetDataKafka, GenerateFeatures, \
-    Save, CacheData, SendFeatures, \
+    Save, CacheData, SendToKafka, \
     GetPredictions, MergeWithCachedData
 
 
@@ -18,12 +18,12 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
             config,
             steps=[
                 GenerateFeatures(config),
-                SendFeatures(
-                    config,
-                    output_columns=('id_client', 'id_group', 'features'),
-                    client_mode=True
-                ),
                 CacheData(config),
+                SendToKafka(
+                    config,
+                    columns=('id_client', 'id_group', 'features'),
+                    topic=config.kafka.features_topic
+                ),
             ]),
     ]
 

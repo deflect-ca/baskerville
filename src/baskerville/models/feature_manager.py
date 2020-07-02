@@ -201,7 +201,7 @@ class FeatureManager(object):
             for k, v in feature.post_group_by_calcs.items():
                 if k not in post_group_by_columns:
                     post_group_by_columns[k] = v
-                else:
-                    self.logger.debug(f'{k} is already in the dataframe.')
+                # else:
+                #     self.logger.debug(f'{k} is already in the dataframe.')
 
         return post_group_by_columns

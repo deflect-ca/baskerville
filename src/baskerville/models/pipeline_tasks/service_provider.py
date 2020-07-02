@@ -164,8 +164,8 @@ class ServiceProvider(Borg):
         :return:
         """
         df = df.select(
-            F.col('client_request_host').alias('target'),
-            F.col('client_ip').alias('ip'),
+            F.col('target'),
+            F.col('ip'),
         ).distinct().alias('a').persist(self.spark_conf.storage_level)
 
         self.request_set_cache.filter_by(df)

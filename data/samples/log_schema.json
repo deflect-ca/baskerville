@@ -96,11 +96,6 @@
          "country_name": {
             "type": "string"
          }
-      },
-      "aaa": {
-         "bbb" : {
-            "type": "string"
-         }
       }
    },
    "required": [

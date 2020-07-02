@@ -263,6 +263,7 @@ class EngineConfig(Config):
     trigger_challenge = True
     challenge_threshold = 0.5
     training = None
+    ttl = 500
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
@@ -762,8 +763,8 @@ class SparkConfig(Config):
     spark_python_profile = False
     storage_level = None
     off_heap_size = None
-    redis_host = None
-    redis_port = None
+    redis_host = 'localhost'
+    redis_port = 6379
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)

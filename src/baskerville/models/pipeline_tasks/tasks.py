@@ -22,12 +22,7 @@ from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window
 from baskerville.spark.schemas import client_prediction_schema, \
     client_prediction_input_schema
-
-# broadcasts
-TOPIC_BC = None
-KAFKA_URL_BC = None
-CLIENT_MODE_BC = None
-OUTPUT_COLS_BC = None
+from kafka import KafkaProducer
 
 
 class GetDataKafka(Task):
@@ -86,7 +81,7 @@ class GetDataKafka(Task):
         self.create_runtime()
 
         def process_subsets(time, rdd):
-            self.logger.info('Data until {}'.format(time))
+            self.logger.info(f'Data until {time} from kafka topic \'{self.consume_topic}\'')
             if not rdd.isEmpty():
                 try:
                     # set dataframe to process later on
@@ -486,8 +481,12 @@ class GenerateFeatures(MLTask):
         columns should be renamed to something else, e.g. `geo_ip_lat`
         :return:
         """
+        cols = self.df.columns
         for k, v in self.feature_manager.column_renamings:
-            self.df = self.df.withColumnRenamed(k, v)
+            if k in cols:
+                self.df = self.df.withColumnRenamed(k, v)
+            else:
+                self.df = self.df.withColumn(v, F.col(k))
 
     def filter_columns(self):
         """
@@ -518,7 +517,7 @@ class GenerateFeatures(MLTask):
         :return:
         """
         from baskerville.spark.udfs import udf_normalize_host_name
-
+        self.df = self.df.fillna({'client_request_host': ''})
         self.df = self.df.withColumn(
             'client_request_host',
             udf_normalize_host_name(
@@ -552,8 +551,12 @@ class GenerateFeatures(MLTask):
         Group the logs df by the given group-by columns (normally IP, host).
         :return: None
         """
+        self.df = self.df.withColumn('ip', F.col('client_ip'))
+        self.df = self.df.withColumn(
+            'target', F.col('client_request_host')
+        )
         self.df = self.df.groupBy(
-            *self.group_by_cols
+            'ip', 'target'
         ).agg(
             *self.group_by_aggs.values()
         )
@@ -643,11 +646,6 @@ class GenerateFeatures(MLTask):
 
         :return: None
         """
-        # todo: shouldn't this be a renaming?
-        self.df = self.df.withColumn('ip', F.col('client_ip'))
-        self.df = self.df.withColumn(
-            'target', F.col('client_request_host')
-        )
         self.df = self.service_provider.add_cache_columns(self.df)
 
         for k, v in self.get_post_group_by_calculations().items():
@@ -821,10 +819,10 @@ class GenerateFeatures(MLTask):
 
     def run(self):
         self.handle_missing_columns()
+        self.normalize_host_names()
         self.rename_columns()
         self.filter_columns()
         self.handle_missing_values()
-        self.normalize_host_names()
         self.add_calc_columns()
         self.group_by()
         self.feature_calculation()
@@ -973,86 +971,33 @@ class MergeWithCachedData(Task):
         return self.df
 
 
-class SendFeatures(Task):
+class SendToKafka(Task):
     def __init__(
             self,
             config: BaskervilleConfig,
             steps: list = (),
-            output_columns=(
-                'id_client', 'id_group', 'features', 'prediction', 'score'
+            columns=(
+                'id_client', 'id_group', 'features'
             ),
-            output_topic='',
-            client_mode=False
+            topic=''
     ):
         super().__init__(config, steps)
-        self.streaming_df = None
-        self.output_columns = output_columns
-        self.output_topic = output_topic or \
-            self.config.kafka.predictions_topic
-        self.client_mode = client_mode
+        self.columns = columns
+        self.topic = topic
+        self.producer = None
 
     def initialize(self):
-        global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
-        super(SendFeatures, self).initialize()
-        TOPIC_BC = self.spark.sparkContext.broadcast(
-            self.output_topic
-        )
-        KAFKA_URL_BC = self.spark.sparkContext.broadcast(
-            self.config.kafka.bootstrap_servers
-        )
-        CLIENT_MODE_BC = self.spark.sparkContext.broadcast(
-            self.client_mode
-        )
-
-        OUTPUT_COLS_BC = self.spark.sparkContext.broadcast(
-            self.output_columns
-        )
+        self.producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
 
     def run(self):
-        global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
+        self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
 
-        def send_to_kafka(*args):
-            from confluent_kafka import Producer
-            producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
-            topic = TOPIC_BC.value
-            if not CLIENT_MODE_BC.value:
-                topic = f'{args[0]}.{topic}'  # id_client.topic
-
-            # needs python 3.8:
-            # {f'{i=}'.split('=')[0]: i for i in args}
-            data = dict(zip(OUTPUT_COLS_BC.value, args))
-            try:
-                producer.produce(
-                    topic,
-                    json.dumps(data).encode('utf-8')
-                )
-                producer.poll(2)
-                return topic
-            except Exception:
-                traceback.print_exc()
-                return 'ERROR'
-
-        self.df = self.df.withColumn(
-            'sent',
-            F.udf(send_to_kafka, T.StringType())(
-                *self.output_columns
-            )
-        )
-        self.df.show(10, False)
-        # does no work, possible jar conflict
-        # self.df = self.df.select(
-        #         F.col('id_client').alias('key'),
-        #         F.to_json(
-        #             F.struct([self.df[x] for x in self.df.columns])
-        #         ).alias('value')
-        #     ) \
-        #     .write \
-        #     .format('kafka') \
-        #     .option('kafka.bootstrap.servers',
-        #     self.config.kafka.bootstrap_servers) \
-        #     .option('topic', self.config.kafka.prediction_reply_topic) \
-        #     .save()
-        return self.df
+        records = self.df.collect()
+        for record in records:
+            self.producer.send(self.topic, json.dumps(
+                {key: record[key] for key in self.columns}
+            ).encode('utf-8'))
+            self.producer.flush()
 
 
 class Train(Task):
