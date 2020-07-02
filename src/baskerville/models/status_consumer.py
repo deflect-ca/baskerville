@@ -42,6 +42,7 @@ class StatusConsumer(object):
     def run(self):
         consumer = KafkaConsumer(
             self.config.banjax_report_topic,
+            group_id="some_random_thing",
             bootstrap_servers=self.config.bootstrap_servers,
             security_protocol=self.config.security_protocol,
             ssl_check_hostname=self.config.ssl_check_hostname,
@@ -108,10 +109,10 @@ class ChallengeProducer(object):
             for _ in range(0, 10):
                 domain = f"example-{number}.com:8080"
                 command = {'name': 'challenge_host', 'value': domain}
-                producer.send(self.config.get('banjax_command_topic'), json.dumps(command).encode('utf-8'))
+                producer.send(self.config.banjax_command_topic, json.dumps(command).encode('utf-8'))
                 self.logger.info("sent a command")
                 number = number + 1
-            time.sleep(0.1)
+            time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -138,7 +139,7 @@ if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logger = logging.getLogger()
 
-    config_dict = KafkaConfig(parse_config(path=args.conf_file)).validate()
+    config_dict = KafkaConfig(parse_config(path=args.conf_file)['kafka']).validate()
 
     if args.start_consumer:
         status_consumer = StatusConsumer(config_dict, logger)
