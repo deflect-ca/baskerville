@@ -17,7 +17,11 @@ def set_up_prediction_pipeline(config: BaskervilleConfig):
             config,
             steps=[
                 Predict(config),
-                SendToKafka(config),
+                SendToKafka(
+                    config=config,
+                    columns=('id_client', 'id_group', 'features', 'prediction', 'score'),
+                    topic=config.kafka.predictions_topic,
+                ),
             ]),
     ]
 

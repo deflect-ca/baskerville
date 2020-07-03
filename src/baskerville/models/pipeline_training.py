@@ -134,10 +134,10 @@ class TrainingPipeline(PipelineBase):
         for feature in self.model.features:
             if feature in schema.fieldNames():
                 continue
-            features_class = self.engine_conf.all_features[feature]
+            feature_class = self.engine_conf.all_features[feature]
             schema.add(StructField(
                 name=feature,
-                dataType=features_class.spark_type(),
+                dataType=feature_class.spark_type(),
                 nullable=True))
 
         self.data = self.data.withColumn(

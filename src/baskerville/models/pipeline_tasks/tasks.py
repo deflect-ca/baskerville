@@ -20,8 +20,8 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window
-from baskerville.spark.schemas import client_prediction_schema, \
-    client_prediction_input_schema
+from baskerville.spark.schemas import features_schema, \
+    prediction_schema
 from kafka import KafkaProducer
 
 
@@ -91,6 +91,9 @@ class GetDataKafka(Task):
                     # kafka messages consumption?
                     self.df = rdd
                     self.get_data()
+                    if self.df.rdd.isEmpty():
+                        self.logger.warning('Task.get_data() returned an empty dataframe.')
+                        return
                     self.remaining_steps = list(self.step_to_action.keys())
 
                     super(GetDataKafka, self).run()
@@ -126,19 +129,36 @@ class GetFeatures(GetDataKafka):
         super().__init__(config, steps)
         self.consume_topic = self.config.kafka.features_topic
 
+    def initialize(self):
+        super().initialize()
+
     def get_data(self):
-        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
-            client_prediction_schema  # todo: dataparser.schema
-        ).persist(
-            self.config.spark.storage_level
+        self.df = self.spark.createDataFrame(
+            self.df,
+            T.StructType([T.StructField('key', T.StringType()), T.StructField('message', T.StringType())])
         )
-        json_schema = self.spark.read.json(
-            self.df.limit(1).rdd.map(lambda row: row.features)
-        ).schema
-        self.df = self.df.withColumn(
-            'features',
-            F.from_json('features', json_schema)
-        )
+
+        schema = T.StructType([
+            T.StructField("id_client", T.StringType(), True),
+            T.StructField("id_group", T.StringType(), False)
+        ])
+        features = T.StructType()
+        for feature in self.config.engine.all_features.keys():
+            features.add(T.StructField(
+                name=feature,
+                dataType=T.StringType(),
+                nullable=True))
+        schema.add(T.StructField("features", features))
+
+        self.df = self.df.withColumn('message', F.from_json('message', schema))
+
+        self.df = self.df \
+            .withColumn('features', F.col('message.features')) \
+            .withColumn('id_client', F.col('message.id_client')) \
+            .withColumn('id_group', F.col('message.id_group')) \
+            .drop('message', 'key')
+
+        self.df = self.df.where(F.col("id_client").isNotNull())
 
 
 class GetPredictions(GetDataKafka):
@@ -152,7 +172,7 @@ class GetPredictions(GetDataKafka):
 
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
-            client_prediction_input_schema  # todo: dataparser.schema
+            prediction_schema  # todo: dataparser.schema
         ).persist(
             self.config.spark.storage_level
         )
@@ -184,14 +204,9 @@ class GetDataKafkaStreaming(Task):
         self.stream_df = self.spark \
             .readStream \
             .format("kafka") \
-            .option(
-                "kafka.bootstrap.servers",
-                self.config.kafka.bootstrap_servers
-            ).option(
-                "subscribe", self.config.kafka.predictions_topic
-            ).option(
-                "startingOffsets", "earliest"
-            )
+            .option("kafka.bootstrap.servers", self.config.kafka.bootstrap_servers) \
+            .option("subscribe", self.config.kafka.predictions_topic) \
+            .option("startingOffsets", "earliest")
 
     def get_data(self):
         self.stream_df = self.stream_df.load().selectExpr(
@@ -204,7 +219,7 @@ class GetDataKafkaStreaming(Task):
         self.df = self.stream_df.select(
             F.from_json(
                 F.col("value").cast("string"),
-                client_prediction_schema
+                features_schema
             )
         )
 
@@ -602,7 +617,7 @@ class GenerateFeatures(MLTask):
             ).otherwise(F.lit(0))
         }
 
-        if self.model:
+        if self.model_index:
             post_group_by_columns['model_version'] = F.lit(
                 self.model_index.id
             )
@@ -842,9 +857,7 @@ class Predict(MLTask):
         self._is_initialized = False
 
     def predict(self):
-        self.df = self.model.predict(self.df).drop(
-            'features_values', 'features_values_scaled'
-        )
+        self.df = self.model.predict(self.df)
 
     def run(self):
         self.predict()
@@ -975,29 +988,43 @@ class SendToKafka(Task):
     def __init__(
             self,
             config: BaskervilleConfig,
+            columns,
+            topic,
+            cc_to_client=False,
             steps: list = (),
-            columns=(
-                'id_client', 'id_group', 'features'
-            ),
-            topic=''
     ):
         super().__init__(config, steps)
         self.columns = columns
         self.topic = topic
-        self.producer = None
-
-    def initialize(self):
-        self.producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
+        self.cc_to_client = cc_to_client
 
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
 
+        producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
         records = self.df.collect()
         for record in records:
-            self.producer.send(self.topic, json.dumps(
+            message = json.dumps(
                 {key: record[key] for key in self.columns}
-            ).encode('utf-8'))
-            self.producer.flush()
+            ).encode('utf-8')
+            producer.send(self.topic, message)
+            if self.cc_to_client:
+                client_id = record['client_id']
+                producer.send(f'{self.topic}.{client_id}')
+            producer.flush()
+
+        # does no work, possible jar conflict
+        # self.df = self.df.select(
+        #         F.col('id_client').alias('key'),
+        #         F.to_json(
+        #             F.struct([self.df[x] for x in self.df.columns])
+        #         ).alias('value')
+        #     ) \
+        #     .write \
+        #     .format('kafka') \
+        #     .option('kafka.bootstrap.servers', self.config.kafka.bootstrap_servers) \
+        #     .option('topic', self.topic) \
+        #     .save()
 
 
 class Train(Task):

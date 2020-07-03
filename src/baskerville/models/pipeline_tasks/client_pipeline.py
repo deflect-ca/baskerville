@@ -20,9 +20,9 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
                 GenerateFeatures(config),
                 CacheData(config),
                 SendToKafka(
-                    config,
+                    config=config,
                     columns=('id_client', 'id_group', 'features'),
-                    topic=config.kafka.features_topic
+                    topic=config.kafka.features_topic,
                 ),
             ]),
     ]
