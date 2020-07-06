@@ -771,7 +771,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             'id_request_set', 'id'
         ).withColumnRenamed(
             'request_set_prediction', 'prediction'
-        )
+        ).withColumn('created_at', F.col('stop'))
         # postgres doesn't want the id in the insert
         request_sets_df = request_sets_df.drop('id')
 
