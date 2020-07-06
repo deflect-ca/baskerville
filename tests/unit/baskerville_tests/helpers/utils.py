@@ -25,19 +25,19 @@ def get_default_log_path():
 
 
 test_baskerville_conf = {
-            'database': {
-                'name': 'test_db',
-                'user': 'postgres',
-                'password': '***',
-                'host': 'localhost'
-            },
-            'spark': {
-                'db_driver': 'test',
-                'storage_level': 'MEMORY_AND_DISK',
-            },
-            'engine': {
-                'raw_log': {},
-                'extra_features': ['css_to_html_ratio', ]
+    'database': {
+        'name': 'test_db',
+        'user': 'postgres',
+        'password': '***',
+        'host': 'localhost'
+    },
+    'spark': {
+        'db_driver': 'test',
+        'storage_level': 'MEMORY_AND_DISK',
+    },
+    'engine': {
+        'raw_log': {},
+        'extra_features': ['css_to_html_ratio', ]
 
-            }
-        }
+    }
+}
