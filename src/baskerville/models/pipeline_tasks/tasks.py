@@ -882,7 +882,6 @@ class SaveDfInPostgres(Task):
     def run(self):
         self.config.database.conn_str = self.db_url
 
-        self.df = self.df.withColumn('created_at', F.col('stop'))
         save_df_to_table(
             self.df,
             self.table_name,
@@ -925,6 +924,9 @@ class Save(SaveDfInPostgres):
         self.df = self.df.select(request_set_columns)
         # save request_sets
         self.logger.debug('Saving request_sets')
+        import pdb
+        pdb.set_trace()
+        self.df = self.df.withColumn('created_at', F.col('stop'))
         self.df = super().run()
         self.service_provider.refresh_cache(self.df)
         return self.df
