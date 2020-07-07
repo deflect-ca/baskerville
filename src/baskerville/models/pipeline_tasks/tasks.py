@@ -935,6 +935,7 @@ class SaveFeatures(Task):
         self.df = self.df.select('id_group', 'features', 'prediction', 'score')
         # save request_sets
         self.logger.debug('Saving features...')
+
         self.df = super().run()
         return self.df
 
@@ -989,11 +990,11 @@ class CalculateAnomalyScore(Task):
     def set_metrics(self):
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
-        from baskerville.models.metrics.helpers import anomaly_score_metric
+        from baskerville.models.metrics.helpers import set_anomaly_score_metric
 
         calculate_anomaly_score = metrics_registry.register_action_hook(
             self.calculate_anomaly_score,
-            anomaly_score_metric,
+            set_anomaly_score_metric,
             metric_cls=MetricClassEnum.histogram,
             metric_name='anomaly_score',
             labelnames=['target']
