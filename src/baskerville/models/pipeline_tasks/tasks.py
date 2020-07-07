@@ -870,6 +870,8 @@ class SaveDfInPostgres(Task):
 
     def run(self):
         self.config.database.conn_str = self.db_url
+
+        self.df = self.df.withColumn('created_at', F.col('stop'))
         save_df_to_table(
             self.df,
             self.table_name,

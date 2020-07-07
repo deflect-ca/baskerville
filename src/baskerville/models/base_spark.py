@@ -540,8 +540,11 @@ class SparkPipelineBase(PipelineBase):
 
         # save request_sets
         self.logger.debug('Saving request_sets')
+
+        self.logs_df = self.logs_df.withColumn('created_at', F.col('stop'))
+
         self.save_df_to_table(
-            self.logs_df.select(request_set_columns),
+            self.logs_df.select(request_set_columns+['created_at']),
             RequestSet.__tablename__
         )
         self.refresh_cache()
