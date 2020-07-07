@@ -241,11 +241,6 @@ class GetDataLog(Task):
         self.batch_n = len(self.log_paths)
         self.current_log_path = None
 
-    def initialize(self):
-        super().initialize()
-        for step in self.steps:
-            step.initialize()
-
     def create_runtime(self):
         self.runtime = self.tools.create_runtime(
             file_name=self.current_log_path,
@@ -856,7 +851,7 @@ class Predict(MLTask):
             ).withColumn(
                 'threshold', F.col('threshold').cast(T.FloatType()))
 
-            self.logger.error('No model to predict')
+            self.logger.debug('No model to predict')
             self.df.show()
 
     def run(self):
@@ -927,6 +922,94 @@ class Save(SaveDfInPostgres):
         self.logger.debug('Saving request_sets')
         self.df = super().run()
         self.service_provider.refresh_cache(self.df)
+        return self.df
+
+
+class SaveFeatures(Task):
+    """
+    Saves dataframe in Postgres (current backend)
+    """
+
+    def run(self):
+        # filter the logs df with the request_set columns
+        self.df = self.df.select('id_group', 'features', 'prediction', 'score')
+        # save request_sets
+        self.logger.debug('Saving features...')
+        self.df = super().run()
+        return self.df
+
+
+class CalculateAnomalyScore(Task):
+    """
+    Saves dataframe in Postgres (current backend)
+    """
+    
+    def initialize(self):
+        # super(SaveStats, self).initialize()
+        self.set_metrics()
+
+    def calculate_anomaly_score(self):
+        """
+        Based on:
+        SELECT $__timeGroup(created_at, '2m'), target,
+        avg(case when score >= 40/100.0 then 100.0 else 0 end) as anomalies
+        FROM request_sets WHERE $__timeFilter(created_at)
+        group by 1, 2
+        HAVING COUNT(created_at) > 50
+        order by 1
+        Another way to do this is to use the average of scores and if it is
+        over the challenge_threshold then set the average, else set 0
+        """
+
+        self.df = self.df.select(
+             'target', 'score'
+        ).withColumn(
+            'score',
+            F.when(
+                F.col('score') > self.config.engine.challenge_threshold,
+                F.lit(100.0)
+            ).otherwise(F.lit(0.))
+        )
+        self.df = self.df.groupBy('target').agg(
+            F.count('score').alias('count'),
+            F.avg('score').alias('avg_score')
+        ).where(F.col('count') > 50)
+        self.df.show()
+        self.df = self.df.withColumn(
+            'anomaly_score',
+            F.when(
+                F.col('avg_score') > self.config.engine.challenge_threshold,
+                F.col('avg_score')
+            ).otherwise(F.lit(0))
+        ).withColumn('challenge', F.col('anomaly_score') > 0)
+
+        self.df.show()
+        return self.df
+
+    def set_metrics(self):
+        from baskerville.models.metrics.registry import metrics_registry
+        from baskerville.util.enums import MetricClassEnum
+        from baskerville.models.metrics.helpers import anomaly_score_metric
+
+        calculate_anomaly_score = metrics_registry.register_action_hook(
+            self.calculate_anomaly_score,
+            anomaly_score_metric,
+            metric_cls=MetricClassEnum.histogram,
+            metric_name='anomaly_score',
+            labelnames=['target']
+        )
+        setattr(self, 'calculate_anomaly_score', calculate_anomaly_score)
+        self.logger.info('Anomaly score metric set')
+
+    def run(self):
+
+        # filter the logs df with the request_set columns
+        self.df = self.df.select(
+            'id_group', 'target', 'features', 'prediction', 'score'
+        )
+        self.logger.info('Calculating anomaly score...')
+        self.df = self.calculate_anomaly_score()
+        self.df = super().run()
         return self.df
 
 

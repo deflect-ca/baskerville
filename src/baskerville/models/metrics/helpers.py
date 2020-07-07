@@ -122,3 +122,11 @@ def set_gauge_for_request_set_persistent_cache(metric, self):
 
 def increment_metric(metric, self=None):  # noqa
     metric.inc()
+
+
+def set_anomaly_score_metric(metric, self):
+    """
+    For every target, it sets the precalculated anomaly score
+    """
+    for row in self.df.collect():
+        metric.labels(target=row.target).observe(row.anomaly_score)

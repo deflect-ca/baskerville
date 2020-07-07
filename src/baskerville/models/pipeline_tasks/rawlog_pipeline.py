@@ -9,7 +9,7 @@ from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GenerateFeatures, \
     Save, \
-    Predict, GetDataLog
+    Predict, GetDataLog, CalculateAnomalyScore
 
 
 def set_up_isac_rawlog_pipeline(config: BaskervilleConfig):
@@ -20,9 +20,10 @@ def set_up_isac_rawlog_pipeline(config: BaskervilleConfig):
                 GenerateFeatures(config),
                 Predict(config),
                 Save(config),
+                CalculateAnomalyScore(config)
             ]),
     ]
 
-    isace_raw_log_pipeline = Task(config, predict_tasks)
-    isace_raw_log_pipeline.name = 'Raw Log Pipeline'
-    return isace_raw_log_pipeline
+    isac_raw_log_pipeline = Task(config, predict_tasks)
+    isac_raw_log_pipeline.name = 'Raw Log Pipeline'
+    return isac_raw_log_pipeline
