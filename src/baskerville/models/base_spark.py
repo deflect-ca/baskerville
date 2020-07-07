@@ -547,6 +547,8 @@ class SparkPipelineBase(PipelineBase):
             self.logs_df.select(request_set_columns+['created_at']),
             RequestSet.__tablename__
         )
+        self.logs_df = self.logs_df.drop('created_at')
+
         self.refresh_cache()
 
     def refresh_cache(self):
