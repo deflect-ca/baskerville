@@ -176,7 +176,7 @@ class GetPredictions(GetDataKafka):
         ).persist(
             self.config.spark.storage_level
         )
-        self.df.show()
+        # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
         # ).schema
@@ -843,6 +843,10 @@ class GenerateFeatures(MLTask):
         self.feature_calculation()
         self.add_ids()
 
+        # Is this the right place?
+        # It's failing with
+        # self.service_provider.refresh_cache(self.df)
+
         return super().run()
 
 
@@ -910,9 +914,6 @@ class Save(SaveDfInPostgres):
         for c in not_common:
             request_set_columns.remove(c)
 
-        if self.config.engine.client_mode:
-            request_set_columns.remove('score')
-
         if len(self.df.columns) < len(request_set_columns):
             # log and let it blow up; we need to know that we cannot save
             self.logger.error(
@@ -924,15 +925,12 @@ class Save(SaveDfInPostgres):
         self.df = self.df.select(request_set_columns)
         # save request_sets
         self.logger.debug('Saving request_sets')
-        import pdb
-        pdb.set_trace()
         self.df = self.df.withColumn('created_at', F.col('stop'))
         self.df = super().run()
-        self.service_provider.refresh_cache(self.df)
         return self.df
 
 
-class CacheData(Task):
+class CacheSensitiveData(Task):
     def __init__(
             self,
             config,
@@ -944,7 +942,9 @@ class CacheData(Task):
         self.ttl = self.config.engine.ttl
 
     def run(self):
-        self.df.write.format(
+        self.df = self.df.drop('vectorized_features')
+        redis_df = self.df.withColumn("features", F.to_json("features"))
+        redis_df.write.format(
             'org.apache.spark.sql.redis'
         ).mode(
             'append'
@@ -959,7 +959,7 @@ class CacheData(Task):
         return self.df
 
 
-class MergeWithCachedData(Task):
+class MergeWithSensitiveData(Task):
     def __init__(
             self,
             config,
@@ -979,7 +979,6 @@ class MergeWithCachedData(Task):
             'key.column', 'id_group'
         ).load().alias('redis_df')
 
-        self.df = self.df.drop('features').alias('df')
         self.df = self.redis_df.join(
             self.df, on=['id_client', 'id_group']
         ).drop('df.id_client', 'df.id_group')
@@ -1013,8 +1012,8 @@ class SendToKafka(Task):
             ).encode('utf-8')
             producer.send(self.topic, message)
             if self.cc_to_client:
-                client_id = record['client_id']
-                producer.send(f'{self.topic}.{client_id}')
+                id_client = record['id_client']
+                producer.send(f'{self.topic}.{id_client}', message)
             producer.flush()
 
         # does no work, possible jar conflict
