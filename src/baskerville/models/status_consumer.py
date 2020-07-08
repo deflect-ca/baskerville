@@ -14,7 +14,13 @@ from baskerville import src_dir
 
 class StatusConsumer(object):
     status_message_fields = [
+        "timestamp",
+        "restart_time",
+        "reload_time",
         "num_of_challenges",
+        "swabber_ip_db_size",
+        "regex_manager_ip_db_size",
+        "challenger_ip_db_size",
         "proxy.process.traffic_server.memory.rss",
         "proxy.node.cache.contents.num_docs",
         "proxy.process.cache.bytes_total",
