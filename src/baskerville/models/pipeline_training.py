@@ -181,6 +181,7 @@ class TrainingPipeline(PipelineBase):
         model_path = get_model_path(
             self.engine_conf.storage_path, self.model.__class__.__name__)
         self.model.save(path=model_path, spark_session=self.spark)
+        self.logger.debug(f'The new model has been saved to: {model_path}')
 
         db_model = Model()
         db_model.created_at = datetime.datetime.now(tz=tzutc())
