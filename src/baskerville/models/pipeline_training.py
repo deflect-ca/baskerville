@@ -192,7 +192,7 @@ class TrainingPipeline(PipelineBase):
         self.db_tools.session.add(db_model)
         self.db_tools.session.commit()
 
-    def get_bounds(self, from_date, to_date=None, field='stop'):
+    def get_bounds(self, from_date, to_date=None, field='created_at'):
         """
         Get the lower and upper limit
         :param str from_date: lower date bound
@@ -237,7 +237,7 @@ class TrainingPipeline(PipelineBase):
                     'Please specify either from-to dates or training days'
                 )
 
-        bounds = self.get_bounds(from_date, to_date).collect()[0]
+        bounds = self.get_bounds(from_date, to_date, field='created_at').collect()[0]
         self.logger.debug(
             f'Fetching {bounds.rows} rows. '
             f'min: {bounds.min_id} max: {bounds.max_id}'
