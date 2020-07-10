@@ -244,8 +244,8 @@ class TrainingPipeline(PipelineBase):
         )
         q = f'(select id, {",".join(self.columns_to_keep)} ' \
             f'from request_sets where id >= {bounds.min_id}  ' \
-            f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
-            f'and stop <=\'{to_date}\') as request_sets'
+            f'and id <= {bounds.max_id} and created_at >= \'{from_date}\' ' \
+            f'and created_ad <=\'{to_date}\') as request_sets'
 
         return self.spark.read.jdbc(
             url=self.db_url,
