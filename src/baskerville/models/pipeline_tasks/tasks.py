@@ -19,7 +19,7 @@ from baskerville.db.models import RequestSet
 from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
-    save_df_to_table, columns_to_dict, get_window
+    save_df_to_table, columns_to_dict, get_window, set_unknown_prediction
 from baskerville.spark.schemas import client_prediction_schema, \
     client_prediction_input_schema
 
@@ -844,9 +844,20 @@ class Predict(MLTask):
         self._is_initialized = False
 
     def predict(self):
-        self.df = self.model.predict(self.df).drop(
-            'features_values', 'features_values_scaled'
-        )
+        if self.model:
+            self.df = self.model.predict(self.df).drop(
+                'features_values', 'features_values_scaled'
+            )
+        else:
+            self.df = set_unknown_prediction(self.df).withColumn(
+                'prediction', F.col('prediction').cast(T.IntegerType())
+            ).withColumn(
+                'score', F.col('score').cast(T.FloatType())
+            ).withColumn(
+                'threshold', F.col('threshold').cast(T.FloatType()))
+
+            self.logger.error('No model to predict')
+            self.df.show()
 
     def run(self):
         self.predict()
