@@ -182,6 +182,7 @@ class TrainingPipeline(PipelineBase):
         model_path = get_model_path(
             self.engine_conf.storage_path, self.model.__class__.__name__)
         self.model.save(path=model_path, spark_session=self.spark)
+        self.logger.debug(f'The new model has been saved to: {model_path}')
 
         db_model = Model()
         db_model.created_at = datetime.datetime.now(tz=tzutc())
@@ -193,7 +194,7 @@ class TrainingPipeline(PipelineBase):
         self.db_tools.session.add(db_model)
         self.db_tools.session.commit()
 
-    def get_bounds(self, from_date, to_date=None, field='stop'):
+    def get_bounds(self, from_date, to_date=None, field='created_at'):
         """
         Get the lower and upper limit
         :param str from_date: lower date bound
@@ -238,15 +239,15 @@ class TrainingPipeline(PipelineBase):
                     'Please specify either from-to dates or training days'
                 )
 
-        bounds = self.get_bounds(from_date, to_date).collect()[0]
+        bounds = self.get_bounds(from_date, to_date, field='created_at').collect()[0]
         self.logger.debug(
             f'Fetching {bounds.rows} rows. '
             f'min: {bounds.min_id} max: {bounds.max_id}'
         )
         q = f'(select id, {",".join(self.columns_to_keep)} ' \
             f'from request_sets where id >= {bounds.min_id}  ' \
-            f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
-            f'and stop <=\'{to_date}\') as request_sets'
+            f'and id <= {bounds.max_id} and created_at >= \'{from_date}\' ' \
+            f'and created_at <=\'{to_date}\') as request_sets'
 
         return self.spark.read.jdbc(
             url=self.db_url,
