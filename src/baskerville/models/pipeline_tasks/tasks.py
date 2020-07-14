@@ -190,13 +190,13 @@ class GetDataKafkaStreaming(Task):
             .readStream \
             .format("kafka") \
             .option(
-                "kafka.bootstrap.servers",
-                self.config.kafka.bootstrap_servers
-            ).option(
-                "subscribe", self.config.kafka.predictions_topic
-            ).option(
-                "startingOffsets", "earliest"
-            )
+            "kafka.bootstrap.servers",
+            self.config.kafka.bootstrap_servers
+        ).option(
+            "subscribe", self.config.kafka.predictions_topic
+        ).option(
+            "startingOffsets", "earliest"
+        )
 
     def get_data(self):
         self.stream_df = self.stream_df.load().selectExpr(
@@ -801,13 +801,13 @@ class GenerateFeatures(MLTask):
         self.df = self.df.withColumn(
             'id_client', F.lit(self.config.engine.id_client)
         ).withColumn(
-            'id_group', F.monotonically_increasing_id()
+            'id_request_sets', F.monotonically_increasing_id()
         ).withColumn(
-            'id_group',
+            'id_request_sets',
             F.concat_ws(
                 '_',
                 F.col('id_client'),
-                F.col('id_group'),
+                F.col('id_request_sets'),
                 F.col('start').cast('long').cast('string'))
         )
         # todo: monotonically_increasing_id guarantees uniqueness within
@@ -925,17 +925,107 @@ class Save(SaveDfInPostgres):
         return self.df
 
 
-class SaveFeatures(Task):
+class SaveFeaturesTileDb(MLTask):
     """
-    Saves dataframe in Postgres (current backend)
+    Saves dataframe in TileDb
     """
+
+    def save(self):
+        from baskerville.util.helpers import get_default_data_path
+        df = self.df
+        for f_name in self.feature_manager.active_feature_names:
+            df = df.withColumn(f_name, F.col('features').getItem(f_name))
+        df.select(
+            'id_request_sets',
+            'prediction',
+            'score',
+            'stop',
+            *self.feature_manager.active_feature_names
+        ).write.format('io.tiledb.spark').option(
+            'uri', f'{get_default_data_path()}/tiledbstorage'
+        ).option(
+            'schema.dim.0.name', 'id_request_sets'
+        ).save()
 
     def run(self):
-        # filter the logs df with the request_set columns
-        self.df = self.df.select('id_group', 'features', 'prediction', 'score')
-        # save request_sets
         self.logger.debug('Saving features...')
+        self.save()
+        self.df = super().run()
+        return self.df
 
+
+class SaveFeaturesHbase(MLTask):
+    """
+    Saves dataframe in Hbase
+    """
+
+    def __init__(self, config, steps=()):
+        super().__init__(config, steps)
+        self.catalog = {
+            'table': {'namespace': 'default', 'name': 'request_sets'},
+            'rowkey': 'id_request_sets',
+            'columns': {
+                'id_request_sets': {'cf': 'rowkey', 'col': 'id_request_sets', 'type': 'string'},
+                'prediction': {'cf': 'cf1', 'col': 'prediction', 'type': 'int'},
+                'score': {'cf': 'cf1', 'col': 'score', 'type': 'double'},
+                'stop': {'cf': 'cf1', 'col': 'stop', 'type': 'timestamp'},
+                }
+            }
+
+    def initialize(self):
+        import json
+        for i, f_name in enumerate(self.feature_manager.active_feature_names):
+            self.catalog[f_name] = {
+                                     'cf': 'cf1',
+                                     'col': f_name,
+                                     'type': 'double'
+                                 }
+        self.catalog = json.dumps(self.catalog)
+
+    def save(self):
+        df = self.df
+        for f_name in self.feature_manager.active_feature_names:
+            df = df.withColumn(f_name, F.col('features').getItem(f_name))
+        df.select(
+            'id_request_sets',
+            'prediction',
+            'score',
+            'stop',
+            *self.feature_manager.active_feature_names
+        ).write.options(
+            catalog=self.catalog
+        ).format("org.apache.spark.sql.execution.datasources.hbase").save()
+
+        df.show()
+
+    def run(self):
+        self.save()
+
+class SaveFeaturesHive(MLTask):
+    """
+    Saves dataframe in Hive
+    """
+
+    def save(self):
+        from baskerville.util.helpers import get_default_data_path
+        df = self.df
+        for f_name in self.feature_manager.active_feature_names:
+            df = df.withColumn(f_name, F.col('features').getItem(f_name))
+        df.select(
+            'id_request_sets',
+            'prediction',
+            'score',
+            'stop',
+            *self.feature_manager.active_feature_names
+        ).write.format('io.tiledb.spark').option(
+            'uri', f'{get_default_data_path()}/tiledbstorage'
+        ).option(
+            'schema.dim.0.name', 'id_request_sets'
+        ).save()
+
+    def run(self):
+        self.logger.debug('Saving features...')
+        self.save()
         self.df = super().run()
         return self.df
 
@@ -944,7 +1034,7 @@ class CalculateAnomalyScore(Task):
     """
     Saves dataframe in Postgres (current backend)
     """
-    
+
     def initialize(self):
         # super(SaveStats, self).initialize()
         self.set_metrics()
@@ -963,7 +1053,7 @@ class CalculateAnomalyScore(Task):
         """
 
         self.df = self.df.select(
-             'target', 'score'
+            'target', 'score'
         ).withColumn(
             'score',
             F.when(
@@ -974,7 +1064,7 @@ class CalculateAnomalyScore(Task):
         self.df = self.df.groupBy('target').agg(
             F.count('score').alias('count'),
             F.avg('score').alias('avg_score')
-        ).where(F.col('count') > 50)
+        ).where(F.col('count') > self.config.engine.min_num_requests)
         self.df.show()
         self.df = self.df.withColumn(
             'anomaly_score',
@@ -984,7 +1074,6 @@ class CalculateAnomalyScore(Task):
             ).otherwise(F.lit(0))
         ).withColumn('challenge', F.col('anomaly_score') > 0)
 
-        self.df.show()
         return self.df
 
     def set_metrics(self):
@@ -1003,10 +1092,9 @@ class CalculateAnomalyScore(Task):
         self.logger.info('Anomaly score metric set')
 
     def run(self):
-
         # filter the logs df with the request_set columns
         self.df = self.df.select(
-            'id_group', 'target', 'features', 'prediction', 'score'
+            'id_request_sets', 'target', 'features', 'prediction', 'score'
         )
         self.logger.info('Calculating anomaly score...')
         self.df = self.calculate_anomaly_score()
@@ -1035,7 +1123,7 @@ class CacheData(Task):
         ).option(
             'ttl', self.ttl
         ).option(
-            'key.column', 'id_group'
+            'key.column', 'id_request_sets'
         ).save()
         self.df = super().run()
         return self.df
@@ -1058,13 +1146,13 @@ class MergeWithCachedData(Task):
         ).option(
             'table', self.table_name
         ).option(
-            'key.column', 'id_group'
+            'key.column', 'id_request_sets'
         ).load().alias('redis_df')
 
         self.df = self.df.drop('features').alias('df')
         self.df = self.redis_df.join(
-            self.df, on=['id_client', 'id_group']
-        ).drop('df.id_client', 'df.id_group')
+            self.df, on=['id_client', 'id_request_sets']
+        ).drop('df.id_client', 'df.id_request_sets')
 
         self.df = super().run()
         return self.df
@@ -1076,7 +1164,7 @@ class SendFeatures(Task):
             config: BaskervilleConfig,
             steps: list = (),
             output_columns=(
-                'id_client', 'id_group', 'features', 'prediction', 'score'
+                    'id_client', 'id_request_sets', 'features', 'prediction', 'score'
             ),
             output_topic='',
             client_mode=False
@@ -1085,7 +1173,7 @@ class SendFeatures(Task):
         self.streaming_df = None
         self.output_columns = output_columns
         self.output_topic = output_topic or \
-            self.config.kafka.predictions_topic
+                            self.config.kafka.predictions_topic
         self.client_mode = client_mode
 
     def initialize(self):

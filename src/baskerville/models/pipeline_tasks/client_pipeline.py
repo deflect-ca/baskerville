@@ -20,7 +20,7 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
                 GenerateFeatures(config),
                 SendFeatures(
                     config,
-                    output_columns=('id_client', 'id_group', 'features'),
+                    output_columns=('id_client', 'id_request_sets', 'features'),
                     client_mode=True
                 ),
                 CacheData(config),
