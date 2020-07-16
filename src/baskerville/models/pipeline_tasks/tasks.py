@@ -1030,8 +1030,10 @@ class SaveFeaturesHive(MLTask):
 
 class AttackDetection(Task):
     """
-    Calculates attack score and applies alert threshold
+    Calculates attack score, regular vs irregular request sets and applies
+    alert threshold
     """
+    # note: this will increase memory consumption a bit
     collected_df = None
 
     def initialize(self):
@@ -1065,27 +1067,37 @@ class AttackDetection(Task):
         ).withColumn(
             'irregular_rs',
             F.when(F.col('score') == 0, F.lit(1)).otherwise(F.lit(0))
-        )
+        ).persist(self.config.spark.storage_level)
         self.df = self.df.groupBy('target').agg(
             F.count('score').alias('count'),
             F.sum('regular_rs').alias('regular_rs'),
             F.sum('irregular_rs').alias('irregular_rs'),
             F.avg('score').alias('avg_score')
-        ).where(F.col('count') > self.config.engine.min_num_requests)
+        ).where(
+            F.col('count') > self.config.engine.min_num_requests
+        ).persist(self.config.spark.storage_level)
 
-        return self.df
-
-    def set_challenge_flag(self):
         self.df = self.df.withColumn(
             'attack_score',
             F.when(
                 F.col('avg_score') > self.config.engine.challenge_threshold,
                 F.col('avg_score')
             ).otherwise(F.lit(0))
-        ).withColumn('challenge', F.col('attack_score') > 0)
+        )
+
+        return self.df
+
+    def set_challenge_flag(self):
+        """
+        When attack score > 0 set challenge to True
+        """
+        self.df = self.df.withColumn('challenge', F.col('attack_score') > 0)
         return self.df
 
     def set_metrics(self):
+        # Perhaps using an additional label and one metric could be better
+        # than two - performance-wise. But that will add another dimension
+        # in Prometheus
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
         from baskerville.models.metrics.helpers import set_attack_score, \
@@ -1110,6 +1122,7 @@ class AttackDetection(Task):
 
     def run(self):
         # filter the logs df with the request_set columns
+        # todo: reduce columns, not all are necessary - check next steps
         self.df = self.df.select(
             'id_request_sets', 'target', 'features', 'prediction', 'score'
         )
