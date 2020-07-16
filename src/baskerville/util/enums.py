@@ -49,7 +49,7 @@ class RunType(BaseStrEnum):
     itraining = 'itraining'
     preprocessing = 'preprocessing'
     postprocessing = 'postprocessing'
-    prediction = 'prediction'
+    predicting = 'predicting'
 
 
 class Step(BaseStrEnum):

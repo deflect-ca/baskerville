@@ -993,6 +993,7 @@ class MergeWithSensitiveData(Task):
             'key.column', 'id_group'
         ).load().alias('redis_df')
 
+        self.df = self.df.alias('df')
         self.df = self.redis_df.join(
             self.df, on=['id_client', 'id_group']
         ).drop('df.id_client', 'df.id_group')
@@ -1042,6 +1043,7 @@ class SendToKafka(Task):
         #     .option('kafka.bootstrap.servers', self.config.kafka.bootstrap_servers) \
         #     .option('topic', self.topic) \
         #     .save()
+        return self.df
 
 
 class Train(Task):
