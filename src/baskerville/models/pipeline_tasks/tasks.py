@@ -936,11 +936,8 @@ class Save(SaveDfInPostgres):
         self.df = self.df.select(request_set_columns)
         self.df = self.df.withColumn(
             'created_at',
-            F.unix_timestamp(
-                F.current_timestamp(),
-                format="YYYY-MM-DD %H:%M:%S")
+            F.current_timestamp()
         )
-        self.df.show()
 
     def run(self):
         self.prepare_to_save()
