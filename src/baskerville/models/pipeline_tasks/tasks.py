@@ -16,13 +16,14 @@ from pyspark.sql import functions as F, types as T
 from pyspark.streaming import StreamingContext
 
 from baskerville.db.models import RequestSet
-from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask
+from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
+    CacheTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction
 from baskerville.spark.schemas import features_schema, \
     prediction_schema
-from kafka import KafkaProducer
+# from kafka import KafkaProducer
 
 # broadcasts
 TOPIC_BC = None
@@ -846,10 +847,6 @@ class GenerateFeatures(MLTask):
         self.feature_calculation()
         self.add_ids()
 
-        # Is this the right place?
-        # It's failing with
-        # self.service_provider.refresh_cache(self.df)
-
         return super().run()
 
 
@@ -918,7 +915,7 @@ class Save(SaveDfInPostgres):
     Saves dataframe in Postgres (current backend)
     """
 
-    def run(self):
+    def prepare_to_save(self):
         request_set_columns = RequestSet.columns[:]
         not_common = {
             'prediction', 'model_version', 'label', 'id_attribute',
@@ -937,11 +934,26 @@ class Save(SaveDfInPostgres):
 
         # filter the logs df with the request_set columns
         self.df = self.df.select(request_set_columns)
+        self.df = self.df.withColumn(
+            'created_at',
+            F.unix_timestamp(
+                F.current_timestamp(),
+                format="YYYY-MM-DD %H:%M:%S")
+        )
+        self.df.show()
+
+    def run(self):
+        self.prepare_to_save()
         # save request_sets
         self.logger.debug('Saving request_sets')
-        self.df = self.df.withColumn('created_at', F.col('stop'))
         self.df = super().run()
         return self.df
+
+
+class RefreshCache(CacheTask):
+    def run(self):
+        self.service_provider.refresh_cache(self.df)
+        return super().run()
 
 
 class CacheSensitiveData(Task):
