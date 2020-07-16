@@ -852,7 +852,6 @@ class Predict(MLTask):
                 'threshold', F.col('threshold').cast(T.FloatType()))
 
             self.logger.debug('No model to predict')
-            self.df.show()
 
     def run(self):
         self.predict()
@@ -996,10 +995,9 @@ class SaveFeaturesHbase(MLTask):
             catalog=self.catalog
         ).format("org.apache.spark.sql.execution.datasources.hbase").save()
 
-        df.show()
-
     def run(self):
         self.save()
+
 
 class SaveFeaturesHive(MLTask):
     """
@@ -1030,16 +1028,17 @@ class SaveFeaturesHive(MLTask):
         return self.df
 
 
-class CalculateAnomalyScore(Task):
+class AttackDetection(Task):
     """
-    Saves dataframe in Postgres (current backend)
+    Calculates attack score and applies alert threshold
     """
+    collected_df = None
 
     def initialize(self):
         # super(SaveStats, self).initialize()
         self.set_metrics()
 
-    def calculate_anomaly_score(self):
+    def calculate_attack_score(self):
         """
         Based on:
         SELECT $__timeGroup(created_at, '2m'), target,
@@ -1057,39 +1056,57 @@ class CalculateAnomalyScore(Task):
         ).withColumn(
             'score',
             F.when(
-                F.col('score') > self.config.engine.challenge_threshold,
+                F.col('score') > self.config.engine.anomaly_threshold,
                 F.lit(100.0)
             ).otherwise(F.lit(0.))
+        ).withColumn(
+            'regular_rs',
+            F.when(F.col('score') > 0, F.lit(1)).otherwise(F.lit(0))
+        ).withColumn(
+            'irregular_rs',
+            F.when(F.col('score') == 0, F.lit(1)).otherwise(F.lit(0))
         )
         self.df = self.df.groupBy('target').agg(
             F.count('score').alias('count'),
+            F.sum('regular_rs').alias('regular_rs'),
+            F.sum('irregular_rs').alias('irregular_rs'),
             F.avg('score').alias('avg_score')
         ).where(F.col('count') > self.config.engine.min_num_requests)
-        self.df.show()
+
+        return self.df
+
+    def set_challenge_flag(self):
         self.df = self.df.withColumn(
-            'anomaly_score',
+            'attack_score',
             F.when(
                 F.col('avg_score') > self.config.engine.challenge_threshold,
                 F.col('avg_score')
             ).otherwise(F.lit(0))
-        ).withColumn('challenge', F.col('anomaly_score') > 0)
-
+        ).withColumn('challenge', F.col('attack_score') > 0)
         return self.df
 
     def set_metrics(self):
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
-        from baskerville.models.metrics.helpers import set_anomaly_score_metric
+        from baskerville.models.metrics.helpers import set_attack_score, \
+            set_topmost_metric
 
-        calculate_anomaly_score = metrics_registry.register_action_hook(
-            self.calculate_anomaly_score,
-            set_anomaly_score_metric,
+        run = metrics_registry.register_action_hook(
+            self.run,
+            set_topmost_metric,
             metric_cls=MetricClassEnum.histogram,
-            metric_name='anomaly_score',
+            metric_name='topmost',
+            labelnames=['target', 'kind']
+        )
+        run = metrics_registry.register_action_hook(
+            run,
+            set_attack_score,
+            metric_cls=MetricClassEnum.histogram,
+            metric_name='attack_score',
             labelnames=['target']
         )
-        setattr(self, 'calculate_anomaly_score', calculate_anomaly_score)
-        self.logger.info('Anomaly score metric set')
+        setattr(self, 'run', run)
+        self.logger.info('Attack score metric set')
 
     def run(self):
         # filter the logs df with the request_set columns
@@ -1097,7 +1114,9 @@ class CalculateAnomalyScore(Task):
             'id_request_sets', 'target', 'features', 'prediction', 'score'
         )
         self.logger.info('Calculating anomaly score...')
-        self.df = self.calculate_anomaly_score()
+        self.calculate_attack_score()
+        self.set_challenge_flag()
+
         self.df = super().run()
         return self.df
 

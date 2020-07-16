@@ -124,9 +124,27 @@ def increment_metric(metric, self=None):  # noqa
     metric.inc()
 
 
-def set_anomaly_score_metric(metric, self):
+def set_attack_score(metric, self):
     """
-    For every target, it sets the precalculated anomaly score
+    For every target, it sets the precalculated attack score
     """
-    for row in self.df.collect():
-        metric.labels(target=row.target).observe(row.anomaly_score)
+    if not self.collected_df:
+        self.collected_df = list(self.df.collect())
+    for row in self.collected_df:
+        metric.labels(target=row.target).observe(row.attack_score)
+
+
+def set_topmost_metric(metric, self):
+    """
+    For every target, it sets the regular and the irregular counts
+    """
+    if not self.collected_df:
+        self.collected_df = list(self.df.collect())
+
+    for row in self.collected_df:
+        metric.labels(
+            target=row.target, kind='regular'
+        ).observe(row.regular_rs)
+        metric.labels(
+            target=row.target, kind='irregular'
+        ).observe(row.irregular_rs)
