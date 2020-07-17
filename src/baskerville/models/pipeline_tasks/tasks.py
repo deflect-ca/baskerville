@@ -23,7 +23,7 @@ from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction
 from baskerville.spark.schemas import features_schema, \
     prediction_schema
-# from kafka import KafkaProducer
+from kafka import KafkaProducer
 
 # broadcasts
 TOPIC_BC = None
@@ -949,7 +949,8 @@ class Save(SaveDfInPostgres):
 
 class RefreshCache(CacheTask):
     def run(self):
-        self.service_provider.refresh_cache(self.df)
+        # failing with 'Reference 'features' is ambiguous, could be: features, pc.features, pc.features.;'
+        # self.service_provider.refresh_cache(self.df)
         return super().run()
 
 
