@@ -7,9 +7,10 @@
 
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.pipeline_tasks.tasks import GetDataKafka, GenerateFeatures, \
+from baskerville.models.pipeline_tasks.tasks import GetDataKafka, \
+    GenerateFeatures, \
     Save, CacheSensitiveData, SendToKafka, \
-    GetPredictions, MergeWithSensitiveData
+    GetPredictions, MergeWithSensitiveData, RefreshCache
 
 
 def set_up_preprocessing_pipeline(config: BaskervilleConfig):
@@ -24,6 +25,7 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
                     columns=('id_client', 'id_group', 'features'),
                     topic=config.kafka.features_topic,
                 ),
+                RefreshCache(config)
             ]),
     ]
 
