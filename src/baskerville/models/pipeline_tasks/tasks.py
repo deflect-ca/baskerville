@@ -13,7 +13,6 @@ import traceback
 
 import pyspark
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType
 from pyspark.streaming import StreamingContext
 
 from baskerville.db.models import RequestSet
@@ -960,9 +959,8 @@ class CacheSensitiveData(Task):
         self.df = self.df.drop('vectorized_features')
         redis_df = self.df.withColumn("features", F.to_json("features"))
 
-        udf_date_to_string = F.udf(lambda x: x.strftime("%Y-%m-%d %H:%M:%S"), StringType())
-        redis_df = redis_df.withColumn('start', udf_date_to_string(F.col('start'))) \
-            .withColumn('stop', udf_date_to_string(F.col('stop')))
+        redis_df = redis_df.withColumn('start', F.date_format(F.col('start'), 'yyyy-MM-dd HH:mm:ss')) \
+            .withColumn('stop', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss'))
 
         redis_df.write.format(
             'org.apache.spark.sql.redis'
@@ -999,7 +997,7 @@ class MergeWithSensitiveData(Task):
             'key.column', 'id_group'
         ).load().alias('redis_df')
 
-        self.redis_df = self.redis_df.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss"))\
+        self.redis_df = self.redis_df.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss")) \
             .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
 
         self.df = self.df.alias('df')
