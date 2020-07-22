@@ -46,6 +46,10 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         return PipelineFactory().get_pipeline(self.run_type, self.config)
 
     def _register_metrics(self):
+        self.logger.debug(
+            'TODO:_register_metrics not functional due to task changes'
+        )
+        return
         if self.register_metrics:
             if self.config.engine.metrics.performance:
                 self.performance_stats = self._register_performance_stats()

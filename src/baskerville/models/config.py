@@ -261,7 +261,8 @@ class EngineConfig(Config):
     all_features = None
     load_test = False
     trigger_challenge = True
-    challenge_threshold = 0.5
+    anomaly_threshold = 0.45
+    challenge_threshold = 0.75
     training = None
 
     def __init__(self, config, parent=None):

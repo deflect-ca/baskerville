@@ -21,13 +21,13 @@ prediction_schema = T.StructType([
 
 client_prediction_schema = T.StructType([
     T.StructField("id_client", T.StringType(), False),
-    T.StructField("id_group", T.StringType(), False),
+    T.StructField("id_request_sets", T.StringType(), False),
     T.StructField("features", T.StringType(), False)
 ])
 
 client_prediction_input_schema = T.StructType([
     T.StructField("id_client", T.StringType(), False),
-    T.StructField("id_group", T.StringType(), False),
+    T.StructField("id_request_sets", T.StringType(), False),
     T.StructField("features", T.StringType(), False),
     T.StructField("prediction", T.FloatType(), False),
     T.StructField("score", T.FloatType(), False)
