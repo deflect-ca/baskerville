@@ -724,10 +724,6 @@ class KafkaConfig(Config):
             warnings.warn('Features topic is empty')
         if not self.predictions_topic:
             warnings.warn('Predictions topic is empty.')
-        if not self.publish_predictions:
-            warnings.warn(
-                'Publish predictions topic is empty. If you are not using '
-                'simulation or Realtime pipeline ignore this')
 
         self._is_validated = True
         return self
