@@ -22,7 +22,7 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
                 CacheSensitiveData(config),
                 SendToKafka(
                     config=config,
-                    columns=('id_client', 'id_group', 'features'),
+                    columns=('id_client', 'id_request_sets', 'features'),
                     topic=config.kafka.features_topic,
                 ),
                 RefreshCache(config)

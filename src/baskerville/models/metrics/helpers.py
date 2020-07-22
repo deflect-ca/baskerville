@@ -122,3 +122,29 @@ def set_gauge_for_request_set_persistent_cache(metric, self):
 
 def increment_metric(metric, self=None):  # noqa
     metric.inc()
+
+
+def set_attack_score(metric, self):
+    """
+    For every target, it sets the precalculated attack score
+    """
+    if not self.collected_df:
+        self.collected_df = list(self.df.collect())
+    for row in self.collected_df:
+        metric.labels(target=row.target).observe(row.attack_score)
+
+
+def set_topmost_metric(metric, self):
+    """
+    For every target, it sets the regular and the irregular counts
+    """
+    if not self.collected_df:
+        self.collected_df = list(self.df.collect())
+
+    for row in self.collected_df:
+        metric.labels(
+            target=row.target, kind='regular'
+        ).observe(row.regular_rs)
+        metric.labels(
+            target=row.target, kind='irregular'
+        ).observe(row.irregular_rs)

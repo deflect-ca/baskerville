@@ -28,7 +28,7 @@ def simulation(
         spark=None,
 ):
     """
-    Loads feature vectors with id_client and id_group and publishes them one by
+    Loads feature vectors with id_client and id_request_sets and publishes them one by
     one with some random delay to the defined topic. This is used
     :param str path: the path to feature vector samples
     :param str kafka_url: the url to kafka, defaults to '0.0.0.0:9092'
@@ -38,7 +38,7 @@ def simulation(
     """
 
     if topic_name:
-        active_columns = ['id_client', 'id_group', 'features']
+        active_columns = ['id_client', 'id_request_sets', 'features']
 
         if not spark:
             from baskerville.spark import get_spark_session
@@ -53,7 +53,7 @@ def simulation(
         TOPIC_BC = spark.sparkContext.broadcast(topic_name)
         KAFKA_URL_BC = spark.sparkContext.broadcast(kafka_url)
 
-        def send_to_kafka(id_client, id_group, features):
+        def send_to_kafka(id_client, id_request_sets, features):
             from confluent_kafka import Producer
             producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
             time.sleep(random.randrange(5, 20))
@@ -62,7 +62,7 @@ def simulation(
                 json.dumps(
                     {
                         'id_client': id_client,
-                        'id_group': id_group,
+                        'id_request_sets': id_request_sets,
                         'features': features
                     }).encode('utf-8')
             )
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 #   'id_client',
 #   F.monotonically_increasing_id()
 # ).withColumn(
-#     'id_group', F.monotonically_increasing_id()
+#     'id_request_sets', F.monotonically_increasing_id()
 # )
-# data.select('id_client', 'id_group', 'features').write.format('json').save(
+# data.select('id_client', 'id_request_sets', 'features').write.format('json').save(
 #     '/path/to/baskerville/data/samples/sample_vectors')
