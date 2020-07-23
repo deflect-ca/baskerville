@@ -948,8 +948,7 @@ class Save(SaveDfInPostgres):
 
 class RefreshCache(CacheTask):
     def run(self):
-        # failing with 'Reference 'features' is ambiguous, could be: features, pc.features, pc.features.;'
-        # self.service_provider.refresh_cache(self.df)
+        self.service_provider.refresh_cache(self.df)
         return super().run()
 
 

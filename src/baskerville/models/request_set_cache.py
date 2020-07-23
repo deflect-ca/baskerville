@@ -11,6 +11,7 @@ import os
 
 from py4j.protocol import Py4JJavaError
 
+from baskerville.db.models import RequestSet
 from baskerville.spark import get_spark_session
 from baskerville.spark.helpers import StorageLevel
 from pyspark.sql import functions as F
@@ -292,6 +293,10 @@ class RequestSetSparkCache(Singleton):
         now = datetime.datetime.utcnow()
         source_df = source_df.persist(self.storage_level).alias('sd')
 
+        columns = source_df.columns
+        columns.remove('first_ever_request')
+        source_df = source_df.select(columns)
+
         self.logger.debug(f'Source_df count = {source_df.count()}')
 
         # read the whole thing again
@@ -308,6 +313,9 @@ class RequestSetSparkCache(Singleton):
             list(join_cols),
             how='full_outer'
         ).persist(self.storage_level)
+
+        import pdb
+        pdb.set_trace()
 
         # mark rows to update
         self.__persistent_cache = self.__persistent_cache.withColumn(
