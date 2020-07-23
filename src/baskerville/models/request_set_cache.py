@@ -288,7 +288,8 @@ class RequestSetSparkCache(Singleton):
             'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
             'features', 'start', 'stop', 'subset_count', 'num_requests',
             'total_seconds', 'time_bucket', 'model_version', 'to_update',
-            'label', 'id_attribute', 'id_request_sets', 'created_at'
+            'label', 'id_attribute', 'id_request_sets', 'created_at',
+            'dt', 'id_client'
         ]
         now = datetime.datetime.utcnow()
         source_df = source_df.persist(self.storage_level).alias('sd')
