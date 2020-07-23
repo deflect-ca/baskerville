@@ -126,7 +126,7 @@ class RequestSetSparkCache(Singleton):
         )
 
         if hosts is not None:
-            df = df.join(F.broadcast(hosts), ['target'], 'leftsemi')
+            df = df.join(hosts, ['target'], 'leftsemi')
 
         self._changed = True
 
@@ -203,7 +203,7 @@ class RequestSetSparkCache(Singleton):
 
         # https://issues.apache.org/jira/browse/SPARK-10925
         df = df_to_update.rdd.toDF(df_to_update.schema).alias('a').join(
-            F.broadcast(self.cache.select(*select_cols).alias('cache')),
+            self.cache.select(*select_cols).alias('cache'),
             list(join_cols),
             how='left_outer'
         ).persist(self.storage_level)
@@ -246,7 +246,7 @@ class RequestSetSparkCache(Singleton):
             self.__cache = self.session_getter().read.format(
                 self.format_
             ).load(self.persistent_cache_file).join(
-                F.broadcast(df),
+                df,
                 on=columns,
                 how='inner'
             ).drop(
@@ -255,7 +255,7 @@ class RequestSetSparkCache(Singleton):
         else:
             if self.__cache:
                 self.__cache = self.__cache.join(
-                    F.broadcast(df),
+                    df,
                     on=columns,
                     how='inner'
                 ).drop(
@@ -303,9 +303,7 @@ class RequestSetSparkCache(Singleton):
             ).persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
-        self.__persistent_cache = F.broadcast(
-            source_df.rdd.toDF(source_df.schema)
-        ).join(
+        self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
             self.__persistent_cache.select(*select_cols).alias('pc'),
             list(join_cols),
             how='full_outer'
