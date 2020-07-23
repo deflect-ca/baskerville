@@ -314,9 +314,6 @@ class RequestSetSparkCache(Singleton):
             how='full_outer'
         ).persist(self.storage_level)
 
-        import pdb
-        pdb.set_trace()
-
         # mark rows to update
         self.__persistent_cache = self.__persistent_cache.withColumn(
             'to_update',
