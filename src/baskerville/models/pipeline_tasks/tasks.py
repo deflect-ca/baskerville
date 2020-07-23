@@ -1072,6 +1072,7 @@ class Evaluate(Task):
 class ModelUpdate(MLTask):
     pass
 
+
 class SaveFeaturesTileDb(MLTask):
     """
     Saves dataframe in TileDb
@@ -1116,17 +1117,17 @@ class SaveFeaturesHbase(MLTask):
                 'prediction': {'cf': 'cf1', 'col': 'prediction', 'type': 'int'},
                 'score': {'cf': 'cf1', 'col': 'score', 'type': 'double'},
                 'stop': {'cf': 'cf1', 'col': 'stop', 'type': 'timestamp'},
-                }
             }
+        }
 
     def initialize(self):
         import json
         for i, f_name in enumerate(self.feature_manager.active_feature_names):
             self.catalog[f_name] = {
-                                     'cf': 'cf1',
-                                     'col': f_name,
-                                     'type': 'double'
-                                 }
+                'cf': 'cf1',
+                'col': f_name,
+                'type': 'double'
+            }
         self.catalog = json.dumps(self.catalog)
 
     def save(self):

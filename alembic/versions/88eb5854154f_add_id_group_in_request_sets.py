@@ -1,13 +1,12 @@
 """add id_request_sets in request_sets
 
 Revision ID: 88eb5854154f
-Revises: 
+Revises:
 Create Date: 2020-07-07 11:02:39.321300
 
 """
 from alembic import op
 import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision = '88eb5854154f'

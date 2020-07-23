@@ -11,7 +11,6 @@ import os
 
 from py4j.protocol import Py4JJavaError
 
-from baskerville.db.models import RequestSet
 from baskerville.spark import get_spark_session
 from baskerville.spark.helpers import StorageLevel
 from pyspark.sql import functions as F
@@ -50,7 +49,7 @@ class RequestSetSparkCache(Singleton):
             'first_ever_request': 'start',
             'old_subset_count': 'subset_count',
             'old_features': 'features',
-                            'old_num_requests': 'num_requests',
+            'old_num_requests': 'num_requests',
         }
         self._count = 0
         self._last_updated = datetime.datetime.utcnow()

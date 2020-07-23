@@ -110,7 +110,7 @@ class TestServiceProvider(SQLTestCaseLatestSpark):
         """
         self._helper_initialize_service_provider()
         df = self.session.createDataFrame([
-            {'client_ip': '1', 'client_request_host': '2'}
+            {'ip': '1', 'target': '2'}
         ])
         self.service_provider.initialize_request_set_cache_service()
         mock_rs = mock.MagicMock()
@@ -121,7 +121,7 @@ class TestServiceProvider(SQLTestCaseLatestSpark):
     def test_add_cache_columns(self):
         self._helper_initialize_service_provider()
         df = self.session.createDataFrame([
-            {'client_ip': '1', 'client_request_host': '2'}
+            {'ip': '1', 'target': '2'}
         ])
         self.service_provider.initialize_request_set_cache_service()
         df_with_cache_cols = self.service_provider.add_cache_columns(df)

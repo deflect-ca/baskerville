@@ -703,7 +703,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'client_request_host': 'testhost',
                 'client_ip': '1',
                 'ip': '1',
-                'id_request_set': -1,
+                'id_request_sets': -1,
                 'id_attribute': '',
                 'id_runtime': -1,
                 'request_set_prediction': -1,
@@ -728,7 +728,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'client_request_host': 'other testhost',
                 'client_ip': '1',
                 'ip': '1',
-                'id_request_set': None,
+                'id_request_sets': None,
                 'id_attribute': '',
                 'id_runtime': -1,
                 'request_set_prediction': -1,
@@ -768,12 +768,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         request_sets_df = df.select(
             RequestSet.columns
         ).withColumnRenamed(
-            'id_request_set', 'id'
-        ).withColumnRenamed(
             'request_set_prediction', 'prediction'
         ).withColumn('created_at', F.col('stop'))
         # postgres doesn't want the id in the insert
-        request_sets_df = request_sets_df.drop('id')
 
         # # dfs are no longer accessible
         # columns = [c for c in request_sets_df.columns if c != 'features']
