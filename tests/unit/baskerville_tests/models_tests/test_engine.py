@@ -223,7 +223,7 @@ class TestBaskervilleAnalyticsEngine(unittest.TestCase):
                 mock__set_up_pipeline.assert_called_once()
                 # mock_register_performance_stats.assert_called_once()
                 pipeline.run.assert_called_once()
-                #self.assertTrue(engine.performance_stats == 'should return a performance_stats instance')
+                # self.assertTrue(engine.performance_stats == 'should return a performance_stats instance')
 
     def test_finish_up(self):
         pass
