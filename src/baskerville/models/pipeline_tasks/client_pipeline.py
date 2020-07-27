@@ -10,7 +10,8 @@ from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GetDataKafka, \
     GenerateFeatures, \
     Save, CacheSensitiveData, SendToKafka, \
-    GetPredictions, MergeWithSensitiveData, RefreshCache
+    GetPredictions, MergeWithSensitiveData, RefreshCache, \
+    AttackDetection, AttackAction
 
 
 def set_up_preprocessing_pipeline(config: BaskervilleConfig):
@@ -41,6 +42,8 @@ def set_up_postprocessing_pipeline(config: BaskervilleConfig):
             steps=[
                 MergeWithSensitiveData(config),
                 Save(config, json_cols=[]),
+                AttackDetection(config),
+                AttackAction(config),
             ]),
     ]
 

@@ -1061,6 +1061,33 @@ class SendToKafka(Task):
         return self.df
 
 
+class AttackAction(Task):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+    ):
+        super().__init__(config, steps)
+
+    def run(self):
+        self.logger.info(f'Sending challenge commands to kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+
+        producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
+        records = self.df.collect()
+        for record in records:
+            if not record['challenge']:
+                continue
+            # XXX: 'target' is just the normalized hostname, which is incomplete.
+            # somewhere upstream we'll need to save the full hostname.
+            message = json.dumps(
+                    {'name': 'challenge_host', 'value': record['target']}
+            ).encode('utf-8')
+            producer.send(self.config.kafka.banjax_command_topic, message)
+            producer.flush()
+
+        return self.df
+
+
 class Train(Task):
     pass
 
@@ -1260,7 +1287,7 @@ class AttackDetection(Task):
             labelnames=['target', 'kind']
         )
         run = metrics_registry.register_action_hook(
-            run,
+            self.run,
             set_attack_score,
             metric_cls=MetricClassEnum.histogram,
             metric_name='attack_score',
