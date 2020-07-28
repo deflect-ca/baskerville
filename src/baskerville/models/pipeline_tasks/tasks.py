@@ -537,10 +537,11 @@ class GenerateFeatures(MLTask):
         """
         from baskerville.spark.udfs import udf_normalize_host_name
         self.df = self.df.fillna({'client_request_host': ''})
+        self.df = self.df.withColumn('target_original', F.col('client_request_host').cast(T.StringType()))
         self.df = self.df.withColumn(
             'client_request_host',
             udf_normalize_host_name(
-                F.col('client_request_host').cast(T.StringType())
+                F.col('target_original')
             )
         )
 
@@ -772,7 +773,7 @@ class GenerateFeatures(MLTask):
         dataframe
         :rtype: set[str]
         """
-        cols = self.group_by_cols + self.feature_manager.active_columns
+        cols = self.group_by_cols + self.feature_manager.active_columns + ['target_original']
         cols.append(self.config.engine.data_config.timestamp_column)
         return set(cols)
 
@@ -800,7 +801,8 @@ class GenerateFeatures(MLTask):
         basic_aggs = {
             'first_request': F.min(F.col('@timestamp')).alias('first_request'),
             'last_request': F.max(F.col('@timestamp')).alias('last_request'),
-            'num_requests': F.count(F.col('@timestamp')).alias('num_requests')
+            'num_requests': F.count(F.col('@timestamp')).alias('num_requests'),
+            'target_original': F.first(F.col('target_original')).alias('target_original')
         }
 
         column_aggs = {
