@@ -98,6 +98,7 @@ class RequestSet(Base, SerializableMixin):
     id_runtime = Column(BigInteger, ForeignKey('runtimes.id'), nullable=True)
     id_request_sets = Column(TEXT())
     target = Column(TEXT())
+    target_original = Column(TEXT())
     ip = Column(String(45))
     ip_encrypted = Column(TEXT())
     ip_iv = Column(TEXT())
@@ -148,6 +149,7 @@ class RequestSet(Base, SerializableMixin):
         'id_request_sets',
         'ip',
         'target',
+        'target_original',
         'subset_count',
         'num_requests',
         'start',
