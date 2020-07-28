@@ -537,8 +537,7 @@ class GenerateFeatures(MLTask):
         """
         from baskerville.spark.udfs import udf_normalize_host_name
         self.df = self.df.fillna({'client_request_host': ''})
-        self.df = self.df.withColumn('target_original',
-            F.col('client_request_host').cast(T.StringType()))
+        self.df = self.df.withColumn('target_original', F.col('client_request_host').cast(T.StringType()))
         self.df = self.df.withColumn(
             'client_request_host',
             udf_normalize_host_name(
