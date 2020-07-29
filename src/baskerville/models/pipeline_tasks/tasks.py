@@ -13,9 +13,11 @@ import traceback
 
 import pyspark
 from pyspark.sql import functions as F, types as T
+from pyspark.sql.types import StringType, StructField
 from pyspark.streaming import StreamingContext
 
-from baskerville.db.models import RequestSet
+from baskerville.db import get_jdbc_url
+from baskerville.db.models import RequestSet, Model
 from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
     CacheTask
 from baskerville.models.config import BaskervilleConfig
@@ -24,8 +26,11 @@ from baskerville.spark.helpers import map_to_array, load_test, \
 from baskerville.spark.schemas import features_schema, \
     prediction_schema
 from kafka import KafkaProducer
+from dateutil.tz import tzutc
 
 # broadcasts
+from baskerville.util.helpers import instantiate_from_str, get_model_path
+
 TOPIC_BC = None
 KAFKA_URL_BC = None
 CLIENT_MODE_BC = None
@@ -329,48 +334,23 @@ class GetDataPostgres(Task):
             self,
             config: BaskervilleConfig,
             steps: list = (),
-            columns_to_keep=('ip', 'target', 'created_at', 'features',)
+            columns_to_keep=('ip', 'target', 'created_at', 'features',),
+            from_date=None,
+            to_date=None,
+            training_days=None
     ):
         super().__init__(config, steps)
         self.columns_to_keep = columns_to_keep
         self.n_rows = -1
+        self.from_date = from_date
+        self.to_date = to_date
+        self.training_days = training_days
         self.conn_properties = {
             'user': self.config.database.user,
             'password': self.config.database.password,
-            'driver': self.config.database.db_driver,
+            'driver': self.config.spark.db_driver,
         }
-
-    def get_data(self):
-        """
-        Load the data from the database into a dataframe and do the necessary
-        transformations to get the features as a list \
-        :return:
-        """
-        self.df = self.load().persist(self.config.spark.storage_level)
-
-        # since features are stored as json, we need to expand them to create
-        # vectors
-        json_schema = self.spark.read.json(
-            self.df.limit(1).rdd.map(lambda row: row.features)
-        ).schema
-        self.df = self.df.withColumn(
-            'features',
-            F.from_json('features', json_schema)
-        )
-
-        # get the active feature names and transform the features to list
-        self.active_features = json_schema.fieldNames()
-        data = map_to_array(
-            self.df,
-            'features',
-            'features',
-            self.active_features
-        ).persist(self.spark_conf.storage_level)
-        self.df.unpersist()
-        self.df = data
-        self.n_rows = self.df.count()
-        self.logger.debug(f'Loaded #{self.n_rows} of request sets...')
-        return self.df
+        self.db_url = get_jdbc_url(self.config.database)
 
     def get_bounds(self, from_date, to_date=None, field='created_at'):
         """
@@ -394,58 +374,50 @@ class GetDataPostgres(Task):
             properties=self.conn_properties
         )
 
-    def load(self, extra_filters=None) -> pyspark.sql.DataFrame:
+    def load(self) -> pyspark.sql.DataFrame:
         """
         Loads the request_sets already in the database
         :return:
         :rtype: pyspark.sql.Dataframe
         """
-        data_params = self.config.engine.training.data_parameters
-        from_date = data_params.get('from_date')
-        to_date = data_params.get('to_date')
-        training_days = data_params.get('training_days')
+        to_date = self.to_date
+        from_date = self.from_date
+        if not from_date or not to_date:
+            if self.training_days:
+                to_date = datetime.datetime.utcnow()
+                from_date = str(to_date - datetime.timedelta(
+                    days=self.training_days
+                ))
+                to_date = str(to_date)
+            else:
+                raise ValueError(
+                    'Please specify either from-to dates or training days'
+                )
 
-        if training_days:
-            to_date = datetime.datetime.utcnow()
-            from_date = str(to_date - datetime.timedelta(
-                days=training_days
-            ))
-            to_date = str(to_date)
-        if not training_days and (not from_date or not to_date):
-            raise ValueError(
-                'Please specify either from-to dates or training days'
-            )
-
-        bounds = self.get_bounds(from_date, to_date).collect()[0]
+        bounds = self.get_bounds(from_date, to_date, field='created_at').collect()[0]
         self.logger.debug(
             f'Fetching {bounds.rows} rows. '
             f'min: {bounds.min_id} max: {bounds.max_id}'
         )
-        if not bounds.min_id:
-            raise RuntimeError(
-                'No data to train. Please, check your training configuration'
-            )
         q = f'(select id, {",".join(self.columns_to_keep)} ' \
             f'from request_sets where id >= {bounds.min_id}  ' \
             f'and id <= {bounds.max_id} and created_at >= \'{from_date}\' ' \
             f'and created_at <=\'{to_date}\') as request_sets'
 
-        if not extra_filters:
-            return self.spark.read.jdbc(
-                url=self.db_url,
-                table=q,
-                numPartitions=int(self.spark.conf.get(
-                    'spark.sql.shuffle.partitions'
-                )) or os.cpu_count() * 2,
-                column='id',
-                lowerBound=bounds.min_id,
-                upperBound=bounds.max_id + 1,
-                properties=self.conn_properties
-            )
-        raise NotImplementedError('No implementation for "extra_filters"')
+        return self.spark.read.jdbc(
+            url=self.db_url,
+            table=q,
+            numPartitions=int(self.spark.conf.get(
+                'spark.sql.shuffle.partitions'
+            )) or os.cpu_count() * 2,
+            column='id',
+            lowerBound=bounds.min_id,
+            upperBound=bounds.max_id + 1,
+            properties=self.conn_properties
+        )
 
     def run(self):
-        self.df = self.get_data()
+        self.df = self.load()
         self.df = super().run()
         return self.df
 
@@ -1064,14 +1036,97 @@ class SendToKafka(Task):
 
 
 class Train(Task):
-    pass
+
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+    ):
+        super().__init__(config, steps)
+        self.model = None
+        self.training_conf = self.config.engine.training
+        self.engine_conf = self.config.engine
+
+    def initialize(self):
+        super().initialize()
+
+    def load_dataset(self, df, features):
+        dataset = df.persist(self.spark_conf.storage_level)
+
+        if self.training_conf.max_samples_per_host:
+            counts = dataset.groupby('target').count()
+            counts = counts.withColumn('fraction', self.training_conf.max_samples_per_host / F.col('count'))
+            fractions = dict(counts.select('target', 'fraction').collect())
+            for key, value in fractions.items():
+                if value > 1.0:
+                    fractions[key] = 1.0
+            dataset = dataset.sampleBy('target', fractions, 777)
+
+        schema = self.spark.read.json(dataset.limit(1).rdd.map(lambda row: row.features)).schema
+        for feature in features:
+            if feature in schema.fieldNames():
+                continue
+            feature_class = self.engine_conf.all_features[feature]
+            schema.add(StructField(
+                name=feature,
+                dataType=feature_class.spark_type(),
+                nullable=True))
+
+        dataset = dataset.withColumn(
+            'features',
+            F.from_json('features', schema)
+        )
+
+        self.logger.debug(f'Loaded {dataset.count()} rows dataset...')
+        return dataset
+
+    def save(self):
+        """
+        Save the models on disc and add a baskerville.db.Model in the database
+        :return: None
+        """
+        model_path = get_model_path(
+            self.engine_conf.storage_path, self.model.__class__.__name__)
+        self.model.save(path=model_path, spark_session=self.spark)
+        self.logger.debug(f'The new model has been saved to: {model_path}')
+
+        db_model = Model()
+        db_model.created_at = datetime.datetime.now(tz=tzutc())
+        db_model.algorithm = self.training_conf.model
+        db_model.parameters = json.dumps(self.model.get_params())
+        db_model.classifier = bytearray(model_path.encode('utf8'))
+
+        # save to db
+        self.db_tools.session.add(db_model)
+        self.db_tools.session.commit()
+
+    def run(self):
+
+        self.model = instantiate_from_str(self.training_conf.model)
+
+        params = self.training_conf.model_parameters
+
+        model_features = {}
+        for feature in params['features']:
+            features_class = self.engine_conf.all_features[feature]
+            model_features[feature] = {
+                'categorical': features_class.is_categorical(),
+                'string': features_class.spark_type() == StringType()
+            }
+        params['features'] = model_features
+
+        self.model.set_params(**params)
+        self.model.set_logger(self.logger)
+
+        dataset = self.load_dataset(self.df, self.model.features)
+
+        self.model.train(dataset)
+        dataset.unpersist()
+
+        self.save()
 
 
 class Evaluate(Task):
-    pass
-
-
-class ModelUpdate(MLTask):
     pass
 
 
