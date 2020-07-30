@@ -295,6 +295,7 @@ class RequestSetSparkCache(Singleton):
 
         columns = source_df.columns
         columns.remove('first_ever_request')
+        columns.remove('target_original')
         source_df = source_df.select(columns)
 
         self.logger.debug(f'Source_df count = {source_df.count()}')
