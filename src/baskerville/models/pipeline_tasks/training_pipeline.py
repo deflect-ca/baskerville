@@ -7,19 +7,20 @@
 
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.pipeline_tasks.tasks import GetDataPostgres, Train, \
-    Evaluate, ModelUpdate, SaveDfInPostgres
+from baskerville.models.pipeline_tasks.tasks import GetDataPostgres, Train
 
 
-def set_up_itraining_pipeline(config: BaskervilleConfig):
+def set_up_training_pipeline(config: BaskervilleConfig):
+    data_params = config.engine.training.data_parameters
+
     training_tasks = [
         GetDataPostgres(  # or any other source
             config,
+            from_date=data_params.get('from_date'),
+            to_date=data_params.get('to_date'),
+            training_days=data_params.get('training_days'),
             steps=[
                 Train(config),
-                Evaluate(config),
-                SaveDfInPostgres(config),
-                ModelUpdate(config),
             ]),
 
     ]
