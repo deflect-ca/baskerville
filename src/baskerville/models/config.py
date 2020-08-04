@@ -264,6 +264,7 @@ class EngineConfig(Config):
     anomaly_threshold = 0.45
     challenge_threshold = 0.75
     training = None
+    ttl = 500
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
@@ -724,10 +725,6 @@ class KafkaConfig(Config):
             warnings.warn('Features topic is empty')
         if not self.predictions_topic:
             warnings.warn('Predictions topic is empty.')
-        if not self.publish_predictions:
-            warnings.warn(
-                'Publish predictions topic is empty. If you are not using '
-                'simulation or Realtime pipeline ignore this')
 
         self._is_validated = True
         return self
@@ -763,8 +760,8 @@ class SparkConfig(Config):
     spark_python_profile = False
     storage_level = None
     off_heap_size = None
-    redis_host = None
-    redis_port = None
+    redis_host = 'localhost'
+    redis_port = 6379
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)

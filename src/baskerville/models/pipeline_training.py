@@ -104,6 +104,7 @@ class TrainingPipeline(PipelineBase):
         params['features'] = model_features
 
         self.model.set_params(**params)
+        self.model.set_logger(self.logger)
         conf = self.db_conf
         conf.maintenance = None
         self.db_tools = BaskervilleDBTools(conf)
@@ -133,10 +134,10 @@ class TrainingPipeline(PipelineBase):
         for feature in self.model.features:
             if feature in schema.fieldNames():
                 continue
-            features_class = self.engine_conf.all_features[feature]
+            feature_class = self.engine_conf.all_features[feature]
             schema.add(StructField(
                 name=feature,
-                dataType=features_class.spark_type(),
+                dataType=feature_class.spark_type(),
                 nullable=True))
 
         self.data = self.data.withColumn(
@@ -193,7 +194,7 @@ class TrainingPipeline(PipelineBase):
         self.db_tools.session.add(db_model)
         self.db_tools.session.commit()
 
-    def get_bounds(self, from_date, to_date=None, field='created_at'):
+    def get_bounds(self, from_date, to_date=None, field='stop'):
         """
         Get the lower and upper limit
         :param str from_date: lower date bound

@@ -187,8 +187,8 @@ class JSONLogSparkParser(JSONLogParser, SerializableMixin):
                     default = properties[c].get('default', None)
                     if default is not None:
                         df = df.fillna(default, subset=[c])
-                    else:
-                        warnings.warn(f'Default value for {c} is None.')
+                    # else:
+                    #     warnings.warn(f'Default value for {c} is None.')
                 else:
                     # required flag is set and c not in required
                     warnings.warn(

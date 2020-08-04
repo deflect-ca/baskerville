@@ -49,7 +49,7 @@ class RequestSetSparkCache(Singleton):
             'first_ever_request': 'start',
             'old_subset_count': 'subset_count',
             'old_features': 'features',
-                            'old_num_requests': 'num_requests',
+            'old_num_requests': 'num_requests',
         }
         self._count = 0
         self._last_updated = datetime.datetime.utcnow()
@@ -126,7 +126,7 @@ class RequestSetSparkCache(Singleton):
         )
 
         if hosts is not None:
-            df = df.join(F.broadcast(hosts), ['target'], 'leftsemi')
+            df = df.join(hosts, ['target'], 'leftsemi')
 
         self._changed = True
 
@@ -203,7 +203,7 @@ class RequestSetSparkCache(Singleton):
 
         # https://issues.apache.org/jira/browse/SPARK-10925
         df = df_to_update.rdd.toDF(df_to_update.schema).alias('a').join(
-            F.broadcast(self.cache.select(*select_cols).alias('cache')),
+            self.cache.select(*select_cols).alias('cache'),
             list(join_cols),
             how='left_outer'
         ).persist(self.storage_level)
@@ -246,7 +246,7 @@ class RequestSetSparkCache(Singleton):
             self.__cache = self.session_getter().read.format(
                 self.format_
             ).load(self.persistent_cache_file).join(
-                F.broadcast(df),
+                df,
                 on=columns,
                 how='inner'
             ).drop(
@@ -255,7 +255,7 @@ class RequestSetSparkCache(Singleton):
         else:
             if self.__cache:
                 self.__cache = self.__cache.join(
-                    F.broadcast(df),
+                    df,
                     on=columns,
                     how='inner'
                 ).drop(
@@ -287,10 +287,16 @@ class RequestSetSparkCache(Singleton):
             'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
             'features', 'start', 'stop', 'subset_count', 'num_requests',
             'total_seconds', 'time_bucket', 'model_version', 'to_update',
-            'label', 'id_attribute', 'id_request_sets', 'created_at'
+            'label', 'id_attribute', 'id_request_sets', 'created_at',
+            'dt', 'id_client'
         ]
         now = datetime.datetime.utcnow()
         source_df = source_df.persist(self.storage_level).alias('sd')
+
+        columns = source_df.columns
+        columns.remove('first_ever_request')
+        columns.remove('target_original')
+        source_df = source_df.select(columns)
 
         self.logger.debug(f'Source_df count = {source_df.count()}')
 
@@ -303,9 +309,7 @@ class RequestSetSparkCache(Singleton):
             ).persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
-        self.__persistent_cache = F.broadcast(
-            source_df.rdd.toDF(source_df.schema)
-        ).join(
+        self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
             self.__persistent_cache.select(*select_cols).alias('pc'),
             list(join_cols),
             how='full_outer'

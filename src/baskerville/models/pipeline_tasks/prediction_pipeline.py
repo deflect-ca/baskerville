@@ -8,7 +8,7 @@
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GetFeatures, \
-    SendFeatures, Predict
+    SendToKafka, Predict
 
 
 def set_up_prediction_pipeline(config: BaskervilleConfig):
@@ -17,7 +17,12 @@ def set_up_prediction_pipeline(config: BaskervilleConfig):
             config,
             steps=[
                 Predict(config),
-                SendFeatures(config),
+                SendToKafka(
+                    config=config,
+                    columns=('id_client', 'id_request_sets', 'prediction', 'score'),
+                    topic=config.kafka.predictions_topic,
+                    cc_to_client=True,
+                ),
             ]),
     ]
 

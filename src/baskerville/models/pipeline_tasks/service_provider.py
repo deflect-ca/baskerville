@@ -19,7 +19,7 @@ from baskerville.models.request_set_cache import RequestSetSparkCache
 from baskerville.spark.helpers import reset_spark_storage
 from baskerville.spark.schemas import rs_cache_schema
 from baskerville.util.helpers import Borg, TimeBucket, get_logger, \
-    instantiate_from_str, FOLDER_CACHE
+    instantiate_from_str, FOLDER_CACHE, load_model_from_path
 
 
 class ServiceProvider(Borg):
@@ -132,6 +132,12 @@ class ServiceProvider(Borg):
                     feature_config_is_valid() and self.model.iforest_model
                 self.model_index.can_predict = self.feature_manager. \
                     feature_config_is_valid()
+                self.model.set_logger(self.logger)
+            elif self.config.engine.model_path:
+                self.model = load_model_from_path(
+                    self.config.engine.model_path, self.spark
+                )
+                self.model.set_logger(self.logger)
             else:
                 self.model = None
 
@@ -164,8 +170,8 @@ class ServiceProvider(Borg):
         :return:
         """
         df = df.select(
-            F.col('client_request_host').alias('target'),
-            F.col('client_ip').alias('ip'),
+            F.col('target'),
+            F.col('ip'),
         ).distinct().alias('a').persist(self.spark_conf.storage_level)
 
         self.request_set_cache.filter_by(df)

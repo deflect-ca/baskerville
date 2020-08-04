@@ -8,7 +8,7 @@
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GenerateFeatures, \
-    Save, Predict, GetDataKafka
+    Save, Predict, GetDataKafka, RefreshCache
 
 
 def set_up_isac_kafka_pipeline(config: BaskervilleConfig):
@@ -19,6 +19,7 @@ def set_up_isac_kafka_pipeline(config: BaskervilleConfig):
                 GenerateFeatures(config),
                 Predict(config),
                 Save(config),
+                RefreshCache(config),
             ]),
     ]
 

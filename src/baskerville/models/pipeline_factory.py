@@ -33,7 +33,7 @@ class PipelineFactory(object):
                 config.kafka,
                 config.spark
             )
-        elif run_type == RunType.training:
+        elif run_type == RunType.training_old:
             return TrainingPipeline(
                 config.database,
                 config.engine,
@@ -55,10 +55,14 @@ class PipelineFactory(object):
             from baskerville.models.pipeline_tasks.tasks_base \
                 import set_up_isac_kafka_pipeline
             return set_up_isac_kafka_pipeline(config)
-        elif run_type == RunType.prediction:
+        elif run_type == RunType.predicting:
             from baskerville.models.pipeline_tasks.prediction_pipeline \
                 import set_up_prediction_pipeline
             return set_up_prediction_pipeline(config)
+        elif run_type == RunType.training:
+            from baskerville.models.pipeline_tasks.training_pipeline \
+                import set_up_training_pipeline
+            return set_up_training_pipeline(config)
 
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'

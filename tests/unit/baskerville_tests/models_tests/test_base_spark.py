@@ -703,7 +703,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'client_request_host': 'testhost',
                 'client_ip': '1',
                 'ip': '1',
-                'id_request_set': -1,
+                'id_request_sets': -1,
                 'id_attribute': '',
                 'id_runtime': -1,
                 'request_set_prediction': -1,
@@ -713,6 +713,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'request_set_length': 2,
                 'subset_count': 2,
                 'target': 'testhost',
+                'target_original': 'testhost.com',
                 'start': datetime(2018, 1, 1, 10, 30, 10),
                 'stop': datetime(2018, 1, 1, 12, 45, 10),
                 'last_request': datetime(2018, 1, 1, 12, 45, 10),
@@ -728,7 +729,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'client_request_host': 'other testhost',
                 'client_ip': '1',
                 'ip': '1',
-                'id_request_set': None,
+                'id_request_sets': None,
                 'id_attribute': '',
                 'id_runtime': -1,
                 'request_set_prediction': -1,
@@ -738,6 +739,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'request_set_length': 1,
                 'subset_count': 1,
                 'target': 'other testhost',
+                'target_original': 'testhost.com',
                 'label': -1,
                 'start': datetime(2018, 1, 1, 12, 30, 10),
                 'stop': datetime(2018, 1, 1, 12, 40, 10),
@@ -768,12 +770,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         request_sets_df = df.select(
             RequestSet.columns
         ).withColumnRenamed(
-            'id_request_set', 'id'
-        ).withColumnRenamed(
             'request_set_prediction', 'prediction'
         ).withColumn('created_at', F.col('stop'))
         # postgres doesn't want the id in the insert
-        request_sets_df = request_sets_df.drop('id')
 
         # # dfs are no longer accessible
         # columns = [c for c in request_sets_df.columns if c != 'features']
