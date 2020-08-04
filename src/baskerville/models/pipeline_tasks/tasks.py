@@ -352,7 +352,7 @@ class GetDataPostgres(Task):
         }
         self.db_url = get_jdbc_url(self.config.database)
 
-    def get_bounds(self, from_date, to_date=None, field='created_at'):
+    def get_bounds(self, from_date, to_date=None, field='stop'):
         """
         Get the lower and upper limit
         :param str from_date: lower date bound
@@ -394,15 +394,15 @@ class GetDataPostgres(Task):
                     'Please specify either from-to dates or training days'
                 )
 
-        bounds = self.get_bounds(from_date, to_date, field='created_at').collect()[0]
+        bounds = self.get_bounds(from_date, to_date, field='stop').collect()[0]
         self.logger.debug(
             f'Fetching {bounds.rows} rows. '
             f'min: {bounds.min_id} max: {bounds.max_id}'
         )
         q = f'(select id, {",".join(self.columns_to_keep)} ' \
             f'from request_sets where id >= {bounds.min_id}  ' \
-            f'and id <= {bounds.max_id} and created_at >= \'{from_date}\' ' \
-            f'and created_at <=\'{to_date}\') as request_sets'
+            f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
+            f'and stop <=\'{to_date}\') as request_sets'
 
         return self.spark.read.jdbc(
             url=self.db_url,
