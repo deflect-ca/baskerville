@@ -128,23 +128,33 @@ def set_attack_score(metric, self):
     """
     For every target, it sets the precalculated attack score
     """
-    if not self.collected_df:
-        self.collected_df = list(self.df.collect())
-    for row in self.collected_df:
-        metric.labels(target=row.target).observe(row.attack_score)
+    if not self.collected_df_attack:
+        return
+    for row in self.collected_df_attack:
+        metric.labels(target=row.target_original).observe(row.attack_score)
 
 
-def set_topmost_metric(metric, self):
+def set_attack_prediction(metric, self):
     """
-    For every target, it sets the regular and the irregular counts
+    For every target, it sets the precalculated attack prediction
     """
-    if not self.collected_df:
-        self.collected_df = list(self.df.collect())
+    if not self.collected_df_attack:
+        return
+    for row in self.collected_df_attack:
+        metric.labels(target=row.target_original).observe(row.attack_prediction)
 
-    for row in self.collected_df:
+
+def set_anomaly_count_metric(metric, self):
+    """
+    For every target, it sets the regular and the anomaly counts
+    """
+    if not self.collected_df_attack:
+        return
+
+    for row in self.collected_df_attack:
         metric.labels(
-            target=row.target, kind='regular'
-        ).observe(row.regular_rs)
+            target=row.target_original, kind='regular'
+        ).observe(row.regular)
         metric.labels(
-            target=row.target, kind='irregular'
-        ).observe(row.irregular_rs)
+            target=row.target_original, kind='anomaly'
+        ).observe(row.anomaly)

@@ -262,7 +262,9 @@ class EngineConfig(Config):
     load_test = False
     trigger_challenge = True
     anomaly_threshold = 0.45
-    challenge_threshold = 0.75
+    attack_threshold = 0.75
+    minimum_number_attackers = 50
+    challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
 
@@ -334,7 +336,7 @@ class EngineConfig(Config):
                 if f not in self.all_features:
                     self.add_error(
                         ConfigError(f'Unknown feature {f}.', [
-                                    'extra_features'])
+                            'extra_features'])
                     )
 
         self._is_validated = True
@@ -697,6 +699,7 @@ class KafkaConfig(Config):
     logs_topic = 'deflect.logs'
     features_topic = 'features'
     predictions_topic = 'predictions'
+    commands_topic = 'commands'
     security_protocol = ''
     ssl_truststore_location = ''
     ssl_truststore_password = ''
