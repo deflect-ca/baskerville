@@ -905,7 +905,6 @@ class Save(SaveDfInPostgres):
                 'the actual table columns'
             )
 
-        # filter the logs df with the request_set columns
         self.df = self.df.select(request_set_columns)
         self.df = self.df.withColumn(
             'created_at',
@@ -1236,69 +1235,43 @@ class SaveFeaturesHive(MLTask):
 
 class AttackDetection(Task):
     """
-    Calculates attack score, regular vs irregular request sets and applies
-    alert threshold
+    Calculates prediction per IP, attack_score per Target, regular vs anomaly counts, attack_prediction
     """
-    # note: this will increase memory consumption a bit
-    collected_df = None
+    collected_df_attack = None
 
     def initialize(self):
         # super(SaveStats, self).initialize()
         self.set_metrics()
 
-    def calculate_attack_score(self):
-        """
-        Based on:
-        SELECT $__timeGroup(created_at, '2m'), target,
-        avg(case when score >= 40/100.0 then 100.0 else 0 end) as anomalies
-        FROM request_sets WHERE $__timeFilter(created_at)
-        group by 1, 2
-        HAVING COUNT(created_at) > 50
-        order by 1
-        Another way to do this is to use the average of scores and if it is
-        over the challenge_threshold then set the average, else set 0
-        """
+    def classify_anomalies(self):
+        self.logger.info('Anomaly thresholding...')
+        self.df = self.df.withColumn('prediction',
+                                     F.when(F.col('score') > self.config.engine.anomaly_threshold,
+                                            F.lit(1.0)).otherwise(F.lit(0.)))
 
-        self.df = self.df.select(
-            'target', 'score'
-        ).withColumn(
-            'score',
-            F.when(
-                F.col('score') > self.config.engine.anomaly_threshold,
-                F.lit(1.0)
-            ).otherwise(F.lit(0.))
-        ).withColumn(
-            'regular_rs',
-            F.when(F.col('score') > 0, F.lit(1)).otherwise(F.lit(0))
-        ).withColumn(
-            'irregular_rs',
-            F.when(F.col('score') == 0, F.lit(1)).otherwise(F.lit(0))
-        ).persist(self.config.spark.storage_level)
-        self.df = self.df.groupBy('target').agg(
-            F.count('score').alias('count'),
-            F.sum('regular_rs').alias('regular_rs'),
-            F.sum('irregular_rs').alias('irregular_rs'),
-            F.avg('score').alias('avg_score')
+    def detect_attack(self):
+        self.logger.info('Attack detection...')
+
+        df_attack = self.df.select(
+            'id_request_sets', 'target_original', 'features', 'prediction', 'score'
+        ).groupBy('target_original').agg(
+            F.count('prediction').alias('count'),
+            F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
+            F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly'),
+            F.avg('prediction').alias('attack_score')
         ).where(
-            F.col('count') > self.config.engine.min_num_requests
+            F.col('count') > self.config.engine.minimum_number_attackers
         ).persist(self.config.spark.storage_level)
 
-        self.df = self.df.withColumn(
-            'attack_score',
+        df_attack = df_attack.withColumn(
+            'attack_prediction',
             F.when(
-                F.col('avg_score') > self.config.engine.challenge_threshold,
-                F.col('avg_score')
+                F.col('attack_score') > self.config.engine.attack_threshold,
+                F.col('attack_score')
             ).otherwise(F.lit(0))
         )
 
-        return self.df
-
-    def set_challenge_flag(self):
-        """
-        When attack score > 0 set challenge to True
-        """
-        self.df = self.df.withColumn('challenge', F.col('attack_score') > 0)
-        return self.df
+        return df_attack
 
     def set_metrics(self):
         # Perhaps using an additional label and one metric could be better
@@ -1307,13 +1280,13 @@ class AttackDetection(Task):
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
         from baskerville.models.metrics.helpers import set_attack_score, \
-            set_topmost_metric
+            set_anomaly_count_metric, set_attack_prediction
 
         run = metrics_registry.register_action_hook(
             self.run,
-            set_topmost_metric,
+            set_anomaly_count_metric,
             metric_cls=MetricClassEnum.histogram,
-            metric_name='topmost',
+            metric_name='anomaly_count',
             labelnames=['target', 'kind']
         )
         run = metrics_registry.register_action_hook(
@@ -1323,18 +1296,48 @@ class AttackDetection(Task):
             metric_name='attack_score',
             labelnames=['target']
         )
+
+        run = metrics_registry.register_action_hook(
+            run,
+            set_attack_prediction,
+            metric_cls=MetricClassEnum.histogram,
+            metric_name='attack_prediction',
+            labelnames=['target']
+        )
+
         setattr(self, 'run', run)
         self.logger.info('Attack score metric set')
 
+    def send_challenge(self, df_attack):
+        self.logger.info(f'Sending challenge commands to kafka topic \'{self.config.kafka.commands_topic}\'...')
+
+        producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
+        if self.config.engine.challenge == 'host':
+            records = df_attack.where(F.col('attack_prediction') == 1).collect()
+            for record in records:
+                message = json.dumps(
+                    {'name': 'challenge_host', 'value': record['target_original']}
+                ).encode('utf-8')
+                producer.send(self.config.kafka.commands_topic, message)
+                producer.flush()
+        elif self.config.engine.challenge == 'ip':
+            ips = self.df.select(['ip', 'target_original', 'prediction'])\
+                .join(df_attack.select(['target_original', 'attack_prediction']), on='target_original', how='left') \
+                .where((F.col('attack_prediction') == 1) & (F.col('prediction') == 1))
+            records = ips.collect()
+            for record in records:
+                message = json.dumps(
+                    {'name': 'challenge_ip', 'value': record['ip']}
+                ).encode('utf-8')
+                producer.send(self.config.kafka.commands_topic, message)
+                producer.flush()
+
     def run(self):
-        # filter the logs df with the request_set columns
-        # todo: reduce columns, not all are necessary - check next steps
-        self.df = self.df.select(
-            'id_request_sets', 'target', 'features', 'prediction', 'score'
-        )
-        self.logger.info('Calculating anomaly score...')
-        self.calculate_attack_score()
-        self.set_challenge_flag()
+        self.classify_anomalies()
+        df_attack = self.detect_attack()
+        self.send_challenge(df_attack)
+
+        self.collected_df_attack = df_attack.collect()
 
         self.df = super().run()
         return self.df
