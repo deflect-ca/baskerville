@@ -25,6 +25,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.pipeline = None
         self.performance_stats = None
         self.report_consumer = None
+        self.banjax_thread = None
 
         # set config's logger
         BaskervilleConfig.set_logger(
@@ -265,13 +266,15 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
 
-        self.report_consumer = BanjaxReportConsumer(self.config.kafka, self.logger)
-        t1 = threading.Thread(target=self.report_consumer.run)
-        t1.start()
-
         # self._register_metrics()
+
+        self.report_consumer = BanjaxReportConsumer(self.config.kafka, self.logger)
+
         if self.register_metrics:
             self.register_banjax_metrics()
+
+        self.banjax_thread = threading.Thread(target=self.report_consumer.run)
+        self.banjax_thread.start()
         self.pipeline.run()
 
     def finish_up(self):
@@ -283,6 +286,11 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         )
         if self.pipeline:
             self.pipeline.finish_up()
+
+        if self.banjax_thread:
+            self.banjax_thread.kill()
+            self.banjax_thread.join()
+
         self.logger.info('{} says \'Goodbye\'.'.format(
             self.__class__.__name__
         )
