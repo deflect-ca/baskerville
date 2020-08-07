@@ -61,7 +61,7 @@ def set__self__(fn):
     return wrapped_f
 
 
-def update_avg_hosts_counter(metric, self):
+def update_avg_hosts_counter(metric, self, result):
     """
     Averages the host predictions and increments the metric by labels
     :param metric:
@@ -77,7 +77,7 @@ def update_avg_hosts_counter(metric, self):
             metric.labels(k).set(v1[k])
 
 
-def incr_counter_for_logs_df(metric, self):
+def incr_counter_for_logs_df(metric, self, result):
     """
     Increment by the number of requests / request sets
     :param metric:
@@ -87,7 +87,7 @@ def incr_counter_for_logs_df(metric, self):
     metric.inc(self.logs_df.count())
 
 
-def set_counter_for_logs_df(metric, self):
+def set_counter_for_logs_df(metric, self, result):
     """
     Increment by the number of requests / request sets
     :param metric:
@@ -124,7 +124,7 @@ def increment_metric(metric, self=None):  # noqa
     metric.inc()
 
 
-def set_attack_score(metric, self):
+def set_attack_score(metric, self, result):
     """
     For every target, it sets the precalculated attack score
     """
@@ -134,7 +134,7 @@ def set_attack_score(metric, self):
         metric.labels(target=row.target_original).observe(row.attack_score)
 
 
-def set_attack_prediction(metric, self):
+def set_attack_prediction(metric, self, result):
     """
     For every target, it sets the precalculated attack prediction
     """
@@ -144,7 +144,7 @@ def set_attack_prediction(metric, self):
         metric.labels(target=row.target_original).observe(row.attack_prediction)
 
 
-def set_anomaly_count_metric(metric, self):
+def set_anomaly_count_metric(metric, self, result):
     """
     For every target, it sets the regular and the anomaly counts
     """
