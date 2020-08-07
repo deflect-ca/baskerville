@@ -74,18 +74,18 @@ class BanjaxReportConsumer(object):
             except json.JSONDecodeError:
                 self.logger.info(f"got bad json over the kafka channel: {s}")
 
-            self.logger.info(f"got a message: {d}")
-
             # 'status'-type messages contain several metrics and are reported per $interval
             if d.get("name") == "status":
+                edge_id = d.get("id")
+                self.logger.info(f"Banjax status from edge: {edge_id}")
                 for k, _ in d.items():
+                    if k == 'name' or k == 'id':
+                        continue
                     try:
-                        self.logger.info(f"try to dispatch on {k}")
                         f = getattr(self, f"consume_{k}")
                         f(self, d)
-                        self.logger.info(f"dispatched {k}")
                     except AttributeError:
-                        self.logger.info(f"did not dispatch {k}")
+                        self.logger.info(f"did not process banjax status {k}")
 
             # 'ip_failed_challenge'-type messages are reported when a challenge is failed
             elif d.get("name") == "ip_failed_challenge":
