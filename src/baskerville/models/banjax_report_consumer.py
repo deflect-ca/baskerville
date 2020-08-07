@@ -48,7 +48,7 @@ class BanjaxReportConsumer(object):
     def run(self):
         consumer = KafkaConsumer(
             self.config.banjax_report_topic,
-            group_id="some_random_thing",
+            group_id=None,
             bootstrap_servers=self.config.bootstrap_servers,
             security_protocol=self.config.security_protocol,
             ssl_check_hostname=self.config.ssl_check_hostname,
