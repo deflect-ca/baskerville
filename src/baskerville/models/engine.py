@@ -270,7 +270,8 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         t1.start()
 
         # self._register_metrics()
-        self.register_banjax_metrics()
+        if self.register_metrics:
+            self.register_banjax_metrics()
         self.pipeline.run()
 
     def finish_up(self):
