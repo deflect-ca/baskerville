@@ -268,13 +268,12 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
 
         # self._register_metrics()
 
-        self.report_consumer = BanjaxReportConsumer(self.config.kafka, self.logger)
-
         if self.register_metrics:
+            self.report_consumer = BanjaxReportConsumer(self.config.kafka, self.logger)
             self.register_banjax_metrics()
+            self.banjax_thread = threading.Thread(target=self.report_consumer.run)
+            self.banjax_thread.start()
 
-        self.banjax_thread = threading.Thread(target=self.report_consumer.run)
-        self.banjax_thread.start()
         self.pipeline.run()
 
     def finish_up(self):
