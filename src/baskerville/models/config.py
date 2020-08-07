@@ -699,14 +699,19 @@ class KafkaConfig(Config):
     logs_topic = 'deflect.logs'
     features_topic = 'features'
     predictions_topic = 'predictions'
-    commands_topic = 'commands'
-    security_protocol = ''
+    banjax_command_topic = 'banjax_command_topic'
+    banjax_report_topic = 'banjax_report_topic'
+    security_protocol = 'PLAINTEXT'
     ssl_truststore_location = ''
     ssl_truststore_password = ''
     ssl_keystore_location = ''
     ssl_keystore_password = ''
     ssl_key_password = ''
     ssl_endpoint_identification_algorithm = ''
+    ssl_check_hostname = False
+    ssl_cafile = ''
+    ssl_certfile = ''
+    ssl_keyfile = ''
 
     def __init__(self, config):
         super(KafkaConfig, self).__init__(config)

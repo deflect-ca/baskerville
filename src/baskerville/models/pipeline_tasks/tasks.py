@@ -1309,7 +1309,7 @@ class AttackDetection(Task):
         self.logger.info('Attack score metric set')
 
     def send_challenge(self, df_attack):
-        self.logger.info(f'Sending challenge commands to kafka topic \'{self.config.kafka.commands_topic}\'...')
+        self.logger.info(f'Sending challenge commands to kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
 
         producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
         if self.config.engine.challenge == 'host':
@@ -1318,7 +1318,7 @@ class AttackDetection(Task):
                 message = json.dumps(
                     {'name': 'challenge_host', 'value': record['target_original']}
                 ).encode('utf-8')
-                producer.send(self.config.kafka.commands_topic, message)
+                producer.send(self.config.kafka.banjax_command_topic, message)
                 producer.flush()
         elif self.config.engine.challenge == 'ip':
             ips = self.df.select(['ip', 'target_original', 'prediction'])\
@@ -1329,7 +1329,7 @@ class AttackDetection(Task):
                 message = json.dumps(
                     {'name': 'challenge_ip', 'value': record['ip']}
                 ).encode('utf-8')
-                producer.send(self.config.kafka.commands_topic, message)
+                producer.send(self.config.kafka.banjax_command_topic, message)
                 producer.flush()
 
     def run(self):

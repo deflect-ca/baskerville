@@ -113,7 +113,7 @@ class TestMetricsRegistry(unittest.TestCase):
         mr.registry[name] = StatsHook(
             metric=mock_metric,
             wrapped_func_name=name,
-            hooks_to_callbacks={'after': lambda m, s: print(m, s)}
+            hooks_to_callbacks={'after': lambda m, s, r: print(m, s, r)}
         )
 
         wrapped_fn = mr.after_wrapper(test_fn, name)
