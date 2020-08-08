@@ -21,6 +21,8 @@ class BanjaxReportConsumer(object):
         "swabber_ip_db_size",
         "regex_manager_ip_db_size",
         "challenger_ip_db_size",
+        "num_of_host_challenges",
+        "num_of_ip_challenges",
         "proxy.process.traffic_server.memory.rss",
         "proxy.node.cache.contents.num_docs",
         "proxy.process.cache.bytes_total",

@@ -57,7 +57,7 @@ class GetDataKafka(Task):
         self.kafka_params = {
             'metadata.broker.list': self.config.kafka.bootstrap_servers,
             'auto.offset.reset': 'largest',
-            'group.id': self.config.kafka.consume_group,
+            # 'group.id': self.config.kafka.consume_group,
             'auto.create.topics.enable': 'true'
         }
         self.consume_topic = self.config.kafka.logs_topic
@@ -203,7 +203,7 @@ class GetDataKafkaStreaming(Task):
             'kafka.bootstrap.servers': self.config.bootstrap_servers,
             'metadata.broker.list': self.config.kafka.bootstrap_servers,
             'auto.offset.reset': 'largest',
-            'group.id': self.config.kafka.consume_group,
+            # 'group.id': self.config.kafka.consume_group,
             'auto.create.topics.enable': 'true',
             'partition.assignment.strategy': 'range'
         }
