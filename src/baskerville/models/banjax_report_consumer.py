@@ -18,6 +18,8 @@ class BanjaxReportConsumer(object):
         "restart_time",
         "reload_time",
         "num_of_challenges",
+        "num_of_host_challenges",
+        "num_of_ip_challenges",
         "swabber_ip_db_size",
         "regex_manager_ip_db_size",
         "challenger_ip_db_size",

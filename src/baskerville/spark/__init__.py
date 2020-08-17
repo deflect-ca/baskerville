@@ -27,7 +27,7 @@ def get_or_create_spark_session(spark_conf):
     if spark_conf.redis_host:
         conf.set('spark.redis.host', spark_conf.redis_host)
         conf.set('spark.redis.port', spark_conf.redis_port)
-        # conf.set('spark.redis.auth', 'passwd')
+        conf.set('spark.redis.auth', spark_conf.redis_password)
 
     if spark_conf.spark_executor_instances:
         conf.set('spark.executor.instances',
