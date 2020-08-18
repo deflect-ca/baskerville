@@ -154,7 +154,7 @@ def set_anomaly_count_metric(metric, self, result):
     for row in self.collected_df_attack:
         metric.labels(
             target=row.target_original, kind='regular'
-        ).observe(row.regular)
+        ).set(row.regular)
         metric.labels(
             target=row.target_original, kind='anomaly'
-        ).observe(row.anomaly)
+        ).set(row.anomaly)

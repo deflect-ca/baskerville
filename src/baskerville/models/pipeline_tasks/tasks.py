@@ -1285,9 +1285,9 @@ class AttackDetection(Task):
         run = metrics_registry.register_action_hook(
             self.run,
             set_anomaly_count_metric,
-            metric_cls=MetricClassEnum.histogram,
+            metric_cls=MetricClassEnum.gauge,
             metric_name='anomaly_count',
-            labelnames=['target', 'kind']
+            labelnames=['target']
         )
         run = metrics_registry.register_action_hook(
             run,
