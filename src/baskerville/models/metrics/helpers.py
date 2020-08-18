@@ -131,7 +131,7 @@ def set_attack_score(metric, self, result):
     if not self.collected_df_attack:
         return
     for row in self.collected_df_attack:
-        metric.labels(target=row.target_original).observe(row.attack_score)
+        metric.labels(target=row.target).set(row.attack_score)
 
 
 def set_attack_prediction(metric, self, result):
@@ -141,7 +141,7 @@ def set_attack_prediction(metric, self, result):
     if not self.collected_df_attack:
         return
     for row in self.collected_df_attack:
-        metric.labels(target=row.target_original).observe(row.attack_prediction)
+        metric.labels(target=row.target).set(row.attack_prediction)
 
 
 def set_ip_prediction_count(metric, self, result):
@@ -153,8 +153,8 @@ def set_ip_prediction_count(metric, self, result):
 
     for row in self.collected_df_attack:
         metric.labels(
-            target=row.target_original, kind='regular'
+            target=row.target, kind='regular'
         ).set(row.regular)
         metric.labels(
-            target=row.target_original, kind='anomaly'
+            target=row.target, kind='anomaly'
         ).set(row.anomaly)

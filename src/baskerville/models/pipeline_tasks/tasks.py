@@ -1253,11 +1253,11 @@ class AttackDetection(Task):
         self.logger.info('Attack detection...')
 
         df_attack = self.df.select(
-            'id_request_sets', 'target_original', 'features', 'prediction', 'score'
-        ).groupBy('target_original').agg(
+            'id_request_sets', 'target', 'features', 'prediction', 'score'
+        ).groupBy('target').agg(
             F.count('prediction').alias('count'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
-            F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly'),
+            F.sum(F.when(F.col('prediction') > 0, F.lit(1)) .otherwise(F.lit(0))).alias('anomaly'),
             F.avg('prediction').alias('attack_score')
         ).where(
             F.col('count') > self.config.engine.minimum_number_attackers
@@ -1275,7 +1275,7 @@ class AttackDetection(Task):
 
     def set_metrics(self):
         # Perhaps using an additional label and one metric could be better
-        # than two - performance-wise. But that will add another dimension
+        # than two - performan ce-wise. But that will add another dimension
         # in Prometheus
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
@@ -1292,7 +1292,7 @@ class AttackDetection(Task):
         run = metrics_registry.register_action_hook(
             run,
             set_attack_score,
-            metric_cls=MetricClassEnum.histogram,
+            metric_cls=MetricClassEnum.gauge,
             metric_name='attack_score',
             labelnames=['target']
         )
@@ -1300,7 +1300,7 @@ class AttackDetection(Task):
         run = metrics_registry.register_action_hook(
             run,
             set_attack_prediction,
-            metric_cls=MetricClassEnum.histogram,
+            metric_cls=MetricClassEnum.gauge,
             metric_name='attack_prediction',
             labelnames=['target']
         )
@@ -1313,16 +1313,18 @@ class AttackDetection(Task):
 
         producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
         if self.config.engine.challenge == 'host':
-            records = df_attack.where(F.col('attack_prediction') == 1).collect()
-            for record in records:
+            df_host_challenge = df_attack.where(F.col('attack_prediction') == 1)
+            df_host_challenge = df_host_challenge.select('target').join(
+                self.df.select('target', 'target_original'), on='target')
+            for record in df_host_challenge.select('target_original').distinct().collect():
                 message = json.dumps(
                     {'name': 'challenge_host', 'value': record['target_original']}
                 ).encode('utf-8')
                 producer.send(self.config.kafka.banjax_command_topic, message)
                 producer.flush()
         elif self.config.engine.challenge == 'ip':
-            ips = self.df.select(['ip', 'target_original', 'prediction'])\
-                .join(df_attack.select(['target_original', 'attack_prediction']), on='target_original', how='left') \
+            ips = self.df.select(['ip', 'target', 'prediction'])\
+                .join(df_attack.select(['target', 'attack_prediction']), on='target', how='left') \
                 .where((F.col('attack_prediction') == 1) & (F.col('prediction') == 1))
             records = ips.collect()
             for record in records:
