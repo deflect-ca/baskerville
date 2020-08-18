@@ -1254,7 +1254,7 @@ class AttackDetection(Task):
         self.logger.info('Attack detection...')
 
         df_target_score = self.df.select(
-            'id_request_sets', 'target', 'features', 'prediction', 'score', 'count'
+            'id_request_sets', 'target', 'features', 'prediction', 'score'
         ).groupBy('target').agg(
             F.count('prediction').alias('count'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
