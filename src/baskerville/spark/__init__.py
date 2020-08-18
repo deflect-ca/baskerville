@@ -10,8 +10,10 @@ import os
 from pyspark import SparkConf, StorageLevel
 from pyspark.sql import SparkSession
 
+from baskerville.models.config import SparkConfig
 
-def get_or_create_spark_session(spark_conf):
+
+def get_or_create_spark_session(spark_conf: SparkConfig):
     """
     Returns a configured spark session
     :param SparkConfig spark_conf: the spark configuration
@@ -144,6 +146,24 @@ def get_or_create_spark_session(spark_conf):
     )
     conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
     conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+
+    # security
+    # https://spark.apache.org/docs/latest/security.html
+    # note that: The same secret is shared by all Spark applications and
+    # daemons in that case, which limits the security of these deployments,
+    # especially on multi-tenant clusters.
+    conf.set('spark.authenticate', 'true')
+    conf.set('spark.authenticate.secret', spark_conf.auth_secret)
+
+    # encryption
+    conf.set('spark.network.crypto.enabled', 'true')
+    conf.set('spark.io.encryption.enabled', 'true')
+    # conf.set('spark.ui.filters', 'org.apache.spark.examples.BasicAuthFilter')
+
+    # The REST Submission Server and the MesosClusterDispatcher do not support
+    # authentication. You should ensure that all network access to the REST API
+    # & MesosClusterDispatcher (port 6066 and 7077 respectively by default) are
+    # restricted to hosts that are trusted to submit jobs.
 
     spark = SparkSession.builder \
         .config(conf=conf) \
