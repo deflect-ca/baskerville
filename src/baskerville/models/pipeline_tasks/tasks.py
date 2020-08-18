@@ -1257,7 +1257,7 @@ class AttackDetection(Task):
         ).groupBy('target').agg(
             F.count('prediction').alias('count'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
-            F.sum(F.when(F.col('prediction') > 0, F.lit(1)) .otherwise(F.lit(0))).alias('anomaly'),
+            F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly'),
             F.avg('prediction').alias('attack_score')
         ).where(
             F.col('count') > self.config.engine.minimum_number_attackers
@@ -1309,24 +1309,29 @@ class AttackDetection(Task):
         self.logger.info('Attack score metric set')
 
     def send_challenge(self, df_attack):
-        self.logger.info(f'Sending challenge commands to kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
-
         producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
         if self.config.engine.challenge == 'host':
             df_host_challenge = df_attack.where(F.col('attack_prediction') == 1)
             df_host_challenge = df_host_challenge.select('target').join(
                 self.df.select('target', 'target_original'), on='target')
-            for record in df_host_challenge.select('target_original').distinct().collect():
+
+            records = df_host_challenge.select('target_original').distinct().collect()
+            self.logger.info(
+                f'Sending {len(records)} HOST challenge commands to kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+            for record in records:
                 message = json.dumps(
                     {'name': 'challenge_host', 'value': record['target_original']}
                 ).encode('utf-8')
                 producer.send(self.config.kafka.banjax_command_topic, message)
                 producer.flush()
         elif self.config.engine.challenge == 'ip':
-            ips = self.df.select(['ip', 'target', 'prediction'])\
+            ips = self.df.select(['ip', 'target', 'prediction']) \
                 .join(df_attack.select(['target', 'attack_prediction']), on='target', how='left') \
                 .where((F.col('attack_prediction') == 1) & (F.col('prediction') == 1))
             records = ips.collect()
+            self.logger.info(
+                f'Sending {len(records)} IP challenge commands to '
+                f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
             for record in records:
                 message = json.dumps(
                     {'name': 'challenge_ip', 'value': record['ip']}
