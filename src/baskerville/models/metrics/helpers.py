@@ -144,7 +144,7 @@ def set_attack_prediction(metric, self, result):
         metric.labels(target=row.target_original).observe(row.attack_prediction)
 
 
-def set_anomaly_count_metric(metric, self, result):
+def set_ip_prediction_count(metric, self, result):
     """
     For every target, it sets the regular and the anomaly counts
     """

@@ -1280,14 +1280,14 @@ class AttackDetection(Task):
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
         from baskerville.models.metrics.helpers import set_attack_score, \
-            set_anomaly_count_metric, set_attack_prediction
+            set_ip_prediction_count, set_attack_prediction
 
         run = metrics_registry.register_action_hook(
             self.run,
-            set_anomaly_count_metric,
+            set_ip_prediction_count,
             metric_cls=MetricClassEnum.gauge,
-            metric_name='anomaly_count',
-            labelnames=['target']
+            metric_name='prediction_count',
+            labelnames=['target', 'kind']
         )
         run = metrics_registry.register_action_hook(
             run,
