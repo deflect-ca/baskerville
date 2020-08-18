@@ -721,6 +721,7 @@ class KafkaConfig(Config):
     ssl_cafile = ''
     ssl_certfile = ''
     ssl_keyfile = ''
+    auth_secret = 'TEST_SECRET'
 
     def __init__(self, config):
         super(KafkaConfig, self).__init__(config)
