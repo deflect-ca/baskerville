@@ -1265,12 +1265,8 @@ class AttackDetection(Task):
 
         df_target_score_filtered = df_target_score.where(F.col('total') > self.config.engine.minimum_number_attackers)
 
-        df_target_attack = df_target_score_filtered.withColumn('attack_prediction',
-                                                      F.when(
-                                                          F.col('attack_score') > self.config.engine.attack_threshold,
-                                                          F.col('attack_score')
-                                                      ).otherwise(F.lit(0))
-                                                      )
+        df_target_attack = df_target_score_filtered.withColumn('attack_prediction', F.when(
+            F.col('attack_score') > self.config.engine.attack_threshold, F.lit(1)).otherwise(F.lit(0)))
 
         return df_target_score, df_target_score_filtered, df_target_attack
 
