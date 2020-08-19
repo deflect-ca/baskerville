@@ -148,6 +148,10 @@ def set_attack_threshold(metric, self, result):
     metric.labels(value='attack_threshold').set(self.config.engine.attack_threshold)
 
 
+def set_total_rs_count(metric, self, result):
+    metric.set(self.df.count())
+
+
 def set_ip_prediction_count(metric, self, result):
     """
     For every target, it sets the regular and the anomaly counts

@@ -1266,11 +1266,11 @@ class AttackDetection(Task):
         df_target_score_filtered = df_target_score.where(F.col('count') > self.config.engine.minimum_number_attackers)
 
         df_target_attack = df_target_score.withColumn('attack_prediction',
-            F.when(
-                F.col('attack_score') > self.config.engine.attack_threshold,
-                F.col('attack_score')
-            ).otherwise(F.lit(0))
-        )
+                                                      F.when(
+                                                          F.col('attack_score') > self.config.engine.attack_threshold,
+                                                          F.col('attack_score')
+                                                      ).otherwise(F.lit(0))
+                                                      )
 
         return df_target_score, df_target_score_filtered, df_target_attack
 
@@ -1281,7 +1281,7 @@ class AttackDetection(Task):
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
         from baskerville.models.metrics.helpers import set_attack_score, \
-            set_ip_prediction_count, set_attack_prediction, set_attack_threshold
+            set_ip_prediction_count, set_attack_prediction, set_attack_threshold, set_total_rs_count
 
         run = metrics_registry.register_action_hook(
             self.run,
@@ -1314,6 +1314,14 @@ class AttackDetection(Task):
             labelnames=['value']
         )
 
+        run = metrics_registry.register_action_hook(
+            run,
+            set_total_rs_count,
+            metric_cls=MetricClassEnum.gauge,
+            metric_name='total_rs_count',
+            labelnames=[]
+        )
+
         setattr(self, 'run', run)
         self.logger.info('Attack score metric set')
 
@@ -1326,7 +1334,8 @@ class AttackDetection(Task):
 
             records = df_host_challenge.select('target_original').distinct().collect()
             self.logger.info(
-                f'Sending {len(records)} HOST challenge commands to kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+                f'Sending {len(records)} HOST challenge commands to kafka '
+                f'topic \'{self.config.kafka.banjax_command_topic}\'...')
             for record in records:
                 message = json.dumps(
                     {'name': 'challenge_host', 'value': record['target_original']}
