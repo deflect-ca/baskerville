@@ -1319,7 +1319,7 @@ class AttackDetection(Task):
             set_total_rs_count,
             metric_cls=MetricClassEnum.gauge,
             metric_name='total_rs_count',
-            labelnames=[]
+            labelnames=['target']
         )
 
         setattr(self, 'run', run)
@@ -1362,9 +1362,9 @@ class AttackDetection(Task):
         df_target_score, df_target_score_filtered, df_target_attack = self.detect_attack()
         self.send_challenge(df_target_attack)
 
-        self.collected_df_target_attack = df_target_attack.collect()
         self.collected_df_target_score = df_target_score.collect()
         self.collected_df_target_score_filtered = df_target_score_filtered.collect()
+        self.collected_df_target_attack = df_target_attack.collect()
 
         self.df = super().run()
         return self.df

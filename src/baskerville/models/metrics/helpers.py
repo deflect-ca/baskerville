@@ -149,7 +149,10 @@ def set_attack_threshold(metric, self, result):
 
 
 def set_total_rs_count(metric, self, result):
-    metric.set(self.df.count())
+    if not self.collected_df_target_score:
+        return
+    for row in self.collected_df_target_score:
+        metric.labels(target=row.target).set(row.count)
 
 
 def set_ip_prediction_count(metric, self, result):
