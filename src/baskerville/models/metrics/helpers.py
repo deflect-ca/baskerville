@@ -128,9 +128,9 @@ def set_attack_score(metric, self, result):
     """
     For every target, it sets the precalculated attack score
     """
-    if not self.collected_df_target_score:
+    if not self.collected_df_target_score_filtered:
         return
-    for row in self.collected_df_target_score:
+    for row in self.collected_df_target_score_filtered:
         metric.labels(target=row.target).set(row.attack_score)
 
 
@@ -142,6 +142,10 @@ def set_attack_prediction(metric, self, result):
         return
     for row in self.collected_df_target_attack:
         metric.labels(target=row.target).set(row.attack_prediction)
+
+
+def set_attack_threshold(metric, self, result):
+    metric.labels(value='attack_threshold').set(self.config.engine.attack_threshold)
 
 
 def set_ip_prediction_count(metric, self, result):
