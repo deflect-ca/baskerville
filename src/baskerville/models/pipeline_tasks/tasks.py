@@ -1257,15 +1257,15 @@ class AttackDetection(Task):
         df_target_score = self.df.select(
             'id_request_sets', 'target', 'features', 'prediction', 'score'
         ).groupBy('target').agg(
-            F.count('prediction').alias('count'),
+            F.count('prediction').alias('total'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
             F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly'),
             F.avg('prediction').alias('attack_score')
         ).persist(self.config.spark.storage_level)
 
-        df_target_score_filtered = df_target_score.where(F.col('count') > self.config.engine.minimum_number_attackers)
+        df_target_score_filtered = df_target_score.where(F.col('total') > self.config.engine.minimum_number_attackers)
 
-        df_target_attack = df_target_score.withColumn('attack_prediction',
+        df_target_attack = df_target_score_filtered.withColumn('attack_prediction',
                                                       F.when(
                                                           F.col('attack_score') > self.config.engine.attack_threshold,
                                                           F.col('attack_score')
