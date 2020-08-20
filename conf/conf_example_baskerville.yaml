@@ -134,6 +134,13 @@ spark:
   kryoserializer_buffer: '1024k'              # It is suggested that you omit setting kryoserializer_buffer_max and kryoserializer_buffer and only set them if you get serialization errors.
   driver_java_options: '-verbose:gc'          # Optional. When on a local machine with less than 36GB of ram -XX:+UseCompressedOops
   executor_extra_java_options: '-verbose:gc'  # Optional. When on a local machine with less than 36GB of ram -XX:+UseCompressedOops
+  auth_secret: 'TEST_SECRET'                  # Optional. For RPC auth in cluster set up
+  ssl_enabled: True                           # Optional. Sets SSL for the spark ui - all following configuration must be provided -- to generate cert and import use ssl_for_sparkui.sh under data/scripts
+  ssl_truststore: '/path/to/truststore'
+  ssl_truststore_password: 'examplestorepass'
+  ssl_keystore: '/path/to/keystore'
+  ssl_keystore_password: 'examplestorepass'
+  ssl_keypassword: 'examplekeypass'
   # to connect to the jvm for memory profiling and deugging (remove the -Dcom.sun.management.jmxremote.port=1098 if more than one executors because it will cause the other executors to fail):
   # -XX:+PrintFlagsFinal -XX:+PrintReferenceGC -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps  -XX:+UnlockDiagnosticVMOptions -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1098
   # depending on your configuration and resources:

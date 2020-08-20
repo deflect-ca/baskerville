@@ -712,7 +712,6 @@ class KafkaConfig(Config):
     ssl_cafile = ''
     ssl_certfile = ''
     ssl_keyfile = ''
-    auth_secret = 'TEST_SECRET'
 
     def __init__(self, config):
         super(KafkaConfig, self).__init__(config)
@@ -771,9 +770,26 @@ class SparkConfig(Config):
     off_heap_size = None
     redis_host = 'localhost'
     redis_port = 6379
+    auth_secret = 'TEST_SECRET'
+    admin_acls = 'admin'
+    driver_port = 18050
+    block_manager_port = 18060
+    ssl_enabled = 'true'
+    ssl_truststore = None
+    ssl_truststore_password = None
+    ssl_keystore = None
+    ssl_keystore_password = None
+    ssl_keypassword = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
+        self._ssl_properties = {
+            'ssl_truststore': self.ssl_truststore,
+            'ssl_truststore_password': self.ssl_truststore_password,
+            'ssl_keystore': self.ssl_keystore,
+            'ssl_keystore_password': self.ssl_keystore_password,
+            'ssl_keypassword': self.ssl_keypassword
+        }
 
     def validate(self):
         logger.debug('Validating SparkConfig...')
@@ -825,7 +841,20 @@ class SparkConfig(Config):
             self.event_log = 'false'
         else:
             self.event_log = 'true'
-
+        if not self.ssl_enabled:
+            self.ssl_enabled = 'false'
+        else:
+            self.ssl_enabled = 'true'
+            for name, prop in enumerate(self._ssl_properties):
+                if not prop:
+                    self.add_error(ConfigError(
+                        f'No {name} while ssl_enabled is set to "true" ',
+                        [name],
+                    ))
+            warnings.warn(
+                'SSL is enabled, so spark ui will redirect to '
+                'https://localhost:4442'
+            )
         if self.metrics_conf and not self.jar_packages:
             warnings.warn('Spark metrics configuration has been set but '
                           'jar packages is empty, '
