@@ -152,13 +152,30 @@ def get_or_create_spark_session(spark_conf: SparkConfig):
     # note that: The same secret is shared by all Spark applications and
     # daemons in that case, which limits the security of these deployments,
     # especially on multi-tenant clusters.
-    conf.set('spark.authenticate', 'true')
-    conf.set('spark.authenticate.secret', spark_conf.auth_secret)
+    if spark_conf.auth_secret:
+        conf.set('spark.authenticate', 'true')
+        conf.set('spark.authenticate.secret', spark_conf.auth_secret)
 
     # encryption
     conf.set('spark.network.crypto.enabled', 'true')
     conf.set('spark.io.encryption.enabled', 'true')
+    # https://www.fortytools.com/blog/servlet-filter-for-http-basic-auth
     # conf.set('spark.ui.filters', 'org.apache.spark.examples.BasicAuthFilter')
+    # conf.set('spark.acls.enable', 'true')
+    # conf.set('spark.admin.acls', spark_conf.admin_acls)
+
+    # SSL https://spark.apache.org/docs/latest/security.html#ssl-configuration
+    if spark_conf.ssl_enabled == 'true':
+        conf.set('spark.ssl.enabled', spark_conf.ssl_enabled)
+        conf.set('spark.ssl.trustStore', spark_conf.ssl_truststore)
+        conf.set('spark.ssl.trustStorePassword', spark_conf.ssl_truststore_password)
+        conf.set('spark.ssl.keyStore', spark_conf.ssl_keystore)
+        conf.set('spark.ssl.keyStorePassword', spark_conf.ssl_keystore_password)
+        conf.set('spark.ssl.keyPassword', spark_conf.ssl_keypassword)
+        conf.set('spark.ssl.protocol', 'TLSv1.2')
+
+    # conf.set('spark.driver.port', spark_conf.driver_port)
+    # conf.set('spark.blockManager.port', spark_conf.block_manager_port)
 
     # The REST Submission Server and the MesosClusterDispatcher do not support
     # authentication. You should ensure that all network access to the REST API
