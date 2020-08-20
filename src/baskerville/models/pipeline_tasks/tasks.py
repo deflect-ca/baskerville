@@ -1239,7 +1239,6 @@ class AttackDetection(Task):
     """
     collected_df_target_attack = None
     collected_df_target_score = None
-    collected_df_target_score_filtered = None
 
     def initialize(self):
         # super(SaveStats, self).initialize()
@@ -1263,12 +1262,14 @@ class AttackDetection(Task):
             F.avg('prediction').alias('attack_score')
         ).persist(self.config.spark.storage_level)
 
-        df_target_score_filtered = df_target_score.where(F.col('total') > self.config.engine.minimum_number_attackers)
+        df_target_score = df_target_score.withColumn('attack_score'). \
+            F.when(F.col('total') < self.config.engine.minimum_number_attackers, F.lit(0)).otherwise(
+            F.col('attack_score'))
 
-        df_target_attack = df_target_score_filtered.withColumn('attack_prediction', F.when(
+        df_target_attack = df_target_score.withColumn('attack_prediction', F.when(
             F.col('attack_score') > self.config.engine.attack_threshold, F.lit(1)).otherwise(F.lit(0)))
 
-        return df_target_score, df_target_score_filtered, df_target_attack
+        return df_target_score, df_target_attack
 
     def set_metrics(self):
         # Perhaps using an additional label and one metric could be better
@@ -1355,11 +1356,10 @@ class AttackDetection(Task):
 
     def run(self):
         self.classify_anomalies()
-        df_target_score, df_target_score_filtered, df_target_attack = self.detect_attack()
+        df_target_score, df_target_attack = self.detect_attack()
         self.send_challenge(df_target_attack)
 
         self.collected_df_target_score = df_target_score.collect()
-        self.collected_df_target_score_filtered = df_target_score_filtered.collect()
         self.collected_df_target_attack = df_target_attack.collect()
 
         self.df = super().run()

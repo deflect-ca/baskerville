@@ -128,9 +128,9 @@ def set_attack_score(metric, self, result):
     """
     For every target, it sets the precalculated attack score
     """
-    if not self.collected_df_target_score_filtered:
+    if not self.collected_df_target_score:
         return
-    for row in self.collected_df_target_score_filtered:
+    for row in self.collected_df_target_score:
         metric.labels(target=row.target).set(row.attack_score)
 
 
