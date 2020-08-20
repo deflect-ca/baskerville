@@ -1262,9 +1262,11 @@ class AttackDetection(Task):
             F.avg('prediction').alias('attack_score')
         ).persist(self.config.spark.storage_level)
 
-        df_target_score = df_target_score.withColumn('attack_score'). \
-            F.when(F.col('total') < self.config.engine.minimum_number_attackers, F.lit(0)).otherwise(
-            F.col('attack_score'))
+        df_target_score = df_target_score.withColumn('attack_score',
+                                                     F.when(
+                                                         F.col('total') < self.config.engine.minimum_number_attackers,
+                                                         F.lit(0)).otherwise(
+                                                         F.col('attack_score')))
 
         df_target_attack = df_target_score.withColumn('attack_prediction', F.when(
             F.col('attack_score') > self.config.engine.attack_threshold, F.lit(1)).otherwise(F.lit(0)))
