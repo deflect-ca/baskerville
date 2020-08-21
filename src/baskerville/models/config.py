@@ -774,7 +774,7 @@ class SparkConfig(Config):
     admin_acls = 'admin'
     driver_port = 18050
     block_manager_port = 18060
-    ssl_enabled = 'true'
+    ssl_enabled = False
     ssl_truststore = None
     ssl_truststore_password = None
     ssl_keystore = None

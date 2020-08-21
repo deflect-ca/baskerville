@@ -160,7 +160,7 @@ def get_or_create_spark_session(spark_conf: SparkConfig):
     conf.set('spark.network.crypto.enabled', 'true')
     conf.set('spark.io.encryption.enabled', 'true')
     # https://www.fortytools.com/blog/servlet-filter-for-http-basic-auth
-    # conf.set('spark.ui.filters', 'org.apache.spark.examples.BasicAuthFilter')
+    conf.set('spark.ui.filters', 'baskerville.security.BasicAuthFilter')
     # conf.set('spark.acls.enable', 'true')
     # conf.set('spark.admin.acls', spark_conf.admin_acls)
 
