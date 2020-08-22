@@ -1278,6 +1278,7 @@ class AttackDetection(Task):
         )
         df_attack = df_attack.join(df_attackers, on='target', how='left')
         df_attack = df_attack.withColumn('anomaly', F.when(F.col('attack') > 0, F.lit(0)).otherwise(F.col('anomaly')))
+        df_attack['attack'].fillna(0, inplace=True)
         return df_attack
 
     def set_metrics(self):
