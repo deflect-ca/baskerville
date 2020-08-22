@@ -1237,8 +1237,7 @@ class AttackDetection(Task):
     """
     Calculates prediction per IP, attack_score per Target, regular vs anomaly counts, attack_prediction
     """
-    collected_df_target_attack = None
-    collected_df_target_score = None
+    collected_df_attack = None
 
     def initialize(self):
         # super(SaveStats, self).initialize()
@@ -1253,7 +1252,7 @@ class AttackDetection(Task):
     def detect_attack(self):
         self.logger.info('Attack detection...')
 
-        df_target_score = self.df.select(
+        df_attack = self.df.select(
             'id_request_sets', 'target', 'features', 'prediction', 'score'
         ).groupBy('target').agg(
             F.count('prediction').alias('total'),
@@ -1262,18 +1261,24 @@ class AttackDetection(Task):
             F.avg('prediction').alias('attack_score')
         ).persist(self.config.spark.storage_level)
 
-        df_target_score = df_target_score.withColumn('attack_score',
-                                                     F.when(
-                                                         F.col('total') < self.config.engine.minimum_number_attackers,
-                                                         F.lit(0)).otherwise(
-                                                         F.col('attack_score')))
+        df_attack = df_attack.withColumn('attack_score',
+                                         F.when(
+                                             F.col('total') < self.config.engine.minimum_number_attackers,
+                                             F.lit(0)).otherwise(
+                                             F.col('attack_score')))
 
-        df_target_attack = df_target_score.withColumn('attack_prediction', F.when(
+        df_attack = df_attack.withColumn('attack_prediction', F.when(
             F.col('attack_score') > self.config.engine.attack_threshold, F.lit(1)).otherwise(F.lit(0)))
 
-        self.df = self.df.join(df_target_attack.select(['target', 'attack_prediction']), on='target', how='left')
+        self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
 
-        return df_target_score, df_target_attack
+        df_attackers = self.df.select('target', 'prediction', 'attack_prediction').where(
+            (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)).groupBy('target').agg(
+            F.count('prediction').alias('attack')
+        )
+        df_attack.join(df_attackers, on='target', how='left')
+        df_attack = df_attack.withColumn('anomaly', F.when(F.col('attack') == 1, F.lit(0)).otherwise(F.col('anomaly')))
+        return df_attack
 
     def set_metrics(self):
         # Perhaps using an additional label and one metric could be better
@@ -1362,11 +1367,10 @@ class AttackDetection(Task):
 
     def run(self):
         self.classify_anomalies()
-        df_target_score, df_target_attack = self.detect_attack()
-        self.send_challenge(df_target_attack)
+        df_attack = self.detect_attack()
+        self.send_challenge(df_attack)
 
-        self.collected_df_target_score = df_target_score.collect()
-        self.collected_df_target_attack = df_target_attack.collect()
+        self.collected_df_attack = df_attack.collect()
 
         self.df = super().run()
         return self.df

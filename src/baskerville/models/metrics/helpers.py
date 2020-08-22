@@ -138,9 +138,9 @@ def set_attack_prediction(metric, self, result):
     """
     For every target, it sets the precalculated attack prediction
     """
-    if not self.collected_df_target_attack:
+    if not self.collected_df_attack:
         return
-    for row in self.collected_df_target_attack:
+    for row in self.collected_df_attack:
         metric.labels(target=row.target).set(row.attack_prediction)
 
 
@@ -149,9 +149,9 @@ def set_attack_threshold(metric, self, result):
 
 
 def set_total_rs_count(metric, self, result):
-    if not self.collected_df_target_score:
+    if not self.collected_df_attack:
         return
-    for row in self.collected_df_target_score:
+    for row in self.collected_df_attack:
         metric.labels(target=row.target).set(row.total)
 
 
@@ -162,10 +162,13 @@ def set_ip_prediction_count(metric, self, result):
     if not self.collected_df_target_score:
         return
 
-    for row in self.collected_df_target_score:
+    for row in self.collected_df_attack:
         metric.labels(
             target=row.target, kind='regular'
         ).set(row.regular)
         metric.labels(
             target=row.target, kind='anomaly'
         ).set(row.anomaly)
+        metric.labels(
+            target=row.target, kind='attack'
+        ).set(row.attack)
