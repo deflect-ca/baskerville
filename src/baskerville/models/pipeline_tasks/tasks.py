@@ -1276,8 +1276,8 @@ class AttackDetection(Task):
             (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)).groupBy('target').agg(
             F.count('prediction').alias('attack')
         )
-        df_attack.join(df_attackers, on='target', how='left')
-        df_attack = df_attack.withColumn('anomaly', F.when(F.col('attack') == 1, F.lit(0)).otherwise(F.col('anomaly')))
+        df_attack = df_attack.join(df_attackers, on='target', how='left')
+        df_attack = df_attack.withColumn('anomaly', F.when(F.col('attack') > 0, F.lit(0)).otherwise(F.col('anomaly')))
         return df_attack
 
     def set_metrics(self):
