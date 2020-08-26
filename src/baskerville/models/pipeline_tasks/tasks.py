@@ -334,7 +334,7 @@ class GetDataPostgres(Task):
             self,
             config: BaskervilleConfig,
             steps: list = (),
-            columns_to_keep=('ip', 'target', 'created_at', 'features',),
+            columns_to_keep=('ip', 'target', 'stop', 'features',),
             from_date=None,
             to_date=None,
             training_days=None
