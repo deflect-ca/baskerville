@@ -988,7 +988,7 @@ class MergeWithSensitiveData(Task):
         ).drop('df.id_client', 'df.id_request_sets')
 
         if count != self.df.count():
-            self.logger.warning(f'Failed to retrieve {count - self.df.count()} records from Redis)
+            self.logger.warning(f'Failed to retrieve {count - self.df.count()} records from Redis')
 
         self.df = super().run()
         return self.df
