@@ -46,6 +46,7 @@ def set__self__(fn):
     :param func fn:
     :return:
     """
+
     @wraps(fn)
     def wrapped_f(self, func_to_watch_for, *args, **kwargs):
         if not has_self(func_to_watch_for):
@@ -146,29 +147,3 @@ def set_attack_prediction(metric, self, result):
 
 def set_attack_threshold(metric, self, result):
     metric.labels(value='attack_threshold').set(self.config.engine.attack_threshold)
-
-
-def set_total_rs_count(metric, self, result):
-    if not self.collected_df_attack:
-        return
-    for row in self.collected_df_attack:
-        metric.labels(target=row.target).set(row.total)
-
-
-def set_ip_prediction_count(metric, self, result):
-    """
-    For every target, it sets the regular and the anomaly counts
-    """
-    if not self.collected_df_attack:
-        return
-
-    for row in self.collected_df_attack:
-        metric.labels(
-            target=row.target, kind='regular'
-        ).set(row.regular)
-        metric.labels(
-            target=row.target, kind='anomaly'
-        ).set(row.anomaly)
-        metric.labels(
-            target=row.target, kind='attack'
-        ).set(row.attack)

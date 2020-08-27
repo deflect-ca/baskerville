@@ -1271,14 +1271,6 @@ class AttackDetection(Task):
             F.col('attack_score') > self.config.engine.attack_threshold, F.lit(1)).otherwise(F.lit(0)))
 
         self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
-
-        df_attackers = self.df.select('target', 'prediction', 'attack_prediction').where(
-            (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)).groupBy('target').agg(
-            F.count('prediction').alias('attack')
-        )
-        df_attack = df_attack.join(df_attackers, on='target', how='left') \
-            .withColumn('anomaly', F.when(F.col('attack') > 0, F.lit(0)).otherwise(F.col('anomaly'))) \
-            .fillna({'attack': 0})
         return df_attack
 
     def set_metrics(self):
@@ -1288,17 +1280,10 @@ class AttackDetection(Task):
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
         from baskerville.models.metrics.helpers import set_attack_score, \
-            set_ip_prediction_count, set_attack_prediction, set_attack_threshold, set_total_rs_count
+            set_attack_prediction, set_attack_threshold
 
         run = metrics_registry.register_action_hook(
             self.run,
-            set_ip_prediction_count,
-            metric_cls=MetricClassEnum.gauge,
-            metric_name='prediction_count',
-            labelnames=['target', 'kind']
-        )
-        run = metrics_registry.register_action_hook(
-            run,
             set_attack_score,
             metric_cls=MetricClassEnum.gauge,
             metric_name='attack_score',
@@ -1319,14 +1304,6 @@ class AttackDetection(Task):
             metric_cls=MetricClassEnum.gauge,
             metric_name='baskerville_config',
             labelnames=['value']
-        )
-
-        run = metrics_registry.register_action_hook(
-            run,
-            set_total_rs_count,
-            metric_cls=MetricClassEnum.gauge,
-            metric_name='total_rs_count',
-            labelnames=['target']
         )
 
         setattr(self, 'run', run)
