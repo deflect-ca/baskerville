@@ -982,9 +982,13 @@ class MergeWithSensitiveData(Task):
             .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
 
         self.df = self.df.alias('df')
+        count = self.df.count()
         self.df = self.redis_df.join(
             self.df, on=['id_client', 'id_request_sets']
         ).drop('df.id_client', 'df.id_request_sets')
+
+        if count != self.df.count():
+            self.logger.warning(f'Failed to retrieve {count - self.df.count()} records from Redis)
 
         self.df = super().run()
         return self.df
