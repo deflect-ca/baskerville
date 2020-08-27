@@ -79,7 +79,6 @@ class BanjaxReportConsumer(object):
             # 'status'-type messages contain several metrics and are reported per $interval
             if d.get("name") == "status":
                 edge_id = d.get("id")
-                self.logger.info(f"Banjax status from edge: {edge_id}")
                 for k, _ in d.items():
                     if k == 'name' or k == 'id':
                         continue
@@ -87,7 +86,7 @@ class BanjaxReportConsumer(object):
                         f = getattr(self, f"consume_{k}")
                         f(self, d)
                     except AttributeError:
-                        self.logger.info(f"did not process banjax status {k}")
+                        self.logger.info(f"did not process banjax status {k} from edge {edge_id}")
 
             # 'ip_failed_challenge'-type messages are reported when a challenge is failed
             elif d.get("name") == "ip_failed_challenge":
