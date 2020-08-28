@@ -12,7 +12,7 @@ import os
 import traceback
 
 import pyspark
-from pyspark.sql import functions as F, types as T, DataFrame
+from pyspark.sql import functions as F, types as T
 from pyspark.sql.types import StringType, StructField
 from pyspark.streaming import StreamingContext
 
