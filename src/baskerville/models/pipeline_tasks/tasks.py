@@ -12,7 +12,7 @@ import os
 import traceback
 
 import pyspark
-from pyspark.sql import functions as F, types as T
+from pyspark.sql import functions as F, types as T, DataFrame
 from pyspark.sql.types import StringType, StructField
 from pyspark.streaming import StreamingContext
 
@@ -1243,6 +1243,10 @@ class AttackDetection(Task):
     """
     collected_df_attack = None
 
+    def __init__(self, config, steps=()):
+        super().__init__(config, steps)
+        self.df_sliding_window = None
+
     def initialize(self):
         # super(SaveStats, self).initialize()
         self.set_metrics()
@@ -1253,12 +1257,28 @@ class AttackDetection(Task):
                                      F.when(F.col('score') > self.config.engine.anomaly_threshold,
                                             F.lit(1.0)).otherwise(F.lit(0.)))
 
-    def detect_attack(self):
-        self.logger.info('Attack detection...')
+    def update_sliding_window(self):
+        df_increment = self.df.select('target', 'stop', 'prediction')\
+            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
 
-        df_attack = self.df.select(
-            'id_request_sets', 'target', 'features', 'prediction', 'score'
-        ).groupBy('target').agg(
+        if not self.df_sliding_window:
+            self.df_sliding_window = df_increment
+        else:
+            self.df_sliding_window = self.df_sliding_window.union(df_increment)
+        self.logger.info(f'Sliding window increment size {df_increment.count()}...')
+
+        max_stop = df_increment.groupby().agg(F.max('stop')).collect()[0].asDict()['max(stop)']
+        self.logger.info(f'max_ts= {max_stop}')
+
+        self.df_sliding_window = self.df_sliding_window.\
+            filter(self.df_sliding_window.stop > max_stop -
+                   F.expr(f'INTERVAL {self.config.engine.sliding_window} seconds'))
+        self.df_sliding_window.persist(self.config.spark.storage_level)
+        self.logger.info(f'Sliding window size {self.df_sliding_window.count()}...')
+
+    def detect_attack(self):
+        self.update_sliding_window()
+        df_attack = self.df_sliding_window.groupBy('target').agg(
             F.count('prediction').alias('total'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
             F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly'),

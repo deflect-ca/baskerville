@@ -267,6 +267,7 @@ class EngineConfig(Config):
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
+    sliding_window = 240
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
