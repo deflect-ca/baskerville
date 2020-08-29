@@ -15,6 +15,8 @@ import pyspark
 from pyspark.sql import functions as F, types as T
 from pyspark.sql.types import StringType, StructField
 from pyspark.streaming import StreamingContext
+from functools import reduce
+from pyspark.sql import DataFrame
 
 from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model
@@ -1245,7 +1247,7 @@ class AttackDetection(Task):
 
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
-        self.df_sliding_window = None
+        self.df_chunks = []
 
     def initialize(self):
         # super(SaveStats, self).initialize()
@@ -1258,41 +1260,51 @@ class AttackDetection(Task):
                                             F.lit(1.0)).otherwise(F.lit(0.)))
 
     def update_sliding_window(self):
-        df_increment = self.df.select('target', 'stop', 'prediction')\
+        df_increment = self.df.select('target', 'stop', 'prediction') \
             .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
         self.logger.info(f'Sliding window increment size {df_increment.count()}...')
 
-        if not self.df_sliding_window:
-            self.df_sliding_window = df_increment
-        else:
-            max_stop = df_increment.groupby().agg(F.max('stop')).collect()[0].asDict()['max(stop)']
-            self.logger.info(f'max_ts= {max_stop}')
+        max_stop = df_increment.groupby().agg(F.max('stop')).collect()[0].asDict()['max(stop)']
+        self.logger.info(f'max_ts= {max_stop}')
 
-            self.df_sliding_window = self.df_sliding_window. \
-                filter(self.df_sliding_window.stop > max_stop -
-                       F.expr(f'INTERVAL {self.config.engine.sliding_window} seconds'))
-            self.df_sliding_window = self.df_sliding_window.union(df_increment)
+        total_size = df_increment.count()
+        for i in range(len(self.df_chunks)):
+            chunk = self.df_chunks[i]
+            chunk = chunk.filter(chunk.stop > max_stop -
+                                 F.expr(f'INTERVAL {self.config.engine.sliding_window} seconds'))
+            total_size += chunk.count()
+            self.df_chunks[i] = chunk
+        self.df_chunks.append(df_increment)
+        self.df_chunks = [chunk for chunk in self.df_chunks if chunk.count() > 0]
+        self.logger.info(f'Sliding window size {total_size}...')
 
-        self.df_sliding_window.persist(self.config.spark.storage_level)
-        self.logger.info(f'Sliding window size {self.df_sliding_window.count()}...')
+    def get_attack_score(self):
+        attack_scores = []
+        for chunk in self.df_chunks:
+            attack_scores.append(chunk.groupBy('target').agg(
+                F.count('prediction').alias('total'),
+                F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
+                F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
+            ).persist(self.config.spark.storage_level))
+
+        df = reduce(DataFrame.unionAll, attack_scores).groupBy('target').agg(
+            F.sum('total').alias('total'),
+            F.sum('regular').alias('regular'),
+            F.sum('anomaly').alias('anomaly'),
+        )
+
+        df = df.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float'))\
+            .persist(self.config.spark.storage_level)
+
+        return df
 
     def detect_attack(self):
         self.update_sliding_window()
-        df_attack = self.df_sliding_window.groupBy('target').agg(
-            F.count('prediction').alias('total'),
-            F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
-            F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly'),
-            F.avg('prediction').alias('attack_score')
-        ).persist(self.config.spark.storage_level)
-
-        df_attack = df_attack.withColumn('attack_score',
-                                         F.when(
-                                             F.col('total') < self.config.engine.minimum_number_attackers,
-                                             F.lit(0)).otherwise(
-                                             F.col('attack_score')))
+        df_attack = self.get_attack_score()
 
         df_attack = df_attack.withColumn('attack_prediction', F.when(
-            F.col('attack_score') > self.config.engine.attack_threshold, F.lit(1)).otherwise(F.lit(0)))
+            (F.col('attack_score') > self.config.engine.attack_threshold) &
+            (F.col('total') > self.config.engine.minimum_number_attackers), F.lit(1)).otherwise(F.lit(0)))
 
         self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
         return df_attack
