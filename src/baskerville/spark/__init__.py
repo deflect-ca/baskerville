@@ -23,6 +23,7 @@ def get_or_create_spark_session(spark_conf: SparkConfig):
     # https://spark.apache.org/docs/latest/tuning.html
     conf = SparkConf()
     conf.set('spark.logConf', 'true')
+    conf.set('spark.master.rest.enabled', 'true')
     conf.set('spark.jars', spark_conf.jars)
     conf.set('spark.master', spark_conf.master)
     conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)

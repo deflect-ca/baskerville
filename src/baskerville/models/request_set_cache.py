@@ -306,7 +306,7 @@ class RequestSetSparkCache(Singleton):
         source_df = source_df.alias('sd')
 
         columns = source_df.columns
-        columns.remove('first_ever_request')
+        # columns.remove('first_ever_request')
         columns.remove('target_original')
         source_df = source_df.select(columns)
 

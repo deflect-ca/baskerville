@@ -50,6 +50,7 @@ class RunType(BaseStrEnum):
     preprocessing = 'preprocessing'
     postprocessing = 'postprocessing'
     predicting = 'predicting'
+    dashboard = 'dashboard'
 
 
 class Step(BaseStrEnum):
