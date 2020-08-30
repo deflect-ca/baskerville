@@ -263,10 +263,10 @@ class GetDataLog(Task):
         self.batch_n = len(self.log_paths)
         self.current_log_path = None
 
-    def initialize(self):
-        super().initialize()
-        for step in self.steps:
-            step.initialize()
+    # def initialize(self):
+    #     super().initialize()
+    #     for step in self.steps:
+    #         step.initialize()
 
     def create_runtime(self):
         self.runtime = self.tools.create_runtime(
@@ -1401,6 +1401,9 @@ class AttackDetection(Task):
                     ).encode('utf-8')
                     producer.send(self.config.kafka.banjax_command_topic, message)
                     producer.flush()
+        if self.config.engine.challenge:
+            self.logger.debug('No challenge flag is set, moving on...')
+        else:
 
     def run(self):
         self.classify_anomalies()
