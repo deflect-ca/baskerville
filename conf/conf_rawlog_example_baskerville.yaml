@@ -45,7 +45,7 @@ spark:
   storage_level: 'OFF_HEAP' # which strategy to use for storing dfs - valid values are the ones found here: https://spark.apache.org/docs/2.4.0/api/python/_modules/pyspark/storagelevel.html default: OFF_HEAP
   jars: !ENV '${BASKERVILLE_ROOT}/data/jars/postgresql-42.2.4.jar,${BASKERVILLE_ROOT}/data/spark-iforest-2.4.0.jar' # or /path/to/jars/mysql-connector-java-8.0.11.jar
   spark_driver_memory: '6G' # depends on your dataset and the available ram you have. If running locally 6 - 8 GB should be a good choice, depending on the amount of data you need to process
-  metrics_conf: !ENV '${BASKERVILLE_ROOT}/data/spark.metrics'  # Optional: required only  to export spark metrics
+  metrics_conf: !ENV '${BASKERVILLE_ROOT}/data/metrics/spark.metrics'  # Optional: required only  to export spark metrics
   jar_packages: 'com.banzaicloud:spark-metrics_2.11:2.3-2.0.4,io.prometheus:simpleclient:0.3.0,io.prometheus:simpleclient_dropwizard:0.3.0,io.prometheus:simpleclient_pushgateway:0.3.0,io.dropwizard.metrics:metrics-core:3.1.2'  # required to export spark metrics
   jar_repositories: 'https://raw.github.com/banzaicloud/spark-metrics/master/maven-repo/releases' # Optional: Required only to export spark metrics
   event_log: True
