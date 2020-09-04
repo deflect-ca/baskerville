@@ -243,10 +243,19 @@ class RequestSetSparkCache(Singleton):
         if not columns:
             columns = df.columns
 
-        if self.file_manager.path_exists(self.persistent_cache_file):
-            self.__cache = self.session_getter().read.format(
-                self.format_
-            ).load(self.persistent_cache_file).join(
+        # if self.file_manager.path_exists(self.persistent_cache_file):
+        #     self.__cache = self.session_getter().read.format(
+        #         self.format_
+        #     ).load(self.persistent_cache_file).join(
+        #         df,
+        #         on=columns,
+        #         how='inner'
+        #     ).drop(
+        #         'a.ip'
+        #     ).persist(self.storage_level)
+        # else:
+        if self.__cache:
+            self.__cache = self.__cache.join(
                 df,
                 on=columns,
                 how='inner'
@@ -254,16 +263,7 @@ class RequestSetSparkCache(Singleton):
                 'a.ip'
             ).persist(self.storage_level)
         else:
-            if self.__cache:
-                self.__cache = self.__cache.join(
-                    df,
-                    on=columns,
-                    how='inner'
-                ).drop(
-                    'a.ip'
-                ).persist(self.storage_level)
-            else:
-                self.load_empty(self.schema)
+            self.load_empty(self.schema)
 
     def update_self(
             self,
