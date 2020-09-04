@@ -268,6 +268,8 @@ class EngineConfig(Config):
     training = None
     ttl = 500
     sliding_window = 120
+    low_rate_attack_period = 600
+    low_rate_attack_total_request = 400
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)

@@ -1293,28 +1293,27 @@ class AttackDetection(Task):
             F.sum('anomaly').alias('anomaly'),
         )
 
-        df = df.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float'))\
+        df = df.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float')) \
             .persist(self.config.spark.storage_level)
 
         return df
 
     def detect_low_rate_attack(self, df):
+        import pyspark.sql.functions as psf
+
         schema = T.StructType()
         schema.add(StructField(name='request_total', dataType=StringType(), nullable=True))
-        schema.add(StructField(name='request_rate', dataType=StringType(), nullable=True))
-
         df = df.withColumn('f', F.from_json('features', schema))
 
         df1 = df.filter(
-                (F.col('f.request_total') > 200) #&\
-                #(F.col('f.request_total') / F.col('f.request_rate') > 30)
+            (F.col('f.request_total') > self.config.engine.low_rate_attack_period) &
+            ((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) >
+             self.engine.low_rate_attack_total_request) &
+            (F.col('prediction') == 1)
         )
-        self.logger.info("low rate attack --------------")
-        self.logger.info(df1.select('ip', 'f.request_rate', 'f.request_total', 'start', 'stop').show())
-
-        import pyspark.sql.functions as psf
-        df1 = df.filter((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) > 480)
-        self.logger.info(df1.select('ip', 'f.request_rate', 'f.request_total', 'start', 'stop').limit(10))
+        if df1.count() > 0:
+            self.logger.info(f'low rate attack -------------- {df1.count()} ips')
+            self.logger.info(df1.select('ip', 'f.request_total', 'start', 'stop').show())
 
         return df
 
