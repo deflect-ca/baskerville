@@ -1298,6 +1298,26 @@ class AttackDetection(Task):
 
         return df
 
+    def detect_low_rate_attack(self, df):
+        schema = T.StructType()
+        schema.add(StructField(name='request_total', dataType=StringType(), nullable=True))
+        schema.add(StructField(name='request_rate', dataType=StringType(), nullable=True))
+
+        df = df.withColumn('f', F.from_json('features', schema))
+
+        df1 = df.filter(
+                (F.col('f.request_total') > 200) #&\
+                #(F.col('f.request_total') / F.col('f.request_rate') > 30)
+        )
+        self.logger.info("low rate attack --------------")
+        self.logger.info(df1.select('ip', 'f.request_rate', 'f.request_total', 'start', 'stop').show())
+
+        import pyspark.sql.functions as psf
+        df1 = df.filter((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) > 480)
+        self.logger.info(df1.select('ip', 'f.request_rate', 'f.request_total', 'start', 'stop').limit(10))
+
+        return df
+
     def detect_attack(self):
         self.update_sliding_window()
         df_attack = self.get_attack_score()
@@ -1307,6 +1327,7 @@ class AttackDetection(Task):
             (F.col('total') > self.config.engine.minimum_number_attackers), F.lit(1)).otherwise(F.lit(0)))
 
         self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
+        self.df = self.detect_low_rate_attack(self.df)
         return df_attack
 
     def set_metrics(self):
