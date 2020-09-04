@@ -199,6 +199,7 @@ class RequestSetSparkCache(Singleton):
             for c in select_cols:
                 if c not in df_to_update.columns:
                     df_to_update = df_to_update.withColumn(c, F.lit(None))
+            self.logger.warning('Cache is empty')
             return df_to_update
 
         # https://issues.apache.org/jira/browse/SPARK-10925
@@ -242,7 +243,7 @@ class RequestSetSparkCache(Singleton):
         if not columns:
             columns = df.columns
 
-        if os.path.isdir(self.persistent_cache_file):
+        if self.file_manager.path_exists(self.persistent_cache_file):
             self.__cache = self.session_getter().read.format(
                 self.format_
             ).load(self.persistent_cache_file).join(
