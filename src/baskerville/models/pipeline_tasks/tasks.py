@@ -1308,7 +1308,7 @@ class AttackDetection(Task):
         df1 = df.filter(
             (F.col('f.request_total') > self.config.engine.low_rate_attack_period) &
             ((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) >
-             self.engine.low_rate_attack_total_request) &
+             self.config.engine.low_rate_attack_total_request) &
             (F.col('prediction') == 1)
         )
         if df1.count() > 0:
