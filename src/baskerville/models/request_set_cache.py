@@ -266,12 +266,12 @@ class RequestSetSparkCache(Singleton):
 
         if self.__persistent_cache:
             self.__cache = self.__persistent_cache.join(
-                    df,
-                    on=columns,
-                    how='inner'
-                ).drop(
-                    'a.ip'
-                ).persist(self.storage_level)
+                df,
+                on=columns,
+                how='inner'
+            ).drop(
+                'a.ip'
+            ).persist(self.storage_level)
         else:
             self.load_empty(self.schema)
 
