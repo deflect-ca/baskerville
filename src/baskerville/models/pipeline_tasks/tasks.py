@@ -17,6 +17,7 @@ from pyspark.sql.types import StringType, StructField
 from pyspark.streaming import StreamingContext
 from functools import reduce
 from pyspark.sql import DataFrame
+import pyspark.sql.functions as psf
 
 from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model
@@ -1299,21 +1300,19 @@ class AttackDetection(Task):
         return df
 
     def detect_low_rate_attack(self, df):
-        import pyspark.sql.functions as psf
-
         schema = T.StructType()
         schema.add(StructField(name='request_total', dataType=StringType(), nullable=True))
         df = df.withColumn('f', F.from_json('features', schema))
 
-        df1 = df.filter(
+        df_attackers = df.filter(
             (F.col('f.request_total') > self.config.engine.low_rate_attack_period) &
             ((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) >
-             self.config.engine.low_rate_attack_total_request) &
-            (F.col('prediction') == 1)
-        )
-        if df1.count() > 0:
-            self.logger.info(f'low rate attack -------------- {df1.count()} ips')
-            self.logger.info(df1.select('ip', 'f.request_total', 'start', 'stop').show())
+             self.config.engine.low_rate_attack_total_request)
+        ).select('ip')
+
+        if df_attackers.count() > 0:
+            self.logger.info(f'Low rate attack -------------- {df_attackers.count()} ips')
+            self.logger.info(df_attackers.show())
 
         return df
 
