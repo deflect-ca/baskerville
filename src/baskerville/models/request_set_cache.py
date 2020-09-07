@@ -189,6 +189,7 @@ class RequestSetSparkCache(Singleton):
     def update_df(
             self, df_to_update, join_cols=('target', 'ip'), select_cols=('*',)
     ):
+        return
         self._changed = True
 
         if "*" in select_cols:
@@ -239,6 +240,9 @@ class RequestSetSparkCache(Singleton):
         :param columns:
         :return:
         """
+
+        return
+
         if not columns:
             columns = df.columns
 
@@ -290,6 +294,9 @@ class RequestSetSparkCache(Singleton):
         :param expire:
         :return:
         """
+
+        return
+
         # if os.path.exists(self.persistent_cache_file):
         #     shutil.rmtree(self.persistent_cache_file)
         #     # time.sleep(1)
@@ -365,7 +372,7 @@ class RequestSetSparkCache(Singleton):
                 '*'
             ).where(F.col('updated_at') >= update_date)
             new_count = self.__persistent_cache.count()
-            self.logger.info(f'Persistent cache size = {new_count} ({original_count - new_count})')
+            self.logger.info(f'Persistent cache size after expiration = {new_count} ({new_count-original_count})')
 
         # # write back to parquet - different file/folder though
         # # because self.parquet_name is already in use
