@@ -300,7 +300,6 @@ class RequestSetSparkCache(Singleton):
         # if os.path.exists(self.persistent_cache_file):
         #     shutil.rmtree(self.persistent_cache_file)
         #     # time.sleep(1)
-        return
 
         to_drop = [
             'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
@@ -311,7 +310,6 @@ class RequestSetSparkCache(Singleton):
         ]
         now = datetime.datetime.utcnow()
         source_df = source_df.persist(self.storage_level).alias('sd')
-        source_df = source_df.alias('sd')
 
         columns = source_df.columns
         columns.remove('first_ever_request')
