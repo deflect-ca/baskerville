@@ -189,7 +189,8 @@ class RequestSetSparkCache(Singleton):
     def update_df(
             self, df_to_update, join_cols=('target', 'ip'), select_cols=('*',)
     ):
-        return
+        return df_to_update
+
         self._changed = True
 
         if "*" in select_cols:
