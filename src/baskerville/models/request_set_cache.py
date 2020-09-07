@@ -246,6 +246,7 @@ class RequestSetSparkCache(Singleton):
         :param columns:
         :return:
         """
+        return
         if not columns:
             columns = df.columns
 
