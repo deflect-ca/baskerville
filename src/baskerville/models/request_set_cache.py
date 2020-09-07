@@ -271,7 +271,7 @@ class RequestSetSparkCache(Singleton):
                 how='inner'
             ).drop(
                 'a.ip'
-            ).persist(self.storage_level)
+            ) #xxx.persist(self.storage_level)
         else:
             self.load_empty(self.schema)
 
@@ -302,7 +302,7 @@ class RequestSetSparkCache(Singleton):
             'dt', 'id_client'
         ]
         now = datetime.datetime.utcnow()
-        source_df = source_df.persist(self.storage_level).alias('sd')
+        #xxx source_df = source_df.persist(self.storage_level).alias('sd')
 
         columns = source_df.columns
         columns.remove('first_ever_request')
@@ -311,20 +311,20 @@ class RequestSetSparkCache(Singleton):
 
         self.logger.debug(f'Source_df count = {source_df.count()}')
 
-        # read the whole thing again
-        if self.file_manager.path_exists(self.file_name):
-            self.__persistent_cache = self.session_getter().read.format(
-                self.format_
-            ).load(
-                self.file_name
-            ).persist(self.storage_level)
+        # # read the whole thing again
+        # if self.file_manager.path_exists(self.file_name):
+        #     self.__persistent_cache = self.session_getter().read.format(
+        #         self.format_
+        #     ).load(
+        #         self.file_name
+        #     )#xxx.persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
         self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
             self.__persistent_cache.select(*select_cols).alias('pc'),
             list(join_cols),
             how='full_outer'
-        ).persist(self.storage_level)
+        )#xxx.persist(self.storage_level)
 
         # mark rows to update
         self.__persistent_cache = self.__persistent_cache.withColumn(
@@ -470,7 +470,8 @@ class RequestSetSparkCache(Singleton):
     def persist(self):
         pass #xxx
         # xxx self.__cache = self.__cache.persist(self.storage_level)
-        
+
+
         # self.__cache.createOrReplaceTempView(self.__class__.__name__)
         # spark = self.session_getter()
         # spark.catalog.cacheTable(self.__class__.__name__)
