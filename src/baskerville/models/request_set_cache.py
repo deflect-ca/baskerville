@@ -207,7 +207,7 @@ class RequestSetSparkCache(Singleton):
             self.cache.select(*select_cols).alias('cache'),
             list(join_cols),
             how='left_outer'
-        ).persist(self.storage_level)
+        )#xxx.persist(self.storage_level)
 
         # update nulls and filter drop duplicate columns
         for c in select_cols:
@@ -468,7 +468,9 @@ class RequestSetSparkCache(Singleton):
         self.session_getter().sparkContext._jvm.System.gc()
 
     def persist(self):
-        self.__cache = self.__cache.persist(self.storage_level)
+        pass #xxx
+        # xxx self.__cache = self.__cache.persist(self.storage_level)
+        
         # self.__cache.createOrReplaceTempView(self.__class__.__name__)
         # spark = self.session_getter()
         # spark.catalog.cacheTable(self.__class__.__name__)
