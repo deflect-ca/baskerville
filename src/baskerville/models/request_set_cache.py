@@ -207,7 +207,7 @@ class RequestSetSparkCache(Singleton):
             self.cache.select(*select_cols).alias('cache'),
             list(join_cols),
             how='left_outer'
-        )#xxx.persist(self.storage_level)
+        ).persist(self.storage_level)
 
         # update nulls and filter drop duplicate columns
         for c in select_cols:
@@ -271,7 +271,7 @@ class RequestSetSparkCache(Singleton):
                 how='inner'
             ).drop(
                 'a.ip'
-            ) #xxx.persist(self.storage_level)
+            )#xxx.persist(self.storage_level)
         else:
             self.load_empty(self.schema)
 
@@ -303,6 +303,7 @@ class RequestSetSparkCache(Singleton):
         ]
         now = datetime.datetime.utcnow()
         #xxx source_df = source_df.persist(self.storage_level).alias('sd')
+        source_df = source_df.alias('sd')
 
         columns = source_df.columns
         columns.remove('first_ever_request')
@@ -317,7 +318,7 @@ class RequestSetSparkCache(Singleton):
         #         self.format_
         #     ).load(
         #         self.file_name
-        #     )#xxx.persist(self.storage_level)
+        #     ).persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
         self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
@@ -468,10 +469,8 @@ class RequestSetSparkCache(Singleton):
         self.session_getter().sparkContext._jvm.System.gc()
 
     def persist(self):
-        pass #xxx
         # xxx self.__cache = self.__cache.persist(self.storage_level)
-
-
+        pass
         # self.__cache.createOrReplaceTempView(self.__class__.__name__)
         # spark = self.session_getter()
         # spark.catalog.cacheTable(self.__class__.__name__)
