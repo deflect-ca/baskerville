@@ -189,8 +189,6 @@ class RequestSetSparkCache(Singleton):
     def update_df(
             self, df_to_update, join_cols=('target', 'ip'), select_cols=('*',)
     ):
-        return df_to_update
-
         self._changed = True
 
         if "*" in select_cols:
@@ -241,9 +239,6 @@ class RequestSetSparkCache(Singleton):
         :param columns:
         :return:
         """
-
-        return
-
         if not columns:
             columns = df.columns
 
@@ -295,9 +290,6 @@ class RequestSetSparkCache(Singleton):
         :param expire:
         :return:
         """
-
-        return
-
         # if os.path.exists(self.persistent_cache_file):
         #     shutil.rmtree(self.persistent_cache_file)
         #     # time.sleep(1)
