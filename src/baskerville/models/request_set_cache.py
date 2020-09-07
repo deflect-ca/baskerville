@@ -189,6 +189,13 @@ class RequestSetSparkCache(Singleton):
     def update_df(
             self, df_to_update, join_cols=('target', 'ip'), select_cols=('*',)
     ):
+        # xxx
+        for c in select_cols:
+            if c not in df_to_update.columns:
+                df_to_update = df_to_update.withColumn(c, F.lit(None))
+        self.logger.warning('Cache is empty')
+        return df_to_update
+
         self._changed = True
 
         if "*" in select_cols:
@@ -293,6 +300,7 @@ class RequestSetSparkCache(Singleton):
         # if os.path.exists(self.persistent_cache_file):
         #     shutil.rmtree(self.persistent_cache_file)
         #     # time.sleep(1)
+        return
 
         to_drop = [
             'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
