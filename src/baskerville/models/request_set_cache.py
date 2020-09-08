@@ -189,13 +189,6 @@ class RequestSetSparkCache(Singleton):
     def update_df(
             self, df_to_update, join_cols=('target', 'ip'), select_cols=('*',)
     ):
-        # xxx
-        for c in select_cols:
-            if c not in df_to_update.columns:
-                df_to_update = df_to_update.withColumn(c, F.lit(None))
-        self.logger.warning('Cache is empty')
-        return df_to_update
-
         self._changed = True
 
         if "*" in select_cols:
@@ -246,34 +239,13 @@ class RequestSetSparkCache(Singleton):
         :param columns:
         :return:
         """
-        return
         if not columns:
             columns = df.columns
 
-        # if self.file_manager.path_exists(self.persistent_cache_file):
-        #     self.__cache = self.session_getter().read.format(
-        #         self.format_
-        #     ).load(self.persistent_cache_file).join(
-        #         df,
-        #         on=columns,
-        #         how='inner'
-        #     ).drop(
-        #         'a.ip'
-        #     ).persist(self.storage_level)
-        # else:
-        #     if self.__cache:
-        #         self.__cache = self.__cache.join(
-        #             df,
-        #             on=columns,
-        #             how='inner'
-        #         ).drop(
-        #             'a.ip'
-        #         ).persist(self.storage_level)
-        #     else:
-        #         self.load_empty(self.schema)
-
-        if self.__persistent_cache:
-            self.__cache = self.__persistent_cache.join(
+        if self.file_manager.path_exists(self.persistent_cache_file):
+            self.__cache = self.session_getter().read.format(
+                self.format_
+            ).load(self.persistent_cache_file).join(
                 df,
                 on=columns,
                 how='inner'
@@ -281,7 +253,27 @@ class RequestSetSparkCache(Singleton):
                 'a.ip'
             ).persist(self.storage_level)
         else:
-            self.load_empty(self.schema)
+            if self.__cache:
+                self.__cache = self.__cache.join(
+                    df,
+                    on=columns,
+                    how='inner'
+                ).drop(
+                    'a.ip'
+                ).persist(self.storage_level)
+            else:
+                self.load_empty(self.schema)
+
+        # if self.__persistent_cache:
+        #     self.__cache = self.__persistent_cache.join(
+        #         df,
+        #         on=columns,
+        #         how='inner'
+        #     ).drop(
+        #         'a.ip'
+        #     ).persist(self.storage_level)
+        # else:
+        #     self.load_empty(self.schema)
 
     def update_self(
             self,
@@ -319,13 +311,13 @@ class RequestSetSparkCache(Singleton):
 
         self.logger.debug(f'Source_df count = {source_df.count()}')
 
-        # # read the whole thing again
-        # if self.file_manager.path_exists(self.file_name):
-        #     self.__persistent_cache = self.session_getter().read.format(
-        #         self.format_
-        #     ).load(
-        #         self.file_name
-        #     ).persist(self.storage_level)
+        # read the whole thing again
+        if self.file_manager.path_exists(self.file_name):
+            self.__persistent_cache = self.session_getter().read.format(
+                self.format_
+            ).load(
+                self.file_name
+            ).persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
         self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
@@ -374,17 +366,17 @@ class RequestSetSparkCache(Singleton):
             new_count = self.__persistent_cache.count()
             self.logger.info(f'Persistent cache size after expiration = {new_count} ({new_count-original_count})')
 
-        # # write back to parquet - different file/folder though
-        # # because self.parquet_name is already in use
-        # # rename temp to self.parquet_name
-        # if self.file_manager.path_exists(self.temp_file_name):
-        #     self.file_manager.delete_path(self.temp_file_name)
-        #
-        # self.__persistent_cache.write.mode(
-        #     'overwrite'
-        # ).format(
-        #     self.format_
-        # ).save(self.temp_file_name)
+        # write back to parquet - different file/folder though
+        # because self.parquet_name is already in use
+        # rename temp to self.parquet_name
+        if self.file_manager.path_exists(self.temp_file_name):
+            self.file_manager.delete_path(self.temp_file_name)
+
+        self.__persistent_cache.write.mode(
+            'overwrite'
+        ).format(
+            self.format_
+        ).save(self.temp_file_name)
 
         self.logger.debug(
             f'# Number of rows in persistent cache: '
@@ -396,12 +388,12 @@ class RequestSetSparkCache(Singleton):
         source_df = None
         del source_df
         self.empty_all()
-        #
-        # # rename temp to self.parquet_name
-        # if self.file_manager.path_exists(self.file_name):
-        #     self.file_manager.delete_path(self.file_name)
-        #
-        # self.file_manager.rename_path(self.temp_file_name, self.file_name)
+
+        # rename temp to self.parquet_name
+        if self.file_manager.path_exists(self.file_name):
+            self.file_manager.delete_path(self.file_name)
+
+        self.file_manager.rename_path(self.temp_file_name, self.file_name)
 
     def refresh(self, update_date, hosts, extra_filters=None):
         df = self._load(
@@ -470,11 +462,11 @@ class RequestSetSparkCache(Singleton):
     def empty_all(self):
         if self.__cache is not None:
             self.__cache.unpersist(blocking=True)
-        # if self.__persistent_cache is not None:
-        #     self.__persistent_cache.unpersist(blocking=True)
+        if self.__persistent_cache is not None:
+            self.__persistent_cache.unpersist(blocking=True)
 
         self.__cache = None
-        # self.__persistent_cache = None
+        self.__persistent_cache = None
         gc.collect()
         self.session_getter().sparkContext._jvm.System.gc()
 
