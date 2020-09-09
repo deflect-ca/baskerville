@@ -1261,35 +1261,23 @@ class AttackDetection(Task):
                                             F.lit(1.0)).otherwise(F.lit(0.)))
 
     def update_sliding_window(self):
-        df_increment = self.df.select('target', 'stop', 'prediction') \
-            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
-        df_increment = df_increment.persist(self.config.spark.storage_level)
-        self.logger.info(f'Sliding window increment size {df_increment.count()}...')
-
-        max_stop = df_increment.groupby().agg(F.max('stop')).collect()[0].asDict()['max(stop)']
-        self.logger.info(f'max_ts= {max_stop}')
-
-        total_size = df_increment.count()
-        for i in range(len(self.df_chunks)):
-            chunk = self.df_chunks[i]
-            chunk = chunk.filter(chunk.stop > max_stop -
-                                 F.expr(f'INTERVAL {self.config.engine.sliding_window} seconds'))
-            total_size += chunk.count()
-            self.df_chunks[i] = chunk if chunk.count() > 0 else chunk.unpersist()
-        self.df_chunks.append(df_increment)
-        self.df_chunks = [chunk for chunk in self.df_chunks if chunk.count() > 0]
-        self.logger.info(f'Sliding window size {total_size}...')
-
-    def get_attack_score(self):
-        attack_scores = []
-        for chunk in self.df_chunks:
-            attack_scores.append(chunk.groupBy('target').agg(
+        self.logger.info('Updating sliding window...')
+        df_increment = self.df.select('target', 'prediction').groupBy('target').agg(
                 F.count('prediction').alias('total'),
                 F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
                 F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
-            ).persist(self.config.spark.storage_level))
+            ).persist(self.config.spark.storage_level)
+        if len(self.df_chunks > self.config.engine.sliding_window_chunks):
+            self.df_chunks.pop()
 
-        df = reduce(DataFrame.unionAll, attack_scores).groupBy('target').agg(
+        total_size = df_increment.count()
+        for chunk in self.df_chunks:
+            total_size += chunk.count()
+        self.df_chunks.append(df_increment)
+        self.logger.info(f'Sliding window size {total_size}...')
+
+    def get_attack_score(self):
+        df = reduce(DataFrame.unionAll, self.df_chunks).groupBy('target').agg(
             F.sum('total').alias('total'),
             F.sum('regular').alias('regular'),
             F.sum('anomaly').alias('anomaly'),
