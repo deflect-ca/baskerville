@@ -267,7 +267,7 @@ class EngineConfig(Config):
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
-    sliding_window_chunks = 6
+    sliding_window = 240
     low_rate_attack_period = 600
     low_rate_attack_total_request = 400
 

@@ -1262,18 +1262,29 @@ class AttackDetection(Task):
 
     def update_sliding_window(self):
         self.logger.info('Updating sliding window...')
-        df_increment = self.df.select('target', 'prediction').groupBy('target').agg(
-                F.count('prediction').alias('total'),
-                F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
-                F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
-            ).persist(self.config.spark.storage_level)
-        if len(self.df_chunks) > self.config.engine.sliding_window_chunks:
+        df_increment = self.df.select('target', 'stop', 'prediction') \
+            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
+
+        increment_stop = df_increment.groupby().agg(F.max('stop')).collect()[0].asDict()['max(stop)']
+        self.logger.info(f'max_ts= {increment_stop}')
+
+        df_increment = self.df.select('target', 'stop', 'prediction'). \
+            withColumn('stop', F.to_timestamp(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')).groupBy('target').agg(
+            F.count('prediction').alias('total'),
+            F.max('stop').alias('ts'),
+            F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
+            F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
+        ).persist(self.config.spark.storage_level)
+
+        if len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
+                seconds=self.config.engine.sliding_window):
+            self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
             self.df_chunks.pop()
 
         total_size = df_increment.count()
         for chunk in self.df_chunks:
-            total_size += chunk.count()
-        self.df_chunks.append(df_increment)
+            total_size += chunk[0].count()
+        self.df_chunks.append((df_increment, increment_stop))
         self.logger.info(f'Sliding window size {total_size}...')
 
     def get_attack_score(self):
