@@ -1288,7 +1288,8 @@ class AttackDetection(Task):
         self.logger.info(f'Sliding window size {total_size}...')
 
     def get_attack_score(self):
-        df = reduce(DataFrame.unionAll, self.df_chunks).groupBy('target').agg(
+        chunks = [c[0] for c in self.df_chunks]
+        df = reduce(DataFrame.unionAll, chunks).groupBy('target').agg(
             F.sum('total').alias('total'),
             F.sum('regular').alias('regular'),
             F.sum('anomaly').alias('anomaly'),
