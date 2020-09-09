@@ -1312,13 +1312,13 @@ class AttackDetection(Task):
             (F.col('f.request_total') > self.config.engine.low_rate_attack_period) &
             ((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) >
              self.config.engine.low_rate_attack_total_request)
-        ).select('ip').withColumn('low_rate_attack', F.lit(1))
+        ).select('ip', 'target').withColumn('low_rate_attack', F.lit(1))
 
         if df_attackers.count() > 0:
             self.logger.info(f'Low rate attack -------------- {df_attackers.count()} ips')
             self.logger.info(df_attackers.show())
 
-        df = df.join(df_attackers, on='ip', how='left')
+        df = df.join(df_attackers.select('ip'), on='ip', how='left')
         return df
 
     def apply_white_list(self, df):
