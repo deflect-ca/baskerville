@@ -1249,10 +1249,13 @@ class AttackDetection(Task):
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
+        self.df_white_list = None
 
     def initialize(self):
         # super(SaveStats, self).initialize()
         self.set_metrics()
+        self.df_white_list = self.spark.createDataFrame(
+            [[ip] for ip in self.config.engine.white_list], ['ip']).withColumn('white_list', F.lit(1))
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
@@ -1317,6 +1320,17 @@ class AttackDetection(Task):
 
         return df
 
+    def apply_white_list(self, df):
+        df = df.join(self.df_white_list, on='ip', how='left')
+        num_white_listed = df.where((F.col('white_list') == 1) & F.col('prediction') == 1).count()
+        self.logger.info(f'White listing {num_white_listed} ips')
+
+        df = df.withColumn('attack_prediction', F.when(
+            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('attack_prediction')))
+        df = df.withColumn('prediction', F.when(
+            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('anomaly')))
+        return df
+
     def detect_attack(self):
         self.update_sliding_window()
         df_attack = self.get_attack_score()
@@ -1327,6 +1341,7 @@ class AttackDetection(Task):
 
         self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
         self.df = self.detect_low_rate_attack(self.df)
+        self.df = self.apply_white_list(self.df)
         return df_attack
 
     def set_metrics(self):

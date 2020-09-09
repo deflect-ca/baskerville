@@ -270,6 +270,7 @@ class EngineConfig(Config):
     sliding_window = 240
     low_rate_attack_period = 600
     low_rate_attack_total_request = 400
+    white_list = []
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
