@@ -1312,12 +1312,13 @@ class AttackDetection(Task):
             (F.col('f.request_total') > self.config.engine.low_rate_attack_period) &
             ((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) >
              self.config.engine.low_rate_attack_total_request)
-        ).select('ip')
+        ).select('ip').withColumn('low_rate_attack', F.lit(1))
 
         if df_attackers.count() > 0:
             self.logger.info(f'Low rate attack -------------- {df_attackers.count()} ips')
             self.logger.info(df_attackers.show())
 
+        df = df.join(self.df_attackers, on='ip', how='left')
         return df
 
     def apply_white_list(self, df):
@@ -1331,6 +1332,8 @@ class AttackDetection(Task):
             (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('attack_prediction')))
         df = df.withColumn('prediction', F.when(
             (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('prediction')))
+        df = df.withColumn('low_rate_attack', F.when(
+            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('low_rate_attack')))
         return df
 
     def detect_attack(self):
@@ -1402,7 +1405,10 @@ class AttackDetection(Task):
                     producer.send(self.config.kafka.banjax_command_topic, message)
                     producer.flush()
         elif self.config.engine.challenge == 'ip':
-            ips = self.df.select(['ip']).where((F.col('attack_prediction') == 1) & (F.col('prediction') == 1))
+            ips = self.df.select(['ip']).where(
+                (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
+                (F.col('low_rate_attack') == 1)
+            )
             records = ips.collect()
             num_records = len(records)
             if num_records > 0:
