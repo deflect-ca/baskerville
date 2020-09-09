@@ -1328,7 +1328,7 @@ class AttackDetection(Task):
         df = df.withColumn('attack_prediction', F.when(
             (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('attack_prediction')))
         df = df.withColumn('prediction', F.when(
-            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('anomaly')))
+            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('prediction')))
         return df
 
     def detect_attack(self):
