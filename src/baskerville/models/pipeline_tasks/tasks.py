@@ -1263,6 +1263,7 @@ class AttackDetection(Task):
     def update_sliding_window(self):
         df_increment = self.df.select('target', 'stop', 'prediction') \
             .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
+        df_increment = df_increment.persist(self.config.spark.storage_level)
         self.logger.info(f'Sliding window increment size {df_increment.count()}...')
 
         max_stop = df_increment.groupby().agg(F.max('stop')).collect()[0].asDict()['max(stop)']
@@ -1274,7 +1275,7 @@ class AttackDetection(Task):
             chunk = chunk.filter(chunk.stop > max_stop -
                                  F.expr(f'INTERVAL {self.config.engine.sliding_window} seconds'))
             total_size += chunk.count()
-            self.df_chunks[i] = chunk
+            self.df_chunks[i] = chunk if chunk.count() > 0 else chunk.unpersist()
         self.df_chunks.append(df_increment)
         self.df_chunks = [chunk for chunk in self.df_chunks if chunk.count() > 0]
         self.logger.info(f'Sliding window size {total_size}...')
