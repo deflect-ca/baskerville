@@ -1267,7 +1267,7 @@ class AttackDetection(Task):
                 F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
                 F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
             ).persist(self.config.spark.storage_level)
-        if len(self.df_chunks > self.config.engine.sliding_window_chunks):
+        if len(self.df_chunks) > self.config.engine.sliding_window_chunks:
             self.df_chunks.pop()
 
         total_size = df_increment.count()
