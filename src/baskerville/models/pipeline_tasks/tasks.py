@@ -1343,6 +1343,8 @@ class AttackDetection(Task):
         df_attack = df_attack.withColumn('attack_prediction', F.when(
             (F.col('attack_score') > self.config.engine.attack_threshold) &
             (F.col('total') > self.config.engine.minimum_number_attackers), F.lit(1)).otherwise(F.lit(0)))
+        self.logger.info('Attack score')
+        self.logger.info(df_attack.where(F.col('attack_prediction') == 1).show())
 
         self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
         self.df = self.detect_low_rate_attack(self.df)
