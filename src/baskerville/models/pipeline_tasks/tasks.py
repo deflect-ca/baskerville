@@ -13,7 +13,7 @@ import traceback
 
 import pyspark
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType, StructField, StructType
+from pyspark.sql.types import StringType, StructField, StructType, DoubleType
 from pyspark.streaming import StreamingContext
 from functools import reduce
 from pyspark.sql import DataFrame
@@ -1070,16 +1070,19 @@ class Train(Task):
 
         schema = StructType([])
         for feature in features:
-            feature_class = self.engine_conf.all_features[feature]
             schema.add(StructField(
                 name=feature,
-                dataType=feature_class.spark_type(),
+                dataType=StringType(),
                 nullable=True))
 
         dataset = dataset.withColumn(
             'features',
             F.from_json('features', schema)
         )
+        for feature in features:
+            column = f'features.{feature}'
+            feature_class = self.engine_conf.all_features[feature]
+            dataset = dataset.withColumn(column, F.col(column).cast(feature_class.spark_type()).alias(column))
 
         self.logger.debug(f'Loaded {dataset.count()} rows dataset...')
         return dataset
@@ -1305,6 +1308,7 @@ class AttackDetection(Task):
         schema = T.StructType()
         schema.add(StructField(name='request_total', dataType=StringType(), nullable=True))
         df = df.withColumn('f', F.from_json('features', schema))
+        df = df.withColumn('f.request_total', F.col('f.request_total').cast(DoubleType()).alias('f.request_total'))
 
         df_attackers = df.filter(
             (F.col('f.request_total') > self.config.engine.low_rate_attack_period) &
