@@ -13,7 +13,7 @@ import traceback
 
 import pyspark
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType, StructField
+from pyspark.sql.types import StringType, StructField, StructType
 from pyspark.streaming import StreamingContext
 from functools import reduce
 from pyspark.sql import DataFrame
@@ -1068,10 +1068,8 @@ class Train(Task):
                     fractions[key] = 1.0
             dataset = dataset.sampleBy('target', fractions, 777)
 
-        schema = self.spark.read.json(dataset.limit(1).rdd.map(lambda row: row.features)).schema
+        schema = StructType([])
         for feature in features:
-            if feature in schema.fieldNames():
-                continue
             feature_class = self.engine_conf.all_features[feature]
             schema.add(StructField(
                 name=feature,
