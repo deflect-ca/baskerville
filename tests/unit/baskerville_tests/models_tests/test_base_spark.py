@@ -708,7 +708,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'id_runtime': -1,
                 'request_set_prediction': -1,
                 'prediction': -1,
-                'attack_prediction: 0,'
+                'attack_prediction': 0,
+                'low_rate_attack': 0,
                 'num_requests': 10,
                 'label': -1,
                 'request_set_length': 2,
@@ -736,6 +737,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'request_set_prediction': -1,
                 'prediction': -1,
                 'attack_prediction': 0,
+                'low_rate_attack': 0,
                 'score': 0.0,
                 'num_requests': 2,
                 'request_set_length': 1,
