@@ -199,6 +199,7 @@ class RequestSetSparkCache(Singleton):
             for c in select_cols:
                 if c not in df_to_update.columns:
                     df_to_update = df_to_update.withColumn(c, F.lit(None))
+            self.logger.warning('Cache is empty')
             return df_to_update
 
         # https://issues.apache.org/jira/browse/SPARK-10925
@@ -238,11 +239,10 @@ class RequestSetSparkCache(Singleton):
         :param columns:
         :return:
         """
-        import os
         if not columns:
             columns = df.columns
 
-        if os.path.isdir(self.persistent_cache_file):
+        if self.file_manager.path_exists(self.persistent_cache_file):
             self.__cache = self.session_getter().read.format(
                 self.format_
             ).load(self.persistent_cache_file).join(
@@ -263,6 +263,17 @@ class RequestSetSparkCache(Singleton):
                 ).persist(self.storage_level)
             else:
                 self.load_empty(self.schema)
+
+        # if self.__persistent_cache:
+        #     self.__cache = self.__persistent_cache.join(
+        #         df,
+        #         on=columns,
+        #         how='inner'
+        #     ).drop(
+        #         'a.ip'
+        #     ).persist(self.storage_level)
+        # else:
+        #     self.load_empty(self.schema)
 
     def update_self(
             self,
@@ -345,12 +356,15 @@ class RequestSetSparkCache(Singleton):
 
         # remove old rows
         if expire:
+            original_count = self.__persistent_cache.count()
             update_date = now - datetime.timedelta(
                 seconds=self.expire_if_longer_than
             )
             self.__persistent_cache = self.__persistent_cache.select(
                 '*'
             ).where(F.col('updated_at') >= update_date)
+            new_count = self.__persistent_cache.count()
+            self.logger.info(f'Persistent cache size after expiration = {new_count} ({new_count-original_count})')
 
         # write back to parquet - different file/folder though
         # because self.parquet_name is already in use

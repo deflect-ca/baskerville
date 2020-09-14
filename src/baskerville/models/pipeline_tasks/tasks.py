@@ -13,8 +13,11 @@ import traceback
 
 import pyspark
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType, StructField
+from pyspark.sql.types import StringType, StructField, StructType, DoubleType
 from pyspark.streaming import StreamingContext
+from functools import reduce
+from pyspark.sql import DataFrame
+import pyspark.sql.functions as psf
 
 from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model
@@ -334,7 +337,7 @@ class GetDataPostgres(Task):
             self,
             config: BaskervilleConfig,
             steps: list = (),
-            columns_to_keep=('ip', 'target', 'created_at', 'features',),
+            columns_to_keep=('ip', 'target', 'stop', 'features',),
             from_date=None,
             to_date=None,
             training_days=None
@@ -982,9 +985,13 @@ class MergeWithSensitiveData(Task):
             .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
 
         self.df = self.df.alias('df')
+        count = self.df.count()
         self.df = self.redis_df.join(
             self.df, on=['id_client', 'id_request_sets']
         ).drop('df.id_client', 'df.id_request_sets')
+
+        if count != self.df.count():
+            self.logger.warning(f'Failed to retrieve {count - self.df.count()} records from Redis')
 
         self.df = super().run()
         return self.df
@@ -1061,20 +1068,21 @@ class Train(Task):
                     fractions[key] = 1.0
             dataset = dataset.sampleBy('target', fractions, 777)
 
-        schema = self.spark.read.json(dataset.limit(1).rdd.map(lambda row: row.features)).schema
+        schema = StructType([])
         for feature in features:
-            if feature in schema.fieldNames():
-                continue
-            feature_class = self.engine_conf.all_features[feature]
             schema.add(StructField(
                 name=feature,
-                dataType=feature_class.spark_type(),
+                dataType=StringType(),
                 nullable=True))
 
         dataset = dataset.withColumn(
             'features',
             F.from_json('features', schema)
         )
+        for feature in features:
+            column = f'features.{feature}'
+            feature_class = self.engine_conf.all_features[feature]
+            dataset = dataset.withColumn(column, F.col(column).cast(feature_class.spark_type()).alias(column))
 
         self.logger.debug(f'Loaded {dataset.count()} rows dataset...')
         return dataset
@@ -1239,9 +1247,16 @@ class AttackDetection(Task):
     """
     collected_df_attack = None
 
+    def __init__(self, config, steps=()):
+        super().__init__(config, steps)
+        self.df_chunks = []
+        self.df_white_list = None
+
     def initialize(self):
         # super(SaveStats, self).initialize()
         self.set_metrics()
+        self.df_white_list = self.spark.createDataFrame(
+            [[ip] for ip in self.config.engine.white_list], ['ip']).withColumn('white_list', F.lit(1))
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
@@ -1249,50 +1264,106 @@ class AttackDetection(Task):
                                      F.when(F.col('score') > self.config.engine.anomaly_threshold,
                                             F.lit(1.0)).otherwise(F.lit(0.)))
 
-    def detect_attack(self):
-        self.logger.info('Attack detection...')
+    def update_sliding_window(self):
+        self.logger.info('Updating sliding window...')
+        df_increment = self.df.select('target', 'stop', 'prediction') \
+            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
 
-        df_attack = self.df.select(
-            'id_request_sets', 'target_original', 'features', 'prediction', 'score'
-        ).groupBy('target_original').agg(
-            F.count('prediction').alias('count'),
+        increment_stop = df_increment.groupby().agg(F.max('stop')).collect()[0].asDict()['max(stop)']
+        self.logger.info(f'max_ts= {increment_stop}')
+
+        df_increment = self.df.select('target', 'stop', 'prediction'). \
+            withColumn('stop', F.to_timestamp(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')).groupBy('target').agg(
+            F.count('prediction').alias('total'),
+            F.max('stop').alias('ts'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
-            F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly'),
-            F.avg('prediction').alias('attack_score')
-        ).where(
-            F.col('count') > self.config.engine.minimum_number_attackers
+            F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
         ).persist(self.config.spark.storage_level)
 
-        df_attack = df_attack.withColumn(
-            'attack_prediction',
-            F.when(
-                F.col('attack_score') > self.config.engine.attack_threshold,
-                F.col('attack_score')
-            ).otherwise(F.lit(0))
+        if len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
+                seconds=self.config.engine.sliding_window):
+            self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
+            self.df_chunks.pop()
+
+        total_size = df_increment.count()
+        for chunk in self.df_chunks:
+            total_size += chunk[0].count()
+        self.df_chunks.append((df_increment, increment_stop))
+        self.logger.info(f'Sliding window size {total_size}...')
+
+    def get_attack_score(self):
+        chunks = [c[0] for c in self.df_chunks]
+        df = reduce(DataFrame.unionAll, chunks).groupBy('target').agg(
+            F.sum('total').alias('total'),
+            F.sum('regular').alias('regular'),
+            F.sum('anomaly').alias('anomaly'),
         )
 
+        df = df.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float')) \
+            .persist(self.config.spark.storage_level)
+
+        return df
+
+    def detect_low_rate_attack(self, df):
+        schema = T.StructType()
+        schema.add(StructField(name='request_total', dataType=StringType(), nullable=True))
+        df = df.withColumn('f', F.from_json('features', schema))
+        df = df.withColumn('f.request_total', F.col('f.request_total').cast(DoubleType()).alias('f.request_total'))
+
+        df_attackers = df.filter(
+            (F.col('f.request_total') > self.config.engine.low_rate_attack_period) &
+            ((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) >
+             self.config.engine.low_rate_attack_total_request)
+        ).select('ip', 'target', 'f.request_total', 'start').withColumn('low_rate_attack', F.lit(1))
+
+        if df_attackers.count() > 0:
+            self.logger.info(f'Low rate attack -------------- {df_attackers.count()} ips')
+            self.logger.info(df_attackers.show())
+
+        df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
+        return df
+
+    def apply_white_list(self, df):
+        df = df.join(self.df_white_list, on='ip', how='left')
+        white_listed = df.where((F.col('white_list') == 1) & (F.col('prediction') == 1))
+        if white_listed.count() > 0:
+            self.logger.info(f'White listing {white_listed.count()} ips')
+            self.logger.info(white_listed.select('ip').show())
+
+        df = df.withColumn('attack_prediction', F.when(
+            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('attack_prediction')))
+        df = df.withColumn('prediction', F.when(
+            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('prediction')))
+        df = df.withColumn('low_rate_attack', F.when(
+            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('low_rate_attack')))
+        return df
+
+    def detect_attack(self):
+        self.update_sliding_window()
+        df_attack = self.get_attack_score()
+
+        df_attack = df_attack.withColumn('attack_prediction', F.when(
+            (F.col('attack_score') > self.config.engine.attack_threshold) &
+            (F.col('total') > self.config.engine.minimum_number_attackers), F.lit(1)).otherwise(F.lit(0)))
+
+        self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
+        self.df = self.detect_low_rate_attack(self.df)
+        self.df = self.apply_white_list(self.df)
         return df_attack
 
     def set_metrics(self):
         # Perhaps using an additional label and one metric could be better
-        # than two - performance-wise. But that will add another dimension
+        # than two - performan ce-wise. But that will add another dimension
         # in Prometheus
         from baskerville.models.metrics.registry import metrics_registry
         from baskerville.util.enums import MetricClassEnum
         from baskerville.models.metrics.helpers import set_attack_score, \
-            set_anomaly_count_metric, set_attack_prediction
+            set_attack_prediction, set_attack_threshold
 
         run = metrics_registry.register_action_hook(
             self.run,
-            set_anomaly_count_metric,
-            metric_cls=MetricClassEnum.histogram,
-            metric_name='anomaly_count',
-            labelnames=['target', 'kind']
-        )
-        run = metrics_registry.register_action_hook(
-            run,
             set_attack_score,
-            metric_cls=MetricClassEnum.histogram,
+            metric_cls=MetricClassEnum.gauge,
             metric_name='attack_score',
             labelnames=['target']
         )
@@ -1300,37 +1371,58 @@ class AttackDetection(Task):
         run = metrics_registry.register_action_hook(
             run,
             set_attack_prediction,
-            metric_cls=MetricClassEnum.histogram,
+            metric_cls=MetricClassEnum.gauge,
             metric_name='attack_prediction',
             labelnames=['target']
+        )
+
+        run = metrics_registry.register_action_hook(
+            run,
+            set_attack_threshold,
+            metric_cls=MetricClassEnum.gauge,
+            metric_name='baskerville_config',
+            labelnames=['value']
         )
 
         setattr(self, 'run', run)
         self.logger.info('Attack score metric set')
 
     def send_challenge(self, df_attack):
-        self.logger.info(f'Sending challenge commands to kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
-
         producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
         if self.config.engine.challenge == 'host':
-            records = df_attack.where(F.col('attack_prediction') == 1).collect()
-            for record in records:
-                message = json.dumps(
-                    {'name': 'challenge_host', 'value': record['target_original']}
-                ).encode('utf-8')
-                producer.send(self.config.kafka.banjax_command_topic, message)
-                producer.flush()
+            df_host_challenge = df_attack.where(F.col('attack_prediction') == 1)
+            df_host_challenge = df_host_challenge.select('target').distinct().join(
+                self.df.select('target', 'target_original').distinct(), on='target', how='left')
+
+            records = df_host_challenge.select('target_original').distinct().collect()
+            num_records = len(records)
+            if num_records > 0:
+                self.logger.info(
+                    f'Sending {num_records} HOST challenge commands to kafka '
+                    f'topic \'{self.config.kafka.banjax_command_topic}\'...')
+                for record in records:
+                    message = json.dumps(
+                        {'name': 'challenge_host', 'value': record['target_original']}
+                    ).encode('utf-8')
+                    producer.send(self.config.kafka.banjax_command_topic, message)
+                    producer.flush()
         elif self.config.engine.challenge == 'ip':
-            ips = self.df.select(['ip', 'target_original', 'prediction'])\
-                .join(df_attack.select(['target_original', 'attack_prediction']), on='target_original', how='left') \
-                .where((F.col('attack_prediction') == 1) & (F.col('prediction') == 1))
+            ips = self.df.select(['ip']).where(
+                (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
+                (F.col('low_rate_attack') == 1)
+            )
             records = ips.collect()
-            for record in records:
-                message = json.dumps(
-                    {'name': 'challenge_ip', 'value': record['ip']}
-                ).encode('utf-8')
-                producer.send(self.config.kafka.banjax_command_topic, message)
-                producer.flush()
+            num_records = len(records)
+            if num_records > 0:
+                self.logger.info(
+                    f'Sending {num_records} IP challenge commands to '
+                    f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+                for record in records:
+                    message = json.dumps(
+                        {'name': 'challenge_ip', 'value': record['ip']}
+                    ).encode('utf-8')
+                    producer.send(self.config.kafka.banjax_command_topic, message)
+                    producer.flush()
 
     def run(self):
         self.classify_anomalies()

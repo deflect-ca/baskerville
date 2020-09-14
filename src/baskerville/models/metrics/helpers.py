@@ -46,6 +46,7 @@ def set__self__(fn):
     :param func fn:
     :return:
     """
+
     @wraps(fn)
     def wrapped_f(self, func_to_watch_for, *args, **kwargs):
         if not has_self(func_to_watch_for):
@@ -131,7 +132,7 @@ def set_attack_score(metric, self, result):
     if not self.collected_df_attack:
         return
     for row in self.collected_df_attack:
-        metric.labels(target=row.target_original).observe(row.attack_score)
+        metric.labels(target=row.target).set(row.attack_score)
 
 
 def set_attack_prediction(metric, self, result):
@@ -141,20 +142,8 @@ def set_attack_prediction(metric, self, result):
     if not self.collected_df_attack:
         return
     for row in self.collected_df_attack:
-        metric.labels(target=row.target_original).observe(row.attack_prediction)
+        metric.labels(target=row.target).set(row.attack_prediction)
 
 
-def set_anomaly_count_metric(metric, self, result):
-    """
-    For every target, it sets the regular and the anomaly counts
-    """
-    if not self.collected_df_attack:
-        return
-
-    for row in self.collected_df_attack:
-        metric.labels(
-            target=row.target_original, kind='regular'
-        ).observe(row.regular)
-        metric.labels(
-            target=row.target_original, kind='anomaly'
-        ).observe(row.anomaly)
+def set_attack_threshold(metric, self, result):
+    metric.labels(value='attack_threshold').set(self.config.engine.attack_threshold)
