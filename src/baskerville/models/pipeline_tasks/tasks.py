@@ -1084,9 +1084,6 @@ class Train(Task):
             feature_class = self.engine_conf.all_features[feature]
             dataset = dataset.withColumn(column, F.col(column).cast(feature_class.spark_type()).alias(column))
 
-        dataset = dataset.withColumn('features.host_country',
-                                     F.concat(F.col("features.host"), F.lit("_"), F.col("features.country")))
-
         self.logger.debug(f'Loaded {dataset.count()} rows dataset...')
         return dataset
 
@@ -1124,17 +1121,19 @@ class Train(Task):
                 'string': features_class.spark_type() == StringType()
             }
 
-        model_features['host_country'] = {
-            'categorical': True,
-            'string': True
-        }
-
         params['features'] = model_features
 
         self.model.set_params(**params)
         self.model.set_logger(self.logger)
 
         dataset = self.load_dataset(self.df, self.model.features)
+
+        self.model.features['host_country'] = {
+            'categorical': True,
+            'string': True
+        }
+        dataset = dataset.withColumn('features.host_country',
+                                     F.concat(F.col("features.host"), F.lit("_"), F.col("features.country")))
 
         self.model.train(dataset)
         dataset.unpersist()
