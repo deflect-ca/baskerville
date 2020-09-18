@@ -1075,6 +1075,11 @@ class Train(Task):
                 dataType=StringType(),
                 nullable=True))
 
+        schema.add(StructField(
+            name='host_country',
+            dataType=StringType(),
+            nullable=True))
+
         dataset = dataset.withColumn(
             'features',
             F.from_json('features', schema)
