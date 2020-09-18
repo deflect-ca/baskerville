@@ -55,17 +55,40 @@ engine:
       - 'path2/log2.json'
       - 'path/to/somename*/*'         # use * to match folder names and files, spark will load them all in one dataframe if they are of the same format
   training:                           # Optional: only for the Training pipeline
-    model: 'baskerville.models.anomaly_model.AnomalyModel' # which model to use, see baskerville.util.enums.ModelEnum
-    data_parameters:                  # to define the training period, either use training_days or from/ to date
-#      training_days: 30               # today - training_days
-      from_date: '2020-03-01 20:59:59'
-      to_date: '2020-03-05 13:01:01'
-    model_parameters:        # depending on the model chosen, provide the training parameters, as you would to instantiate the class
-      num_trees: 100  # number of trees
-      max_samples: 100 # number of samples per tree
-      categorical_features: ['target'] # the list of categorical features
-#      contamination: 0.1 # the target portion of anomalies in the dataset. Either use contamination or threshold
-      threshold: 0.45 # the threshold for anomalies in the dataset. Either use contamination or threshold
+    model: 'baskerville.models.anomaly_model.AnomalyModel'
+    data_parameters:
+      #training_days: 30
+      from_date: '2020-07-06 18:00:00'
+      to_date: '2020-07-10 17:00:00'
+      max_samples_per_host: 5000
+    model_parameters:
+      threshold: 0.45
+      max_samples: 1000
+      #contamination: 0.1
+      num_trees: 300
+      max_depth: 10
+      max_features: 1.0
+      #approximate_quantile_relative_error: 0.4
+      features:
+        - host
+        # - country
+        - request_rate
+        - css_to_html_ratio
+        - image_to_html_ratio
+        - js_to_html_ratio
+        - path_depth_average
+        - path_depth_variance
+        - payload_size_average
+        - payload_size_log_average
+        - request_interval_average
+        - request_interval_variance
+        - response4xx_to_request_ratio
+        - top_page_to_request_ratio
+        - unique_path_rate
+        - unique_path_to_request_ratio
+        - unique_query_rate
+        - unique_query_to_unique_path_ratio
+        - unique_ua_rate
   simulation:                     # Optional: used only to test the kafka pipeline
     sleep: True
     verbose: True
@@ -103,14 +126,12 @@ engine:
   logpath: /where/to/save/logs.log
   log_level: 'ERROR'
 
-# Optional: used only by the Kafka Pipeline
 kafka:
-  bootstrap_servers: '0.0.0.0:9092'       # ip: port for kafka
-  zookeeper: 'localhost:2181'             # ip: port for zookeeper
+  url: !ENV '${KAFKA_HOST}:9092'       # ip: port for kafka
+  zookeeper: !ENV '${KAFKA_HOST}:2181'             # ip: port for zookeeper
   logs_topic: 'incoming.logs'             # which should baskerville consume
   features_topic: 'features'              # used in isac mode: where to send the feature vectors
   predictions_topic: 'predictions'        # used in isac mode: where to send/ listen for predictions
-  consume_group: 'baskerville'            # a name for the consume group
 
 spark:
   app_name: 'Baskerville'   # the application name - can be changed for two different runs - used by the spark UI
