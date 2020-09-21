@@ -13,7 +13,7 @@ class FeatureHostCountry(UpdaterReplace):
     """
     The host + country of IP
     """
-    COLUMNS = ['geoip_country_name', 'client_request_host']
+    COLUMNS = ['geoip_country_name_hc', 'client_request_host']
 
     def __init__(self):
         super(FeatureHostCountry, self).__init__()
