@@ -1075,11 +1075,6 @@ class Train(Task):
                 dataType=StringType(),
                 nullable=True))
 
-        schema.add(StructField(
-            name='host_country',
-            dataType=StringType(),
-            nullable=True))
-
         dataset = dataset.withColumn(
             'features',
             F.from_json('features', schema)
@@ -1125,20 +1120,12 @@ class Train(Task):
                 'categorical': features_class.is_categorical(),
                 'string': features_class.spark_type() == StringType()
             }
-
         params['features'] = model_features
 
         self.model.set_params(**params)
         self.model.set_logger(self.logger)
 
         dataset = self.load_dataset(self.df, self.model.features)
-
-        self.model.features['host_country'] = {
-            'categorical': True,
-            'string': True
-        }
-        dataset = dataset.withColumn('features.host_country',
-                                     F.concat(F.col("features.host"), F.lit("_"), F.col("features.country")))
 
         self.model.train(dataset)
         dataset.unpersist()
