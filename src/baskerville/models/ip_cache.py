@@ -24,7 +24,7 @@ class IPCache(object):
         original_count = df.count()
         df = df.join(self.cache[['ip']], on='ip', how='leftanti')
         new_count = df.count()
-        self.logger.info(f'IP cache total:{self.cache.count()}, existing:{original_count - new_count}, new:{new_count}')
+        self.logger.info(f'IP cache:, existing:{original_count - new_count}, new:{new_count}')
 
         # remove expired records
         self.logger.info('IP cache removing expired records...')
@@ -37,7 +37,8 @@ class IPCache(object):
 
         # add the new increment
         self.logger.info('IP cache union...')
-        self.cache = self.cache.union(increment)
+        self.cache = self.cache.union(increment).persist()
+        self.logger.info(f'IP cache new total:{self.cache.count()}')
 
         return df
 
