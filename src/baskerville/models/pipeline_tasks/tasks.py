@@ -1421,7 +1421,7 @@ class AttackDetection(Task):
                 (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
                 (F.col('low_rate_attack') == 1)
             )
-            ips = self.ip_cache.filter(ips)
+            ips = self.ip_cache.update(ips)
             records = ips.collect()
             num_records = len(records)
             if num_records > 0:
@@ -1434,7 +1434,6 @@ class AttackDetection(Task):
                     ).encode('utf-8')
                     producer.send(self.config.kafka.banjax_command_topic, message)
                     producer.flush()
-                self.ip_cache.add(ips)
 
     def run(self):
         self.classify_anomalies()
