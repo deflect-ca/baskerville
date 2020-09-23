@@ -1341,14 +1341,22 @@ class AttackDetection(Task):
         return df
 
     def detect_attack(self):
-        self.update_sliding_window()
-        df_attack = self.get_attack_score()
+        if self.config.engine.attack_threshold == 0:
+            self.logger.info('Attack threshold is 0. No sliding window')
+            df_attack = self.df[['target']].distinct()\
+                .withColumn('attack_prediction', F.lit(1))\
+                .withColumn('attack_score', F.lit(1))
+            self.df = self.df.withColumn('attack_prediction', F.lit(1))
+        else:
+            self.update_sliding_window()
+            df_attack = self.get_attack_score()
 
-        df_attack = df_attack.withColumn('attack_prediction', F.when(
-            (F.col('attack_score') > self.config.engine.attack_threshold) &
-            (F.col('total') > self.config.engine.minimum_number_attackers), F.lit(1)).otherwise(F.lit(0)))
+            df_attack = df_attack.withColumn('attack_prediction', F.when(
+                (F.col('attack_score') > self.config.engine.attack_threshold) &
+                (F.col('total') > self.config.engine.minimum_number_attackers), F.lit(1)).otherwise(F.lit(0)))
 
-        self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
+            self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
+
         self.df = self.detect_low_rate_attack(self.df)
         self.df = self.apply_white_list(self.df)
         return df_attack

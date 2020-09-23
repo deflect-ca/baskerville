@@ -262,7 +262,7 @@ class EngineConfig(Config):
     load_test = False
     trigger_challenge = True
     anomaly_threshold = 0.45
-    attack_threshold = 0.75
+    attack_threshold = 0.0
     minimum_number_attackers = 50
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
