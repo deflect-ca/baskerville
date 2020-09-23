@@ -271,6 +271,7 @@ class EngineConfig(Config):
     low_rate_attack_period = 600
     low_rate_attack_total_request = 400
     white_list = []
+    ip_cache_ttl = 60*60
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)

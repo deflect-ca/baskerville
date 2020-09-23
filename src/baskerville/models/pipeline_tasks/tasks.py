@@ -21,6 +21,7 @@ import pyspark.sql.functions as psf
 
 from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model
+from baskerville.models.ip_cache import IPCache
 from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
     CacheTask
 from baskerville.models.config import BaskervilleConfig
@@ -1251,6 +1252,7 @@ class AttackDetection(Task):
         super().__init__(config, steps)
         self.df_chunks = []
         self.df_white_list = None
+        self.ip_cache = IPCache(self.logger, self.config.engine.ip_cache_ttl)
 
     def initialize(self):
         # super(SaveStats, self).initialize()
@@ -1411,6 +1413,7 @@ class AttackDetection(Task):
                 (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
                 (F.col('low_rate_attack') == 1)
             )
+            ips = self.ip_cache.filter(ips)
             records = ips.collect()
             num_records = len(records)
             if num_records > 0:
@@ -1423,6 +1426,7 @@ class AttackDetection(Task):
                     ).encode('utf-8')
                     producer.send(self.config.kafka.banjax_command_topic, message)
                     producer.flush()
+                self.ip_cache.add(ips)
 
     def run(self):
         self.classify_anomalies()
