@@ -1341,8 +1341,9 @@ class AttackDetection(Task):
     def detect_attack(self):
         if self.config.engine.attack_threshold == 0:
             self.logger.info('Attack threshold is 0. No sliding window')
-            df_attack = self.df[['target']].distinct()
-            df_attack = df_attack.withColumn('attack_prediction', F.lit(1))
+            df_attack = self.df[['target']].distinct()\
+                .withColumn('attack_prediction', F.lit(1))\
+                .withColumn('attack_score', F.lit(1))
             self.df = self.df.withColumn('attack_prediction', F.lit(1))
         else:
             self.update_sliding_window()
