@@ -38,7 +38,7 @@ class IPCache(object):
         # add the new increment
         self.logger.info('IP cache union...')
         self.cache = self.cache.union(increment).persist()
-        self.logger.info(f'IP cache new total:{self.cache.count()}')
+        # self.logger.info(f'IP cache new total:{self.cache.count()}')
 
         return df
 
