@@ -82,7 +82,7 @@ class GetDataKafka(Task):
             self.data_parser.schema
         ).repartition(
             *self.group_by_cols
-        )#.persist(
+        )#ppp.persist(
          #   self.config.spark.storage_level
         #)
 
@@ -185,7 +185,7 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        )#.persist(
+        )#ppp.persist(
          #   self.config.spark.storage_level
         #)
         # self.df.show()
@@ -284,7 +284,7 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        )#.persist(
+        )#ppp.persist(
          #   self.config.spark.storage_level)
 
         self.logger.info('Got dataframe of #{} records'.format(
@@ -681,7 +681,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        #self.df.persist(self.config.spark.storage_level)
+        #pppself.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -1057,7 +1057,7 @@ class Train(Task):
         super().initialize()
 
     def load_dataset(self, df, features):
-        dataset = df #.persist(self.spark_conf.storage_level)
+        dataset = df #.ppppersist(self.spark_conf.storage_level)
 
         if self.training_conf.max_samples_per_host:
             counts = dataset.groupby('target').count()
@@ -1278,7 +1278,7 @@ class AttackDetection(Task):
             F.max('stop').alias('ts'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
             F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
-        )#.persist(self.config.spark.storage_level)
+        )#ppp.persist(self.config.spark.storage_level)
 
         if len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
                 seconds=self.config.engine.sliding_window):
@@ -1300,7 +1300,7 @@ class AttackDetection(Task):
         )
 
         df = df.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float')) \
-            #.persist(self.config.spark.storage_level)
+            #ppp.persist(self.config.spark.storage_level)
 
         return df
 

@@ -153,7 +153,7 @@ class RequestSetSparkCache(Singleton):
             update_date=update_date,
             hosts=hosts,
             extra_filters=extra_filters
-        )#.persist(self.storage_level)
+        )#ppp.persist(self.storage_level)
 
         self.write()
 
@@ -207,7 +207,7 @@ class RequestSetSparkCache(Singleton):
             self.cache.select(*select_cols).alias('cache'),
             list(join_cols),
             how='left_outer'
-        )#.persist(self.storage_level)
+        )#ppp.persist(self.storage_level)
 
         # update nulls and filter drop duplicate columns
         for c in select_cols:
@@ -251,7 +251,7 @@ class RequestSetSparkCache(Singleton):
                 how='inner'
             ).drop(
                 'a.ip'
-            )#.persist(self.storage_level)
+            )#ppp.persist(self.storage_level)
         else:
             if self.__cache:
                 self.__cache = self.__cache.join(
@@ -260,7 +260,7 @@ class RequestSetSparkCache(Singleton):
                     how='inner'
                 ).drop(
                     'a.ip'
-                )#.persist(self.storage_level)
+                )#ppp.persist(self.storage_level)
             else:
                 self.load_empty(self.schema)
 
@@ -302,7 +302,7 @@ class RequestSetSparkCache(Singleton):
             'dt', 'id_client'
         ]
         now = datetime.datetime.utcnow()
-        # source_df = source_df.persist(self.storage_level).alias('sd')
+        #ppp source_df = source_df.persist(self.storage_level).alias('sd')
         source_df = source_df.alias('sd')
 
         columns = source_df.columns
@@ -318,14 +318,14 @@ class RequestSetSparkCache(Singleton):
                 self.format_
             ).load(
                 self.file_name
-            )#.persist(self.storage_level)
+            )#ppp.persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
         self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
             self.__persistent_cache.select(*select_cols).alias('pc'),
             list(join_cols),
             how='full_outer'
-        )#.persist(self.storage_level)
+        )#ppp.persist(self.storage_level)
 
         # mark rows to update
         self.__persistent_cache = self.__persistent_cache.withColumn(
@@ -473,7 +473,7 @@ class RequestSetSparkCache(Singleton):
 
     def persist(self):
         pass
-        #self.__cache = self.__cache.persist(self.storage_level)
+        #pppself.__cache = self.__cache.persist(self.storage_level)
         # self.__cache.createOrReplaceTempView(self.__class__.__name__)
         # spark = self.session_getter()
         # spark.catalog.cacheTable(self.__class__.__name__)
