@@ -1307,6 +1307,7 @@ class AttackDetection(Task):
         return df
 
     def detect_low_rate_attack(self, df):
+        self.logger.info('Low rate attack detecting...')
         schema = T.StructType()
         schema.add(StructField(name='request_total', dataType=StringType(), nullable=True))
         df = df.withColumn('f', F.from_json('features', schema))
@@ -1326,6 +1327,7 @@ class AttackDetection(Task):
         return df
 
     def apply_white_list(self, df):
+        self.logger.info('White listing...')
         df = df.join(self.df_white_list, on='ip', how='left')
         white_listed = df.where((F.col('white_list') == 1) & (F.col('prediction') == 1))
         if white_listed.count() > 0:
