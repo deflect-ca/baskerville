@@ -15,8 +15,9 @@ class IPCache(object):
         self.logger = logger
 
     def update(self, records):
-        result = []
+        self.logger.info('IP cache updating...')
 
+        result = []
         for r in records:
             if r['ip'] not in self.cache:
                 result.append(r)
