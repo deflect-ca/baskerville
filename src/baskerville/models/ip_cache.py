@@ -16,6 +16,9 @@ class IPCache(object):
 
     def update(self, records):
         self.logger.info('IP cache updating...')
+        if len(self.cache) > 0.98 * self.cache.maxsize:
+            raise RuntimeError(
+                'IP cache is 98% full. Please increase parameter ip_cache_size or/and reduce ip_cache_ttl')
 
         result = []
         for r in records:

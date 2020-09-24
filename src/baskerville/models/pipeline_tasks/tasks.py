@@ -1252,7 +1252,9 @@ class AttackDetection(Task):
         super().__init__(config, steps)
         self.df_chunks = []
         self.df_white_list = None
-        self.ip_cache = IPCache(self.logger, self.config.engine.ip_cache_ttl)
+        self.ip_cache = IPCache(self.logger,
+                                ttl=self.config.engine.ip_cache_ttl,
+                                max_size=self.config.engine.ip_cache_size)
 
     def initialize(self):
         # super(SaveStats, self).initialize()
