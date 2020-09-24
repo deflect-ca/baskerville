@@ -1366,44 +1366,45 @@ class AttackDetection(Task):
         return df_attack
 
     def send_challenge(self, df_attack):
-        producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
-        if self.config.engine.challenge == 'host':
-            df_host_challenge = df_attack.where(F.col('attack_prediction') == 1)
-            df_host_challenge = df_host_challenge.select('target').distinct().join(
-                self.df.select('target', 'target_original').distinct(), on='target', how='left')
-
-            records = df_host_challenge.select('target_original').distinct().collect()
-            num_records = len(records)
-            if num_records > 0:
-                self.logger.info(
-                    f'Sending {num_records} HOST challenge commands to kafka '
-                    f'topic \'{self.config.kafka.banjax_command_topic}\'...')
-                for record in records:
-                    message = json.dumps(
-                        {'name': 'challenge_host', 'value': record['target_original']}
-                    ).encode('utf-8')
-                    producer.send(self.config.kafka.banjax_command_topic, message)
-                    producer.flush()
-        elif self.config.engine.challenge == 'ip':
-            ips = self.df.select(['ip']).where(
-                (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
-                (F.col('low_rate_attack') == 1)
-            )
-            records = ips.collect()
-            num_records = len(records)
-            if num_records > 0:
-                self.logger.info(
-                    f'Sending {num_records} IP challenge commands to '
-                    f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
-                for record in records:
-                    message = json.dumps(
-                        {'name': 'challenge_ip', 'value': record['ip']}
-                    ).encode('utf-8')
-                    producer.send(self.config.kafka.banjax_command_topic, message)
-                    producer.flush()
         if self.config.engine.challenge:
-            self.logger.debug('No challenge flag is set, moving on...')
+
+            producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
+            if self.config.engine.challenge == 'host':
+                df_host_challenge = df_attack.where(F.col('attack_prediction') == 1)
+                df_host_challenge = df_host_challenge.select('target').distinct().join(
+                    self.df.select('target', 'target_original').distinct(), on='target', how='left')
+
+                records = df_host_challenge.select('target_original').distinct().collect()
+                num_records = len(records)
+                if num_records > 0:
+                    self.logger.info(
+                        f'Sending {num_records} HOST challenge commands to kafka '
+                        f'topic \'{self.config.kafka.banjax_command_topic}\'...')
+                    for record in records:
+                        message = json.dumps(
+                            {'name': 'challenge_host', 'value': record['target_original']}
+                        ).encode('utf-8')
+                        producer.send(self.config.kafka.banjax_command_topic, message)
+                        producer.flush()
+            elif self.config.engine.challenge == 'ip':
+                ips = self.df.select(['ip']).where(
+                    (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
+                    (F.col('low_rate_attack') == 1)
+                )
+                records = ips.collect()
+                num_records = len(records)
+                if num_records > 0:
+                    self.logger.info(
+                        f'Sending {num_records} IP challenge commands to '
+                        f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+                    for record in records:
+                        message = json.dumps(
+                            {'name': 'challenge_ip', 'value': record['ip']}
+                        ).encode('utf-8')
+                        producer.send(self.config.kafka.banjax_command_topic, message)
+                        producer.flush()
         else:
+            self.logger.debug('No challenge flag is set, moving on...')
 
     def run(self):
         self.classify_anomalies()
