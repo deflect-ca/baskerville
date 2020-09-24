@@ -1,44 +1,30 @@
-import datetime
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
 
-from pyspark.sql import functions as F
+from cachetools import TTLCache
 
 
 class IPCache(object):
 
-    def __init__(self, logger, ttl=60 * 60):
+    def __init__(self, logger, ttl=60 * 60, max_size=100000):
         super().__init__()
-
-        self.ttl = ttl
-        self.cache = None
+        self.cache = TTLCache(maxsize=max_size, ttl=ttl)
         self.logger = logger
 
-    def update(self, df):
-        increment = df[['ip']].withColumn('ts', F.current_timestamp())
+    def update(self, records):
+        result = []
 
-        if not self.cache:
-            self.cache = increment
-            return df
+        for r in records:
+            if r['ip'] not in self.cache:
+                result.append(r)
 
-        # return only the new comers from df
-        self.logger.info('IP cache joining...')
-        # original_count = df.count()
-        df = df.join(self.cache[['ip']], on='ip', how='leftanti')
-        # new_count = df.count()
-        # self.logger.info(f'IP cache:, existing:{original_count - new_count}, new:{new_count}')
+        for r in result:
+            self.cache[r['ip']] = {}
 
-        # remove expired records
-        self.logger.info('IP cache removing expired records...')
-        # original_count = self.cache.count()
-        now = datetime.datetime.utcnow()
-        expire_date = now - datetime.timedelta(seconds=self.ttl)
-        self.cache = self.cache.where(F.col('ts') >= expire_date)
-        # new_count = self.cache.count()
-        # self.logger.info(f'IP cache size after expiration = {new_count} ({new_count - original_count})')
+        self.logger.info(
+            f'IP cache: {len(self.cache)} total, {len(records) - len(result)} existed, {len(result)} added')
 
-        # add the new increment
-        self.logger.info('IP cache union...')
-        self.cache = self.cache.union(increment).persist()
-        # self.logger.info(f'IP cache new total:{self.cache.count()}')
-
-        return df
-
+        return result

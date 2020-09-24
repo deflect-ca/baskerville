@@ -1421,8 +1421,10 @@ class AttackDetection(Task):
                 (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
                 (F.col('low_rate_attack') == 1)
             )
-            ips = self.ip_cache.update(ips)
+
             records = ips.collect()
+            records = self.ip_cache.update(records)
+
             num_records = len(records)
             if num_records > 0:
                 self.logger.info(
