@@ -81,7 +81,7 @@ class BanjaxReportConsumer(object):
                 self.logger.info('before json')
                 self.logger.info(s)
                 d = json.loads(s)
-                self.loggger.info(f'after json= {d}')
+                self.logger.info(f'after json= {d}')
             except json.JSONDecodeError:
                 self.logger.info(f"got bad json over the kafka channel: {s}")
 
