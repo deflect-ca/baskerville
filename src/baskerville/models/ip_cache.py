@@ -17,8 +17,12 @@ class IPCache(object):
 
         self.logger = logger
 
+        if not os.path.exists(path):
+            os.mkdir(path)
+
         self.full_path = os.path.join(path, 'ip_cache.bin')
         if os.path.exists(self.full_path):
+            self.logger.info(f'Loading IP cache from file {self.full_path}...')
             with open(self.full_path, 'rb') as f:
                 self.cache = pickle.load(f)
             self.logger.info(f'IP cache has been loaded from file {self.full_path}. Size:{len(self.cache)}')
