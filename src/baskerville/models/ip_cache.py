@@ -4,15 +4,27 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
+import pickle
+
 from cachetools import TTLCache
 
 
 class IPCache(object):
 
-    def __init__(self, logger, ttl=60 * 60, max_size=100000):
+    def __init__(self, logger, path, ttl=60 * 60, max_size=100000):
         super().__init__()
-        self.cache = TTLCache(maxsize=max_size, ttl=ttl)
+
         self.logger = logger
+
+        self.full_path = os.path.join(path, 'ip_cache.bin')
+        if os.path.exists(self.full_path):
+            with open(self.full_path, 'rb') as f:
+                self.cache = pickle.load(f)
+            self.logger.info(f'IP cache has been loaded from filr {self.full_path}')
+        else:
+            self.cache = TTLCache(maxsize=max_size, ttl=ttl)
+            self.logger.info('A new instance of IP cache has been created')
 
     def update(self, records):
         self.logger.info('IP cache updating...')
@@ -27,6 +39,9 @@ class IPCache(object):
 
         for r in result:
             self.cache[r['ip']] = {}
+
+        with open(self.full_path, 'wb') as f:
+            pickle.dump(self.cache, f)
 
         self.logger.info(
             f'IP cache: {len(self.cache)} total, {len(records) - len(result)} existed, {len(result)} added')

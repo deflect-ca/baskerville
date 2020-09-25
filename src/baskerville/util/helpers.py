@@ -266,6 +266,19 @@ def get_default_data_path() -> str:
     )
 
 
+def get_default_ip_cache_path() -> str:
+    """
+    Returns the absolute path to the ip cache folder
+    :return:
+    """
+    baskerville_root = os.environ.get('BASKERVILLE_ROOT')
+    if baskerville_root:
+        return os.path.join(baskerville_root, 'ip_cache')
+    return os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'ip_cache'
+    )
+
+
 def get_days_in_year(year):
     """
     Returns the number of days in a specific year

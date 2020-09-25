@@ -33,7 +33,7 @@ from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
 # broadcasts
-from baskerville.util.helpers import instantiate_from_str, get_model_path
+from baskerville.util.helpers import instantiate_from_str, get_model_path, get_default_ip_cache_path
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
@@ -1253,6 +1253,7 @@ class AttackDetection(Task):
         self.df_chunks = []
         self.df_white_list = None
         self.ip_cache = IPCache(self.logger,
+                                path=get_default_ip_cache_path(),
                                 ttl=self.config.engine.ip_cache_ttl,
                                 max_size=self.config.engine.ip_cache_size)
 
