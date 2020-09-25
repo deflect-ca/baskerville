@@ -36,8 +36,9 @@ class BanjaxReportConsumer(object):
         "proxy.process.eventloop.time.max"
     ]
 
-    def __init__(self, kafka_config, logger):
-        self.config = kafka_config
+    def __init__(self, config, logger):
+        self.config = config
+        self.kafka_config = config.kafka
         self.logger = logger
         self.ip_cache = IPCache(self.logger,
                                 path=get_default_ip_cache_path(),
@@ -54,14 +55,14 @@ class BanjaxReportConsumer(object):
 
     def run(self):
         consumer = KafkaConsumer(
-            self.config.banjax_report_topic,
+            self.kafka_config.banjax_report_topic,
             group_id=None,
-            bootstrap_servers=self.config.bootstrap_servers,
-            security_protocol=self.config.security_protocol,
-            ssl_check_hostname=self.config.ssl_check_hostname,
-            ssl_cafile=self.config.ssl_cafile,
-            ssl_certfile=self.config.ssl_certfile,
-            ssl_keyfile=self.config.ssl_keyfile,
+            bootstrap_servers=self.kafka_config.bootstrap_servers,
+            security_protocol=self.kafka_config.security_protocol,
+            ssl_check_hostname=self.kafka_config.ssl_check_hostname,
+            ssl_cafile=self.kafka_config.ssl_cafile,
+            ssl_certfile=self.kafka_config.ssl_certfile,
+            ssl_keyfile=self.kafka_config.ssl_keyfile,
         )
 
         for message in consumer:
