@@ -100,7 +100,9 @@ class BanjaxReportConsumer(object):
 
     def consume_ip_failed_challenge_message(self, message):
         self.logger.info('Banjax ip_failed_challenge processing...')
-        self.logger.info(f'Banjax message cache size: {len(self.cache)}')
+        self.logger.info(message)
+        if self.ip_cache.exists(message['ip']):
+            self.logger.info(f'ip is in the cache')
         return message
 
 

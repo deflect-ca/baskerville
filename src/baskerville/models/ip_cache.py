@@ -56,3 +56,7 @@ class IPCache(metaclass=SingletonThreadSafe):
                 f'IP cache: {len(self.cache)} total, {len(records) - len(result)} existed, {len(result)} added')
 
             return result
+
+    def exists(self, ip):
+        with self.lock:
+            return ip in self.cache.keys()
