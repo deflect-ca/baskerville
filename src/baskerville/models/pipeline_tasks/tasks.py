@@ -1335,7 +1335,6 @@ class AttackDetection(Task):
         white_listed = df.where((F.col('white_list') == 1) & (F.col('prediction') == 1))
         if white_listed.count() > 0:
             self.logger.info(f'White listing {white_listed.count()} ips')
-            self.logger.info(white_listed.select('ip').show())
 
         df = df.withColumn('attack_prediction', F.when(
             (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('attack_prediction')))
