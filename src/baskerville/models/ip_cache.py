@@ -65,8 +65,10 @@ class IPCache(metaclass=SingletonThreadSafe):
 
     def ip_failed_challenge(self, ip):
         with self.lock:
-            if not self.exists(ip):
+            if ip not in self.cache.keys():
                 self.logger.info(f'ip {ip} is not in cache')
+                return
+
             try:
                 self.logger.info(f'ip {ip} is in cache')
                 value = self.cache['ip']
