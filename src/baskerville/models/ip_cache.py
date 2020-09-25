@@ -75,4 +75,5 @@ class IPCache(metaclass=SingletonThreadSafe):
                 self.cache['ip'] = value
 
             except KeyError:
+                self.logger.info(f'ip {ip} is not in cache')
                 pass

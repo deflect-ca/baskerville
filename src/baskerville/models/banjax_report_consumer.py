@@ -99,8 +99,8 @@ class BanjaxReportConsumer(object):
                 self.consume_ip_failed_challenge_message(d)
 
     def consume_ip_failed_challenge_message(self, message):
-        self.logger.info('Banjax ip_failed_challenge processing...')
         ip = message['value_ip']
+        self.logger.info('Banjax ip_failed_challenge processing {ip} ...')
         self.ip_cache.ip_failed_challenge(ip)
         return message
 
