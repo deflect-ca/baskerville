@@ -6,16 +6,20 @@
 
 import os
 import pickle
+import threading
 
 from cachetools import TTLCache
 
+from baskerville.util.singleton_thread_safe import SingletonThreadSafe
 
-class IPCache(object):
+
+class IPCache(metaclass=SingletonThreadSafe):
 
     def __init__(self, logger, path, ttl=60 * 60, max_size=100000):
         super().__init__()
 
         self.logger = logger
+        self.lock = threading.Lock()
 
         if not os.path.exists(path):
             os.mkdir(path)
@@ -31,23 +35,24 @@ class IPCache(object):
             self.logger.info('A new instance of IP cache has been created')
 
     def update(self, records):
-        self.logger.info('IP cache updating...')
-        if len(self.cache) > 0.98 * self.cache.maxsize:
-            self.logger.warning(
-                'IP cache is 98% full. Please increase parameter ip_cache_size or/and reduce ip_cache_ttl')
+        with self.lock:
+            self.logger.info('IP cache updating...')
+            if len(self.cache) > 0.98 * self.cache.maxsize:
+                self.logger.warning(
+                    'IP cache is 98% full. Please increase parameter ip_cache_size or/and reduce ip_cache_ttl')
 
-        result = []
-        for r in records:
-            if r['ip'] not in self.cache:
-                result.append(r)
+            result = []
+            for r in records:
+                if r['ip'] not in self.cache:
+                    result.append(r)
 
-        for r in result:
-            self.cache[r['ip']] = {}
+            for r in result:
+                self.cache[r['ip']] = {}
 
-        with open(self.full_path, 'wb') as f:
-            pickle.dump(self.cache, f)
+            with open(self.full_path, 'wb') as f:
+                pickle.dump(self.cache, f)
 
-        self.logger.info(
-            f'IP cache: {len(self.cache)} total, {len(records) - len(result)} existed, {len(result)} added')
+            self.logger.info(
+                f'IP cache: {len(self.cache)} total, {len(records) - len(result)} existed, {len(result)} added')
 
-        return result
+            return result

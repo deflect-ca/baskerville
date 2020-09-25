@@ -6,7 +6,8 @@ import logging
 import sys
 import types
 from baskerville.models.config import KafkaConfig
-from baskerville.util.helpers import parse_config
+from baskerville.models.ip_cache import IPCache
+from baskerville.util.helpers import parse_config, get_default_ip_cache_path
 import argparse
 import os
 from baskerville import src_dir
@@ -38,6 +39,10 @@ class BanjaxReportConsumer(object):
     def __init__(self, kafka_config, logger):
         self.config = kafka_config
         self.logger = logger
+        self.ip_cache = IPCache(self.logger,
+                                path=get_default_ip_cache_path(),
+                                ttl=self.config.engine.ip_cache_ttl,
+                                max_size=self.config.engine.ip_cache_size)
 
         # XXX i think the metrics registry swizzling code is passing
         # an extra argument here mistakenly?.?.
@@ -93,6 +98,8 @@ class BanjaxReportConsumer(object):
                 self.consume_ip_failed_challenge_message(d)
 
     def consume_ip_failed_challenge_message(self, message):
+        self.logger.info('Banjax ip_failed_challenge processing...')
+        self.logger.info(f'Banjax message cache size: {len(self.cache)}')
         return message
 
 
