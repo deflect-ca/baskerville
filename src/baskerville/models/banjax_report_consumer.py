@@ -78,10 +78,7 @@ class BanjaxReportConsumer(object):
                 self.logger.info("got bad utf-8 over the kafka channel")
 
             try:
-                self.logger.info('before json')
-                self.logger.info(s)
                 d = json.loads(s)
-                self.logger.info(f'after json= {d}')
             except json.JSONDecodeError:
                 self.logger.info(f"got bad json over the kafka channel: {s}")
 
@@ -103,10 +100,8 @@ class BanjaxReportConsumer(object):
 
     def consume_ip_failed_challenge_message(self, message):
         self.logger.info('Banjax ip_failed_challenge processing...')
-        self.logger.info(message)
-        self.logger.info(message['value_ip'])
-        if self.ip_cache.exists(message['value_ip']):
-            self.logger.info(f'ip is in the cache')
+        ip = message['value_ip']
+        self.ip_cache.ip_failed_challenge(ip)
         return message
 
 

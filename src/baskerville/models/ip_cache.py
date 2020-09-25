@@ -47,7 +47,9 @@ class IPCache(metaclass=SingletonThreadSafe):
                     result.append(r)
 
             for r in result:
-                self.cache[r['ip']] = {}
+                self.cache[r['ip']] = {
+                    'fails': 0
+                }
 
             with open(self.full_path, 'wb') as f:
                 pickle.dump(self.cache, f)
@@ -60,3 +62,17 @@ class IPCache(metaclass=SingletonThreadSafe):
     def exists(self, ip):
         with self.lock:
             return ip in self.cache.keys()
+
+    def ip_failed_challenge(self, ip):
+        with self.lock:
+            try:
+                value = self.cache['ip']
+                value['fails'] += 1
+                num_fails = value['fails']
+                self.logger.info(f'ip: {ip}, fails : {num_fails}')
+                if value['fails'] >= 10:
+                    self.logger.info(f'@@@@ ip {ip} has reached 10 fails - banning')
+                self.cache['ip'] = value
+
+            except KeyError:
+                pass
