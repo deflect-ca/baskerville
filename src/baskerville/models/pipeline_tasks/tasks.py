@@ -1317,7 +1317,7 @@ class AttackDetection(Task):
             ((F.col('f.request_total') > self.config.engine.low_rate_attack_period[1]) &
              ((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) >
               self.config.engine.low_rate_attack_total_request[1]))
-        ).df_attackers.select('ip', 'target', 'f.request_total', 'start').withColumn('low_rate_attack', F.lit(1))
+        ).select('ip', 'target', 'f.request_total', 'start').withColumn('low_rate_attack', F.lit(1))
 
         if df_attackers.count() > 0:
             self.logger.info(f'Low rate attack -------------- {df_attackers.count()} ips')
