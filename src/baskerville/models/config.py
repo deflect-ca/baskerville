@@ -268,8 +268,8 @@ class EngineConfig(Config):
     training = None
     ttl = 500
     sliding_window = 360
-    low_rate_attack_period = 600
-    low_rate_attack_total_request = 400
+    low_rate_attack_period = [600, 3600]
+    low_rate_attack_total_request = [400, 2000]
     white_list = []
 
     def __init__(self, config, parent=None):
@@ -342,6 +342,11 @@ class EngineConfig(Config):
                         ConfigError(f'Unknown feature {f}.', [
                             'extra_features'])
                     )
+
+        if len(self.low_rate_attack_period) != len(self.low_rate_attack_total_request):
+            self.add_error(
+                ConfigError('low_rate_attack_period and low_rate_attack_total_request must be of the same size')
+            )
 
         self._is_validated = True
 

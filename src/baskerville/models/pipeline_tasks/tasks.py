@@ -82,9 +82,9 @@ class GetDataKafka(Task):
             self.data_parser.schema
         ).repartition(
             *self.group_by_cols
-        )#ppp.persist(
-         #   self.config.spark.storage_level
-        #)
+        )  # ppp.persist(
+        #   self.config.spark.storage_level
+        # )
 
         self.df = load_test(
             self.df,
@@ -185,9 +185,9 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        )#ppp.persist(
-         #   self.config.spark.storage_level
-        #)
+        )  # ppp.persist(
+        #   self.config.spark.storage_level
+        # )
         # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
@@ -284,8 +284,8 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        )#ppp.persist(
-         #   self.config.spark.storage_level)
+        )  # ppp.persist(
+        #   self.config.spark.storage_level)
 
         self.logger.info('Got dataframe of #{} records'.format(
             self.df.count())
@@ -681,7 +681,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        #pppself.df.persist(self.config.spark.storage_level)
+        # pppself.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -1057,7 +1057,7 @@ class Train(Task):
         super().initialize()
 
     def load_dataset(self, df, features):
-        dataset = df #.ppppersist(self.spark_conf.storage_level)
+        dataset = df  # .ppppersist(self.spark_conf.storage_level)
 
         if self.training_conf.max_samples_per_host:
             counts = dataset.groupby('target').count()
@@ -1277,7 +1277,7 @@ class AttackDetection(Task):
             F.max('stop').alias('ts'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
             F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
-        )#ppp.persist(self.config.spark.storage_level)
+        )  # ppp.persist(self.config.spark.storage_level)
 
         if len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
                 seconds=self.config.engine.sliding_window):
@@ -1299,7 +1299,7 @@ class AttackDetection(Task):
         )
 
         df = df.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float')) \
-            #ppp.persist(self.config.spark.storage_level)
+            # ppp.persist(self.config.spark.storage_level)
 
         return df
 
@@ -1309,11 +1309,14 @@ class AttackDetection(Task):
         df = df.withColumn('f', F.from_json('features', schema))
         df = df.withColumn('f.request_total', F.col('f.request_total').cast(DoubleType()).alias('f.request_total'))
 
-        df_attackers = df.filter(
-            (F.col('f.request_total') > self.config.engine.low_rate_attack_period) &
-            ((psf.abs(psf.unix_timestamp(df.stop)) - psf.abs(psf.unix_timestamp(df.start))) >
-             self.config.engine.low_rate_attack_total_request)
-        ).select('ip', 'target', 'f.request_total', 'start').withColumn('low_rate_attack', F.lit(1))
+        conditions = []
+        for period, total in zip(self.config.engine.low_rate_attack_period,
+                                 self.config.engine.low_rate_attack_total_request):
+            conditions.append(
+                f'(f.request_total > {total} and (unix_timestamp(stop) - unix_timestamp(start) > {period})')
+
+        df_attackers = df.filter(' or '.join(conditions)).\
+            df_attackers.select('ip', 'target', 'f.request_total', 'start').withColumn('low_rate_attack', F.lit(1))
 
         if df_attackers.count() > 0:
             self.logger.info(f'Low rate attack -------------- {df_attackers.count()} ips')
@@ -1340,8 +1343,8 @@ class AttackDetection(Task):
     def detect_attack(self):
         if self.config.engine.attack_threshold == 0:
             self.logger.info('Attack threshold is 0. No sliding window')
-            df_attack = self.df[['target']].distinct()\
-                .withColumn('attack_prediction', F.lit(1))\
+            df_attack = self.df[['target']].distinct() \
+                .withColumn('attack_prediction', F.lit(1)) \
                 .withColumn('attack_score', F.lit(1))
             self.df = self.df.withColumn('attack_prediction', F.lit(1))
         else:
