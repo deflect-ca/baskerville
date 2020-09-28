@@ -1254,7 +1254,6 @@ class AttackDetection(Task):
 
     def initialize(self):
         # super(SaveStats, self).initialize()
-        self.set_metrics()
         self.df_white_list = self.spark.createDataFrame(
             [[ip] for ip in self.config.engine.white_list], ['ip']).withColumn('white_list', F.lit(1))
 
@@ -1358,42 +1357,6 @@ class AttackDetection(Task):
         self.df = self.detect_low_rate_attack(self.df)
         self.df = self.apply_white_list(self.df)
         return df_attack
-
-    def set_metrics(self):
-        # Perhaps using an additional label and one metric could be better
-        # than two - performan ce-wise. But that will add another dimension
-        # in Prometheus
-        from baskerville.models.metrics.registry import metrics_registry
-        from baskerville.util.enums import MetricClassEnum
-        from baskerville.models.metrics.helpers import set_attack_score, \
-            set_attack_prediction, set_attack_threshold
-
-        run = metrics_registry.register_action_hook(
-            self.run,
-            set_attack_score,
-            metric_cls=MetricClassEnum.gauge,
-            metric_name='attack_score',
-            labelnames=['target']
-        )
-
-        run = metrics_registry.register_action_hook(
-            run,
-            set_attack_prediction,
-            metric_cls=MetricClassEnum.gauge,
-            metric_name='attack_prediction',
-            labelnames=['target']
-        )
-
-        run = metrics_registry.register_action_hook(
-            run,
-            set_attack_threshold,
-            metric_cls=MetricClassEnum.gauge,
-            metric_name='baskerville_config',
-            labelnames=['value']
-        )
-
-        setattr(self, 'run', run)
-        self.logger.info('Attack score metric set')
 
     def send_challenge(self, df_attack):
         producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
