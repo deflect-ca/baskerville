@@ -331,7 +331,7 @@ class SparkPipelineBase(PipelineBase):
         df = self.logs_df.select(
             F.col('target'),
             F.col('ip'),
-        ).distinct().alias('a')#ppp.persist(self.spark_conf.storage_level)
+        ).distinct().alias('a')  # ppp.persist(self.spark_conf.storage_level)
 
         self.request_set_cache.filter_by(df)
 
@@ -393,9 +393,10 @@ class SparkPipelineBase(PipelineBase):
                 (F.col('timestamp') >= current_window_start) &
                 (F.col('timestamp') < current_end)
             )
-            window_df = df.where(filter_)#ppp.persist(
-                #self.spark_conf.storage_level
-           # )
+            window_df = df.where(filter_)
+            #  ppp.persist(
+            #  self.spark_conf.storage_level
+            # )
             if not window_df.rdd.isEmpty():
                 print(f'# Request sets = {window_df.count()}')
                 yield window_df

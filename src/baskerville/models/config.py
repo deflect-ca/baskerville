@@ -268,8 +268,8 @@ class EngineConfig(Config):
     training = None
     ttl = 500
     sliding_window = 360
-    low_rate_attack_period = 600
-    low_rate_attack_total_request = 400
+    low_rate_attack_period = [600, 3600]
+    low_rate_attack_total_request = [400, 2000]
     white_list = []
     ip_cache_ttl = 60*60*100
     ip_cache_size = 100000
@@ -344,6 +344,11 @@ class EngineConfig(Config):
                         ConfigError(f'Unknown feature {f}.', [
                             'extra_features'])
                     )
+
+        if len(self.low_rate_attack_period) != 2 or len(self.low_rate_attack_total_request) != 2:
+            self.add_error(
+                ConfigError('low_rate_attack_period and low_rate_attack_total_request must be lists of size 2')
+            )
 
         self._is_validated = True
 
