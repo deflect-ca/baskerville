@@ -71,7 +71,7 @@ class IPCache(metaclass=SingletonThreadSafe):
 
             try:
                 self.logger.info(f'ip {ip} is in cache')
-                value = self.cache['ip']
+                value = self.cache[ip]
                 value['fails'] += 1
                 num_fails = value['fails']
                 self.logger.info(f'ip: {ip}, fails : {num_fails}')
