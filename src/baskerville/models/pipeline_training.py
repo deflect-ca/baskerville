@@ -119,7 +119,8 @@ class TrainingPipeline(PipelineBase):
         transformations to get the features as a list \
         :return:
         """
-        self.data = self.load()#ppp.persist(self.spark_conf.storage_level)
+        self.data = self.load()
+        # ppp.persist(self.spark_conf.storage_level)
 
         if self.training_conf.max_samples_per_host:
             counts = self.data.groupby('target').count()

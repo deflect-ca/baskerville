@@ -343,9 +343,9 @@ class EngineConfig(Config):
                             'extra_features'])
                     )
 
-        if len(self.low_rate_attack_period) != len(self.low_rate_attack_total_request):
+        if len(self.low_rate_attack_period) != 2 or len(self.low_rate_attack_total_request) != 2:
             self.add_error(
-                ConfigError('low_rate_attack_period and low_rate_attack_total_request must be of the same size')
+                ConfigError('low_rate_attack_period and low_rate_attack_total_request must be lists of size 2')
             )
 
         self._is_validated = True
