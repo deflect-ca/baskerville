@@ -123,27 +123,3 @@ def set_gauge_for_request_set_persistent_cache(metric, self):
 
 def increment_metric(metric, self=None):  # noqa
     metric.inc()
-
-
-def set_attack_score(metric, self, result):
-    """
-    For every target, it sets the precalculated attack score
-    """
-    if not self.collected_df_attack:
-        return
-    for row in self.collected_df_attack:
-        metric.labels(target=row.target).set(row.attack_score)
-
-
-def set_attack_prediction(metric, self, result):
-    """
-    For every target, it sets the precalculated attack prediction
-    """
-    if not self.collected_df_attack:
-        return
-    for row in self.collected_df_attack:
-        metric.labels(target=row.target).set(row.attack_prediction)
-
-
-def set_attack_threshold(metric, self, result):
-    metric.labels(value='attack_threshold').set(self.config.engine.attack_threshold)

@@ -83,9 +83,9 @@ class GetDataKafka(Task):
             self.data_parser.schema
         ).repartition(
             *self.group_by_cols
-        ).persist(
-            self.config.spark.storage_level
-        )
+        )#ppp.persist(
+         #   self.config.spark.storage_level
+        #)
 
         self.df = load_test(
             self.df,
@@ -186,9 +186,9 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        ).persist(
-            self.config.spark.storage_level
-        )
+        )#ppp.persist(
+         #   self.config.spark.storage_level
+        #)
         # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
@@ -285,8 +285,8 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        ).persist(
-            self.config.spark.storage_level)
+        )#ppp.persist(
+         #   self.config.spark.storage_level)
 
         self.logger.info('Got dataframe of #{} records'.format(
             self.df.count())
@@ -682,7 +682,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        self.df.persist(self.config.spark.storage_level)
+        #pppself.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -1058,7 +1058,7 @@ class Train(Task):
         super().initialize()
 
     def load_dataset(self, df, features):
-        dataset = df.persist(self.spark_conf.storage_level)
+        dataset = df #.ppppersist(self.spark_conf.storage_level)
 
         if self.training_conf.max_samples_per_host:
             counts = dataset.groupby('target').count()
@@ -1259,7 +1259,6 @@ class AttackDetection(Task):
 
     def initialize(self):
         # super(SaveStats, self).initialize()
-        self.set_metrics()
         self.df_white_list = self.spark.createDataFrame(
             [[ip] for ip in self.config.engine.white_list], ['ip']).withColumn('white_list', F.lit(1))
 
@@ -1283,7 +1282,7 @@ class AttackDetection(Task):
             F.max('stop').alias('ts'),
             F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
             F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
-        ).persist(self.config.spark.storage_level)
+        )#ppp.persist(self.config.spark.storage_level)
 
         if len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
                 seconds=self.config.engine.sliding_window):
@@ -1305,7 +1304,7 @@ class AttackDetection(Task):
         )
 
         df = df.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float')) \
-            .persist(self.config.spark.storage_level)
+            #ppp.persist(self.config.spark.storage_level)
 
         return df
 
@@ -1364,42 +1363,6 @@ class AttackDetection(Task):
         self.df = self.detect_low_rate_attack(self.df)
         self.df = self.apply_white_list(self.df)
         return df_attack
-
-    def set_metrics(self):
-        # Perhaps using an additional label and one metric could be better
-        # than two - performan ce-wise. But that will add another dimension
-        # in Prometheus
-        from baskerville.models.metrics.registry import metrics_registry
-        from baskerville.util.enums import MetricClassEnum
-        from baskerville.models.metrics.helpers import set_attack_score, \
-            set_attack_prediction, set_attack_threshold
-
-        run = metrics_registry.register_action_hook(
-            self.run,
-            set_attack_score,
-            metric_cls=MetricClassEnum.gauge,
-            metric_name='attack_score',
-            labelnames=['target']
-        )
-
-        run = metrics_registry.register_action_hook(
-            run,
-            set_attack_prediction,
-            metric_cls=MetricClassEnum.gauge,
-            metric_name='attack_prediction',
-            labelnames=['target']
-        )
-
-        run = metrics_registry.register_action_hook(
-            run,
-            set_attack_threshold,
-            metric_cls=MetricClassEnum.gauge,
-            metric_name='baskerville_config',
-            labelnames=['value']
-        )
-
-        setattr(self, 'run', run)
-        self.logger.info('Attack score metric set')
 
     def send_challenge(self, df_attack):
         producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
