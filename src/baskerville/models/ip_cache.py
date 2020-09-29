@@ -30,7 +30,6 @@ class IPCache(metaclass=SingletonThreadSafe):
             with open(self.full_path, 'rb') as f:
                 self.cache = pickle.load(f)
             self.logger.info(f'IP cache has been loaded from file {self.full_path}. Size:{len(self.cache)}')
-            self.cache.ttl = ttl
         else:
             self.cache = TTLCache(maxsize=max_size, ttl=ttl)
             self.logger.info('A new instance of IP cache has been created')
