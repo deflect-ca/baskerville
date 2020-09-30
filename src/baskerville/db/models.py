@@ -115,6 +115,7 @@ class RequestSet(Base, SerializableMixin):
     process_flag = Column(Boolean, default=True)
     prediction = Column(Integer)
     attack_prediction = Column(Integer)
+    challenged = Column(Integer)
     low_rate_attack = Column(Integer)
     score = Column(Float)
     features = Column(JSON)
@@ -159,6 +160,7 @@ class RequestSet(Base, SerializableMixin):
         'prediction',
         'attack_prediction',
         'low_rate_attack',
+        'challenged',
         'score',
         'label',
         'id_attribute',
