@@ -1,3 +1,4 @@
+import datetime
 import threading
 import json
 from kafka import KafkaConsumer, KafkaProducer
@@ -5,6 +6,8 @@ import time
 import logging
 import sys
 import types
+
+from baskerville.db import set_up_db
 from baskerville.models.config import KafkaConfig
 from baskerville.models.ip_cache import IPCache
 from baskerville.util.helpers import parse_config
@@ -41,6 +44,7 @@ class BanjaxReportConsumer(object):
         self.kafka_config = config.kafka
         self.logger = logger
         self.ip_cache = IPCache(config, self.logger)
+        self.session, self.engine = set_up_db(config.database.__dict__)
 
         # XXX i think the metrics registry swizzling code is passing
         # an extra argument here mistakenly?.?.
@@ -98,7 +102,21 @@ class BanjaxReportConsumer(object):
     def consume_ip_failed_challenge_message(self, message):
         ip = message['value_ip']
         self.logger.info(f'Banjax ip_failed_challenge {ip} ...')
-        self.ip_cache.ip_failed_challenge(ip)
+        num_fails = self.ip_cache.ip_failed_challenge(ip)
+        if num_fails >= 9:
+            ts = (datetime.datetime.utcnow() - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S %z")
+            try:
+                sql = f'update request_sets set challenge_failed = 1 where stop > {ts} and ip = \'{ip}\''
+                self.logger.info(f'Executing: {sql}')
+                self.session.execute(sql)
+                self.session.commit()
+                self.logger.info(f'sql update ip {ip} challenge failed > 9')
+
+            except Exception:
+                self.session.rollback()
+                self.logger.error(Exception)
+                raise
+
         return message
 
 

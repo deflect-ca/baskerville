@@ -69,7 +69,7 @@ class IPCache(metaclass=SingletonThreadSafe):
         with self.lock:
             if ip not in self.cache.keys():
                 self.logger.info(f'ip {ip} is not in cache')
-                return
+                return 0
 
             try:
                 self.logger.info(f'ip {ip} is in cache')
@@ -80,6 +80,7 @@ class IPCache(metaclass=SingletonThreadSafe):
                 if value['fails'] >= 10:
                     self.logger.info(f'@@@@ ip {ip} has reached 10 fails - banning')
                 self.cache['ip'] = value
+                return num_fails
 
             except KeyError as er:
                 self.logger.info(f'IP cache key error {er}')
