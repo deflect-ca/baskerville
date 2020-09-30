@@ -1394,7 +1394,7 @@ class AttackDetection(Task):
             records = self.ip_cache.update(records)
 
             # set column challenged in self.df
-            df_ips = self.session.createDataFrame(ips).withColumn('challenged', F.lit(1))
+            df_ips = self.spark.createDataFrame(ips).withColumn('challenged', F.lit(1))
             self.df = self.df.join(df_ips, on='ip', how='left')
 
             num_records = len(records)
