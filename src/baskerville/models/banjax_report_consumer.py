@@ -7,7 +7,7 @@ import sys
 import types
 from baskerville.models.config import KafkaConfig
 from baskerville.models.ip_cache import IPCache
-from baskerville.util.helpers import parse_config, get_default_ip_cache_path
+from baskerville.util.helpers import parse_config
 import argparse
 import os
 from baskerville import src_dir
@@ -40,10 +40,7 @@ class BanjaxReportConsumer(object):
         self.config = config
         self.kafka_config = config.kafka
         self.logger = logger
-        self.ip_cache = IPCache(self.logger,
-                                path=get_default_ip_cache_path(),
-                                ttl=self.config.engine.ip_cache_ttl,
-                                max_size=self.config.engine.ip_cache_size)
+        self.ip_cache = IPCache(config, self.logger)
 
         # XXX i think the metrics registry swizzling code is passing
         # an extra argument here mistakenly?.?.

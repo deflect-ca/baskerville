@@ -10,28 +10,30 @@ import threading
 
 from cachetools import TTLCache
 
+from baskerville.util.helpers import get_default_ip_cache_path
 from baskerville.util.singleton_thread_safe import SingletonThreadSafe
 
 
 class IPCache(metaclass=SingletonThreadSafe):
 
-    def __init__(self, logger, path, ttl=60 * 60, max_size=100000):
+    def __init__(self, config, logger):
         super().__init__()
 
         self.logger = logger
         self.lock = threading.Lock()
 
-        if not os.path.exists(path):
-            os.mkdir(path)
+        folder_path = get_default_ip_cache_path()
+        if not os.path.exists(folder_path):
+            os.mkdir(folder_path)
+        self.full_path = os.path.join(folder_path, 'ip_cache.bin')
 
-        self.full_path = os.path.join(path, 'ip_cache.bin')
         if os.path.exists(self.full_path):
             self.logger.info(f'Loading IP cache from file {self.full_path}...')
             with open(self.full_path, 'rb') as f:
                 self.cache = pickle.load(f)
             self.logger.info(f'IP cache has been loaded from file {self.full_path}. Size:{len(self.cache)}')
         else:
-            self.cache = TTLCache(maxsize=max_size, ttl=ttl)
+            self.cache = TTLCache(maxsize=config.engine.ip_cache_size, ttl=config.engine.ip_cache_ttl)
             self.logger.info('A new instance of IP cache has been created')
 
     def update(self, records):
