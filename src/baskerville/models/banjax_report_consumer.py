@@ -106,7 +106,7 @@ class BanjaxReportConsumer(object):
         if num_fails >= 9:
             ts = (datetime.datetime.utcnow() - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S %z")
             try:
-                sql = f'update request_sets set challenge_failed = 1 where stop > {ts} and ip = \'{ip}\''
+                sql = f'update request_sets set challenge_failed = 1 where stop > \'{ts}\' and ip = \'{ip}\''
                 self.logger.info(f'Executing: {sql}')
                 self.session.execute(sql)
                 self.session.commit()
