@@ -103,14 +103,14 @@ class BanjaxReportConsumer(object):
         ip = message['value_ip']
         self.logger.info(f'Banjax ip_failed_challenge {ip} ...')
         num_fails = self.ip_cache.ip_failed_challenge(ip)
-        if num_fails >= 9:
+        if num_fails > 0:
             ts = (datetime.datetime.utcnow() - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S %z")
             try:
                 sql = f'update request_sets set challenge_failed = 1 where stop > \'{ts}\' and ip = \'{ip}\''
                 self.logger.info(f'Executing: {sql}')
                 self.session.execute(sql)
                 self.session.commit()
-                self.logger.info(f'sql update ip {ip} challenge failed > 9')
+                self.logger.info(f'sql update ip {ip} challenge failed > 0')
 
             except Exception:
                 self.session.rollback()
