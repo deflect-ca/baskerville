@@ -1324,9 +1324,11 @@ class AttackDetection(Task):
         if df_attackers.count() > 0:
             self.logger.info(f'Low rate attack -------------- {df_attackers.count()} ips')
             self.logger.info(df_attackers.show())
+            df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
+            self.df = self.df.fillna({'low_rate_attack': 0})
+        else:
+            self.df = self.df.withColumn('low_rate_attack', F.lit(0))
 
-        df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
-        self.df = self.df.fillna({'low_rate_attack': 0})
         return df
 
     def apply_white_list(self, df):
