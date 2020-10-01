@@ -1326,6 +1326,7 @@ class AttackDetection(Task):
             self.logger.info(df_attackers.show())
 
         df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
+        self.df = self.df.fillna({'low_rate_attack': 0})
         return df
 
     def apply_white_list(self, df):
