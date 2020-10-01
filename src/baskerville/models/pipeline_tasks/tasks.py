@@ -1282,18 +1282,16 @@ class AttackDetection(Task):
             F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
         )  # ppp.persist(self.config.spark.storage_level)
 
-        if len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
+        while len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
                 seconds=self.config.engine.sliding_window):
             self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
-            self.df_chunks.pop()
+            del self.df_chunks[0]
 
-        total_size = df_increment.count()
-        for chunk in self.df_chunks:
-            total_size += chunk[0].count()
         self.df_chunks.append((df_increment, increment_stop))
-        self.logger.info(f'Sliding window size {total_size}...')
+        self.logger.info(f'Number of sliding window chunks {len(self.df_chunks)}...')
 
     def get_attack_score(self):
+        self.logger.info('Attack scoring...')
         chunks = [c[0] for c in self.df_chunks]
         df = reduce(DataFrame.unionAll, chunks).groupBy('target').agg(
             F.sum('total').alias('total'),
@@ -1348,6 +1346,7 @@ class AttackDetection(Task):
         return df
 
     def detect_attack(self):
+        self.logger.info('Attack detecting...')
         if self.config.engine.attack_threshold == 0:
             self.logger.info('Attack threshold is 0. No sliding window')
             df_attack = self.df[['target']].distinct() \
@@ -1357,7 +1356,7 @@ class AttackDetection(Task):
         else:
             self.update_sliding_window()
             df_attack = self.get_attack_score()
-
+            self.logger.info('Attack thresholding...')
             df_attack = df_attack.withColumn('attack_prediction', F.when(
                 (F.col('attack_score') > self.config.engine.attack_threshold) &
                 (F.col('total') > self.config.engine.minimum_number_attackers), F.lit(1)).otherwise(F.lit(0)))
