@@ -1257,7 +1257,7 @@ class AttackDetection(Task):
     def initialize(self):
         # super(SaveStats, self).initialize()
         if self.config.engine.white_list:
-            self.df_white_list = self.spark.createDataFrame([[ip] for ip in self.config.engine.white_list],
+            self.df_white_list = self.spark.createDataFrame([[ip] for ip in set(self.config.engine.white_list)],
                                                             ['ip']).withColumn('white_list', F.lit(1))
 
     def classify_anomalies(self):
@@ -1398,6 +1398,7 @@ class AttackDetection(Task):
             if num_records > 0:
                 challenged_ips = self.spark.createDataFrame(records).withColumn('challenged', F.lit(1))
                 self.df = self.df.join(challenged_ips, on='ip', how='left')
+                self.df = self.df.fillna({'challenged': 0})
 
                 self.logger.info(
                     f'Sending {num_records} IP challenge commands to '
