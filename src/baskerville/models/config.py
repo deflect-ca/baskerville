@@ -270,9 +270,9 @@ class EngineConfig(Config):
     sliding_window = 360
     low_rate_attack_period = [600, 3600]
     low_rate_attack_total_request = [400, 2000]
-    white_list = []
     ip_cache_ttl = 60*60*100
     ip_cache_size = 100000
+    white_list = None
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)

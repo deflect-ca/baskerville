@@ -1256,8 +1256,9 @@ class AttackDetection(Task):
 
     def initialize(self):
         # super(SaveStats, self).initialize()
-        self.df_white_list = self.spark.createDataFrame(
-            [[ip] for ip in self.config.engine.white_list], ['ip']).withColumn('white_list', F.lit(1))
+        if self.config.engine.white_list:
+            self.df_white_list = self.spark.createDataFrame([[ip] for ip in self.config.engine.white_list],
+                                                            ['ip']).withColumn('white_list', F.lit(1))
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
@@ -1330,9 +1331,11 @@ class AttackDetection(Task):
         return df
 
     def apply_white_list(self, df):
+        if not self.df_white_list:
+            return df
         self.logger.info('White listing...')
         df = df.join(self.df_white_list, on='ip', how='left')
-        white_listed = df.where((F.col('white_list') == 1) & (F.col('prediction') == 1))
+        white_listed = df.where((F.col('white_list') == 1))
         if white_listed.count() > 0:
             self.logger.info(f'White listing {white_listed.count()} ips')
 
