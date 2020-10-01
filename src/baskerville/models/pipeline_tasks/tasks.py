@@ -1395,13 +1395,11 @@ class AttackDetection(Task):
 
             records = ips.collect()
             records = self.ip_cache.update(records)
-
-            # set column challenged in self.df
-            challenged_ips = self.spark.createDataFrame(records).withColumn('challenged', F.lit(1))
-            self.df = self.df.join(challenged_ips, on='ip', how='left')
-
             num_records = len(records)
             if num_records > 0:
+                challenged_ips = self.spark.createDataFrame(records).withColumn('challenged', F.lit(1))
+                self.df = self.df.join(challenged_ips, on='ip', how='left')
+
                 self.logger.info(
                     f'Sending {num_records} IP challenge commands to '
                     f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
@@ -1411,6 +1409,8 @@ class AttackDetection(Task):
                     ).encode('utf-8')
                     producer.send(self.config.kafka.banjax_command_topic, message)
                     producer.flush()
+            else:
+                self.df = self.df.withColumn('challenged', F.lit(0))
 
     def run(self):
         self.classify_anomalies()
