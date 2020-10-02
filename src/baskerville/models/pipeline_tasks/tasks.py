@@ -895,7 +895,7 @@ class Save(SaveDfInPostgres):
         request_set_columns = RequestSet.columns[:]
         not_common = {
             'prediction', 'model_version', 'label', 'id_attribute',
-            'updated_at'
+            'updated_at', 'attack_prediction', 'low_rate_attack'
         }.difference(self.df.columns)
 
         for c in not_common:
