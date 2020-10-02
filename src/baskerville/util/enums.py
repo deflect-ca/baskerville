@@ -48,6 +48,7 @@ class RunType(BaseStrEnum):
     ikafka = 'ikafka'
     training = 'training'
     preprocessing = 'preprocessing'
+    dashboard_preprocessing = 'dashboard_preprocessing'
     postprocessing = 'postprocessing'
     predicting = 'predicting'
     dashboard = 'dashboard'

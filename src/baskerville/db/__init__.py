@@ -193,4 +193,6 @@ def set_up_db(conf, create=True, partition=True):
         Session.execute(text(get_temporal_partitions(maintenance_conf)))
         print('Partitioning done...')
 
+    Base.query = Session.query_property()
+
     return Session, engine

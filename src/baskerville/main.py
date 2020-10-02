@@ -82,6 +82,7 @@ def add_model_to_database(database_config):
     :return:
     """
     global logger
+    logger = logger if logger else get_logger(add_model_to_database.__name__)
     path = os.path.join(get_default_data_path(), 'samples', 'models', 'AnomalyModel')
     logger.info(f'Loading test model from: {path}')
     model = AnomalyModelSklearn()

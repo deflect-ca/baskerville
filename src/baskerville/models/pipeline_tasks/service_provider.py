@@ -69,7 +69,8 @@ class ServiceProvider(Borg):
     def create_runtime(self):
         self.runtime = self.tools.create_runtime(
             start=self.start_time,
-            conf=self.config.engine
+            conf=self.config.engine,
+            target_site=self.config.spark.app_name
         )
         self.logger.info(f'Created runtime {self.runtime.id}')
 
