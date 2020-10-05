@@ -109,13 +109,11 @@ class BanjaxReportConsumer(object):
 
     def consume_ip_failed_challenge_message(self, message):
         ip = message['value_ip']
-        self.logger.info(f'Banjax ip_failed_challenge {ip} ...')
         num_fails = self.ip_cache.ip_failed_challenge(ip)
         if num_fails > 0:
             try:
                 sql = f'update request_sets set challenge_failed = {num_fails} where ' \
                       f'stop > \'{self.get_time_filter()}\' and ip = \'{ip}\''
-                self.logger.info(f'Executing: {sql}')
                 self.session.execute(sql)
                 self.session.commit()
 
@@ -132,7 +130,6 @@ class BanjaxReportConsumer(object):
         try:
             sql = f'update request_sets set challenge_passed = 1 where ' \
                   f'stop > \'{self.get_time_filter()}\' and ip = \'{ip}\''
-            self.logger.info(f'Executing: {sql}')
             self.session.execute(sql)
             self.session.commit()
 
@@ -149,7 +146,6 @@ class BanjaxReportConsumer(object):
         try:
             sql = f'update request_sets set banned = 1 where ' \
                   f'stop > \'{self.get_time_filter()}\' and ip = \'{ip}\''
-            self.logger.info(f'Executing: {sql}')
             self.session.execute(sql)
             self.session.commit()
 
