@@ -118,6 +118,7 @@ class RequestSet(Base, SerializableMixin):
     challenged = Column(Integer)
     challenge_failed = Column(Integer)
     challenge_passed = Column(Integer)
+    banned = Column(Integer)
     low_rate_attack = Column(Integer)
     score = Column(Float)
     features = Column(JSON)

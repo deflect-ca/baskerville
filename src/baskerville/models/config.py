@@ -273,6 +273,7 @@ class EngineConfig(Config):
     ip_cache_ttl = 60*60*100
     ip_cache_size = 100000
     white_list = None
+    banjax_sql_update_filter_minutes = 30
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
