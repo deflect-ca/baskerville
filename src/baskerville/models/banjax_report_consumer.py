@@ -131,7 +131,9 @@ class BanjaxReportConsumer(object):
 
     def consume_ip_passed_challenge_message(self, message):
         ip = message['value_ip']
-        self.ip_cache.ip_passed_challenge(ip)
+        processed = self.ip_cache.ip_passed_challenge(ip)
+        if not processed:
+            return
         try:
             sql = f'update request_sets set challenge_passed = 1 where ' \
                   f'stop > \'{self.get_time_filter()}\' and challenged = 1 and ip = \'{ip}\''

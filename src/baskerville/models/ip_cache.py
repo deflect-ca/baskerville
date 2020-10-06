@@ -68,8 +68,7 @@ class IPCache(metaclass=SingletonThreadSafe):
             with open(self.full_path_pending, 'wb') as f:
                 pickle.dump(self.cache_pending, f)
 
-            self.logger.info(
-                f'IP cache pending: {len(self.cache)} total, {len(records) - len(result)} existed, {len(result)} added')
+            self.logger.info(f'IP cache pending: {len(self.cache_pending)}, {len(result)} added')
 
             return result
 
@@ -92,6 +91,11 @@ class IPCache(metaclass=SingletonThreadSafe):
 
     def ip_passed_challenge(self, ip):
         with self.lock:
+            if ip in self.cache_passed.keys():
+                return False
             if ip not in self.cache_pending.keys():
-                return
-        self.cache_passed[ip] = {}
+                return False
+            self.cache_passed[ip] = self.cache_pending[ip]
+            del self.cache_pending[ip]
+            self.logger.info(f'IP {ip} passed challenge. Total IP in cache_passed: {len(self.cache_passed)}')
+
