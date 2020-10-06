@@ -131,7 +131,6 @@ class BanjaxReportConsumer(object):
 
     def consume_ip_passed_challenge_message(self, message):
         ip = message['value_ip']
-        self.logger.info(f'Banjax ip_passed_challenge {ip} ...')
         self.ip_cache.ip_passed_challenge(ip)
         try:
             sql = f'update request_sets set challenge_passed = 1 where ' \
