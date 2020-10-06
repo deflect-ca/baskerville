@@ -100,3 +100,12 @@ class IPCache(metaclass=SingletonThreadSafe):
             self.logger.info(f'IP {ip} passed challenge. Total IP in cache_passed: {len(self.cache_passed)}')
         return True
 
+    def ip_banned(self, ip):
+        with self.lock:
+            try:
+                del self.cache_pending[ip]
+
+            except KeyError as er:
+                self.logger.info(f'IP cache key error {er}')
+                pass
+

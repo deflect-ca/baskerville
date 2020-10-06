@@ -110,9 +110,12 @@ class BanjaxReportConsumer(object):
     def consume_ip_failed_challenge_message(self, message):
         ip = message['value_ip']
         num_fails = self.ip_cache.ip_failed_challenge(ip)
+        if num_fails == 0:
+            return message
 
         try:
             if num_fails >= self.config.engine.banjax_num_fails_to_ban:
+                self.ip_cache.ip_banned(ip)
                 sql = f'update request_sets set banned = 1 where ' \
                       f'stop > \'{self.get_time_filter()}\' and challenged = 1 and ip = \'{ip}\''
             else:
@@ -133,7 +136,7 @@ class BanjaxReportConsumer(object):
         ip = message['value_ip']
         processed = self.ip_cache.ip_passed_challenge(ip)
         if not processed:
-            return
+            return message
         try:
             sql = f'update request_sets set challenge_passed = 1 where ' \
                   f'stop > \'{self.get_time_filter()}\' and challenged = 1 and ip = \'{ip}\''
