@@ -108,51 +108,57 @@ class BanjaxReportConsumer(object):
             minutes=self.config.engine.banjax_sql_update_filter_minutes)).strftime("%Y-%m-%d %H:%M:%S %z")
 
     def consume_ip_failed_challenge_message(self, message):
-        # ip = message['value_ip']
-        # num_fails = self.ip_cache.ip_failed_challenge(ip)
-        # if num_fails > 0:
-        #     try:
-        #         sql = f'update request_sets set challenge_failed = {num_fails} where ' \
-        #               f'stop > \'{self.get_time_filter()}\' and ip = \'{ip}\''
-        #         self.session.execute(sql)
-        #         self.session.commit()
-        #
-        #     except Exception:
-        #         self.session.rollback()
-        #         self.logger.error(Exception)
-        #         raise
+        ip = message['value_ip']
+        num_fails = self.ip_cache.ip_failed_challenge(ip)
+
+        try:
+            if num_fails >= self.config.engine.banjax_num_fails_to_ban:
+                sql = f'update request_sets set banned = 1 where ' \
+                      f'stop > \'{self.get_time_filter()}\' and challenged = 1 and ip = \'{ip}\''
+            else:
+                sql = f'update request_sets set challenge_failed = {num_fails} where ' \
+                      f'stop > \'{self.get_time_filter()}\' and challenged = 1 and ip = \'{ip}\''
+
+            self.session.execute(sql)
+            self.session.commit()
+
+        except Exception:
+            self.session.rollback()
+            self.logger.error(Exception)
+            raise
 
         return message
 
     def consume_ip_passed_challenge_message(self, message):
-        # ip = message['value_ip']
-        # self.logger.info(f'Banjax ip_passed_challenge {ip} ...')
-        # try:
-        #     sql = f'update request_sets set challenge_passed = 1 where ' \
-        #           f'stop > \'{self.get_time_filter()}\' and ip = \'{ip}\''
-        #     self.session.execute(sql)
-        #     self.session.commit()
-        #
-        # except Exception:
-        #     self.session.rollback()
-        #     self.logger.error(Exception)
-        #     raise
+        ip = message['value_ip']
+        self.logger.info(f'Banjax ip_passed_challenge {ip} ...')
+        self.ip_cache.ip_passed_challenge(ip)
+        try:
+            sql = f'update request_sets set challenge_passed = 1 where ' \
+                  f'stop > \'{self.get_time_filter()}\' and challenged = 1 and ip = \'{ip}\''
+            self.session.execute(sql)
+            self.session.commit()
+
+        except Exception:
+            self.session.rollback()
+            self.logger.error(Exception)
+            raise
 
         return message
 
     def consume_ip_banned_message(self, message):
         ip = message['value_ip']
         self.logger.info(f'Banjax ip_banned {ip} ...')
-        # try:
-        #     sql = f'update request_sets set banned = 1 where ' \
-        #           f'stop > \'{self.get_time_filter()}\' and ip = \'{ip}\''
-        #     self.session.execute(sql)
-        #     self.session.commit()
-        #
-        # except Exception:
-        #     self.session.rollback()
-        #     self.logger.error(Exception)
-        #     raise
+        try:
+            sql = f'update request_sets set banned = 1 where ' \
+                  f'stop > \'{self.get_time_filter()}\' and challenged = 1 and ip = \'{ip}\''
+            self.session.execute(sql)
+            self.session.commit()
+
+        except Exception:
+            self.session.rollback()
+            self.logger.error(Exception)
+            raise
 
         return message
 

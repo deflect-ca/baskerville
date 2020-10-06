@@ -25,63 +25,73 @@ class IPCache(metaclass=SingletonThreadSafe):
         folder_path = get_default_ip_cache_path()
         if not os.path.exists(folder_path):
             os.mkdir(folder_path)
-        self.full_path = os.path.join(folder_path, 'ip_cache.bin')
 
-        if os.path.exists(self.full_path):
-            self.logger.info(f'Loading IP cache from file {self.full_path}...')
-            with open(self.full_path, 'rb') as f:
-                self.cache = pickle.load(f)
-            self.logger.info(f'IP cache has been loaded from file {self.full_path}. Size:{len(self.cache)}')
+        self.full_path_passed_challenge = os.path.join(folder_path, 'ip_cache_passed_challenge.bin')
+        if os.path.exists(self.full_path_passed_challenge):
+            self.logger.info(f'Loading passed challenge IP cache from file {self.full_path_passed_challenge}...')
+            with open(self.full_path_passed_challenge, 'rb') as f:
+                self.cache_passed = pickle.load(f)
         else:
-            self.cache = TTLCache(maxsize=config.engine.ip_cache_size, ttl=config.engine.ip_cache_ttl)
-            self.logger.info('A new instance of IP cache has been created')
+            self.cache_passed = TTLCache(
+                maxsize=config.engine.ip_cache_passed_challenge_size,
+                ttl=config.engine.ip_cache_passed_challenge_ttl)
+            self.logger.info('A new instance of passed challege IP cache has been created')
+
+        self.full_path_pending = os.path.join(folder_path, 'ip_cache_pending.bin')
+        if os.path.exists(self.full_path_pending):
+            self.logger.info(f'Loading passed challenge IP cache from file {self.full_path_pending}...')
+            with open(self.full_path_pending, 'rb') as f:
+                self.cache_pending = pickle.load(f)
+        else:
+            self.cache_pending = TTLCache(
+                maxsize=config.engine.ip_cache_pending_size,
+                ttl=config.engine.ip_cache_pending_ttl)
+            self.logger.info('A new instance of pending IP cache has been created')
 
     def update(self, records):
         with self.lock:
             self.logger.info('IP cache updating...')
-            if len(self.cache) > 0.98 * self.cache.maxsize:
-                self.logger.warning(
-                    'IP cache is 98% full. Please increase parameter ip_cache_size or/and reduce ip_cache_ttl')
-
+            if len(self.cache_passed) > 0.98 * self.cache_passed.maxsize:
+                self.logger.warning('IP cache passed challenge is 98% full. ')
+            if len(self.cache_pending) > 0.98 * self.cache_pending.maxsize:
+                self.logger.warning('IP cache pending challenge is 98% full. ')
             result = []
             for r in records:
-                if r['ip'] not in self.cache:
+                if r['ip'] not in self.cache_passed and r['ip'] not in self.cache_pending:
                     result.append(r)
 
             for r in result:
-                self.cache[r['ip']] = {
+                self.cache_pending[r['ip']] = {
                     'fails': 0
                 }
 
-            with open(self.full_path, 'wb') as f:
-                pickle.dump(self.cache, f)
+            with open(self.full_path_pending, 'wb') as f:
+                pickle.dump(self.cache_pending, f)
 
             self.logger.info(
-                f'IP cache: {len(self.cache)} total, {len(records) - len(result)} existed, {len(result)} added')
+                f'IP cache pending: {len(self.cache)} total, {len(records) - len(result)} existed, {len(result)} added')
 
             return result
 
-    def exists(self, ip):
-        with self.lock:
-            return ip in self.cache.keys()
-
     def ip_failed_challenge(self, ip):
         with self.lock:
-            if ip not in self.cache.keys():
-                self.logger.info(f'ip {ip} is not in cache')
+            if ip not in self.cache_pending.keys():
                 return 0
 
             try:
-                self.logger.info(f'ip {ip} is in cache')
-                value = self.cache[ip]
+                value = self.cache_pending[ip]
                 value['fails'] += 1
                 num_fails = value['fails']
                 self.logger.info(f'ip: {ip}, fails : {num_fails}')
-                if value['fails'] >= 10:
-                    self.logger.info(f'@@@@ ip {ip} has reached 10 fails - banning')
-                self.cache['ip'] = value
+                self.cache_pending['ip'] = value
                 return num_fails
 
             except KeyError as er:
                 self.logger.info(f'IP cache key error {er}')
                 pass
+
+    def ip_passed_challenge(self, ip):
+        with self.lock:
+            if ip not in self.cache_pending.keys():
+                return
+        self.cache_passed[ip] = {}
