@@ -39,7 +39,7 @@ class IPCache(metaclass=SingletonThreadSafe):
 
         self.full_path_pending = os.path.join(folder_path, 'ip_cache_pending.bin')
         if os.path.exists(self.full_path_pending):
-            self.logger.info(f'Loading passed challenge IP cache from file {self.full_path_pending}...')
+            self.logger.info(f'Loading pending challenge IP cache from file {self.full_path_pending}...')
             with open(self.full_path_pending, 'rb') as f:
                 self.cache_pending = pickle.load(f)
         else:
@@ -67,7 +67,6 @@ class IPCache(metaclass=SingletonThreadSafe):
 
             with open(self.full_path_pending, 'wb') as f:
                 pickle.dump(self.cache_pending, f)
-
             self.logger.info(f'IP cache pending: {len(self.cache_pending)}, {len(result)} added')
 
             return result
@@ -98,6 +97,10 @@ class IPCache(metaclass=SingletonThreadSafe):
             self.cache_passed[ip] = self.cache_pending[ip]
             del self.cache_pending[ip]
             self.logger.info(f'IP {ip} passed challenge. Total IP in cache_passed: {len(self.cache_passed)}')
+
+            with open(self.full_path_passed_challenge, 'wb') as f:
+                pickle.dump(self.cache_passed, f)
+            self.logger.info(f'IP cache passed: {len(self.cache_passed)}, 1 added')
         return True
 
     def ip_banned(self, ip):
