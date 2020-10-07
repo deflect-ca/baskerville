@@ -35,7 +35,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.config = BaskervilleConfig(self.config).validate()
 
         self.register_metrics = (
-            self.config.engine.metrics and register_metrics
+                self.config.engine.metrics and register_metrics
         )
 
         self.logger = get_logger(
@@ -266,13 +266,11 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
 
-        # self._register_metrics()
-
+        self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
-            self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
             self.register_banjax_metrics()
-            self.banjax_thread = threading.Thread(target=self.report_consumer.run)
-            self.banjax_thread.start()
+        self.banjax_thread = threading.Thread(target=self.report_consumer.run)
+        self.banjax_thread.start()
 
         self.pipeline.run()
 
