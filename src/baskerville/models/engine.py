@@ -3,9 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-import threading
 
-from baskerville.models.banjax_report_consumer import BanjaxReportConsumer
 from baskerville.models.base import BaskervilleBase
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_factory import PipelineFactory
@@ -34,9 +32,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         )
         self.config = BaskervilleConfig(self.config).validate()
 
-        self.register_metrics = (
-                self.config.engine.metrics and register_metrics
-        )
+        self.register_metrics = self.config.engine.metrics and register_metrics
 
         self.logger = get_logger(
             self.__class__.__name__,
@@ -216,44 +212,6 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
 
         self.logger.info('Registered metrics.')
 
-    def register_banjax_metrics(self):
-        from baskerville.util.enums import MetricClassEnum
-
-        def incr_counter_for_ip_failed_challenge(metric, self, return_value):
-            metric.labels(return_value.get('value_ip'), return_value.get('value_site')).inc()
-            return return_value
-
-        consume_ip_failed_challenge_message = metrics_registry.register_action_hook(
-            self.report_consumer.consume_ip_failed_challenge_message,
-            incr_counter_for_ip_failed_challenge,
-            metric_name='ip_failed_challenge_on_website',
-            metric_cls=MetricClassEnum.counter,
-            labelnames=['ip', 'website']
-        )
-
-        setattr(self.report_consumer, 'consume_ip_failed_challenge_message', consume_ip_failed_challenge_message)
-
-        for field_name in self.report_consumer.status_message_fields:
-            target_method = getattr(self.report_consumer, f"consume_{field_name}")
-
-            def setter_for_field(field_name_inner):
-                def label_with_id_and_set(metric, self, return_value):
-                    metric.labels(return_value.get('id')).set(return_value.get(field_name_inner))
-                    return return_value
-
-                return label_with_id_and_set
-
-            patched_method = metrics_registry.register_action_hook(
-                target_method,
-                setter_for_field(field_name),
-                metric_name=field_name.replace('.', '_'),
-                metric_cls=MetricClassEnum.gauge,
-                labelnames=['banjax_id']
-            )
-
-            setattr(self.report_consumer, f"consume_{field_name}", patched_method)
-            self.logger.info(f"Registered metric for {field_name}")
-
     def run(self) -> None:
         """
         Run steps:
@@ -266,12 +224,6 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
 
-        self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
-        if self.register_metrics:
-            self.register_banjax_metrics()
-        self.banjax_thread = threading.Thread(target=self.report_consumer.run)
-        self.banjax_thread.start()
-
         self.pipeline.run()
 
     def finish_up(self):
@@ -283,10 +235,6 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         )
         if self.pipeline:
             self.pipeline.finish_up()
-
-        if self.banjax_thread:
-            self.banjax_thread.kill()
-            self.banjax_thread.join()
 
         self.logger.info('{} says \'Goodbye\'.'.format(
             self.__class__.__name__

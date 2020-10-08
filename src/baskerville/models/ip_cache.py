@@ -80,7 +80,6 @@ class IPCache(metaclass=SingletonThreadSafe):
                 value = self.cache_pending[ip]
                 value['fails'] += 1
                 num_fails = value['fails']
-                self.logger.info(f'ip: {ip}, fails : {num_fails}')
                 self.cache_pending['ip'] = value
                 return num_fails
 
@@ -111,4 +110,3 @@ class IPCache(metaclass=SingletonThreadSafe):
             except KeyError as er:
                 self.logger.info(f'IP cache key error {er}')
                 pass
-

@@ -278,6 +278,7 @@ class EngineConfig(Config):
     white_list = None
     banjax_sql_update_filter_minutes = 30
     banjax_num_fails_to_ban = 9
+    register_banjax_metrics = False
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
