@@ -38,3 +38,4 @@ pdoc==0.3.2
 markdown>=3.0
 kafka-python==2.0.1
 cachetools
+spark-testing-base
