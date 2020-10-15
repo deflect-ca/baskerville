@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
-import pickle
+import _pickle as pickle
 import threading
 
 from cachetools import TTLCache
@@ -15,6 +15,16 @@ from baskerville.util.singleton_thread_safe import SingletonThreadSafe
 
 
 class IPCache(metaclass=SingletonThreadSafe):
+
+    def init_cache(self, path, name, size, ttl):
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                result = pickle.load(f)
+            self.logger.info(f'Loaded {name} IP cache from file {path}...')
+        else:
+            result = TTLCache(maxsize=size, ttl=ttl)
+            self.logger.info(f'A new instance of {name} IP cache has been created')
+        return result
 
     def __init__(self, config, logger):
         super().__init__()
@@ -27,28 +37,29 @@ class IPCache(metaclass=SingletonThreadSafe):
             os.mkdir(folder_path)
 
         self.full_path_passed_challenge = os.path.join(folder_path, 'ip_cache_passed_challenge.bin')
-        if os.path.exists(self.full_path_passed_challenge):
-            self.logger.info(f'Loading passed challenge IP cache from file {self.full_path_passed_challenge}...')
-            with open(self.full_path_passed_challenge, 'rb') as f:
-                self.cache_passed = pickle.load(f)
-        else:
-            self.cache_passed = TTLCache(
-                maxsize=config.engine.ip_cache_passed_challenge_size,
-                ttl=config.engine.ip_cache_passed_challenge_ttl)
-            self.logger.info('A new instance of passed challege IP cache has been created')
+        self.cache_passed = self.init_cache(
+            self.full_path_passed_challenge,
+            'passed challenge',
+            config.engine.ip_cache_passed_challenge_size,
+            config.engine.ip_cache_passed_challenge_ttl
+        )
 
-        self.full_path_pending = os.path.join(folder_path, 'ip_cache_pending.bin')
-        if os.path.exists(self.full_path_pending):
-            self.logger.info(f'Loading pending challenge IP cache from file {self.full_path_pending}...')
-            with open(self.full_path_pending, 'rb') as f:
-                self.cache_pending = pickle.load(f)
-        else:
-            self.cache_pending = TTLCache(
-                maxsize=config.engine.ip_cache_pending_size,
-                ttl=config.engine.ip_cache_pending_ttl)
-            self.logger.info('A new instance of pending IP cache has been created')
+        self.full_path_passed_challenge = os.path.join(folder_path, 'ip_cache_pending.bin')
+        self.cache_pending = self.init_cache(
+            self.full_path_passed_challenge,
+            'pending challenge',
+            config.engine.ip_cache_pending_size,
+            config.engine.ip_cache_pending_ttl
+        )
 
     def update(self, records):
+        """
+        Filter new records to find a subset with previously unseen IPs.
+        Add the previously unseen IPs values to the cache.
+        Return only the subset of records with previously unseen IPs.
+        :param records: a list of records. Every record must contain 'ip' attribute.
+        :return: the subset of records with previously unseen IPs.
+        """
         with self.lock:
             self.logger.info('IP cache updating...')
             if len(self.cache_passed) > 0.98 * self.cache_passed.maxsize:
