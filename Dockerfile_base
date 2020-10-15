@@ -1,0 +1,33 @@
+# Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+FROM openjdk:8
+FROM python:3.6
+
+# Get jdk8 from previous stage https://docs.docker.com/develop/develop-images/multistage-build/
+COPY --from=openjdk:8 /usr/local/openjdk-8 /usr/local/openjdk-8
+
+# Set java path
+ENV JAVA_HOME /usr/local/openjdk-8
+ENV PATH $PATH:$JAVA_HOME/bin
+
+COPY . /baskerville
+
+RUN pip install --upgrade pip \
+    && git clone -b categorical_features https://github.com/equalitie/spark-iforest.git \
+    && cd spark-iforest/python \
+    && pip install . \
+    && cd ../../ \
+    && git clone https://github.com/equalitie/esretriever.git \
+    && cd esretriever \
+    && pip install . \
+    && cd ../ \
+    && cd baskerville \
+    && pip install -e . \
+    && mkdir -p src/baskerville/logs \
+    && cd ../
+
+

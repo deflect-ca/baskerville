@@ -25,7 +25,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         pip install -r requirements.txt
-        git clone https://github.com/equalitie/spark-iforest.git
+        git clone -b categorical_features https://github.com/equalitie/spark-iforest.git
         cd spark-iforest/python
         python setup.py sdist
         pip install dist/pyspark-iforest-2.4.0.tar.gz

@@ -3,7 +3,7 @@ services:
     baskerville:
         build:
           context: container
-          dockerfile: Dockerfile
+          dockerfile: Dockerfile_base
           args:
             - GITLAB_USER=${GITLAB_USER}
             - GITLAB_KEY=${GITLAB_KEY}
