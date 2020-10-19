@@ -37,5 +37,5 @@ plotly==4.5.0
 pdoc==0.3.2
 markdown>=3.0
 kafka-python==2.0.1
-cachetools
-spark-testing-base
+cachetools==4.1.1
+spark-testing-base==0.10.0
