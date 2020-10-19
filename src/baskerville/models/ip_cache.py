@@ -76,7 +76,7 @@ class IPCache(metaclass=SingletonThreadSafe):
                     'fails': 0
                 }
 
-            with open(self.full_path_pending, 'wb') as f:
+            with open(self.full_path_pending_challenge, 'wb') as f:
                 pickle.dump(self.cache_pending, f)
             self.logger.info(f'IP cache pending: {len(self.cache_pending)}, {len(result)} added')
 
