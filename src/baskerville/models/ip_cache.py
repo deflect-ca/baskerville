@@ -44,9 +44,9 @@ class IPCache(metaclass=SingletonThreadSafe):
             config.engine.ip_cache_passed_challenge_ttl
         )
 
-        self.full_path_passed_challenge = os.path.join(folder_path, 'ip_cache_pending.bin')
+        self.full_path_pending_challenge = os.path.join(folder_path, 'ip_cache_pending.bin')
         self.cache_pending = self.init_cache(
-            self.full_path_passed_challenge,
+            self.full_path_pending_challenge,
             'pending challenge',
             config.engine.ip_cache_pending_size,
             config.engine.ip_cache_pending_ttl
