@@ -1407,11 +1407,10 @@ class AttackDetection(Task):
         self.update_sliding_window()
         df_attack = self.get_attack_score()
         self.logger.info('Attack thresholding...')
-        df_attack = df_attack.join(self.df_white_list_hosts, on='target', how='left')
         df_attack = df_attack.withColumn('attack_prediction', F.when(
             (F.col('attack_score') > self.config.engine.attack_threshold) &
-            (F.col('total') > self.config.engine.minimum_number_attackers) &
-            (F.col('white_list_host').isNull()), F.lit(1)).otherwise(F.lit(0)))
+            (F.col('total') > self.config.engine.minimum_number_attackers),
+            F.lit(1)).otherwise(F.lit(0)))
 
         self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
 
@@ -1438,10 +1437,13 @@ class AttackDetection(Task):
                     producer.send(self.config.kafka.banjax_command_topic, message)
                     producer.flush()
         elif self.config.engine.challenge == 'ip':
-            df_ips = self.df.select(['ip']).where(
+            df_ips = self.df.select(['ip', 'target']).where(
                 (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
                 (F.col('low_rate_attack') == 1)
             )
+            df_ips = df_ips.join(self.df_white_list_hosts, on='target', how='left')
+            df_ips = df_ips.where(F.col('white_list_host').isNull())
+
             ips = [r['ip'] for r in df_ips.collect()]
             ips = self.apply_white_list(ips)
             ips = self.ip_cache.update(ips)
