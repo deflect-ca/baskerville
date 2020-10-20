@@ -10,8 +10,10 @@ import os
 from pyspark import SparkConf, StorageLevel
 from pyspark.sql import SparkSession
 
+from baskerville.models.config import SparkConfig
 
-def get_or_create_spark_session(spark_conf):
+
+def get_or_create_spark_session(spark_conf: SparkConfig):
     """
     Returns a configured spark session
     :param SparkConfig spark_conf: the spark configuration
@@ -144,6 +146,41 @@ def get_or_create_spark_session(spark_conf):
     )
     conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
     conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+
+    # security
+    # https://spark.apache.org/docs/latest/security.html
+    # note that: The same secret is shared by all Spark applications and
+    # daemons in that case, which limits the security of these deployments,
+    # especially on multi-tenant clusters.
+    if spark_conf.auth_secret:
+        conf.set('spark.authenticate', 'true')
+        conf.set('spark.authenticate.secret', spark_conf.auth_secret)
+
+    # encryption
+    conf.set('spark.network.crypto.enabled', 'true')
+    conf.set('spark.io.encryption.enabled', 'true')
+    # https://www.fortytools.com/blog/servlet-filter-for-http-basic-auth
+    conf.set('spark.ui.filters', 'baskerville.security.BasicAuthFilter')
+    # conf.set('spark.acls.enable', 'true')
+    # conf.set('spark.admin.acls', spark_conf.admin_acls)
+
+    # SSL https://spark.apache.org/docs/latest/security.html#ssl-configuration
+    if spark_conf.ssl_enabled == 'true':
+        conf.set('spark.ssl.enabled', spark_conf.ssl_enabled)
+        conf.set('spark.ssl.trustStore', spark_conf.ssl_truststore)
+        conf.set('spark.ssl.trustStorePassword', spark_conf.ssl_truststore_password)
+        conf.set('spark.ssl.keyStore', spark_conf.ssl_keystore)
+        conf.set('spark.ssl.keyStorePassword', spark_conf.ssl_keystore_password)
+        conf.set('spark.ssl.keyPassword', spark_conf.ssl_keypassword)
+        conf.set('spark.ssl.protocol', 'TLSv1.2')
+
+    # conf.set('spark.driver.port', spark_conf.driver_port)
+    # conf.set('spark.blockManager.port', spark_conf.block_manager_port)
+
+    # The REST Submission Server and the MesosClusterDispatcher do not support
+    # authentication. You should ensure that all network access to the REST API
+    # & MesosClusterDispatcher (port 6066 and 7077 respectively by default) are
+    # restricted to hosts that are trusted to submit jobs.
 
     spark = SparkSession.builder \
         .config(conf=conf) \
