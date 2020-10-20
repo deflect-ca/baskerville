@@ -52,13 +52,13 @@ class IPCache(metaclass=SingletonThreadSafe):
             config.engine.ip_cache_pending_ttl
         )
 
-    def update(self, records):
+    def update(self, ips):
         """
         Filter new records to find a subset with previously unseen IPs.
         Add the previously unseen IPs values to the cache.
-        Return only the subset of records with previously unseen IPs.
-        :param records: a list of records. Every record must contain 'ip' attribute.
-        :return: the subset of records with previously unseen IPs.
+        Return only the subset of previously unseen ips.
+        :param ips: a list of ips.
+        :return: the subset of previously unseen ips
         """
         with self.lock:
             self.logger.info('IP cache updating...')
@@ -67,12 +67,12 @@ class IPCache(metaclass=SingletonThreadSafe):
             if len(self.cache_pending) > 0.98 * self.cache_pending.maxsize:
                 self.logger.warning('IP cache pending challenge is 98% full. ')
             result = []
-            for r in records:
-                if r['ip'] not in self.cache_passed and r['ip'] not in self.cache_pending:
-                    result.append(r)
+            for ip in ips:
+                if ip not in self.cache_passed and ip not in self.cache_pending:
+                    result.append(ip)
 
-            for r in result:
-                self.cache_pending[r['ip']] = {
+            for ip in result:
+                self.cache_pending[ip] = {
                     'fails': 0
                 }
 

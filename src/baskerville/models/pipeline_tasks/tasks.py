@@ -1266,7 +1266,7 @@ class AttackDetection(Task):
         if self.config.engine.white_list_hosts:
             self.df_white_list_hosts = self.spark.createDataFrame(
                 [[host] for host in set(self.config.engine.white_list_hosts)], ['target'])\
-                .withColumn('white_list', F.lit(1))
+                .withColumn('white_list_host', F.lit(1))
 
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
@@ -1411,7 +1411,7 @@ class AttackDetection(Task):
         df_attack = df_attack.withColumn('attack_prediction', F.when(
             (F.col('attack_score') > self.config.engine.attack_threshold) &
             (F.col('total') > self.config.engine.minimum_number_attackers) &
-            (F.col('white_list') != 1), F.lit(1)).otherwise(F.lit(0)))
+            (F.col('white_list_host').isNull()), F.lit(1)).otherwise(F.lit(0)))
 
         self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
 
