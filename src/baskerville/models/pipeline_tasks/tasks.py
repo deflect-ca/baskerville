@@ -1254,7 +1254,8 @@ class AttackDetection(Task):
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
-        self.df_white_list = None
+        self.white_list_ips = set(self.config.engine.white_list_ips)
+        self.df_white_list_hosts = None
         self.ip_cache = IPCache(config, self.logger)
         self.report_consumer = None
         self.banjax_thread = None
@@ -1262,9 +1263,10 @@ class AttackDetection(Task):
 
     def initialize(self):
         # super(SaveStats, self).initialize()
-        if self.config.engine.white_list:
-            self.df_white_list = self.spark.createDataFrame([[ip] for ip in set(self.config.engine.white_list)],
-                                                            ['ip']).withColumn('white_list', F.lit(1))
+        if self.config.engine.white_list_hosts:
+            self.df_white_list_hosts = self.spark.createDataFrame(
+                [[host] for host in set(self.config.engine.white_list_hosts)], ['host'])\
+                .withColumn('white_list', F.lit(1))
 
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
@@ -1388,43 +1390,32 @@ class AttackDetection(Task):
 
         return df
 
-    def apply_white_list(self, df):
-        if not self.df_white_list:
-            return df
+    def apply_white_list(self, ips):
+        if not self.white_list_ips:
+            return ips
         self.logger.info('White listing...')
-        df = df.join(self.df_white_list, on='ip', how='left')
-        white_listed = df.where((F.col('white_list') == 1))
-        if white_listed.count() > 0:
-            self.logger.info(f'White listing {white_listed.count()} ips')
+        result = set(ips) - self.white_list_ips
 
-        df = df.withColumn('attack_prediction', F.when(
-            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('attack_prediction')))
-        df = df.withColumn('prediction', F.when(
-            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('prediction')))
-        df = df.withColumn('low_rate_attack', F.when(
-            (F.col('white_list') == 1), F.lit(0)).otherwise(F.col('low_rate_attack')))
-        return df
+        white_listed = len(ips) - len(result)
+        if white_listed > 0:
+            self.logger.info(f'White listing {white_listed} ips')
+        return result
 
     def detect_attack(self):
         self.logger.info('Attack detecting...')
-        if self.config.engine.attack_threshold == 0:
-            self.logger.info('Attack threshold is 0. No sliding window')
-            df_attack = self.df[['target']].distinct() \
-                .withColumn('attack_prediction', F.lit(1)) \
-                .withColumn('attack_score', F.lit(1))
-            self.df = self.df.withColumn('attack_prediction', F.lit(1))
-        else:
-            self.update_sliding_window()
-            df_attack = self.get_attack_score()
-            self.logger.info('Attack thresholding...')
-            df_attack = df_attack.withColumn('attack_prediction', F.when(
-                (F.col('attack_score') > self.config.engine.attack_threshold) &
-                (F.col('total') > self.config.engine.minimum_number_attackers), F.lit(1)).otherwise(F.lit(0)))
 
-            self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
+        self.update_sliding_window()
+        df_attack = self.get_attack_score()
+        self.logger.info('Attack thresholding...')
+        df_attack = df_attack.join(self.df_white_list_hosts, on='host', how='left')
+        df_attack = df_attack.withColumn('attack_prediction', F.when(
+            (F.col('attack_score') > self.config.engine.attack_threshold) &
+            (F.col('total') > self.config.engine.minimum_number_attackers) &
+            (F.col('white_list') != 1), F.lit(1)).otherwise(F.lit(0)))
+
+        self.df = self.df.join(df_attack.select(['target', 'attack_prediction']), on='target', how='left')
 
         self.df = self.detect_low_rate_attack(self.df)
-        self.df = self.apply_white_list(self.df)
         return df_attack
 
     def send_challenge(self, df_attack):
@@ -1434,38 +1425,39 @@ class AttackDetection(Task):
             df_host_challenge = df_host_challenge.select('target').distinct().join(
                 self.df.select('target', 'target_original').distinct(), on='target', how='left')
 
-            records = df_host_challenge.select('target_original').distinct().collect()
-            num_records = len(records)
+            records_host = df_host_challenge.select('target_original').distinct().collect()
+            num_records = len(records_host)
             if num_records > 0:
                 self.logger.info(
                     f'Sending {num_records} HOST challenge commands to kafka '
                     f'topic \'{self.config.kafka.banjax_command_topic}\'...')
-                for record in records:
+                for record in records_host:
                     message = json.dumps(
                         {'name': 'challenge_host', 'value': record['target_original']}
                     ).encode('utf-8')
                     producer.send(self.config.kafka.banjax_command_topic, message)
                     producer.flush()
         elif self.config.engine.challenge == 'ip':
-            ips = self.df.select(['ip']).where(
+            df_ips = self.df.select(['ip']).where(
                 (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
                 (F.col('low_rate_attack') == 1)
             )
-
-            records = ips.collect()
-            records = self.ip_cache.update(records)
-            num_records = len(records)
+            ips = [r['ip'] for r in df_ips.collect()]
+            ips = self.apply_white_list(ips)
+            ips = self.ip_cache.update(ips)
+            num_records = len(ips)
             if num_records > 0:
-                challenged_ips = self.spark.createDataFrame(records).withColumn('challenged', F.lit(1))
+                challenged_ips = self.spark.createDataFrame([[ip] for ip in ips], ['ip'])\
+                    .withColumn('challenged', F.lit(1))
                 self.df = self.df.join(challenged_ips, on='ip', how='left')
                 self.df = self.df.fillna({'challenged': 0})
 
                 self.logger.info(
                     f'Sending {num_records} IP challenge commands to '
                     f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
-                for record in records:
+                for ip in ips:
                     message = json.dumps(
-                        {'name': 'challenge_ip', 'value': record['ip']}
+                        {'name': 'challenge_ip', 'value': ip}
                     ).encode('utf-8')
                     producer.send(self.config.kafka.banjax_command_topic, message)
                     producer.flush()
