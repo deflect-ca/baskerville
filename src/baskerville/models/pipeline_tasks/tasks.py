@@ -1263,7 +1263,7 @@ class AttackDetection(Task):
 
     def initialize(self):
         # super(SaveStats, self).initialize()
-        if self.config.engine.white_list_hosts:
+        if self.config.engine.white_list_hosts and len(self.config.engine.white_list_hosts):
             self.df_white_list_hosts = self.spark.createDataFrame(
                 [[host] for host in set(self.config.engine.white_list_hosts)], ['target'])\
                 .withColumn('white_list_host', F.lit(1))
@@ -1441,8 +1441,9 @@ class AttackDetection(Task):
                 (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
                 (F.col('low_rate_attack') == 1)
             )
-            df_ips = df_ips.join(self.df_white_list_hosts, on='target', how='left')
-            df_ips = df_ips.where(F.col('white_list_host').isNull())
+            if self.df_white_list_hosts:
+                df_ips = df_ips.join(self.df_white_list_hosts, on='target', how='left')
+                df_ips = df_ips.where(F.col('white_list_host').isNull())
 
             ips = [r['ip'] for r in df_ips.collect()]
             ips = self.apply_white_list(ips)
