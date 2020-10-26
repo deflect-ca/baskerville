@@ -111,6 +111,9 @@ class LabelEnum(Enum):
             return self.value == other.value
         return self.value == other
 
+    def __hash__(self):
+        return self.value
+
 
 class MetricTypeEnum(BaseStrEnum):
     progress = "Progress"

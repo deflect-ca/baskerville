@@ -69,6 +69,7 @@ class Runtime(Base, SerializableMixin):
 
     id = Column(BigInteger, primary_key=True)
     id_encryption = Column(BigInteger, ForeignKey('encryption.id'))
+    id_client = Column(TEXT())
     start = Column(DateTime(timezone=True))
     stop = Column(DateTime(timezone=True))
     target = Column(TEXT(), nullable=True)

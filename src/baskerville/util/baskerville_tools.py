@@ -46,6 +46,7 @@ class BaskervilleDBTools(object):
         """
         try:
             runtime = Runtime()
+            runtime.id_client = conf.id_client
             runtime.start = start
             runtime.stop = stop
             runtime.target = target_site
