@@ -218,8 +218,8 @@ services:
       - KAFKA_ZOOKEEPER_TLS_KEYSTORE_PASSWORD=${KAFKA_PASSWORD}
       - KAFKA_ZOOKEEPER_TLS_TRUSTSTORE_PASSWORD=${KAFKA_PASSWORD}
 
-      - KAFKA_LOG_RETENTION_MUNUTES=20
-      - KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS=120000
+      - KAFKA_CFG_LOG_RETENTION_HOURS=1
+      - KAFKA_CFG_LOG_RETENTION_CHECK_INTERVAL_MS=120000
       - ALLOW_PLAINTEXT_LISTENER=True
       - KAFKA_CFG_SSL_CLIENT_AUTH=required
       - KAFKA_CFG_MIN_INSYNC_REPLICAS=2
@@ -344,7 +344,7 @@ KafkaClient {
 org.apache.kafka.common.security.plain.PlainLoginModule required username="baskerville" password="kafka_password";
 };
 ```
-* add kaka output
+* add kafka output
 ```
   if [type] == "deflect_access" {
     kafka {
@@ -379,3 +379,420 @@ sudo service logstash restart
 ```
 $KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server bnode1.deflect.ca:9093,bnode2.deflect.ca:9093,bnode3.deflect.ca:9093 --topic deflect.logs --consumer.config ssl.properties
 ```
+
+## Hadoop 
+
+Execute on bnode1,bnode2,bnode3:
+
+* install pdsh
+```
+sudo apt install pdsh
+```
+
+* modify ~/.profile
+```
+export PDSH_RCMD_TYPE=ssh
+```
+
+* create SSH key
+```
+ssh-keygen -t rsa -P ""
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+```
+
+* download hadoop
+```
+sudo wget -P ~ https://mirrors.sonic.net/apache/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
+tar xzf hadoop-3.2.1.tar.gz
+mv hadoop-3.2.1 hadoop
+```
+
+* add to `~/hadoop/etc/hadoop/hadoop-env.sh`
+```
+JAVA_HOME=/usr/lib/jvm/jdk1.8.0_241/
+```
+* move hadoop folder
+```
+sudo mv hadoop /usr/local/hadoop
+
+```
+
+* modify `/etc/environmenet`
+```
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/local/hadoop/bin:/usr/local/hadoop/sbin"
+JAVA_HOME="/usr/lib/jvm/jdk1.8.0_241/jre"
+```
+
+* add hadoop user. Create a password.
+```
+sudo adduser hadoopuser
+```
+
+* change attributes
+```
+sudo usermod -aG hadoopuser hadoopuser
+sudo chown hadoopuser:root -R /usr/local/hadoop/
+sudo chmod g+rwx -R /usr/local/hadoop/
+sudo adduser hadoopuser sudo
+```
+
+* modify `/etc/hosts`
+```
+ip_node1 bnode1
+ip_node2 bnode2
+ip_node3 bnode3
+```
+
+Execute on bnode1:
+* create SSH key
+```
+su - hadoopuser
+ssh-keygen -t rsa
+```
+
+copy public key from bnode1 to bnode2 and bnode3
+```
+su - hadoopuser
+mkdir -p ~/.ssh/
+cat .. ~/.ssh/authorized_keys
+```
+
+* modify ~/.profile
+```
+export PDSH_RCMD_TYPE=ssh
+```
+
+* allow ssh connection on bnode2 and bnode3
+```
+sudo ufw allow from 213.108.108.186 to any port 22
+```
+
+* configure '/usr/local/hadoop/etc/hadoop/core-site.xml'
+```xml
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://bnode1:9000</value>
+    </property>
+	<property>
+		<name>dfs.permissions</name>
+		<value>false</value>
+	</property>
+    <property>
+        <name>hadoop.rpc.protection</name>
+        <value>privacy</value>
+    </property>
+    <property>
+      <name>hadoop.security.authentication</name>
+      <value>simple</value> 
+    </property>
+    <property>
+      <name>hadoop.security.authorization</name>
+      <value>false</value> 
+    </property>
+</configuration>
+```
+
+* configure '/usr/local/hadoop/etc/hadoop/hdfs-site.xml'
+```xml
+<configuration>
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>/usr/local/hadoop/data/nameNode</value>
+    </property>
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>/usr/local/hadoop/data/dataNode</value>
+    </property>
+    <property>
+        <name>dfs.replication</name>
+        <value>2</value>
+    </property>
+    <property>
+        <name>dfs.namenode.secondary.https-address</name>
+        <value>213.108.108.186:50091</value>
+    </property>
+    <property>
+        <name>dfs.namenode.https-address</name>
+        <value>bnode1.deflect.ca:50470</value>
+    </property>
+
+    <property>
+        <name>dfs.webhdfs.enabled</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>dfs.https.enable</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>dfs.http.policy</name>
+        <value>HTTPS_ONLY</value>
+    </property>
+
+    <property>
+        <name>dfs.encrypt.data.transfer</name>
+        <value>true</value>
+    </property>
+	<property>
+      		<name>dfs.block.access.token.enable</name>
+      		<value>true</value>
+	</property>
+</configuration>
+```
+* edit `/usr/local/hadoop/etc/hadoop/ssl-server.xml`
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>ssl.server.truststore.location</name>
+        <value>/usr/local/hadoop/etc/hadoop/keys/truststore/kafka.truststore.jks</value>
+    </property>
+    <property>
+        <name>ssl.server.truststore.password</name>
+        <value>KAFKA_PASSWORD</value>
+    </property>
+    <property>
+        <name>ssl.server.truststore.type</name>
+        <value>jks</value>
+    </property>
+    
+    <property>
+        <name>ssl.server.truststore.reload.interval</name>
+        <value>10000</value>
+    </property>
+    
+    <property>
+        <name>ssl.server.keystore.location</name>
+        <value>/usr/local/hadoop/etc/hadoop/keys/kafka/keystore1/kafka.keystore.jks</value>
+    </property>
+    
+    <property>
+        <name>ssl.server.keystore.password</name>
+        <value>KAFKA_PASSWORD</value>
+    </property>
+    
+    <property>
+        <name>ssl.server.keystore.keypassword</name>
+        <value>KAFKA_PASSWORD</value>
+    </property>
+    <property>
+        <name>ssl.server.keystore.type</name>
+        <value>jks</value>
+    </property>
+</configuration>
+```
+* modify keystore2 for bnode2, and keystore3 for bnode3 in `/usr/local/hadoop/etc/hadoop/ssl-server.xml`
+```xml
+    <property>
+        <name>ssl.server.keystore.location</name>
+        <value>/usr/local/hadoop/etc/hadoop/keys/kafka/keystore2/kafka.keystore.jks</value>
+    </property>
+```
+
+* edit `/usr/local/hadoop/etc/hadoop/ssl-client.xml`
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>ssl.client.keystore.type</name>
+        <value>jks</value>
+        </property>
+    <property>
+        <name>ssl.client.keystore.location</name>
+        <value>$/usr/local/hadoop/etc/hadoop/keys/kafka/keystore1/kafka.keystore.jks</value>
+        </property>
+    <property>
+        <name>ssl.client.keystore.password</name>
+        <value>KAFKA_PASSWORD</value>
+    </property>
+
+    <property>
+        <name>ssl.client.truststore.location</name>
+        <value>/usr/local/hadoop/etc/hadoop/keys/truststore/kafka.truststore.jks</value>
+    </property>
+    <property>
+        <name>ssl.client.truststore.password</name>
+        <value>KAFKA_PASSWORD</value>
+    </property>
+    <property>
+        <name>ssl.client.truststore.type</name>
+        <value>jks</value>
+    </property>
+</configuration>
+```
+* copy the ssl keys to the hadoop folder
+```
+cp -r /root/keys /usr/local/hadoop/etc/hadoop
+sudo chmod -R 755 /usr/local/hadoop/etc/hadoop/keys
+```
+
+* modify `.profile` for all nodes
+```
+export PATH=$PATH:/usr/local/hadoop/sbin:/usr/local/hadoop/bin
+```
+
+* copy hadoop configuration to slaves from bnode1
+```
+scp /usr/local/hadoop/etc/hadoop/* bnode2:/usr/local/hadoop/etc/hadoop/
+scp /usr/local/hadoop/etc/hadoop/* bnode3:/usr/local/hadoop/etc/hadoop/
+```
+
+
+* for data nodes (bnode2, bnode3), change the datanode hostname in '/usr/local/hadoop/etc/hadoop/hdfs-site.xml'
+
+```xml
+    <property>
+        <name>dfs.datanode.https.address</name>
+        <value>bnodeX.deflect.ca:50475</value>
+    </property>
+```
+
+* copy the keys to hadoop folder
+```
+scp /usr/local/hadoop/etc/hadoop/keys bnode2:/usr/local/hadoop/etc/hadoop/keys
+scp /usr/local/hadoop/etc/hadoop/keys bnode3:/usr/local/hadoop/etc/hadoop/keys
+```
+
+namenode ports
+sudo ufw allow 50070	
+sudo ufw allow 8020
+sudo ufw allow 50075
+
+sudo ufw allow 9000
+sudo ufw allow 50470
+sudo ufw allow 50091
+
+sudo ufw allow from 213.108.110.40 
+sudo ufw allow from 37.218.246.183
+
+datanode ports
+
+sudo ufw allow from 213.108.108.186  
+
+sudo ufw allow 50475
+sudo ufw allow 9866
+sudo ufw allow 9864
+
+sudo ufw allow 50075
+sudo ufw allow 50010
+sudo ufw allow 1019
+sudo ufw allow 50020
+
+* verify HDFS is up and running
+```
+hdfs dfsadmin -report
+hadoop fs -ls /
+```
+## Python
+* build python 3.6.6:
+```
+sudo apt-get install zlib1g-dev
+
+wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz
+tar xvf Python-3.6.6.tgz
+cd Python-3.6.6
+./configure --enable-optimizations --enable-shared --prefix=/usr/local LDFLAGS="-Wl,-rpath /usr/local/lib" --with-ensurepip=install 
+make -j8
+sudo make altinstall
+python3.6
+```
+* modify `~/.profile` and source it with `. ~/.profile`:
+```
+alias python=python3.6
+alias pip=pip3.6
+export PYTHON_PATH=/usr/local/bin/
+export PATH=$PATH:$PYTHON_PATH
+```
+
+
+## Spark (for all 3 nodes)
+
+* install [spark](https://www.programcreek.com/2018/11/install-spark-on-ubuntu-standalone-mode)
+```
+wget http://apache.claz.org/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
+tar -xvf spark-2.4.7-bin-hadoop2.7.tgz
+sudo mv spark-2.4.7-bin-hadoop2.7 /usr/local/
+sudo ln -s /usr/local/spark-2.4.7-bin-hadoop2.7/ /usr/local/spark
+```
+* modify `.profile` and source it with `. ~/.profile`:
+```
+export SPARK_HOME=/usr/local/spark
+export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
+```
+
+* Copy `/usr/local/spark/conf/spark-env.sh.template' to `/usr/local/spark/conf/spark-env.sh'
+`mv /usr/local/spark/conf/spark-env.sh.template /usr/local/spark/conf/spark-env.sh`
+* modify  `/usr/local/spark/conf/spark-env.sh`
+```
+SPARK_MASTER_HOST="bnode1"
+PYSPARK_PYTHON="/usr/local/bin/python3.6"
+```
+
+## Server master (bnode1).
+* Copy `/usr/local/spark/conf/slaves.template` to `/usr/local/spark/conf/slaves`
+`cp /usr/local/spark/conf/slaves.template /usr/local/spark/conf/slaves`
+
+* Define slaves in `/usr/local/spark/conf/slaves`:
+```
+slave1
+slave2
+```
+* Start spark master `start-master.sh`
+* Start spark slaves `start-slaves.sh`
+* Run spark shell to confirm spark is up and running: 
+```
+spark-shell --master spark://bnode1:7077
+```
+* Confirm Spark UI is up at `http:/bnode1:8080/`
+
+## Baskerville for bnode1
+
+* clone and install [Esretriever](https://github.com/equalitie/esretriever) 
+```
+git clone https://github.com/equalitie/esretriever.git
+cd esretriever
+pip install -e .
+cd ..
+```
+
+* clone and install [Basekrville](https://github.com/equalitie/baskerville)
+```
+git clone https://github.com/equalitie/baskerville.git
+cd baskerville
+sudo pip install -e .
+mkdir /root/baskerville/src/baskerville/logs
+```
+
+* clone and install IForest
+```commandline
+sudo apt install maven
+git clone https://github.com/equalitie/spark-iforest.git
+cd spark-iforest
+git checkout categorical_featuers
+mvn clean package -DskipTests
+cp target/spark-iforest-2.4.0.99.jar $SPARK_HOME/jars/
+
+cd python
+python setup.py sdist
+pip install dist/pyspark-iforest-2.4.0.99.tar.gz
+```
+
+## Redis
+* install [Redis](https://redis.io/topics/quickstart)
+```commandline
+wget http://download.redis.io/redis-stable.tar.gz
+tar xvzf redis-stable.tar.gz
+cd redis-stable
+make
+sudo cp src/redis-server /usr/local/bin/
+sudo cp src/redis-cli /usr/local/bin/
+```
+* rename `baskerville/redis_dot_conf` to `baskerville/redis.conf'
+`cp ~/baskerville/redis_dot_conf ~/baskerville/redis.conf`
+* set spark password in the line 772 `requirepass spark_password`
+* start redis server `redis-server ~/baskerville/redis.conf --daemonize yes`
