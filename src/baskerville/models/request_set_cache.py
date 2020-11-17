@@ -310,7 +310,7 @@ class RequestSetSparkCache(Singleton):
         columns.remove('target_original')
         source_df = source_df.select(columns)
 
-        self.logger.debug(f'Source_df count = {source_df.count()}')
+        # ppp self.logger.debug(f'Source_df count = {source_df.count()}')
 
         # read the whole thing again
         if self.file_manager.path_exists(self.file_name):
@@ -359,15 +359,15 @@ class RequestSetSparkCache(Singleton):
 
         # remove old rows
         if expire:
-            original_count = self.__persistent_cache.count()
+            # ppp original_count = self.__persistent_cache.count()
             update_date = now - datetime.timedelta(
                 seconds=self.expire_if_longer_than
             )
             self.__persistent_cache = self.__persistent_cache.select(
                 '*'
             ).where(F.col('updated_at') >= update_date)
-            new_count = self.__persistent_cache.count()
-            self.logger.info(f'Persistent cache size after expiration = {new_count} ({new_count-original_count})')
+            # ppp new_count = self.__persistent_cache.count()
+            # ppp self.logger.info(f'Persistent cache size after expiration = {new_count} ({new_count-original_count})')
 
         # write back to parquet - different file/folder though
         # because self.parquet_name is already in use
@@ -381,10 +381,10 @@ class RequestSetSparkCache(Singleton):
             self.format_
         ).save(self.temp_file_name)
 
-        self.logger.debug(
-            f'# Number of rows in persistent cache: '
-            f'{self.__persistent_cache.count()}'
-        )
+        # ppp self.logger.debug(
+        #     f'# Number of rows in persistent cache: '
+        #     f'{self.__persistent_cache.count()}'
+        # )
 
         # we don't need anything in memory anymore
         source_df.unpersist(blocking=True)

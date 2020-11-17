@@ -670,6 +670,16 @@ sudo ufw allow 50091
 sudo ufw allow from 213.108.110.40 
 sudo ufw allow from 37.218.246.183
 
+bnode2
+
+sudo ufw allow from 213.108.108.186 
+sudo ufw allow from 37.218.246.183
+
+bnode3
+    
+sudo ufw allow from 213.108.108.186 
+sudo ufw allow from 213.108.110.40
+
 datanode ports
 
 sudo ufw allow from 213.108.108.186  
@@ -691,6 +701,7 @@ hadoop fs -ls /
 ## Python
 * build python 3.6.6:
 ```
+sudo apt-get install libssl-dev
 sudo apt-get install zlib1g-dev
 
 wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz
@@ -726,11 +737,11 @@ export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
 ```
 
 * Copy `/usr/local/spark/conf/spark-env.sh.template' to `/usr/local/spark/conf/spark-env.sh'
-`mv /usr/local/spark/conf/spark-env.sh.template /usr/local/spark/conf/spark-env.sh`
+`cp /usr/local/spark/conf/spark-env.sh.template /usr/local/spark/conf/spark-env.sh`
 * modify  `/usr/local/spark/conf/spark-env.sh`
 ```
-SPARK_MASTER_HOST="bnode1"
-PYSPARK_PYTHON="/usr/local/bin/python3.6"
+export SPARK_MASTER_HOST="bnode1"
+export PYSPARK_PYTHON="/usr/local/bin/python3.6"
 ```
 
 ## Server master (bnode1).
@@ -739,8 +750,9 @@ PYSPARK_PYTHON="/usr/local/bin/python3.6"
 
 * Define slaves in `/usr/local/spark/conf/slaves`:
 ```
-slave1
-slave2
+bnode1
+bnode2
+bnode3
 ```
 * Start spark master `start-master.sh`
 * Start spark slaves `start-slaves.sh`
@@ -750,7 +762,21 @@ spark-shell --master spark://bnode1:7077
 ```
 * Confirm Spark UI is up at `http:/bnode1:8080/`
 
-## Baskerville for bnode1
+## Baskerville
+
+* clone and install IForest
+```commandline
+sudo apt install maven
+git clone https://github.com/equalitie/spark-iforest.git
+cd spark-iforest
+git checkout categorical_features
+mvn clean package -DskipTests
+cp target/spark-iforest-2.4.0.99.jar $SPARK_HOME/jars/
+
+cd python
+python setup.py sdist
+pip install dist/pyspark-iforest-2.4.0.99.tar.gz
+```
 
 * clone and install [Esretriever](https://github.com/equalitie/esretriever) 
 ```
@@ -764,23 +790,12 @@ cd ..
 ```
 git clone https://github.com/equalitie/baskerville.git
 cd baskerville
+git checkout greenhost
 sudo pip install -e .
 mkdir /root/baskerville/src/baskerville/logs
 ```
 
-* clone and install IForest
-```commandline
-sudo apt install maven
-git clone https://github.com/equalitie/spark-iforest.git
-cd spark-iforest
-git checkout categorical_featuers
-mvn clean package -DskipTests
-cp target/spark-iforest-2.4.0.99.jar $SPARK_HOME/jars/
 
-cd python
-python setup.py sdist
-pip install dist/pyspark-iforest-2.4.0.99.tar.gz
-```
 
 ## Redis
 * install [Redis](https://redis.io/topics/quickstart)
@@ -791,8 +806,11 @@ cd redis-stable
 make
 sudo cp src/redis-server /usr/local/bin/
 sudo cp src/redis-cli /usr/local/bin/
+cp redis.conf ~/baskerville/
 ```
-* rename `baskerville/redis_dot_conf` to `baskerville/redis.conf'
-`cp ~/baskerville/redis_dot_conf ~/baskerville/redis.conf`
-* set spark password in the line 772 `requirepass spark_password`
-* start redis server `redis-server ~/baskerville/redis.conf --daemonize yes`
+* set password in `~/baskerville/redis.conf` and comment out 
+`bind 127.0.0.1`
+`requirepass spark_password`
+
+* start redis server 
+`redis-server /root/baskerville/redis.conf --daemonize yes`
