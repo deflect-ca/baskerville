@@ -291,9 +291,6 @@ class GetDataLog(Task):
         )  # ppp.persist(
         #   self.config.spark.storage_level)
 
-        self.logger.info('Got dataframe of #{} records'.format(
-            self.df.count())
-        )
         self.df = load_test(
             self.df,
             self.config.engine.load_test,
@@ -306,7 +303,7 @@ class GetDataLog(Task):
         the steps
         :return:
         """
-        if self.df.count() == 0:
+        if len(self.df.head(1)) == 0:
             self.logger.info('No data in to process.')
         else:
             for window_df in get_window(
@@ -501,9 +498,6 @@ class GenerateFeatures(MLTask):
         if where is not None:
             self.df = self.df.where(where)
 
-        # todo: metric for dropped logs
-        print(f'{self.df.count()}')
-
     def handle_missing_values(self):
         self.df = self.data_parser.fill_missing_values(self.df)
 
@@ -662,9 +656,6 @@ class GenerateFeatures(MLTask):
         for feature in self.feature_manager.active_features:
             self.df = feature.compute(self.df)
 
-        self.logger.info(
-            f'Number of logs after feature extraction {self.df.count()}'
-        )
         # self.df = self.df.cache()
 
     def remove_feature_columns(self):
@@ -989,13 +980,9 @@ class MergeWithSensitiveData(Task):
             .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
 
         self.df = self.df.alias('df')
-        count = self.df.count()
         self.df = self.redis_df.join(
             self.df, on=['id_client', 'id_request_sets']
         ).drop('df.id_client', 'df.id_request_sets')
-
-        if count != self.df.count():
-            self.logger.warning(f'Failed to retrieve {count - self.df.count()} records from Redis')
 
         self.df = super().run()
         return self.df
@@ -1380,8 +1367,8 @@ class AttackDetection(Task):
               self.config.engine.low_rate_attack_total_request[1]))
         ).select('ip', 'target', 'f.request_total', 'start').withColumn('low_rate_attack', F.lit(1))
 
-        if df_attackers.count() > 0:
-            self.logger.info(f'Low rate attack -------------- {df_attackers.count()} ips')
+        if len(df_attackers.head(1)) > 0:
+            self.logger.info('Low rate attack -------------- ')
             self.logger.info(df_attackers.show())
             df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
             df = df.fillna({'low_rate_attack': 0})

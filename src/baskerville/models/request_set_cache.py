@@ -195,7 +195,7 @@ class RequestSetSparkCache(Singleton):
             select_cols = self.cache.columns
 
         # add null columns if nothing in cache
-        if self.count() == 0:
+        if len(self.__cache.head(1)) == 0:
             for c in select_cols:
                 if c not in df_to_update.columns:
                     df_to_update = df_to_update.withColumn(c, F.lit(None))
@@ -310,8 +310,6 @@ class RequestSetSparkCache(Singleton):
         columns.remove('target_original')
         source_df = source_df.select(columns)
 
-        # ppp self.logger.debug(f'Source_df count = {source_df.count()}')
-
         # read the whole thing again
         if self.file_manager.path_exists(self.file_name):
             self.__persistent_cache = self.session_getter().read.format(
@@ -359,15 +357,12 @@ class RequestSetSparkCache(Singleton):
 
         # remove old rows
         if expire:
-            # ppp original_count = self.__persistent_cache.count()
             update_date = now - datetime.timedelta(
                 seconds=self.expire_if_longer_than
             )
             self.__persistent_cache = self.__persistent_cache.select(
                 '*'
             ).where(F.col('updated_at') >= update_date)
-            # ppp new_count = self.__persistent_cache.count()
-            # ppp self.logger.info(f'Persistent cache size after expiration = {new_count} ({new_count-original_count})')
 
         # write back to parquet - different file/folder though
         # because self.parquet_name is already in use
@@ -380,11 +375,6 @@ class RequestSetSparkCache(Singleton):
         ).format(
             self.format_
         ).save(self.temp_file_name)
-
-        # ppp self.logger.debug(
-        #     f'# Number of rows in persistent cache: '
-        #     f'{self.__persistent_cache.count()}'
-        # )
 
         # we don't need anything in memory anymore
         source_df.unpersist(blocking=True)
@@ -411,9 +401,6 @@ class RequestSetSparkCache(Singleton):
 
     def deduplicate(self):
         self.__cache = self.__cache.dropDuplicates()
-        # self._count = self.cache.count()
-        # self._last_updated = datetime.datetime.now()
-        # self._changed = False
 
     def alias(self, name):
         self.__cache = self.__cache.alias(name)

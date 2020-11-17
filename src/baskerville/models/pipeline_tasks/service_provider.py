@@ -109,8 +109,6 @@ class ServiceProvider(Borg):
             else:
                 self.request_set_cache.load_empty(rs_cache_schema)
 
-            #ppp self.logger.info(f'In cache: {self.request_set_cache.count()}')
-
             return self.request_set_cache
 
     def initialize_db_tools_service(self):
@@ -192,8 +190,6 @@ class ServiceProvider(Borg):
         df = self.request_set_cache.update_df(
             df, select_cols=self.cache_columns
         )
-        # ppp self.logger.debug(
-        #     f'****** > # of rows in cache: {self.request_set_cache.count()}')
         return df
 
     def finish_up(self):
