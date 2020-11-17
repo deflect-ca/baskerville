@@ -1007,6 +1007,7 @@ class SendToKafka(Task):
 
         producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
         records = self.df.collect()
+        self.logger.info('collect() is complete')
         for record in records:
             message = json.dumps(
                 {key: record[key] for key in self.columns}
