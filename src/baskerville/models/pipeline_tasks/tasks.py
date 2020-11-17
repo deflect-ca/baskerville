@@ -1007,7 +1007,6 @@ class SendToKafka(Task):
 
         producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
         records = self.df.collect()
-        self.logger.info('collect() is complete')
         for record in records:
             message = json.dumps(
                 {key: record[key] for key in self.columns}
@@ -1016,7 +1015,7 @@ class SendToKafka(Task):
             if self.cc_to_client:
                 id_client = record['id_client']
                 producer.send(f'{self.topic}.{id_client}', message)
-            producer.flush()
+        producer.flush()
 
         # does no work, possible jar conflict
         # self.df = self.df.select(

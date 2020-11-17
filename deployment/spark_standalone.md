@@ -742,6 +742,7 @@ export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
 ```
 export SPARK_MASTER_HOST="bnode1"
 export PYSPARK_PYTHON="/usr/local/bin/python3.6"
+export SPARK_WORKER_OPTS="$SPARK_WORKER_OPTS -Dspark.worker.cleanup.enabled=true"
 ```
 
 ## Server master (bnode1).
