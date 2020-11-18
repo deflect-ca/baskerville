@@ -746,6 +746,21 @@ export SPARK_WORKER_OPTS="$SPARK_WORKER_OPTS -Dspark.worker.cleanup.enabled=true
 ```
 
 ## Server master (bnode1).
+* create `/usr/local/spark/conf/spark-defaults.conf`
+```commandline
+cp /usr/local/spark/conf/spark-defaults.conf.template /usr/local/spark/conf/spark-defaults.conf
+``` 
+* add to `/usr/local/spark/conf/spark-defaults.conf`
+```commandline
+spark.master                     spark://bnode1.deflect.ca:7077
+spark.authenticate.secret        kafka_password
+```
+* copy `spark-defaults.conf` to all the nodes
+```
+scp /usr/local/spark/conf/spark-defaults.conf bnode2:/usr/local/spark/conf
+scp /usr/local/spark/conf/spark-defaults.conf bnode3:/usr/local/spark/conf
+```
+
 * Copy `/usr/local/spark/conf/slaves.template` to `/usr/local/spark/conf/slaves`
 `cp /usr/local/spark/conf/slaves.template /usr/local/spark/conf/slaves`
 

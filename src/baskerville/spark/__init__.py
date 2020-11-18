@@ -41,6 +41,15 @@ def get_or_create_spark_session(spark_conf):
     #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
     # https://medium.com/@pmatpadi/spark-streaming-dynamic-scaling-and-backpressure-in-action-6ebdbc782a69
 
+    # security
+    # https://spark.apache.org/docs/latest/security.html
+    # note that: The same secret is shared by all Spark applications and
+    # daemons in that case, which limits the security of these deployments,
+    # especially on multi-tenant clusters.
+    if spark_conf.auth_secret:
+        conf.set('spark.authenticate', 'true')
+        conf.set('spark.authenticate.secret', spark_conf.auth_secret)
+
     # conf.set('spark.streaming.dynamicAllocation.enabled', 'true')
     conf.set('spark.streaming.unpersist', 'true')
     conf.set('spark.sql.session.timeZone', 'UTC')

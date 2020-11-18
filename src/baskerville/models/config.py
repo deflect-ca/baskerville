@@ -788,6 +788,7 @@ class SparkConfig(Config):
     off_heap_size = None
     redis_host = 'localhost'
     redis_port = 6379
+    auth_secret = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)

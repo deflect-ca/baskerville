@@ -1422,7 +1422,7 @@ class AttackDetection(Task):
                         {'name': 'challenge_host', 'value': record['target_original']}
                     ).encode('utf-8')
                     producer.send(self.config.kafka.banjax_command_topic, message)
-                    producer.flush()
+                producer.flush()
         elif self.config.engine.challenge == 'ip':
             df_ips = self.df.select(['ip', 'target']).where(
                 (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
@@ -1449,7 +1449,7 @@ class AttackDetection(Task):
                         {'name': 'challenge_ip', 'value': ip}
                     ).encode('utf-8')
                     producer.send(self.config.kafka.banjax_command_topic, message)
-                    producer.flush()
+                producer.flush()
             else:
                 self.df = self.df.withColumn('challenged', F.lit(0))
 
