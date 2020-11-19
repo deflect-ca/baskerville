@@ -795,6 +795,9 @@ class SparkConfig(Config):
     ssl_keystore = None
     ssl_keystore_password = None
     ssl_keypassword = None
+    ssl_ui_enabled = False
+    ssl_standalone_enabled = False
+    ssl_history_server_enabled = False
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)

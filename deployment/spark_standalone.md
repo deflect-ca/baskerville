@@ -754,6 +754,8 @@ cp /usr/local/spark/conf/spark-defaults.conf.template /usr/local/spark/conf/spar
 ```commandline
 spark.master                     spark://bnode1.deflect.ca:7077
 spark.authenticate               true
+spark.network.crypto.enabled     true
+spark.network.crypto.saslFallback false
 spark.authenticate.secret        kafka_password
 ```
 * copy `spark-defaults.conf` to all the nodes

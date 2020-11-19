@@ -60,6 +60,10 @@ def get_or_create_spark_session(spark_conf):
         conf.set('spark.ssl.keyStorePassword', spark_conf.ssl_keystore_password)
         conf.set('spark.ssl.keyPassword', spark_conf.ssl_keypassword)
 
+        conf.set('spark.ssl.ui.enabled', spark_conf.ssl_ui_enabled)
+        conf.set('spark.ssl.standalone.enabled', spark_conf.ssl_standalone_enabled)
+        conf.set('spark.ssl.historyServer.enabled', spark_conf.ssl_history_server_enabled)
+
     # conf.set('spark.streaming.dynamicAllocation.enabled', 'true')
     conf.set('spark.streaming.unpersist', 'true')
     conf.set('spark.sql.session.timeZone', 'UTC')
