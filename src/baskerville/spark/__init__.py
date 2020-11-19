@@ -51,7 +51,8 @@ def get_or_create_spark_session(spark_conf):
         conf.set('spark.authenticate.secret', spark_conf.auth_secret)
 
     if spark_conf.ssl_enabled:
-        conf.set('spark.ssl_enabled', 'true')
+        conf.set('spark.ssl.enabled', 'true')
+        conf.set('spark.network.crypto.saslFallback', 'false')
         conf.set('spark.network.crypto.enabled', 'true')
         conf.set('spark.ssl.trustStore', spark_conf.ssl_truststore)
         conf.set('spark.ssl.trustStorePassword', spark_conf.ssl_truststore_password)
