@@ -789,6 +789,12 @@ class SparkConfig(Config):
     redis_host = 'localhost'
     redis_port = 6379
     auth_secret = None
+    ssl_enabled = False
+    ssl_truststore = None
+    ssl_truststore_password = None
+    ssl_keystore = None
+    ssl_keystore_password = None
+    ssl_keypassword = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
@@ -899,6 +905,12 @@ class SparkConfig(Config):
                     ))
                     # raise ValueError('serializer_buffer\'s value cannot be '
                     #                  'greater than serializer_buffer_max')
+
+        if self.ssl_enabled:
+            if not self.ssl_truststore:
+                self.add_error(ConfigError('ssl_truststore must be specified if ssl_enabled is true'))
+            if not self.ssl_keystore:
+                self.add_error(ConfigError('ssl_keystore must be specified if ssl_enabled is true'))
 
         self._is_validated = True
         return self
