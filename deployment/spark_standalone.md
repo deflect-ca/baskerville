@@ -658,6 +658,12 @@ scp /usr/local/hadoop/etc/hadoop/keys bnode2:/usr/local/hadoop/etc/hadoop/keys
 scp /usr/local/hadoop/etc/hadoop/keys bnode3:/usr/local/hadoop/etc/hadoop/keys
 ```
 
+* create a `prod` folder 
+```commandline
+hadoop fs -mkdir prod
+hadoop fs -chown root /prod
+```
+
 namenode ports
 sudo ufw allow 50070	
 sudo ufw allow 8020
@@ -756,6 +762,8 @@ spark.master                     spark://bnode1.deflect.ca:7077
 spark.authenticate               true
 spark.network.crypto.enabled     true
 spark.network.crypto.saslFallback false
+spark.ssl.ui.enabled             false
+spark.ssl.standalone.enabled     false
 spark.authenticate.secret        kafka_password
 ```
 * copy `spark-defaults.conf` to all the nodes
