@@ -687,9 +687,6 @@ class SparkPipelineBase(PipelineBase):
         if where is not None:
             self.logs_df = self.logs_df.where(where)
 
-        # todo: metric for dropped logs
-        print(f'{self.logs_df.count()}')
-
     def handle_missing_values(self):
         self.logs_df = self.data_parser.fill_missing_values(self.logs_df)
 

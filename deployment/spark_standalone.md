@@ -822,7 +822,11 @@ sudo pip install -e .
 mkdir /root/baskerville/src/baskerville/logs
 ```
 
-
+* set up a cron job for Java GC memory leak workaround
+```
+chmod +x /home/spark/baskerville/data/set_up_cron_job_for_periodic_gc.sh
+/home/spark/baskerville/data/set_up_cron_job_for_periodic_gc.sh
+```
 
 ## Redis
 * install [Redis](https://redis.io/topics/quickstart)
