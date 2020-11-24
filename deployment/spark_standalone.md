@@ -673,18 +673,35 @@ sudo ufw allow 9000
 sudo ufw allow 50470
 sudo ufw allow 50091
 
+sudo ufw allow from 213.108.108.186 
 sudo ufw allow from 213.108.110.40 
 sudo ufw allow from 37.218.246.183
+
+-- all nodes:
+sudo ufw allow 6379 
+sudo ufw allow 6379 
+sudo ufw allow 6379 
+sudo ufw allow 16379 
+sudo ufw allow 16379 
+sudo ufw allow 16379 
+sudo ufw allow 6380 
+sudo ufw allow 6380 
+sudo ufw allow 6380 
+sudo ufw allow 16380 
+sudo ufw allow 16380 
+sudo ufw allow 16380 
 
 bnode2
 
 sudo ufw allow from 213.108.108.186 
+sudo ufw allow from 213.108.110.40 
 sudo ufw allow from 37.218.246.183
 
 bnode3
     
 sudo ufw allow from 213.108.108.186 
-sudo ufw allow from 213.108.110.40
+sudo ufw allow from 213.108.110.40 
+sudo ufw allow from 37.218.246.183
 
 datanode ports
 
@@ -835,13 +852,43 @@ wget http://download.redis.io/redis-stable.tar.gz
 tar xvzf redis-stable.tar.gz
 cd redis-stable
 make
-sudo cp src/redis-server /usr/local/bin/
-sudo cp src/redis-cli /usr/local/bin/
-cp redis.conf ~/baskerville/
 ```
-* set password in `~/baskerville/redis.conf` and comment out 
-`bind 127.0.0.1`
-`requirepass spark_password`
+* modify `~/redis-stable/redis.conf` 
+```
+bind bnode1_ip
+requirepass spark_password
+cluster-enabled yes
+cluster-config-file nodes-6379.conf
+cluster-node-timeout 1000
+``` 
+* create redis slave config
+```commandline
+cp /root/redis-stable/redis.conf /root/redis-stable/redis_slave.conf
+```
+* modify `~/redis-stable/redis_slave.conf`
+```
+port 6380
+cluster-config-file nodes-6380.conf
+```
 
-* start redis server 
-`redis-server /root/baskerville/redis.conf --daemonize yes`
+* copy redis to bnode1 and bnode2
+```commandline
+scp -r ~/redis-stable bnode2:/root/
+scp -r ~/redis-stable bnode3:/root/
+```
+
+* correct the bind ip in redis.conf and redis_slave.conf on bnode2 and bnode3 
+```
+bind bnode1(or2)_ip
+```
+
+* start redis server (master and slave) on all the nodes(bnode1, bnode2, bnode3)
+`
+/root/redis-stable/src/redis-server /root/redis-stable/redis.conf --daemonize yes
+/root/redis-stable/src/redis-server /root/redis-stable/redis_slave.conf --daemonize yes
+`
+* create redis cluster (execute on nbnode1)
+```commandline
+cd /root/redis-stable/src/
+./redis-cli --cluster create bnode1_ip:6379 bnode1_ip:6380 bnode2_ip:6379 bnode2_ip:6380 bnode3_ip:6379 bnode3_ip:6380 --cluster-replicas 1 -a kafka_password
+```
