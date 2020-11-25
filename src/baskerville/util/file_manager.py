@@ -64,6 +64,16 @@ class FileManager(object):
         except OSError:
             return False
 
+    def make_directory(self, path):
+        if self.jvm_file_system:
+            return
+
+        try:
+            os.mkdir(path)
+            return True
+        except OSError:
+            return False
+
     def rename_path(self, source, destination):
         if self.jvm_file_system:
             self.jvm_file_system.rename(self.jvm_path_class(source),

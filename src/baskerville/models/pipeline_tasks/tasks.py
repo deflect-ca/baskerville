@@ -28,6 +28,7 @@ from baskerville.models.metrics.registry import metrics_registry
 from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
     CacheTask
 from baskerville.models.config import BaskervilleConfig
+from baskerville.models.sensitive_storage import SensitiveStorage
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction
 from baskerville.spark.schemas import features_schema, \
@@ -933,25 +934,16 @@ class CacheSensitiveData(Task):
         super().__init__(config, steps)
         self.table_name = table_name
         self.ttl = self.config.engine.ttl
+        self.sensitive_storage = SensitiveStorage(
+            path=config.engine.storage_path,
+            spark_session=self.service_provider.spark
+        )
 
     def run(self):
         self.df = self.df.drop('vectorized_features')
-        redis_df = self.df.withColumn("features", F.to_json("features"))
+        df_sensitive = self.df.withColumn("features", F.to_json("features"))
+        self.sensitive_storage.write(df_sensitive)
 
-        redis_df = redis_df.withColumn('start', F.date_format(F.col('start'), 'yyyy-MM-dd HH:mm:ss')) \
-            .withColumn('stop', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss'))
-
-        redis_df.write.format(
-            'org.apache.spark.sql.redis'
-        ).mode(
-            'append'
-        ).option(
-            'table', self.table_name
-        ).option(
-            'ttl', self.ttl
-        ).option(
-            'key.column', 'id_request_sets'
-        ).save()
         self.df = super().run()
         return self.df
 
@@ -966,21 +958,16 @@ class MergeWithSensitiveData(Task):
         super().__init__(config, steps)
         self.redis_df = None
         self.table_name = table_name
+        self.sensitive_storage = SensitiveStorage(
+            path=config.engine.storage_path,
+            spark_session=self.service_provider.spark
+        )
 
     def run(self):
-        self.redis_df = self.spark.read.format(
-            'org.apache.spark.sql.redis'
-        ).option(
-            'table', self.table_name
-        ).option(
-            'key.column', 'id_request_sets'
-        ).load().alias('redis_df')
 
-        self.redis_df = self.redis_df.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss")) \
-            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
-
+        df_sensitive = self.sensitive_storage.read()
         self.df = self.df.alias('df')
-        self.df = self.redis_df.join(
+        self.df = df_sensitive.join(
             self.df, on=['id_client', 'id_request_sets']
         ).drop('df.id_client', 'df.id_request_sets')
 
