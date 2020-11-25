@@ -29,6 +29,7 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
     CacheTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.sensitive_storage import SensitiveStorage
+from baskerville.spark import get_spark_session
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction
 from baskerville.spark.schemas import features_schema, \
@@ -936,7 +937,7 @@ class CacheSensitiveData(Task):
         self.ttl = self.config.engine.ttl
         self.sensitive_storage = SensitiveStorage(
             path=config.engine.storage_path,
-            spark_session=self.service_provider.spark
+            spark_session=get_spark_session()
         )
 
     def run(self):
@@ -960,7 +961,7 @@ class MergeWithSensitiveData(Task):
         self.table_name = table_name
         self.sensitive_storage = SensitiveStorage(
             path=config.engine.storage_path,
-            spark_session=self.service_provider.spark
+            spark_session=get_spark_session()
         )
 
     def run(self):
