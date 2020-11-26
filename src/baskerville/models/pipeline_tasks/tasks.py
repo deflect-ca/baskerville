@@ -945,7 +945,7 @@ class CacheSensitiveData(Task):
         self.df = self.df.drop('vectorized_features')
         # df_sensitive = self.df.withColumn("features", F.to_json("features"))
         df_sensitive = self.df
-        if 'first_ever_request' in self.df_sensitive.columns:
+        if 'first_ever_request' in df_sensitive.columns:
             df_sensitive = df_sensitive.drop('first_ever_request')
 
         self.sensitive_storage.write(df_sensitive)
