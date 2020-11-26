@@ -674,7 +674,7 @@ sudo ufw allow 50470
 sudo ufw allow 50091
 
 sudo ufw allow from 213.108.108.186 
-sudo ufw allow from 213.108.110.40 
+sudo ufw allow from 213.108.108.186 
 sudo ufw allow from 37.218.246.183
 
 -- all nodes:

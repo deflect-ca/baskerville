@@ -277,7 +277,7 @@ class EngineConfig(Config):
     ip_cache_pending_size = 100000
 
     white_list_ips = []
-    white_list_hosts = None
+    white_list_hosts = []
     banjax_sql_update_filter_minutes = 30
     banjax_num_fails_to_ban = 9
     register_banjax_metrics = False
