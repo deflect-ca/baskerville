@@ -13,11 +13,11 @@ from pyspark.sql import DataFrame
 
 class SensitiveStorage(object):
 
-    def __init__(self, path, spark_session, format='parquet', size=2, max_size=10):
+    def __init__(self, path, spark_session, logger, format='parquet', size=2, max_size=10):
         super().__init__()
         if max_size <= size:
             raise RuntimeError('Max size must be bigger than size.')
-
+        self.logger = logger
         self.path = os.path.join(path, 'sensitive_storage')
         self.spark_session = spark_session
         self.format = format
@@ -47,10 +47,12 @@ class SensitiveStorage(object):
         return self.file_manager.load_from_file(self.index_file_path)
 
     def write(self, df):
+        self.logger.info('Writing batch to parquet...')
         batch_file_name = os.path.join(self.batches_path, SensitiveStorage.get_timestamp())
         df.write.mode('overwrite').format(self.format).save(batch_file_name)
 
         # get the old index
+        self.logger.info('Reading old index...')
         old_index = self._read_index()
 
         # copy only the latest batches to the new index
@@ -62,9 +64,11 @@ class SensitiveStorage(object):
         new_index.append(batch_file_name)
 
         # save the new index
+        self.logger.info('Saving new index...')
         self._write_index(new_index)
 
         # delete expired batches
+        self.logger.info('Deleting expired batches...')
         for i in range(0, i_last_batch_to_keep):
             self.file_manager.delete_path(old_index[i])
 

@@ -937,12 +937,17 @@ class CacheSensitiveData(Task):
         self.ttl = self.config.engine.ttl
         self.sensitive_storage = SensitiveStorage(
             path=config.engine.storage_path,
-            spark_session=get_spark_session()
+            spark_session=get_spark_session(),
+            logger=self.logger
         )
 
     def run(self):
         self.df = self.df.drop('vectorized_features')
-        df_sensitive = self.df.withColumn("features", F.to_json("features"))
+        # df_sensitive = self.df.withColumn("features", F.to_json("features"))
+        df_sensitive = self.df
+        if 'first_ever_request' in self.df_sensitive.columns:
+            df_sensitive = df_sensitive.drop('first_ever_request')
+
         self.sensitive_storage.write(df_sensitive)
 
         self.df = super().run()
@@ -961,7 +966,8 @@ class MergeWithSensitiveData(Task):
         self.table_name = table_name
         self.sensitive_storage = SensitiveStorage(
             path=config.engine.storage_path,
-            spark_session=get_spark_session()
+            spark_session=get_spark_session(),
+            logger=self.logger
         )
 
     def run(self):
@@ -971,6 +977,8 @@ class MergeWithSensitiveData(Task):
         self.df = df_sensitive.join(
             self.df, on=['id_client', 'id_request_sets']
         ).drop('df.id_client', 'df.id_request_sets')
+
+        self.df = self.df.withColumn("features", F.to_json("features"))
 
         self.df = super().run()
         return self.df
