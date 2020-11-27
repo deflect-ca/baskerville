@@ -86,9 +86,9 @@ class GetDataKafka(Task):
             self.data_parser.schema
         ).repartition(
             *self.group_by_cols
-        )  # ppp.persist(
-        #   self.config.spark.storage_level
-        # )
+        ).persist(
+           self.config.spark.storage_level
+        )
 
         self.df = load_test(
             self.df,
@@ -189,9 +189,9 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        )  # ppp.persist(
-        #   self.config.spark.storage_level
-        # )
+        ).persist(
+          self.config.spark.storage_level
+        )
         # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
@@ -288,8 +288,7 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        )  # ppp.persist(
-        #   self.config.spark.storage_level)
+        ).persist(self.config.spark.storage_level)
 
         self.df = load_test(
             self.df,
@@ -676,7 +675,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        # pppself.df.persist(self.config.spark.storage_level)
+        self.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -944,13 +943,15 @@ class CacheSensitiveData(Task):
         redis_df.write.format(
             'org.apache.spark.sql.redis'
         ).mode(
-            'append'
+            'Ignore'
         ).option(
             'table', self.table_name
         ).option(
             'ttl', self.ttl
         ).option(
             'key.column', 'id_request_sets'
+        ).option(
+            'model', 'binary'
         ).save()
         self.df = super().run()
         return self.df

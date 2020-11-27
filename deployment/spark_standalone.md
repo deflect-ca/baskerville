@@ -673,48 +673,11 @@ sudo ufw allow 9000
 sudo ufw allow 50470
 sudo ufw allow 50091
 
+# all nodes
 sudo ufw allow from 213.108.108.186 
 sudo ufw allow from 213.108.108.186 
 sudo ufw allow from 37.218.246.183
 
--- all nodes:
-sudo ufw allow 6379 
-sudo ufw allow 6379 
-sudo ufw allow 6379 
-sudo ufw allow 16379 
-sudo ufw allow 16379 
-sudo ufw allow 16379 
-sudo ufw allow 6380 
-sudo ufw allow 6380 
-sudo ufw allow 6380 
-sudo ufw allow 16380 
-sudo ufw allow 16380 
-sudo ufw allow 16380 
-
-bnode2
-
-sudo ufw allow from 213.108.108.186 
-sudo ufw allow from 213.108.110.40 
-sudo ufw allow from 37.218.246.183
-
-bnode3
-    
-sudo ufw allow from 213.108.108.186 
-sudo ufw allow from 213.108.110.40 
-sudo ufw allow from 37.218.246.183
-
-datanode ports
-
-sudo ufw allow from 213.108.108.186  
-
-sudo ufw allow 50475
-sudo ufw allow 9866
-sudo ufw allow 9864
-
-sudo ufw allow 50075
-sudo ufw allow 50010
-sudo ufw allow 1019
-sudo ufw allow 50020
 
 * verify HDFS is up and running
 ```
