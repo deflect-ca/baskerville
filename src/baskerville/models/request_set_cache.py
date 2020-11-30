@@ -312,11 +312,12 @@ class RequestSetSparkCache(Singleton):
 
         # read the whole thing again
         if self.file_manager.path_exists(self.file_name):
+            self.__persistent_cache.unpersist()
             self.__persistent_cache = self.session_getter().read.format(
                 self.format_
             ).load(
                 self.file_name
-            )#.persist(self.storage_level)
+            ).persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
         self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
