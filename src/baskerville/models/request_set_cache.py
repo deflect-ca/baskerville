@@ -318,7 +318,7 @@ class RequestSetSparkCache(Singleton):
                 self.format_
             ).load(
                 self.file_name
-            )#.persist(self.storage_level)
+            ).persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
         self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
