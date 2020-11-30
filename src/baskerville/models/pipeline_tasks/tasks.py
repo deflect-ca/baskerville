@@ -82,15 +82,18 @@ class GetDataKafka(Task):
         )
 
     def get_data(self):
+        if self.df:
+            self.df.unpersist()
+
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             self.data_parser.schema
+        ).persist(
+           self.config.spark.storage_level
         )
+
         # .repartition(
         #     *self.group_by_cols
         # )\
-        # .persist(
-        #    self.config.spark.storage_level
-        # )
 
         self.df = load_test(
             self.df,
