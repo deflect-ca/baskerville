@@ -923,6 +923,8 @@ class  RefreshCache(CacheTask):
     def run(self):
         self.service_provider.refresh_cache(self.df)
         self.df.unpersist()
+        del self.df
+        self.df = None
         return super().run()
 
 
