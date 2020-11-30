@@ -171,7 +171,7 @@ class ServiceProvider(Borg):
         df = df.select(
             F.col('target'),
             F.col('ip'),
-        ).distinct().alias('a').persist(self.spark_conf.storage_level)
+        ).distinct().alias('a')#.persist(self.spark_conf.storage_level)
 
         self.request_set_cache.filter_by(df)
 

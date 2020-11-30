@@ -84,11 +84,13 @@ class GetDataKafka(Task):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             self.data_parser.schema
-        ).repartition(
-            *self.group_by_cols
-        ).persist(
-           self.config.spark.storage_level
         )
+        # .repartition(
+        #     *self.group_by_cols
+        # )\
+        # .persist(
+        #    self.config.spark.storage_level
+        # )
 
         self.df = load_test(
             self.df,
@@ -189,9 +191,9 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        ).persist(
-          self.config.spark.storage_level
-        )
+        )#.persist(
+         # self.config.spark.storage_level
+        #)
         # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
@@ -288,7 +290,7 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        ).persist(self.config.spark.storage_level)
+        ) #.persist(self.config.spark.storage_level)
 
         self.df = load_test(
             self.df,
@@ -310,7 +312,7 @@ class GetDataLog(Task):
             ):
                 self.df = window_df.repartition(
                     *self.group_by_cols
-                ).persist(self.config.spark.storage_level)
+                )#.persist(self.config.spark.storage_level)
                 self.remaining_steps = list(self.step_to_action.keys())
                 self.df = super().run()
                 self.reset()
@@ -675,7 +677,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        self.df.persist(self.config.spark.storage_level)
+        #self.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -809,6 +811,7 @@ class GenerateFeatures(MLTask):
 
     def run(self):
         self.handle_missing_columns()
+        self.df = self.df.repartition('client_request_host', 'client_ip')
         self.normalize_host_names()
         self.rename_columns()
         self.filter_columns()
