@@ -312,7 +312,8 @@ class RequestSetSparkCache(Singleton):
 
         # read the whole thing again
         if self.file_manager.path_exists(self.file_name):
-            self.__persistent_cache.unpersist()
+            if self.__persistent_cache:
+                self.__persistent_cache.unpersist()
             self.__persistent_cache = self.session_getter().read.format(
                 self.format_
             ).load(
