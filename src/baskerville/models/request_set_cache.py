@@ -251,7 +251,7 @@ class RequestSetSparkCache(Singleton):
                 how='inner'
             ).drop(
                 'a.ip'
-            )#.persist(self.storage_level)
+            ).persist(self.storage_level)
         else:
             if self.__cache:
                 self.__cache = self.__cache.join(
@@ -260,7 +260,7 @@ class RequestSetSparkCache(Singleton):
                     how='inner'
                 ).drop(
                     'a.ip'
-                )#.persist(self.storage_level)
+                ).persist(self.storage_level)
             else:
                 self.load_empty(self.schema)
 
