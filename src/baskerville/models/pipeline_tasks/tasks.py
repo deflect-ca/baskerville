@@ -811,8 +811,8 @@ class GenerateFeatures(MLTask):
 
     def run(self):
         self.handle_missing_columns()
-        self.df = self.df.repartition('client_request_host', 'client_ip')
         self.normalize_host_names()
+        self.df = self.df.repartition('client_request_host', 'client_ip')
         self.rename_columns()
         self.filter_columns()
         self.handle_missing_values()
