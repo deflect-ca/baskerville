@@ -82,9 +82,6 @@ class GetDataKafka(Task):
         )
 
     def get_data(self):
-        if self.df:
-            self.df.unpersist()
-
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             self.data_parser.schema
         ).persist(
