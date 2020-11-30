@@ -919,9 +919,10 @@ class Save(SaveDfInPostgres):
         return self.df
 
 
-class RefreshCache(CacheTask):
+class  RefreshCache(CacheTask):
     def run(self):
         self.service_provider.refresh_cache(self.df)
+        self.df.unpersist()
         return super().run()
 
 
