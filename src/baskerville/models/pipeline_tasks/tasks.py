@@ -1335,10 +1335,11 @@ class AttackDetection(Task):
             F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
         )  # ppp.persist(self.config.spark.storage_level)
 
-        while len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
-                seconds=self.config.engine.sliding_window):
-            self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
-            del self.df_chunks[0]
+        if increment_stop:
+            while len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
+                    seconds=self.config.engine.sliding_window):
+                self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
+                del self.df_chunks[0]
 
         self.df_chunks.append((df_increment, increment_stop))
         self.logger.info(f'Number of sliding window chunks {len(self.df_chunks)}...')
