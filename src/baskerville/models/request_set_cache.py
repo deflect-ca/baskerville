@@ -195,7 +195,7 @@ class RequestSetSparkCache(Singleton):
             select_cols = self.cache.columns
 
         # add null columns if nothing in cache
-        if self.__cache.count() == 0:
+        if len(self.__cache.head(1)) == 0:
             for c in select_cols:
                 if c not in df_to_update.columns:
                     df_to_update = df_to_update.withColumn(c, F.lit(None))
