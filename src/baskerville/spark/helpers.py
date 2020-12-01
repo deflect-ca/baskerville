@@ -104,7 +104,7 @@ def save_df_to_table(
     """
     if not isinstance(storage_level, StorageLevel):
         storage_level = StorageLevelFactory.get_storage_level(storage_level)
-    df = df.persist(storage_level)
+    #df = df.persist(storage_level)
     for c in json_cols:
         df = col_to_json(df, c)
     df.write.format('jdbc').options(
@@ -238,7 +238,7 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str):
             (F.col('timestamp') >= current_window_start) &
             (F.col('timestamp') < current_end)
         )
-        window_df = df.where(filter_).persist(storage_level)
+        window_df = df.where(filter_) #.persist(storage_level)
         if not window_df.rdd.isEmpty():
             print(f'# Request sets = {window_df.count()}')
             yield window_df

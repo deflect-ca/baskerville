@@ -100,6 +100,7 @@ def validate(fn):
             logger.error(e)
             raise ValueError(e)
         return fn(*args, **kwargs)
+
     return wrapper
 
 
@@ -270,9 +271,9 @@ class EngineConfig(Config):
     sliding_window = 360
     low_rate_attack_period = [600, 3600]
     low_rate_attack_total_request = [400, 2000]
-    ip_cache_passed_challenge_ttl = 60*60*24  # 24h
+    ip_cache_passed_challenge_ttl = 60 * 60 * 24  # 24h
     ip_cache_passed_challenge_size = 100000
-    ip_cache_pending_ttl = 60*60*1  # 1h
+    ip_cache_pending_ttl = 60 * 60 * 1  # 1h
     ip_cache_pending_size = 100000
 
     white_list_ips = []
@@ -356,6 +357,12 @@ class EngineConfig(Config):
             self.add_error(
                 ConfigError('low_rate_attack_period and low_rate_attack_total_request must be lists of size 2')
             )
+
+        if len(self.white_list_hosts) != len(set(self.white_list_hosts)):
+            warnings.warn('You have duplicates in "white_list_hosts" parameter.')
+
+        if len(self.white_list_ips) != len(set(self.white_list_ips)):
+            warnings.warn('You have duplicates in "white_list_ips" parameter.')
 
         self._is_validated = True
 

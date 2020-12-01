@@ -86,11 +86,13 @@ class GetDataKafka(Task):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             self.data_parser.schema
-        ).repartition(
-            *self.group_by_cols
-        )  # ppp.persist(
-        #   self.config.spark.storage_level
-        # )
+        ).persist(
+           self.config.spark.storage_level
+        )
+
+        # .repartition(
+        #     *self.group_by_cols
+        # )\
 
         self.df = load_test(
             self.df,
@@ -191,9 +193,9 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        )  # ppp.persist(
-        #   self.config.spark.storage_level
-        # )
+        )#.persist(
+         # self.config.spark.storage_level
+        #)
         # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
@@ -290,8 +292,7 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        )  # ppp.persist(
-        #   self.config.spark.storage_level)
+        ) #.persist(self.config.spark.storage_level)
 
         self.df = load_test(
             self.df,
@@ -313,7 +314,7 @@ class GetDataLog(Task):
             ):
                 self.df = window_df.repartition(
                     *self.group_by_cols
-                ).persist(self.config.spark.storage_level)
+                )#.persist(self.config.spark.storage_level)
                 self.remaining_steps = list(self.step_to_action.keys())
                 self.df = super().run()
                 self.reset()
@@ -678,7 +679,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        # pppself.df.persist(self.config.spark.storage_level)
+        #self.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -813,6 +814,7 @@ class GenerateFeatures(MLTask):
     def run(self):
         self.handle_missing_columns()
         self.normalize_host_names()
+        self.df = self.df.repartition('client_request_host', 'client_ip')
         self.rename_columns()
         self.filter_columns()
         self.handle_missing_values()
@@ -919,9 +921,12 @@ class Save(SaveDfInPostgres):
         return self.df
 
 
-class RefreshCache(CacheTask):
+class  RefreshCache(CacheTask):
     def run(self):
         self.service_provider.refresh_cache(self.df)
+        self.df.unpersist()
+        del self.df
+        self.df = None
         return super().run()
 
 
@@ -1324,10 +1329,11 @@ class AttackDetection(Task):
             F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
         )  # ppp.persist(self.config.spark.storage_level)
 
-        while len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
-                seconds=self.config.engine.sliding_window):
-            self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
-            del self.df_chunks[0]
+        if increment_stop:
+            while len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
+                    seconds=self.config.engine.sliding_window):
+                self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
+                del self.df_chunks[0]
 
         self.df_chunks.append((df_increment, increment_stop))
         self.logger.info(f'Number of sliding window chunks {len(self.df_chunks)}...')
