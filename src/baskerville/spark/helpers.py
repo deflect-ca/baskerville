@@ -250,3 +250,31 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str):
             window_df.unpersist(blocking=True)
             del window_df
             break
+
+
+def send_to_kafka_by_partition_id(
+        df_to_send, bootstrap_servers, cmd_topic, cmd, id_client=None
+):
+    from baskerville.spark.udfs import udf_send_to_kafka
+    df_to_send = df_to_send.withColumn('pid', F.spark_partition_id())
+    f_ = F.collect_list('rows')
+    if 'challenge_' in cmd:
+        f_ = F.collect_set('rows')
+    g_records = df_to_send.groupBy('pid').agg(
+        f_.alias('rows')
+    )
+    g_records = g_records.withColumn(
+        'sent_to_kafka',
+        udf_send_to_kafka(
+            F.lit(bootstrap_servers),
+            F.lit(cmd_topic),
+            F.col('rows'),
+            F.lit(cmd),
+            F.lit('id_client') if id_client else F.lit(None)
+        )
+    )
+    # False means something went wrong:
+    g_records.select('*').where(
+        F.col('sent_to_kafka') == False  # noqa
+    ).show()
+    return g_records

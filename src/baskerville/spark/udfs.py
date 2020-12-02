@@ -243,6 +243,45 @@ def cross_reference_misp(ip, db_conf):
     return label, id_attribute
 
 
+def get_msg(row, cmd_name):
+    """
+    Constructs kafka message depending on cmd_name
+    """
+    import json
+    if 'challenge_' in cmd_name:
+        return json.dumps(
+            {'name': cmd_name, 'value': row}
+        ).encode('utf-8')
+    elif cmd_name == 'prediction_center':
+        return json.dumps(row.asDict()).encode('utf-8')
+
+
+def send_to_kafka(
+        kafka_servers, topic, rows, cmd_name='challenge_host', id_client=None
+):
+    """
+    Creates a kafka producer and sends the rows one by one,
+    along with the specified command (challenge_[host, ip])
+    :returns: False if something went wrong, true otherwise
+    """
+    try:
+        from kafka import KafkaProducer
+        producer = KafkaProducer(
+            bootstrap_servers=kafka_servers
+        )
+        for row in rows:
+            message = get_msg(row, cmd_name)
+            producer.send(topic, get_msg(row, cmd_name))
+            if id_client:
+                producer.send(f'{topic}.{id_client}', message)
+        producer.flush()
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        return False
+    return True
+
+
 prediction_schema = T.StructType([
     T.StructField("prediction", T.FloatType(), False),
     T.StructField("r", T.FloatType(), False)
@@ -260,3 +299,4 @@ udf_update_features = F.udf(
 udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())
 udf_to_dense_vector = F.udf(lambda l: Vectors.dense(l), VectorUDT())
 udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())
+udf_send_to_kafka = F.udf(send_to_kafka, T.BooleanType())
