@@ -958,8 +958,6 @@ class CacheSensitiveData(Task):
             'ttl', self.ttl
         ).option(
             'key.column', 'id_request_sets'
-        ).option(
-            'model', 'binary'
         ).save()
         self.df = super().run()
         return self.df
