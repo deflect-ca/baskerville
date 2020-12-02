@@ -29,13 +29,15 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
     CacheTask
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
-    save_df_to_table, columns_to_dict, get_window, set_unknown_prediction
+    save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
+    send_to_kafka_by_partition_id
 from baskerville.spark.schemas import features_schema, \
     prediction_schema
 from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
 # broadcasts
+from baskerville.util.enums import LabelEnum
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 
 TOPIC_BC = None
@@ -1011,18 +1013,31 @@ class SendToKafka(Task):
 
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
+        send_to_kafka_by_partition_id(
+            self.df.select(
+                F.struct(
+                    *list(
+                        F.col(c) for c in self.columns
+                    )).alias('rows'),
+                F.spark_partition_id().alias('pid')
+            ),
+            self.config.kafka.bootstrap_servers,
+            self.topic,
+            'prediction_center',
+            id_client=self.cc_to_client
+        )
 
-        producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
-        records = self.df.collect()
-        for record in records:
-            message = json.dumps(
-                {key: record[key] for key in self.columns}
-            ).encode('utf-8')
-            producer.send(self.topic, message)
-            if self.cc_to_client:
-                id_client = record['id_client']
-                producer.send(f'{self.topic}.{id_client}', message)
-        producer.flush()
+        # producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
+        # records = self.df.collect()
+        # for record in records:
+        #     message = json.dumps(
+        #         {key: record[key] for key in self.columns}
+        #     ).encode('utf-8')
+        #     producer.send(self.topic, message)
+        #     if self.cc_to_client:
+        #         id_client = record['id_client']
+        #         producer.send(f'{self.topic}.{id_client}', message)
+        #     producer.flush()
 
         # does no work, possible jar conflict
         # self.df = self.df.select(

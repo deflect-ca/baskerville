@@ -23,7 +23,7 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.logConf', 'true')
     conf.set('spark.jars', spark_conf.jars)
     conf.set('spark.master', spark_conf.master)
-    conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
+    conf.set("spark.hadoop.dfs.client.use.datanode.hostname", 'true')
     if spark_conf.redis_host:
         conf.set('spark.redis.host', spark_conf.redis_host)
         conf.set('spark.redis.port', spark_conf.redis_port)
@@ -119,6 +119,7 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.ui.dagGraph.retainedRootRDDs', 100000)
     if not os.path.exists('/tmp/spark-events'):
         os.makedirs('/tmp/spark-events')
+        conf.set('spark.eventLog.dir', '/tmp/spark-events')
     if spark_conf.spark_executor_cores:
         conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_instances:
