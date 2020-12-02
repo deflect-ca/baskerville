@@ -1354,7 +1354,7 @@ class AttackDetection(Task):
                 self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
                 del self.df_chunks[0]
 
-        self.df_chunks.append((df_increment, increment_stop))
+            self.df_chunks.append((df_increment, increment_stop))
         self.logger.info(f'Number of sliding window chunks {len(self.df_chunks)}...')
 
     def get_attack_score(self):
