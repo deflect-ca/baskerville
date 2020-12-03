@@ -57,7 +57,8 @@ class DictAccumulatorParam(AccumulatorParam):
             for k, v in items:
                 value1[k] += v
         else:
-            value1['--unknown--'] += 1
+            pass
+            # value1['--unknown--'] += 1
 
         return value1
 
@@ -253,10 +254,13 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str):
 
 
 def send_to_kafka_by_partition_id(
-        df_to_send, bootstrap_servers, cmd_topic, cmd, id_client=None
+        df_to_send, bootstrap_servers, cmd_topic, cmd, id_client=None, udf_=None
 ):
     from baskerville.spark.udfs import udf_send_to_kafka
     df_to_send = df_to_send.withColumn('pid', F.spark_partition_id())
+    udf_to_exec = udf_send_to_kafka
+    if udf_:
+        udf_to_exec = udf_
     f_ = F.collect_list('rows')
     if 'challenge_' in cmd:
         f_ = F.collect_set('rows')
@@ -265,7 +269,7 @@ def send_to_kafka_by_partition_id(
     )
     g_records = g_records.withColumn(
         'sent_to_kafka',
-        udf_send_to_kafka(
+        udf_to_exec(
             F.lit(bootstrap_servers),
             F.lit(cmd_topic),
             F.col('rows'),
