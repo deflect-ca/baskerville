@@ -1548,7 +1548,7 @@ class AttackDetection(Task):
                         # todo: host
                         self.ip_cache.update(list(IP_ACC.value.keys()))
                         # reset accumulator
-                        IP_ACC = defaultdict(int)
+                        IP_ACC.value = defaultdict(int)
                         self.df = self.df.join(
                             df_to_challenge.select(
                                 F.explode(F.col('rows')).alias('ip'),
