@@ -167,7 +167,8 @@ def get_or_create_spark_session(spark_conf):
         'spark.sql.session.timeZone', spark_conf.session_timezone
     )
     conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
-    conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+    # conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+    conf.set('spark.sql.autoBroadcastJoinThreshold', -1)  # disable
 
     spark = SparkSession.builder \
         .config(conf=conf) \
