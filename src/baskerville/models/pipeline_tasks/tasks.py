@@ -1415,10 +1415,9 @@ class AttackDetection(Task):
     def get_attack_score(self):
         self.logger.info('Attack scoring...')
         if self.config.engine.sliding_window == 0:
-            df_attack = self.df.groupBy('target').agg(
-                F.sum('total').alias('total'),
-                F.sum('regular').alias('regular'),
-                F.sum('anomaly').alias('anomaly'),
+            df_attack = self.df.select('target', 'stop', 'prediction').groupBy('target').agg(
+                F.count('prediction').alias('total'),
+                F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
             )
             return df_attack.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float'))
 
