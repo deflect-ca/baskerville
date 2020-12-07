@@ -1263,8 +1263,6 @@ class AttackDetection(Task):
     """
     Calculates prediction per IP, attack_score per Target, regular vs anomaly counts, attack_prediction
     """
-    collected_df_attack = None
-
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
@@ -1611,8 +1609,6 @@ class AttackDetection(Task):
         self.classify_anomalies()
         df_attack = self.detect_attack()
         self.send_challenge(df_attack)
-
-        self.collected_df_attack = df_attack.collect()
 
         self.df = super().run()
         return self.df
