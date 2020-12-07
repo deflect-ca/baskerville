@@ -1326,11 +1326,12 @@ class AttackDetection(Task):
             return True
 
         self.udf_send_to_kafka = F.udf(send_to_kafka, T.BooleanType())
-        # self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
-        # if self.register_metrics:
-        #     self.register_banjax_metrics()
-        # self.banjax_thread = threading.Thread(target=self.report_consumer.run)
-        # self.banjax_thread.start()
+
+        self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
+        if self.register_metrics:
+            self.register_banjax_metrics()
+        self.banjax_thread = threading.Thread(target=self.report_consumer.run)
+        self.banjax_thread.start()
 
     def finish_up(self):
         if self.banjax_thread:
