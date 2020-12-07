@@ -268,7 +268,7 @@ class EngineConfig(Config):
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
-    sliding_window = 360
+    sliding_window = 0
     low_rate_attack_period = [600, 3600]
     low_rate_attack_total_request = [400, 2000]
     ip_cache_passed_challenge_ttl = 60 * 60 * 24  # 24h

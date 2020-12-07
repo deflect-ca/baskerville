@@ -1385,6 +1385,9 @@ class AttackDetection(Task):
                                             F.lit(1.0)).otherwise(F.lit(0.)))
 
     def update_sliding_window(self):
+        if self.config.engine.sliding_window == 0:
+            return
+
         self.logger.info('Updating sliding window...')
         df_increment = self.df.select('target', 'stop', 'prediction') \
             .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
@@ -1411,6 +1414,14 @@ class AttackDetection(Task):
 
     def get_attack_score(self):
         self.logger.info('Attack scoring...')
+        if self.config.engine.sliding_window == 0:
+            df_attack = self.df.groupBy('target').agg(
+                F.sum('total').alias('total'),
+                F.sum('regular').alias('regular'),
+                F.sum('anomaly').alias('anomaly'),
+            )
+            return df_attack.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float'))
+
         chunks = [c[0] for c in self.df_chunks]
         df = reduce(DataFrame.unionAll, chunks).groupBy('target').agg(
             F.sum('total').alias('total'),
