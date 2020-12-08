@@ -956,7 +956,7 @@ class CacheSensitiveData(Task):
         redis_df.write.format(
             'org.apache.spark.sql.redis'
         ).mode(
-            'overwrite'
+            'append'
         ).option(
             'table', self.table_name
         ).option(

@@ -322,7 +322,7 @@ key.pem
 * Stop logstash:
 ```
 ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca
-sudo server logstash stop
+sudo service logstash stop
 ```
 * Install kafka output logstash plugin
 ```
