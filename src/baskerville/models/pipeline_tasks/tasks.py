@@ -988,7 +988,7 @@ class MergeWithSensitiveData(Task):
             'key.column', 'id_request_sets'
         ).load().alias('redis_df')
 
-        self.logger.info(f'batch count()={self.df.count()}')
+        count = self.df.count()
         self.redis_df = self.redis_df.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss")) \
             .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
 
@@ -996,7 +996,18 @@ class MergeWithSensitiveData(Task):
         self.df = self.redis_df.join(
             self.df, on=['id_client', 'id_request_sets']
         ).drop('df.id_client', 'df.id_request_sets')
-        self.logger.info(f'batch after merge with redis count()={self.df.count()}')
+
+        merge_count = self.df.count()
+
+        if count != merge_count:
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+            self.logger.warning('No sensitive data in Redis. Probably postprocessing is underperforming.')
+            self.logger.warning(f'Batch count = {count}. After merge count = {merge_count}')
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
 
         self.df = super().run()
         return self.df
