@@ -874,15 +874,16 @@ class SaveDfInPostgres(Task):
     def run(self):
         self.config.database.conn_str = self.db_url
 
-        save_df_to_table(
-            self.df,
-            self.table_name,
-            self.config.database.__dict__,
-            json_cols=self.json_cols,
-            storage_level=self.config.spark.storage_level,
-            mode=self.mode,
-            db_driver=self.config.spark.db_driver
-        )
+        if self.df.count() > 0:
+            save_df_to_table(
+                self.df,
+                self.table_name,
+                self.config.database.__dict__,
+                json_cols=self.json_cols,
+                storage_level=self.config.spark.storage_level,
+                mode=self.mode,
+                db_driver=self.config.spark.db_driver
+            )
         self.df = super().run()
         return self.df
 
@@ -1473,7 +1474,7 @@ class AttackDetection(Task):
             'ip', 'target', 'f.request_total', 'start'
         ).withColumn('low_rate_attack', F.lit(1))
 
-        if len(df_attackers.head(1)) > 0:
+        if df_attackers.count() > 0:
             self.logger.info('Low rate attack -------------- ')
             self.logger.info(df_attackers.show())
             df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
