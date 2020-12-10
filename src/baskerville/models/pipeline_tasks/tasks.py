@@ -1474,7 +1474,7 @@ class AttackDetection(Task):
             'ip', 'target', 'f.request_total', 'start'
         ).withColumn('low_rate_attack', F.lit(1))
 
-        if df_attackers.count() > 0:
+        if df_attackers and df_attackers.count() > 0:
             self.logger.info('Low rate attack -------------- ')
             self.logger.info(df_attackers.show())
             df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
@@ -1523,6 +1523,10 @@ class AttackDetection(Task):
         if self.config.engine.challenge == 'ip':
             df_ips = df_ips.join(self.df_white_list_hosts, on='target', how='left')
             df_ips = df_ips.where(F.col('white_list_host').isNull())
+
+            if not df_ips or df_ips.count() == 0:
+                self.df = self.df.withColumn('challenged', F.lit(0))
+                return
 
             ips = [r['ip'] for r in df_ips.collect()]
             ips = self.apply_white_list(ips)
