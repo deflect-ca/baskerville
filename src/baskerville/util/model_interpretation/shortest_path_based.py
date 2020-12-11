@@ -5,16 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from collections import defaultdict
-
-from pyspark import SparkConf
-from pyspark.ml.classification import RandomForestClassifier
-from pyspark.mllib.regression import LabeledPoint
-from pyspark.mllib.tree import DecisionTree
-from pyspark.sql import SparkSession, functions as F
-from pyspark.ml.feature import VectorAssembler, StandardScaler
-from pyspark_iforest.ml.iforest import IForest
-import tempfile
+from pyspark.sql import functions as F
 
 #  https://towardsdatascience.com/an-implementation-and-explanation-of-the-random-forest-in-python-77bf308a9b76
 # https://towardsdatascience.com/interpreting-random-forest-and-other-black-box-models-like-xgboost-80f9cc4a3c38
@@ -34,139 +25,36 @@ import tempfile
 # graph x and graph-frames:
 # http://spark.apache.org/docs/latest/graphx-programming-guide.html#
 # https://graphframes.github.io/graphframes/docs/_site/quick-start.html
-from shap.explainers._tree import IsoTree
-from sklearn.ensemble import IsolationForest
 
+
+from baskerville.util.helpers import get_default_data_path
 from baskerville.util.model_interpretation.helpers import \
-    get_spark_session_with_iforest
+    get_spark_session_with_iforest, load_anomaly_model, \
+    get_trees_and_features, construct_tree_graph, get_shortest_path_for_g
 
-spark = get_spark_session_with_iforest()
-
-temp_path = tempfile.mkdtemp()
-iforest_path = temp_path + "/iforest"
-model_path = temp_path + "/iforest_model"
-
-# same data as in https://gist.github.com/mkaranasou/7aa1f3a28258330679dcab4277c42419
-# for comparison
-data = [
-    {'feature1': 1., 'feature2': 0., 'feature3': 0.3, 'feature4': 0.01,
-     'label': 0},
-    {'feature1': 10., 'feature2': 3., 'feature3': 0.9, 'feature4': 0.1,
-     'label': 1},
-    {'feature1': 101., 'feature2': 13., 'feature3': 0.9, 'feature4': 0.91,
-     'label': 1},
-    {'feature1': 111., 'feature2': 11., 'feature3': 1.2, 'feature4': 1.91,
-     'label': 1},
-]
-
-# use a VectorAssembler to gather the features as Vectors (dense)
-assembler = VectorAssembler(
-    inputCols=list(data[0].keys()),
-    outputCol="features"
-)
-
-df = spark.createDataFrame(data)
-df = assembler.transform(df)
-df.show()
-
-# use a StandardScaler to scale the features (as also done in https://gist.github.com/mkaranasou/7aa1f3a28258330679dcab4277c42419)
-scaler = StandardScaler(inputCol='features', outputCol='scaledFeatures')
-iforest = IForest(contamination=0.3, maxDepth=2)
-dt = DecisionTree()
-iforest.setSeed(42)  # for reproducibility
-
-feature_names = [c for c in df.columns if 'feature' in c]
-df_no_label = df.select(feature_names)
-scaler_model = scaler.fit(df_no_label)
-df_no_label = scaler_model.transform(df_no_label)
-df_no_label = df_no_label.withColumn('features', F.col('scaledFeatures')).drop(
-    'scaledFeatures')
-model = iforest.fit(df_no_label)
-
-dt_data = [
-    LabeledPoint(0.0, [0.0]),
-    LabeledPoint(0.0, [1.0]),
-    LabeledPoint(1.0, [2.0]),
-    LabeledPoint(1.0, [3.0])
-]
-# >> > model = RandomForest.trainClassifier(sc.parallelize(data), 2, {}, 3,
-#                                           seed=42)
-# spark.sparkContext.parallelize(data)
-dt_model = DecisionTree.trainClassifier(
-    spark.sparkContext.parallelize(dt_data), numClasses=2,
-    categoricalFeaturesInfo={},
-    impurity='gini', maxDepth=5, maxBins=32)
-
-dt_model.toDebugString()
-rf = RandomForestClassifier(numTrees=3, maxDepth=2, labelCol="label", seed=42)
-rf_model = rf.fit(df)
-
+if __name__ == '__main__':
+    data_path = get_default_data_path()
+    test_model_path = f'{data_path}/models/AnomalyModel__2020_11_12___16_06_TestModel'
+    test_model_data_path = f'{test_model_path}/classifier/data'
+    spark = get_spark_session_with_iforest()
+    # load test model
+    anomaly_model = load_anomaly_model(test_model_path)
+    # get features
+    feature_names = anomaly_model.features.keys()
+    nodes_df = spark.read.parquet(test_model_data_path)
+    nodes_df.select(F.max('treeId')).show()
+    print(nodes_df.select('nodeData').first())
+    nodes_df.show(10, False)
+    print(nodes_df.count())
 # https://www.timlrx.com/2018/06/19/feature-selection-using-feature-importance-score-creating-a-pyspark-estimator/
-print('featureImportances', rf_model.featureImportances)
 
-imodel = iforest.fit(df)
-imodel.write().overwrite().save('testimodel')
 
-node = spark.sparkContext._jvm.org.apache.spark.ml.iforest.IFLeafNode
-model = spark.sparkContext._jvm.org.apache.spark.ml.iforest.IForestModel
-lmodel = model.load('testimodel')
-model_df = spark.read.parquet('testimodel/data')
-model_df.select(F.max('treeId')).show()
-# +-----------+
-# |max(treeId)|
-# +-----------+
-# |         99|
-# +-----------+
-print(model_df.select('nodeData').first())
-model_df.show(10, False)
-print(model_df.count())
-
-model_df.select('nodeData.id', 'nodeData.featureIndex',
-                'nodeData.featureValue', 'nodeData.numInstance').show(10,
-                                                                      False)
-collected_data = model_df.collect()
-
-scikit_if = IsolationForest()
-
-trees = defaultdict(dict)
-
-features = {}
-for row in collected_data:
-    trees[row.treeID][row.nodeData.id] = row.nodeData.asDict()
-    features[row.nodeData.featureIndex] = True
-
-print(trees)
-print(features)
-
-min_key = min(trees)
-max_key = max(trees)
-print(min_key, max_key)
-
-import networkx as nx
-
-g = nx.DiGraph()
-
-nodes = []
-edges = []
-
-for i in range(min_key, max_key + 1):
-    tree_node = f'tree_{i}'
-    g.add_node(tree_node, )
-    nodes.append((tree_node,))
-    for k, v in trees[i].items():
-        n_node = f'{tree_node}_node_{k}'
-        print(n_node, str(v))
-        g.add_node(n_node, values=str(v))
-        nodes.append((n_node, str(v)))
-        g.add_edge(tree_node, n_node)
-        edges.append((tree_node, n_node))
-        if v['leftChild'] > -1:
-            g.add_edge(n_node, f'{tree_node}_node_{v["leftChild"]}')
-            edges.append((n_node, f'{tree_node}_node_{v["leftChild"]}'))
-        if v['rightChild'] > -1:
-            g.add_edge(n_node, f'{tree_node}_node_{v["rightChild"]}')
-            edges.append((n_node, f'{tree_node}_node_{v["rightChild"]}'))
-
+    nodes_df.select('nodeData.id', 'nodeData.featureIndex',
+                    'nodeData.featureValue', 'nodeData.numInstance').show(10,
+                                                                          False)
+    trees, features = get_trees_and_features(nodes_df)
+    g = construct_tree_graph(trees, feature_names)
+    shortest_paths = get_shortest_path_for_g(g)
 
 
 # plt.rcParams["figure.figsize"] = (20, 20)
@@ -274,133 +162,36 @@ for i in range(min_key, max_key + 1):
 # https://github.com/dataman-git/codes_for_articles/blob/master/Explain%20your%20model%20with%20the%20SHAP%20values%20for%20article.ipynb
 
 # the way to calculate the Shapley value: It is the average of the marginal contributions across all permutations.
+# import shap
+# import pandas as pd
+# pd_df = df.toPandas()
+# iforest_sk = IsolationForest()
+# x_train = pd.DataFrame([dv.values for dv in pd_df['features'].values], columns=feature_names)
+# im = iforest_sk.fit(x_train)
+# shap_values = shap.TreeExplainer(im).shap_values(x_train)
+# shap.summary_plot(shap_values, x_train, plot_type="bar")
 
-import shap
-import pandas as pd
-pd_df = df.toPandas()
-iforest_sk = IsolationForest()
-x_train = pd.DataFrame([dv.values for dv in pd_df['features'].values], columns=feature_names)
-im = iforest_sk.fit(x_train)
-shap_values = shap.TreeExplainer(im).shap_values(x_train)
-shap.summary_plot(shap_values, x_train, plot_type="bar")
-
-
-FEATURES = df_no_label.columns
-
-
-class Feature:
-    idx: int
-    name: str
-    value: float
-
-    def __init__(self, idx, value):
-        self.idx = idx
-        self.value = value
-        self.set_name()
-
-    def set_name(self):
-        self.name = FEATURES[self.idx]
-
-
-class Node:
-    id: int = None
-    feature: Feature = None
-    condition: str = ''
-    num_instances: int = -1
-    left_node: 'Node' = None
-    right_node: 'Node' = None
-    is_left: bool = True
-    is_top: bool = False
-
-    def __init__(self, node_data: dict, nodes: dict, is_left=True):
-        self.id = node_data['id']
-        self.feature = Feature(node_data['featureIndex'], node_data['featureValue'])
-        self.is_left = is_left
-        self.is_top = self.id == 0
-        self.num_instances = node_data['numInstance']
-        self.set_condition()
-        self.set_nodes(node_data, nodes)
-
-    def __str__(self):
-        str_ln = 'N/A' if not self.left_node else str(self.left_node)
-        str_rn = 'N/A' if not self.right_node else str(self.right_node)
-        direction = 'top' if self.is_top else 'left' if self.is_left else 'right'
-        self_str = f'{direction} node [#{self.num_instances}]: {self.condition}\n'
-        self_str += 3 * '/                                             \\\n'
-        self_str += 'LN                                                   RN\n'
-        self_str += 'V                                                   V\n'
-        self_str += f'{str_ln}                                              {str_rn}\n '
-        return self_str
-
-    def set_nodes(self, node_data, nodes):
-        rn = node_data.get('rightChild', 0)
-        ln = node_data.get('leftChild', 0)
-
-        if rn > 0:
-            self.right_node = Node(nodes[rn], nodes, is_left=False)
-        if ln > 0:
-            self.left_node = Node(nodes[ln], nodes, is_left=True)
-
-    def set_condition(self):
-        cnd = '<='
-        if not self.is_left:
-            cnd = '>'
-        self.condition = f'{self.feature.name} {cnd} {self.feature.value}'
-
-
-class Tree:
-    id: int
-    top_node: Node
-    nodes: dict
-    features: list = None
-
-    def __init__(self, id, nodes):
-        self.id = id
-        self.nodes = nodes
-        self.top_node = Node(nodes.get(0), nodes)
-        self.features = self.get_features()
-
-    def __str__(self):
-        self_str = f'Tree {self.id}'
-        self_str += 20 * '-'
-        self_str += str(self.top_node)
-        return self_str
-
-    def get_features(self):
-        return get_node_features(self.top_node)
-
-
-def get_node_features(node, total_features=None):
-    if not total_features:
-        total_features = {}
-    total_features[node.feature.idx] = True
-    if node.left_node:
-        total_features = get_node_features(node.left_node, total_features)
-    if node.right_node:
-        total_features = get_node_features(node.right_node, total_features)
-    return total_features
-
-TREES = {}
-
-for tree, nodes in trees.items():
-    t = Tree(tree, nodes)
-    TREES[tree] = t
-
-scaling = 1.0 / len(TREES)
-pd_df = df.toPandas()
-x_train = [dv.values for dv in pd_df['features'].values.tolist()]
-data_missing = []
-shap_trees = []
-
-for tid, tree in TREES.items():
-    itree = IsoTree(
-        tree,
-        tree.features,
-        scaling=scaling,
-        data=x_train,
-        data_missing=data_missing
-    )
-    shap_trees.append(itree)
+# TREES = {}
+#
+# for tree, nodes in trees.items():
+#     t = Tree(tree, nodes)
+#     TREES[tree] = t
+#
+# scaling = 1.0 / len(TREES)
+# pd_df = df.toPandas()
+# x_train = [dv.values for dv in pd_df['features'].values.tolist()]
+# data_missing = []
+# shap_trees = []
+#
+# for tid, tree in TREES.items():
+#     itree = IsoTree(
+#         tree,
+#         tree.features,
+#         scaling=scaling,
+#         data=x_train,
+#         data_missing=data_missing
+#     )
+#     shap_trees.append(itree)
 
 # elif safe_isinstance(model, ["sklearn.ensemble.IsolationForest",
 #                              "sklearn.ensemble.iforest.IsolationForest"]):

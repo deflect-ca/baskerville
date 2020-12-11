@@ -3,7 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
+from collections import defaultdict
 
 import operator
 from random import shuffle
@@ -393,4 +393,54 @@ def calculate_shapley_values_for_all_features(
     return ordered_results
 
 
-# udf_features_to_dense_vectors = F.udf(lambda vs: Vectors.dense(vs), VectorUDT())
+def construct_tree_graph(trees, feature_names):
+    import networkx as nx
+    min_key = min(trees)
+    max_key = max(trees)
+    print(min_key, max_key)
+    g = nx.DiGraph()
+    nodes = []
+    edges = []
+
+    for i in range(min_key, max_key + 1):
+        tree_node = f'tree_{i}'
+        g.add_node(tree_node, )
+        nodes.append((tree_node,))
+        for k, v in trees[i].items():
+            n_node = f'{tree_node}_node_{k}'
+            print(n_node, str(v))
+            g.add_node(n_node, values=str(v))
+            nodes.append((n_node, str(v)))
+            g.add_edge(tree_node, n_node)
+            edges.append((tree_node, n_node))
+            if v['leftChild'] > -1:
+                g.add_edge(n_node, f'{tree_node}_node_{v["leftChild"]}')
+                edges.append((n_node, f'{tree_node}_node_{v["leftChild"]}'))
+            if v['rightChild'] > -1:
+                g.add_edge(n_node, f'{tree_node}_node_{v["rightChild"]}')
+                edges.append((n_node, f'{tree_node}_node_{v["rightChild"]}'))
+    return g
+
+
+def get_trees_and_features(nodes_df):
+    collected_data = nodes_df.collect()
+    trees = defaultdict(dict)
+    features = {}
+    for row in collected_data:
+        trees[row.treeID][row.nodeData.id] = row.nodeData.asDict()
+        features[row.nodeData.featureIndex] = True
+
+    print(trees)
+    print(features)
+    return trees, features
+
+
+def get_shortest_path_for_tree(tree):
+    pass
+
+
+def get_shortest_path_for_g(g):
+    import networkx as nx
+    return nx.shortest_path(
+        g, source=None, target=None, weight=None, method='dijkstra'
+    )

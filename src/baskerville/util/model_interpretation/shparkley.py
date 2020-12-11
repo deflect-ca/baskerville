@@ -41,7 +41,9 @@ if __name__ == '__main__':
         'scaledFeatures')
 
     # get the scaled features as columns not as dense vector:
-    dc = df_scaled.rdd.map(lambda x:[float(y) for y in x['features']]).toDF(list(feature_names))
+    dc = df_scaled.rdd.map(
+        lambda x:[float(y) for y in x['features']]
+    ).toDF(list(feature_names))
     dc = dc.withColumn('mid', F.monotonically_increasing_id())
     iforest_model = iforest.fit(df_scaled)
     # print('scaled:', '-'* 20)
@@ -52,7 +54,8 @@ if __name__ == '__main__':
 
     class IForestShparkleyModel(ShparkleyModel):
         """
-        You need to wrap your model with this interface (by subclassing ShparkleyModel)
+        You need to wrap your model with this interface
+        (by subclassing ShparkleyModel)
         """
         def __init__(self, model: IForestModel, required_features: OrderedSet):
             super().__init__(model)
@@ -103,7 +106,6 @@ if __name__ == '__main__':
     print('Shapley values for all features:')
     print('-'*20)
     print(*[f'#{i}. {feat} = {value}\n' for i, (feat, value) in enumerate(shapley_values_for_all_f)])
-    # print(zip(shapley_values_for_all_f.keys(), shapley_values_for_all_f.values()))
 
     # shapley_scores_by_feature = compute_shapley_for_sample(
     #     df=sampled_df,

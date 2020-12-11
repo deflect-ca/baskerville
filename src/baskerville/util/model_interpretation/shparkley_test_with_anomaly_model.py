@@ -36,7 +36,9 @@ if __name__ == '__main__':
 
     df.show(10, False)
 
-    df = anomaly_model.prepare_df(df).withColumn('features', F.col('features_values_scaled'))
+    df = anomaly_model.prepare_df(df).withColumn(
+        'features', F.col('features_values_scaled')
+    )
     pred_df = anomaly_model.predict(df)
     df = pred_df.select('mid', 'features', 'prediction')
     row = df.select('mid', 'features').where(F.col('prediction') > 0).first()
