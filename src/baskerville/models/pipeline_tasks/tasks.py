@@ -88,8 +88,6 @@ class GetDataKafka(Task):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             self.data_parser.schema
-        ).repartition(
-                    *self.group_by_cols
         ).persist(self.spark_conf.storage_level)
 
         self.df = load_test(
@@ -815,7 +813,7 @@ class GenerateFeatures(MLTask):
     def run(self):
         self.handle_missing_columns()
         self.normalize_host_names()
-        # self.df = self.df.repartition('client_request_host', 'client_ip')
+        self.df = self.df.repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
         self.rename_columns()
         self.filter_columns()
         self.handle_missing_values()
@@ -1289,6 +1287,8 @@ class AttackDetection(Task):
         self.report_consumer = None
         self.banjax_thread = None
         self.register_metrics = config.engine.register_banjax_metrics
+        self.producer = KafkaProducer(
+            bootstrap_servers=self.config.kafka.bootstrap_servers)
 
     def initialize(self):
         global IP_ACC
