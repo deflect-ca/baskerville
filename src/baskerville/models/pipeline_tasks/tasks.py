@@ -1324,7 +1324,7 @@ class AttackDetection(Task):
             along with the specified command (challenge_[host, ip])
             :returns: False if something went wrong, true otherwise
             """
-            global IP_ACC
+            # global IP_ACC
             try:
                 from kafka import KafkaProducer
                 producer = KafkaProducer(
@@ -1336,8 +1336,8 @@ class AttackDetection(Task):
                     producer.send(topic, get_msg(row, cmd_name))
                     if id_client:
                         producer.send(f'{topic}.{id_client}', message)
-                    if cmd_name == 'challenge_ip':
-                        IP_ACC += {row: 1}
+                    # if cmd_name == 'challenge_ip':
+                    #     IP_ACC += {row: 1}
                 producer.flush()
             except Exception:
                 import traceback
@@ -1524,114 +1524,118 @@ class AttackDetection(Task):
         return df_attack
 
     def send_challenge(self, df_attack):
-        producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
-        df_ips = self.df.select(['ip', 'target']).where(
-                (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
-                (F.col('low_rate_attack') == 1)
-            )
-        if self.config.engine.challenge == 'ip':
-            df_ips = df_ips.join(self.df_white_list_hosts, on='target', how='left')
-            df_ips = df_ips.where(F.col('white_list_host').isNull())
-
-            if not df_ips or df_ips.count() == 0:
-                self.df = self.df.withColumn('challenged', F.lit(0))
-                return
-
-            ips = [r['ip'] for r in df_ips.collect()]
-            ips = self.apply_white_list(ips)
-            ips = self.ip_cache.update(ips)
-            num_records = len(ips)
-            if num_records > 0:
-                challenged_ips = self.spark.createDataFrame([[ip] for ip in ips], ['ip'])\
-                    .withColumn('challenged', F.lit(1))
-                self.df = self.df.join(challenged_ips, on='ip', how='left')
-                self.df = self.df.fillna({'challenged': 0})
-
-                self.logger.info(
-                    f'Sending {num_records} IP challenge commands to '
-                    f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
-                for ip in ips:
-                    message = json.dumps(
-                        {'name': 'challenge_ip', 'value': ip}
-                    ).encode('utf-8')
-                    producer.send(self.config.kafka.banjax_command_topic, message)
-                producer.flush()
-            else:
-                self.df = self.df.withColumn('challenged', F.lit(0))
-
-        return
+        # producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
+        # df_ips = self.df.select(['ip', 'target']).where(
+        #         (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
+        #         (F.col('low_rate_attack') == 1)
+        #     )
+        # if self.config.engine.challenge == 'ip':
+        #     df_ips = df_ips.join(self.df_white_list_hosts, on='target', how='left')
+        #     df_ips = df_ips.where(F.col('white_list_host').isNull())
         #
-        # global IP_ACC
-        # self.df = self.df.withColumn('challenged', F.lit(0))
-        # if self.config.engine.challenge:
-        #     df_to_challenge = None
-        #     col_of_interest = None
-        #     cmd = f'challenge_{self.config.engine.challenge}'
+        #     if not df_ips or df_ips.count() == 0:
+        #         self.df = self.df.withColumn('challenged', F.lit(0))
+        #         return
         #
-        #     if self.config.engine.challenge == 'host':
-        #         col_of_interest = 'target_original'
-        #         df_to_challenge = self.df.select(
-        #             'ip', 'target', 'target_original'
-        #         ).where(
-        #             F.col('attack_prediction') == 1
-        #         )
-        #         # df_to_challenge = df_to_challenge.select('target').distinct().join(
-        #         #     self.df.select('target', 'target_original', 'ip'),
-        #         #     on='target', how='left'
-        #         # )
+        #     ips = [r['ip'] for r in df_ips.collect()]
+        #     ips = self.apply_white_list(ips)
+        #     ips = self.ip_cache.update(ips)
+        #     num_records = len(ips)
+        #     if num_records > 0:
+        #         challenged_ips = self.spark.createDataFrame([[ip] for ip in ips], ['ip'])\
+        #             .withColumn('challenged', F.lit(1))
+        #         self.df = self.df.join(challenged_ips, on='ip', how='left')
+        #         self.df = self.df.fillna({'challenged': 0})
         #
-        #     elif self.config.engine.challenge == 'ip':
-        #         col_of_interest = 'ip'
-        #         df_to_challenge = self.df.select('ip', 'target').where( # this does not look right. Why (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)?
-        #             (F.col('attack_prediction') == 1) &
-        #             (F.col('prediction') == 1) |
-        #             (F.col('low_rate_attack') == 1)
-        #         )
-        #     else:
         #         self.logger.info(
-        #             f'Not implemented challenging method: '
-        #             f'{self.config.engine.challenge}'
-        #         )
+        #             f'Sending {num_records} IP challenge commands to '
+        #             f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+        #         for ip in ips:
+        #             message = json.dumps(
+        #                 {'name': 'challenge_ip', 'value': ip}
+        #             ).encode('utf-8')
+        #             producer.send(self.config.kafka.banjax_command_topic, message)
+        #         producer.flush()
+        #     else:
+        #         self.df = self.df.withColumn('challenged', F.lit(0))
         #
-        #     if df_to_challenge and df_to_challenge.head(1) and col_of_interest:
-        #         # apply whitelist for both ips and targets
-        #         df_to_challenge = self.apply_whitelist(df_to_challenge)
-        #         print(df_to_challenge.head(1))
-        #         if df_to_challenge.head(1):
-        #             df_to_challenge = send_to_kafka_by_partition_id(
-        #                 df_to_challenge.select(F.col(col_of_interest).alias('rows')).where(F.col('to_challenge')==True).distinct(),
-        #                 self.config.kafka.bootstrap_servers,
-        #                 self.config.kafka.banjax_command_topic,
-        #                 cmd,
-        #                 id_client=None,
-        #                 udf_=self.udf_send_to_kafka
-        #             )
-        #             df_to_challenge = df_to_challenge.withColumnRenamed(
-        #                 'sent_to_kafka',
-        #                 'challenged'
-        #             )
-        #             print('df_to_challenge:')
-        #             print(df_to_challenge.head(1))
-        #
-        #             if self.config.engine.challenge == 'ip':
-        #                 # todo: host
-        #                 self.ip_cache.update(list(IP_ACC.value.keys()))
-        #                 # reset accumulator
-        #                 IP_ACC.value = defaultdict(int)
-        #                 self.df = self.df.join(
-        #                     df_to_challenge.select(
-        #                         F.explode(F.col('rows')).alias('ip'),
-        #                         F.col('challenged').alias('rchallenged')
-        #                     ).where(F.col('challenged')==True),
-        #                     on='ip', how='left'
-        #                 ).withColumn(
-        #                     'challenged',
-        #                     F.when(
-        #                         F.col('rchallenged').isNotNull(), 1
-        #                     ).otherwise(0)
-        #                 ).drop('rchallenged')
-        # else:
-        #     self.logger.debug('No challenge flag is set, moving on...')
+        # return
+
+        # global IP_ACC
+        self.df = self.df.withColumn('challenged', F.lit(0))
+        if self.config.engine.challenge:
+            df_to_challenge = None
+            col_of_interest = None
+            cmd = f'challenge_{self.config.engine.challenge}'
+
+            if self.config.engine.challenge == 'host':
+                col_of_interest = 'target_original'
+                df_to_challenge = self.df.select(
+                    'ip', 'target', 'target_original'
+                ).where(
+                    F.col('attack_prediction') == 1
+                )
+                # df_to_challenge = df_to_challenge.select('target').distinct().join(
+                #     self.df.select('target', 'target_original', 'ip'),
+                #     on='target', how='left'
+                # )
+
+            elif self.config.engine.challenge == 'ip':
+                col_of_interest = 'ip'
+                df_to_challenge = self.df.select('ip', 'target').where( # this does not look right. Why (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)?
+                    (F.col('attack_prediction') == 1) &
+                    (F.col('prediction') == 1) |
+                    (F.col('low_rate_attack') == 1)
+                )
+            else:
+                self.logger.info(
+                    f'Not implemented challenging method: '
+                    f'{self.config.engine.challenge}'
+                )
+
+            if df_to_challenge and df_to_challenge.head(1) and col_of_interest:
+                # apply whitelist for both ips and targets
+                df_to_challenge = self.apply_whitelist(df_to_challenge)
+                print(df_to_challenge.head(1))
+                if df_to_challenge.head(1):
+                    df_to_challenge = send_to_kafka_by_partition_id(
+                        df_to_challenge.select(F.col(col_of_interest).alias('rows')).where(F.col('to_challenge')==True).distinct(),
+                        self.config.kafka.bootstrap_servers,
+                        self.config.kafka.banjax_command_topic,
+                        cmd,
+                        id_client=None,
+                        udf_=self.udf_send_to_kafka
+                    )
+                    df_to_challenge = df_to_challenge.withColumnRenamed(
+                        'sent_to_kafka',
+                        'challenged'
+                    )
+                    print('df_to_challenge:')
+                    print(df_to_challenge.head(1))
+
+                    if self.config.engine.challenge == 'ip':
+                        # todo: host
+                        collected_ips = df_to_challenge.select('rows').collect()
+                        print(collected_ips)
+                        for r in collected_ips:
+                            self.ip_cache.update(r.rows)
+                        # self.ip_cache.update(list(IP_ACC.value.keys()))
+                        # # reset accumulator
+                        # IP_ACC.value = defaultdict(int)
+                        self.df = self.df.join(
+                            df_to_challenge.select(
+                                F.explode(F.col('rows')).alias('ip'),
+                                F.col('challenged').alias('rchallenged')
+                            ).where(F.col('challenged')==True),
+                            on='ip', how='left'
+                        ).withColumn(
+                            'challenged',
+                            F.when(
+                                F.col('rchallenged').isNotNull(), 1
+                            ).otherwise(0)
+                        ).drop('rchallenged')
+        else:
+            self.logger.debug('No challenge flag is set, moving on...')
 
     def apply_whitelist(self, df):
         cols_to_check = []
