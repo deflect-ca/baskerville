@@ -74,8 +74,7 @@ class Task(object, metaclass=abc.ABCMeta):
         return self.service_provider.tools
 
     def set_df(self, df):
-        if df:
-            self.df = df.persist(self.config.spark.storage_level)
+        self.df = df
         return self
 
     def initialize(self):

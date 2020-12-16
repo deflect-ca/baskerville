@@ -88,13 +88,9 @@ class GetDataKafka(Task):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             self.data_parser.schema
-        ).persist(
-           self.config.spark.storage_level
-        )
-
-        # .repartition(
-        #     *self.group_by_cols
-        # )\
+        ).repartition(
+                    *self.group_by_cols
+        ).persist(self.spark_conf.storage_level)
 
         self.df = load_test(
             self.df,
@@ -819,7 +815,7 @@ class GenerateFeatures(MLTask):
     def run(self):
         self.handle_missing_columns()
         self.normalize_host_names()
-        self.df = self.df.repartition('client_request_host', 'client_ip')
+        # self.df = self.df.repartition('client_request_host', 'client_ip')
         self.rename_columns()
         self.filter_columns()
         self.handle_missing_values()
