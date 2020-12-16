@@ -123,11 +123,13 @@ class GetDataKafka(Task):
 
                     super(GetDataKafka, self).run()
 
-                    items_to_unpersist = self.spark.sparkContext._jsc. \
-                        getPersistentRDDs().items()
-                    self.logger.debug(
-                        f'_jsc.getPersistentRDDs().items():'
-                        f'{len(items_to_unpersist)}')
+                    if self.config.engine.log_level == 'DEBUG':
+                        items_to_unpersist = self.spark.sparkContext._jsc. \
+                            getPersistentRDDs().items()
+                        if items_to_unpersist:
+                            self.logger.debug(
+                                f'_jsc.getPersistentRDDs().items():'
+                                f'{len(items_to_unpersist)}')
                     rdd.unpersist()
                     del rdd
                 except Exception as e:
@@ -137,6 +139,7 @@ class GetDataKafka(Task):
                     self.reset()
             else:
                 self.logger.info('Empty RDD...')
+                self.reset()
 
         self.kafka_stream.foreachRDD(process_subsets)
 
@@ -998,17 +1001,22 @@ class MergeWithSensitiveData(Task):
             self.df, on=['id_client', 'id_request_sets']
         ).drop('df.id_client', 'df.id_request_sets')
 
-        merge_count = self.df.count()
+        if self.df and self.df.head(1):
+            merge_count = self.df.count()
 
-        if count != merge_count:
-            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-            self.logger.warning('No sensitive data in Redis. Probably postprocessing is underperforming.')
-            self.logger.warning(f'Batch count = {count}. After merge count = {merge_count}')
-            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+            if count != merge_count:
+                self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                self.logger.warning('No sensitive data in Redis. Probably postprocessing is underperforming.')
+                self.logger.warning(f'Batch count = {count}. After merge count = {merge_count}')
+                self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+        else:
+            self.logger.warning(
+                'No df after merging with redis: initial count=', count
+            )
 
         self.df = super().run()
         return self.df
@@ -1474,8 +1482,9 @@ class AttackDetection(Task):
             'ip', 'target', 'f.request_total', 'start'
         ).withColumn('low_rate_attack', F.lit(1))
 
-        if df_attackers and df_attackers.count() > 0:
+        if df_attackers and df_attackers.head(1):
             self.logger.info('Low rate attack -------------- ')
+            # fails with Null Pointer Exception - testing with head(1):
             self.logger.info(df_attackers.show())
             df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
             df = df.fillna({'low_rate_attack': 0})
@@ -1657,7 +1666,10 @@ class AttackDetection(Task):
     def run(self):
         self.classify_anomalies()
         df_attack = self.detect_attack()
-        self.send_challenge(df_attack)
+        if df_attack and df_attack.head(1):
+            self.send_challenge(df_attack)
+        else:
+            self.logger.info('No attacks detected...')
 
         self.df = super().run()
         return self.df
