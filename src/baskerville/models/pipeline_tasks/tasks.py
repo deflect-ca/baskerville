@@ -1664,7 +1664,7 @@ class AttackDetection(Task):
         return df
 
     def run(self):
-        self.df = self.df.repartition(
+        # self.df = self.df.withColumn("features", F.to_json("features"))
         self.df = self.df.repartition('target').persist(
             self.config.spark.storage_level
         )
