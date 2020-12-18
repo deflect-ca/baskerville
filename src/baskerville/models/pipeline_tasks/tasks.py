@@ -150,13 +150,16 @@ class GetFeatures(GetDataKafka):
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
         self.consume_topic = self.config.kafka.features_topic
+        self.data_schema = self.get_data_schema()
+        self.features_schema = self.get_features_schema()
 
-    def get_data(self):
-        self.df = self.spark.createDataFrame(
-            self.df,
-            T.StructType([T.StructField('key', T.StringType()), T.StructField('message', T.StringType())])
+    def get_data_schema(self) ->  T.StructType:
+        return T.StructType(
+            [T.StructField('key', T.StringType()),
+             T.StructField('message', T.StringType())]
         )
 
+    def get_features_schema(self) -> T.StructType:
         schema = T.StructType([
             T.StructField("id_client", T.StringType(), True),
             T.StructField("id_request_sets", T.StringType(), False)
@@ -168,16 +171,24 @@ class GetFeatures(GetDataKafka):
                 dataType=T.StringType(),
                 nullable=True))
         schema.add(T.StructField("features", features))
+        return schema
 
-        self.df = self.df.withColumn('message', F.from_json('message', schema))
+    def get_data(self):
+        self.df = self.spark.createDataFrame(
+            self.df,
+            self.data_schema
+        ).persist(self.config.spark.storage_level)
 
-        self.df = self.df \
+        self.df = self.df.withColumn(
+            'message',
+            F.from_json('message', self.features_schema)
+        )
+
+        self.df = self.df.where(F.col('message.id_client').isNotNull()) \
             .withColumn('features', F.col('message.features')) \
             .withColumn('id_client', F.col('message.id_client')) \
             .withColumn('id_request_sets', F.col('message.id_request_sets')) \
-            .drop('message', 'key')
-
-        self.df = self.df.where(F.col("id_client").isNotNull())
+            .drop('message', 'key').persist(self.config.spark.storage_level)
 
 
 class GetPredictions(GetDataKafka):
@@ -839,13 +850,7 @@ class Predict(MLTask):
         if self.model:
             self.df = self.model.predict(self.df)
         else:
-            self.df = set_unknown_prediction(self.df).withColumn(
-                'prediction', F.col('prediction').cast(T.IntegerType())
-            ).withColumn(
-                'score', F.col('score').cast(T.FloatType())
-            ).withColumn(
-                'threshold', F.col('threshold').cast(T.FloatType()))
-
+            self.df = set_unknown_prediction(self.df)
             self.logger.error('No model to predict')
 
     def run(self):
