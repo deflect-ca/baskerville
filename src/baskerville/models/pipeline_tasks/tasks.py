@@ -101,7 +101,7 @@ class GetDataKafka(Task):
 
         def process_subsets(time, rdd):
             self.logger.info(f'Data until {time} from kafka topic \'{self.consume_topic}\'')
-            if not rdd.isEmpty():
+            if rdd and not rdd.isEmpty():
                 try:
                     # set dataframe to process later on
                     # todo: handle edge cases
@@ -854,8 +854,11 @@ class Predict(MLTask):
             self.logger.error('No model to predict')
 
     def run(self):
-        self.predict()
-        self.df = super(Predict, self).run()
+        if self.df and self.df.head(1):
+            self.df = self.df.persist(self.config.spark.storage_level)
+            self.predict()
+            self.df = super(Predict, self).run()
+            self.reset()
         return self.df
 
 

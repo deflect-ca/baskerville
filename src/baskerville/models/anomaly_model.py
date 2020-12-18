@@ -176,7 +176,7 @@ class AnomalyModel(ModelInterface):
         df = self._create_regular_features_vector(df).cache()
 
         self.logger.info('Scaling...')
-        df = self.scaler_model.transform(df)
+        df = self.scaler_model.transform(df).cache()
         df = df.drop(self.features_vector)
         self.logger.info('Adding categorical features...')
         df = self._create_feature_columns(df)
