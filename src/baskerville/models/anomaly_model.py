@@ -173,7 +173,7 @@ class AnomalyModel(ModelInterface):
 
     def predict(self, df):
         self.logger.info('Creating regular features...')
-        df = self._create_regular_features_vector(df)
+        df = self._create_regular_features_vector(df).cache()
 
         self.logger.info('Scaling...')
         df = self.scaler_model.transform(df)
