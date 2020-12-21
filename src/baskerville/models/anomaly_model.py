@@ -44,7 +44,7 @@ class AnomalyModel(ModelInterface):
         self.scaler_with_std = scaler_with_std
         self.features = features
         self.feature_map_column = feature_map_column
-        self.storage_level = StorageLevelFactory.get_storage_level(storage_level)
+        self.storage_level = storage_level
 
         self.scaler_model = None
         self.iforest_model = None
@@ -173,13 +173,13 @@ class AnomalyModel(ModelInterface):
 
     def predict(self, df):
         self.logger.info('Creating regular features...')
-        df = self._create_regular_features_vector(df).persist(self.storage_level)
+        df = self._create_regular_features_vector(df).persist()
 
         self.logger.info('Scaling...')
         df = self.scaler_model.transform(df).cache()
         df = df.drop(self.features_vector)
         self.logger.info('Adding categorical features...')
-        df = self._create_feature_columns(df).persist(self.storage_level)
+        df = self._create_feature_columns(df).persist()
         df = self._add_categorical_features(df, self.features_vector_scaled)
         df = self._drop_feature_columns(df)
         self.logger.info('Isolation forest transform...')
