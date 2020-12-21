@@ -44,7 +44,7 @@ class AnomalyModel(ModelInterface):
         self.scaler_with_std = scaler_with_std
         self.features = features
         self.feature_map_column = feature_map_column
-        self.storage_level = storage_level
+        self.storage_level = StorageLevelFactory.get_storage_level(storage_level)
 
         self.scaler_model = None
         self.iforest_model = None
