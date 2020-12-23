@@ -281,6 +281,7 @@ class EngineConfig(Config):
     banjax_sql_update_filter_minutes = 30
     banjax_num_fails_to_ban = 9
     register_banjax_metrics = False
+    new_model_check_in_seconds = 300
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
