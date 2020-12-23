@@ -132,9 +132,10 @@ class ServiceProvider(Borg):
             self.config.engine.model_id)
 
         # Do not reload the same model
-        if self.model_index.id == new_model_index.id:
+        if self.model_index and self.model_index.id == new_model_index.id:
             return
 
+        self.model_index = new_model_index
         self._model = instantiate_from_str(self.model_index.algorithm)
         path = bytes.decode(self.model_index.classifier, 'utf8')
         self._model.load(path, self.spark)
