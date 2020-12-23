@@ -43,7 +43,6 @@ class ServiceProvider(Borg):
         self._model_ts = None
         self.model_index = None
         self.feature_manager = None
-        self._can_predict = False
         self.spark_conf = self.config.spark
         self.db_url = get_jdbc_url(self.config.database)
         self.time_bucket = TimeBucket(self.config.engine.time_bucket)
@@ -129,14 +128,16 @@ class ServiceProvider(Borg):
             self.tools.connect_to_db()
 
     def load_model_from_db(self):
-        self.model_index = self.tools.get_ml_model_from_db(
+        new_model_index = self.tools.get_ml_model_from_db(
             self.config.engine.model_id)
+
+        # Do not reload the same model
+        if self.model_index.id == new_model_index.id:
+            return
+
         self._model = instantiate_from_str(self.model_index.algorithm)
         path = bytes.decode(self.model_index.classifier, 'utf8')
         self._model.load(path, self.spark)
-        if not self.feature_manager:
-            self.initialize_feature_manager_service()
-        self._can_predict = self.feature_manager.feature_config_is_valid() and self._model.iforest_model
         self.model_index.can_predict = self.feature_manager.feature_config_is_valid()
         self._model.set_logger(self.logger)
         self._model_ts = datetime.datetime.utcnow()
@@ -153,9 +154,6 @@ class ServiceProvider(Borg):
                 self._model.set_logger(self.logger)
             else:
                 self._model = None
-
-        self._can_predict = self.feature_manager \
-                                .feature_config_is_valid() and self._model
 
     def initialize_feature_manager_service(self):
         if not self.feature_manager:

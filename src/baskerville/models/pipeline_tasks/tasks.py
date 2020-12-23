@@ -843,7 +843,6 @@ class Predict(MLTask):
 
     def __init__(self, config: BaskervilleConfig, steps=()):
         super().__init__(config, steps)
-        self._can_predict = False
         self._is_initialized = False
 
     def predict(self):
