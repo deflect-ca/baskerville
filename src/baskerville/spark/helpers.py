@@ -257,7 +257,7 @@ def send_to_kafka_by_partition_id(
         df_to_send, bootstrap_servers, cmd_topic, cmd, id_client=None, udf_=None
 ):
     from baskerville.spark.udfs import udf_send_to_kafka
-    df_to_send = df_to_send.withColumn('pid', F.spark_partition_id())
+    df_to_send = df_to_send.withColumn('pid', F.spark_partition_id()).cache()
     udf_to_exec = udf_send_to_kafka
     if udf_:
         udf_to_exec = udf_
@@ -266,7 +266,7 @@ def send_to_kafka_by_partition_id(
         f_ = F.collect_set('rows')
     g_records = df_to_send.groupBy('pid').agg(
         f_.alias('rows')
-    )
+    ).cache()
     g_records = g_records.withColumn(
         'sent_to_kafka',
         udf_to_exec(
@@ -278,7 +278,7 @@ def send_to_kafka_by_partition_id(
         )
     )
     # False means something went wrong:
-    g_records.select('*').where(
+    print(g_records.select('*').where(
         F.col('sent_to_kafka') == False  # noqa
-    ).show()
+    ).head(1))
     return g_records
