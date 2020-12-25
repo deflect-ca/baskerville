@@ -201,7 +201,7 @@ Follow an [example...](https://unix.stackexchange.com/questions/332641/how-to-in
 ```
 wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz
 tar xvf Python-3.6.6.tgz
-cd Python-3.6.9
+cd Python-3.6.6
 ./configure --enable-optimizations --enable-shared --prefix=/usr/local LDFLAGS="-Wl,-rpath /usr/local/lib" --with-ensurepip=install
 make -j8
 sudo make altinstall
@@ -536,7 +536,7 @@ cd ..
 ```
 git clone https://github.com/equalitie/baskerville.git
 cd baskerville
-sudo pip install -e .
+pip install -e .
 ```
 * set up a cron job for Java GC memory leak workaround
 ```

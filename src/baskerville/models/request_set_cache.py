@@ -153,7 +153,7 @@ class RequestSetSparkCache(Singleton):
             update_date=update_date,
             hosts=hosts,
             extra_filters=extra_filters
-        )  # ppp.persist(self.storage_level)
+        )#.persist(self.storage_level)
 
         self.write()
 
@@ -195,7 +195,7 @@ class RequestSetSparkCache(Singleton):
             select_cols = self.cache.columns
 
         # add null columns if nothing in cache
-        if self.count() == 0:
+        if len(self.__cache.head(1)) == 0:
             for c in select_cols:
                 if c not in df_to_update.columns:
                     df_to_update = df_to_update.withColumn(c, F.lit(None))
@@ -207,7 +207,7 @@ class RequestSetSparkCache(Singleton):
             self.cache.select(*select_cols).alias('cache'),
             list(join_cols),
             how='left_outer'
-        )  # ppp.persist(self.storage_level)
+        )#.persist(self.storage_level)
 
         # update nulls and filter drop duplicate columns
         for c in select_cols:
@@ -251,7 +251,7 @@ class RequestSetSparkCache(Singleton):
                 how='inner'
             ).drop(
                 'a.ip'
-            )  # ppp.persist(self.storage_level)
+            ) #.persist(self.storage_level)
         else:
             if self.__cache:
                 self.__cache = self.__cache.join(
@@ -260,7 +260,7 @@ class RequestSetSparkCache(Singleton):
                     how='inner'
                 ).drop(
                     'a.ip'
-                )  # ppp.persist(self.storage_level)
+                )# .persist(self.storage_level)
             else:
                 self.load_empty(self.schema)
 
@@ -302,7 +302,7 @@ class RequestSetSparkCache(Singleton):
             'dt', 'id_client'
         ]
         now = datetime.datetime.utcnow()
-        #  ppp source_df = source_df.persist(self.storage_level).alias('sd')
+        #source_df = source_df.persist(self.storage_level)
         source_df = source_df.alias('sd')
 
         columns = source_df.columns
@@ -310,24 +310,22 @@ class RequestSetSparkCache(Singleton):
         columns.remove('target_original')
         source_df = source_df.select(columns)
 
-        self.logger.debug(f'Source_df count = {source_df.count()}')
-
         # read the whole thing again
         if self.file_manager.path_exists(self.file_name):
+            if self.__persistent_cache:
+                self.__persistent_cache.unpersist()
             self.__persistent_cache = self.session_getter().read.format(
                 self.format_
             ).load(
                 self.file_name
-            )
-            #  ppp.persist(self.storage_level)
+            )# .persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
         self.__persistent_cache = source_df.rdd.toDF(source_df.schema).join(
             self.__persistent_cache.select(*select_cols).alias('pc'),
             list(join_cols),
             how='full_outer'
-        )
-        # ppp.persist(self.storage_level)
+        )#.persist(self.storage_level)
 
         # mark rows to update
         self.__persistent_cache = self.__persistent_cache.withColumn(
@@ -359,15 +357,12 @@ class RequestSetSparkCache(Singleton):
 
         # remove old rows
         if expire:
-            original_count = self.__persistent_cache.count()
             update_date = now - datetime.timedelta(
                 seconds=self.expire_if_longer_than
             )
             self.__persistent_cache = self.__persistent_cache.select(
                 '*'
             ).where(F.col('updated_at') >= update_date)
-            new_count = self.__persistent_cache.count()
-            self.logger.info(f'Persistent cache size after expiration = {new_count} ({new_count-original_count})')
 
         # write back to parquet - different file/folder though
         # because self.parquet_name is already in use
@@ -380,11 +375,6 @@ class RequestSetSparkCache(Singleton):
         ).format(
             self.format_
         ).save(self.temp_file_name)
-
-        self.logger.debug(
-            f'# Number of rows in persistent cache: '
-            f'{self.__persistent_cache.count()}'
-        )
 
         # we don't need anything in memory anymore
         source_df.unpersist(blocking=True)
@@ -411,9 +401,6 @@ class RequestSetSparkCache(Singleton):
 
     def deduplicate(self):
         self.__cache = self.__cache.dropDuplicates()
-        # self._count = self.cache.count()
-        # self._last_updated = datetime.datetime.now()
-        # self._changed = False
 
     def alias(self, name):
         self.__cache = self.__cache.alias(name)
@@ -474,8 +461,8 @@ class RequestSetSparkCache(Singleton):
         self.session_getter().sparkContext._jvm.System.gc()
 
     def persist(self):
-        pass
-        # pppself.__cache = self.__cache.persist(self.storage_level)
+        self.__cache = self.__cache #.persist(self.storage_level)
+
         # self.__cache.createOrReplaceTempView(self.__class__.__name__)
         # spark = self.session_getter()
         # spark.catalog.cacheTable(self.__class__.__name__)

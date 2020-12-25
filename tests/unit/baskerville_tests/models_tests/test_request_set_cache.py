@@ -89,7 +89,7 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         persist = rsc._load.return_value.persist
         persist.return_value = {}
         rsc.write = mock.MagicMock()
-        returned_rsc = rsc.load(update_date, hosts, extra_filters)
+        rsc.load(update_date, hosts, extra_filters)
         rsc._load.assert_called_once_with(
             update_date=update_date,
             hosts=hosts,

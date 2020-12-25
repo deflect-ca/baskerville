@@ -1,0 +1,100 @@
+{
+   "name": "ATSLogs",
+   "properties": {
+      "@timestamp": {
+         "type": "string",
+         "format": "date",
+         "pattern": "(\\d\\d\\d\\d-([0-2])?\\d-([0-3])?\\dT?([0-2])?\\d:([0-5])?\\d:([0-5])?\\d\\.\\d?\\d?\\d?Z?)",
+         "required": true
+      },
+      "ISP": {
+         "type": "string"
+      },
+      "cache_result": {
+         "type": "string"
+      },
+      "client_ip": {
+         "type": "string",
+         "pattern": "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}"
+      },
+      "client_request_host": {
+         "type": "string"
+      },
+      "client_request_method": {
+         "type": "string",
+         "default": ""
+      },
+      "client_ua": {
+         "type": "string"
+      },
+      "client_url": {
+         "type": "string"
+      },
+      "client_user": {
+         "type": "string"
+      },
+      "content_type": {
+        "type": "string"
+      },
+      "device": {
+        "type": "string"
+      },
+      "dnet": {
+         "type": "string"
+      },
+      "host": {
+         "type": "string"
+      },
+      "http_request_scheme": {
+         "type": "string"
+      },
+      "http_request_version": {
+         "type": "string"
+      },
+      "http_response_code": {
+         "type": "string",
+         "pattern": "[1-5][0-9][0-9]"
+      },
+      "major": {
+         "type": "string"
+      },
+      "os": {
+         "type": "string"
+      },
+      "os_name": {
+         "type": "string"
+      },
+      "querystring": {
+         "type": "string"
+      },
+      "reply_length_bytes": {
+         "type": "string"
+      },
+      "ts_process_time": {
+         "type": "string"
+      },
+      "ts_timestamp": {
+         "type": "string"
+      },
+      "ua_name": {
+         "type": "string"
+      },
+      "geoip": {
+	  "location": {
+              "lon": {
+		  "type": "string",
+		  "format": "number"
+	      },
+	      "lat": {
+		  "type": "string",
+		  "format": "number"
+	      }
+	  },
+	  "country_name":{
+              "type": "string"
+	  }
+      }
+   },
+   "required": ["@timestamp", "client_ip", "client_request_host", "client_ua", "client_url", "content_type", "http_response_code", "querystring", "reply_length_bytes", "geoip"],
+   "additionalProperties": false
+}

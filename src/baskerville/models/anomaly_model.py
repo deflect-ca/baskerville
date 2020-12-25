@@ -173,13 +173,13 @@ class AnomalyModel(ModelInterface):
 
     def predict(self, df):
         self.logger.info('Creating regular features...')
-        df = self._create_regular_features_vector(df)
+        df = self._create_regular_features_vector(df).persist()
 
         self.logger.info('Scaling...')
-        df = self.scaler_model.transform(df)
+        df = self.scaler_model.transform(df).cache()
         df = df.drop(self.features_vector)
         self.logger.info('Adding categorical features...')
-        df = self._create_feature_columns(df)
+        df = self._create_feature_columns(df).persist()
         df = self._add_categorical_features(df, self.features_vector_scaled)
         df = self._drop_feature_columns(df)
         self.logger.info('Isolation forest transform...')
@@ -187,6 +187,9 @@ class AnomalyModel(ModelInterface):
         df = df.withColumnRenamed('anomalyScore', self.score_column)
         df = df.drop(self.features_vector_scaled)
         return df
+
+    def _get_training_config_path(self, path):
+        return os.path.join(path, 'training_config.json')
 
     def _get_params_path(self, path):
         return os.path.join(path, 'params.json')
@@ -200,9 +203,11 @@ class AnomalyModel(ModelInterface):
     def _get_index_path(self, path, feature):
         return os.path.join(path, 'indexes', feature)
 
-    def save(self, path, spark_session=None):
+    def save(self, path, spark_session=None, training_config=None):
         file_manager = FileManager(path, spark_session)
         file_manager.save_to_file(self.get_params(), self._get_params_path(path), format='json')
+        if training_config:
+            file_manager.save_to_file(training_config, self._get_training_config_path(), format='json')
         self.iforest_model.write().overwrite().save(self._get_iforest_path(path))
         self.scaler_model.write().overwrite().save(self._get_scaler_path(path))
 

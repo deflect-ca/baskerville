@@ -23,7 +23,7 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.logConf', 'true')
     conf.set('spark.jars', spark_conf.jars)
     conf.set('spark.master', spark_conf.master)
-    conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
+    conf.set("spark.hadoop.dfs.client.use.datanode.hostname", 'true')
     if spark_conf.redis_host:
         conf.set('spark.redis.host', spark_conf.redis_host)
         conf.set('spark.redis.port', spark_conf.redis_port)
@@ -40,6 +40,29 @@ def get_or_create_spark_session(spark_conf):
     # todo: https://stackoverflow.com/questions/
     #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
     # https://medium.com/@pmatpadi/spark-streaming-dynamic-scaling-and-backpressure-in-action-6ebdbc782a69
+
+    # security
+    # https://spark.apache.org/docs/latest/security.html
+    # note that: The same secret is shared by all Spark applications and
+    # daemons in that case, which limits the security of these deployments,
+    # especially on multi-tenant clusters.
+    if spark_conf.auth_secret:
+        conf.set('spark.authenticate', 'true')
+        conf.set('spark.authenticate.secret', spark_conf.auth_secret)
+
+    if spark_conf.ssl_enabled:
+        conf.set('spark.ssl.enabled', 'true')
+        conf.set('spark.network.crypto.saslFallback', 'false')
+        conf.set('spark.network.crypto.enabled', 'true')
+        conf.set('spark.ssl.trustStore', spark_conf.ssl_truststore)
+        conf.set('spark.ssl.trustStorePassword', spark_conf.ssl_truststore_password)
+        conf.set('spark.ssl.keyStore', spark_conf.ssl_keystore)
+        conf.set('spark.ssl.keyStorePassword', spark_conf.ssl_keystore_password)
+        conf.set('spark.ssl.keyPassword', spark_conf.ssl_keypassword)
+
+        conf.set('spark.ssl.ui.enabled', spark_conf.ssl_ui_enabled)
+        conf.set('spark.ssl.standalone.enabled', spark_conf.ssl_standalone_enabled)
+        conf.set('spark.ssl.historyServer.enabled', spark_conf.ssl_history_server_enabled)
 
     # conf.set('spark.streaming.dynamicAllocation.enabled', 'true')
     conf.set('spark.streaming.unpersist', 'true')
@@ -96,6 +119,7 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.ui.dagGraph.retainedRootRDDs', 100000)
     if not os.path.exists('/tmp/spark-events'):
         os.makedirs('/tmp/spark-events')
+        conf.set('spark.eventLog.dir', '/tmp/spark-events')
     if spark_conf.spark_executor_cores:
         conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_instances:
@@ -143,7 +167,8 @@ def get_or_create_spark_session(spark_conf):
         'spark.sql.session.timeZone', spark_conf.session_timezone
     )
     conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
-    conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+    # conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+    conf.set('spark.sql.autoBroadcastJoinThreshold', -1)  # disable
 
     spark = SparkSession.builder \
         .config(conf=conf) \

@@ -57,7 +57,8 @@ class DictAccumulatorParam(AccumulatorParam):
             for k, v in items:
                 value1[k] += v
         else:
-            value1['--unknown--'] += 1
+            pass
+            # value1['--unknown--'] += 1
 
         return value1
 
@@ -104,7 +105,7 @@ def save_df_to_table(
     """
     if not isinstance(storage_level, StorageLevel):
         storage_level = StorageLevelFactory.get_storage_level(storage_level)
-    df = df.persist(storage_level)
+    #df = df.persist(storage_level)
     for c in json_cols:
         df = col_to_json(df, c)
     df.write.format('jdbc').options(
@@ -238,7 +239,7 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str):
             (F.col('timestamp') >= current_window_start) &
             (F.col('timestamp') < current_end)
         )
-        window_df = df.where(filter_).persist(storage_level)
+        window_df = df.where(filter_) #.persist(storage_level)
         if not window_df.rdd.isEmpty():
             print(f'# Request sets = {window_df.count()}')
             yield window_df
@@ -250,3 +251,34 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str):
             window_df.unpersist(blocking=True)
             del window_df
             break
+
+
+def send_to_kafka_by_partition_id(
+        df_to_send, bootstrap_servers, cmd_topic, cmd, id_client=None, udf_=None
+):
+    from baskerville.spark.udfs import udf_send_to_kafka
+    df_to_send = df_to_send.withColumn('pid', F.spark_partition_id()).cache()
+    udf_to_exec = udf_send_to_kafka
+    if udf_:
+        udf_to_exec = udf_
+    f_ = F.collect_list('rows')
+    if 'challenge_' in cmd:
+        f_ = F.collect_set('rows')
+    g_records = df_to_send.groupBy('pid').agg(
+        f_.alias('rows')
+    ).cache()
+    g_records = g_records.withColumn(
+        'sent_to_kafka',
+        udf_to_exec(
+            F.lit(bootstrap_servers),
+            F.lit(cmd_topic),
+            F.col('rows'),
+            F.lit(cmd),
+            F.lit('id_client') if id_client else F.lit(None)
+        )
+    )
+    # False means something went wrong:
+    print(g_records.select('*').where(
+        F.col('sent_to_kafka') == False  # noqa
+    ).head(1))
+    return g_records
