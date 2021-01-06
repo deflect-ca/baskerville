@@ -14,7 +14,6 @@ pycountry==18.2.23
 scipy==1.1.0
 matplotlib==2.2.2
 seaborn==0.8.1
-hdbscan==0.8.13
 alembic==1.0.8
 enum34==1.1.6
 tzwhere==3.0.3
