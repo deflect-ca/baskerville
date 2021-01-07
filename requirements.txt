@@ -3,7 +3,6 @@ pgpubsub
 numpy==1.14.3
 PyYAML==3.12
 cryptography==2.2.2
-scikit-learn==0.19.1
 python-geoip==1.2
 python-geoip-geolite2==2015.303
 certifi==2018.4.16
