@@ -28,10 +28,10 @@ class StorageLevelFactory(object):
         'MEMORY_ONLY_2': StorageLevel.MEMORY_ONLY_2,
         'MEMORY_AND_DISK': StorageLevel.MEMORY_AND_DISK,
         'MEMORY_AND_DISK_2': StorageLevel.MEMORY_AND_DISK_2,
-        'MEMORY_ONLY_SER': StorageLevel.MEMORY_ONLY_SER,
-        'MEMORY_ONLY_SER_2': StorageLevel.MEMORY_ONLY_SER_2,
-        'MEMORY_AND_DISK_SER': StorageLevel.MEMORY_AND_DISK_SER,
-        'MEMORY_AND_DISK_SER_2': StorageLevel.MEMORY_AND_DISK_SER_2,
+        # 'MEMORY_ONLY_SER': StorageLevel.MEMORY_ONLY_SER,
+        # 'MEMORY_ONLY_SER_2': StorageLevel.MEMORY_ONLY_SER_2,
+        # 'MEMORY_AND_DISK_SER': StorageLevel.MEMORY_AND_DISK_SER,
+        # 'MEMORY_AND_DISK_SER_2': StorageLevel.MEMORY_AND_DISK_SER_2,
     }
 
     @staticmethod

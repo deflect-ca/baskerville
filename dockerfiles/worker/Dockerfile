@@ -4,9 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-ARG baskerville_branch=docker
-
-FROM baskerville/spark-py:v3.0.1-j8
+FROM baskerville/spark-py:v2.4.7
 
 USER ${spark_uid}
 
