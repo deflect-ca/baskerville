@@ -3,8 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
-
+from graphframes import GraphFrame
 from pyspark.sql import functions as F
 
 #  https://towardsdatascience.com/an-implementation-and-explanation-of-the-random-forest-in-python-77bf308a9b76
@@ -30,40 +29,52 @@ from pyspark.sql import functions as F
 from baskerville.util.helpers import get_default_data_path
 from baskerville.util.model_interpretation.helpers import \
     get_spark_session_with_iforest, load_anomaly_model, \
-    get_trees_and_features, construct_tree_graph, get_shortest_path_for_g
+    get_trees_and_features, construct_tree_graph, get_shortest_path_for_g, \
+    get_avg_shortest_path_for_forest, draw_graph
 
 if __name__ == '__main__':
     data_path = get_default_data_path()
     test_model_path = f'{data_path}/models/AnomalyModel__2020_11_12___16_06_TestModel'
-    test_model_data_path = f'{test_model_path}/classifier/data'
+    test_model_data_path = f'{test_model_path}/iforest/data'
     spark = get_spark_session_with_iforest()
     # load test model
     anomaly_model = load_anomaly_model(test_model_path)
     # get features
     feature_names = anomaly_model.features.keys()
     nodes_df = spark.read.parquet(test_model_data_path)
-    nodes_df.select(F.max('treeId')).show()
+    max_tree_id = nodes_df.select(F.max('treeId').alias('id')).collect()[0].id
+    print(max_tree_id)
     print(nodes_df.select('nodeData').first())
     nodes_df.show(10, False)
     print(nodes_df.count())
-# https://www.timlrx.com/2018/06/19/feature-selection-using-feature-importance-score-creating-a-pyspark-estimator/
+    # https://www.timlrx.com/2018/06/19/feature-selection-using-feature-importance-score-creating-a-pyspark-estimator/
 
 
     nodes_df.select('nodeData.id', 'nodeData.featureIndex',
                     'nodeData.featureValue', 'nodeData.numInstance').show(10,
                                                                           False)
+    # Row(treeID=112, nodeData=Row(id=94, featureIndex=-1, featureValue=-1.0, leftChild=-1, rightChild=-1, numInstance=1))
     trees, features = get_trees_and_features(nodes_df)
-    g = construct_tree_graph(trees, feature_names)
-    shortest_paths = get_shortest_path_for_g(g)
+    g, nodes, edges = construct_tree_graph(trees, feature_names)
+    # draw_graph(g)
+    # avg_shortest_path = get_avg_shortest_path_for_forest(g)
+    # print(avg_shortest_path)
+    # shortest_paths = get_shortest_path_for_g(g)
+    #
+    # print(shortest_paths)
 
+    # Vertex DataFrame
+    v = spark.createDataFrame(
+        nodes,
+        ["node", "id", "feature_index", "feature_value", "left", 'right', 'num_instances', 'feature']
+    )
+    # Edge DataFrame
+    e = spark.createDataFrame(edges, ["src", "dst", "rule"])
+    # Create a GraphFrame
+    g_spark = GraphFrame(v, e)
+    g_spark.edges.show()
+    g_spark.shortestPaths(list(range(0, max_tree_id))) # root
 
-# plt.rcParams["figure.figsize"] = (20, 20)
-# nx.draw(g, node_size=1200, \
-#     node_color='lightblue', linewidths=0.25, font_size=10, \
-#     font_weight='bold', with_labels=True)
-# # pos=nx.nx_pydot.graphviz_layout(g),
-# plt.show()
-# print(g)
 
 # from graph_tools import Graph
 #
@@ -90,56 +101,9 @@ if __name__ == '__main__':
 # # compute the betweenness centrality of vertex 1
 # print(g.betweenness(1))
 
-
-# # Vertex DataFrame
-# v = spark.createDataFrame([
-#   ("a", "Alice", 34),
-#   ("b", "Bob", 36),
-#   ("c", "Charlie", 30),
-#   ("d", "David", 29),
-#   ("e", "Esther", 32),
-#   ("f", "Fanny", 36),
-#   ("g", "Gabby", 60)
-# ], ["id", "name", "age"])
-# # Edge DataFrame
-# e = spark.createDataFrame([
-#   ("a", "b", "friend"),
-#   ("b", "c", "follow"),
-#   ("c", "b", "follow"),
-#   ("f", "c", "follow"),
-#   ("e", "f", "follow"),
-#   ("e", "d", "friend"),
-#   ("d", "a", "friend"),
-#   ("a", "e", "friend")
-# ], ["src", "dst", "relationship"])
-# # Create a GraphFrame
-# g = GraphFrame(v, e)
-# g.edges.show()
-
-
-# for i in range(min_key, max_key + 1):
-
 # Row(nodeData=Row(id=0, featureIndex=2, featureValue=2.1980993960346815, leftChild=1, rightChild=2, numInstance=0))
 # do this afterwards:
 # https://stackoverflow.com/questions/49805284/how-to-get-node-information-on-spark-decision-tree-model
-# trees = imodel._call_java('trees')
-# print(trees)
-# imodel.getTrees()
-# print(lmodel.trees)
-# model_inst = model('dage3q2q3', [node(10)])
-
-# png_string = plot_tree(loaded_model,
-#                        featureNames=list(data[0].keys()),
-#                        categoryNames={},
-#                        classNames=['abnormal', 'normal'],
-#                        filled=True,
-#                        roundedCorners=True,
-#                        roundLeaves=True)
-#
-# import base64
-# with open("imageToSave.png", "wb") as fh:
-#     fh.write(base64.decodebytes(png_string))
-
 
 # https://stats.stackexchange.com/a/393437/140260
 # I believe it was not implemented in scikit-learn because in contrast with Random Forest algorithm, Isolation Forest feature to split at each node is selected at random. So it is not possible to have a notion of feature importance similar to RF.
@@ -160,45 +124,4 @@ if __name__ == '__main__':
 # SHAP tree explainer
 # https://towardsdatascience.com/explain-your-model-with-the-shap-values-bc36aac4de3d
 # https://github.com/dataman-git/codes_for_articles/blob/master/Explain%20your%20model%20with%20the%20SHAP%20values%20for%20article.ipynb
-
-# the way to calculate the Shapley value: It is the average of the marginal contributions across all permutations.
-# import shap
-# import pandas as pd
-# pd_df = df.toPandas()
-# iforest_sk = IsolationForest()
-# x_train = pd.DataFrame([dv.values for dv in pd_df['features'].values], columns=feature_names)
-# im = iforest_sk.fit(x_train)
-# shap_values = shap.TreeExplainer(im).shap_values(x_train)
-# shap.summary_plot(shap_values, x_train, plot_type="bar")
-
-# TREES = {}
-#
-# for tree, nodes in trees.items():
-#     t = Tree(tree, nodes)
-#     TREES[tree] = t
-#
-# scaling = 1.0 / len(TREES)
-# pd_df = df.toPandas()
-# x_train = [dv.values for dv in pd_df['features'].values.tolist()]
-# data_missing = []
-# shap_trees = []
-#
-# for tid, tree in TREES.items():
-#     itree = IsoTree(
-#         tree,
-#         tree.features,
-#         scaling=scaling,
-#         data=x_train,
-#         data_missing=data_missing
-#     )
-#     shap_trees.append(itree)
-
-# elif safe_isinstance(model, ["sklearn.ensemble.IsolationForest",
-#                              "sklearn.ensemble.iforest.IsolationForest"]):
-# self.dtype = np.float32
-# scaling = 1.0 / len(model.estimators_)  # output is average of trees
-# self.trees = [
-#     IsoTree(e.tree_, f, scaling=scaling, data=data, data_missing=data_missing)
-#     for e, f in zip(model.estimators_, model.estimators_features_)]
-# self.tree_output = "raw_value"
 

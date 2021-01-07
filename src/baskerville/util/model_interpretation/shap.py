@@ -7,11 +7,11 @@
 
 from collections import defaultdict
 
-from pyspark import SparkConf
+# from pyspark import SparkConf
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.tree import DecisionTree
-from pyspark.sql import SparkSession, functions as F
+from pyspark.sql import functions as F
 from pyspark.ml.feature import VectorAssembler, StandardScaler
 from pyspark_iforest.ml.iforest import IForest
 
@@ -33,8 +33,8 @@ from pyspark_iforest.ml.iforest import IForest
 # graph x and graph-frames:
 # http://spark.apache.org/docs/latest/graphx-programming-guide.html#
 # https://graphframes.github.io/graphframes/docs/_site/quick-start.html
-from shap.explainers._tree import IsoTree
-from sklearn.ensemble import IsolationForest
+# from shap.explainers._tree import IsoTree
+# from sklearn.ensemble import IsolationForest
 
 from baskerville.util.model_interpretation.helpers import \
     get_spark_session_with_iforest
