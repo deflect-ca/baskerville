@@ -172,10 +172,9 @@ class AnomalyModel(ModelInterface):
         df = df.drop(self.features_vector_scaled)
         df.unpersist()
 
-    def predict(self, df):
+    def prepare_df(self, df):
         self.logger.info('Creating regular features...')
-        df = self._create_regular_features_vector(df).persist()
-
+        df = self._create_regular_features_vector(df)
         self.logger.info('Scaling...')
         df = self.scaler_model.transform(df).cache()
         df = df.drop(self.features_vector)
@@ -183,7 +182,6 @@ class AnomalyModel(ModelInterface):
         df = self._create_feature_columns(df).persist()
         df = self._add_categorical_features(df, self.features_vector_scaled)
         df = self._drop_feature_columns(df)
-        self.logger.info('Isolation forest transform...')
         self.is_prepared = True
         return df
 

@@ -167,15 +167,23 @@ def reset_spark_storage():
     # self.spark.sparkContext._jvm.System.gc()
 
 
-def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
+def set_unknown_prediction(
+        df,
+        columns=('prediction', 'score', 'threshold'),
+        ctypes=('int', 'float', 'float')
+):
     """
     Sets the preset unknown value for prediction and score
     :param pyspark.sql.Dataframe df:
-    :param columns:
-    :return:
+    :param columns: column names to be filled
+    :param ctypes: column data types for casting
+    :return: the modified dataframe
+    :rtype: pyspark.DataFrame
     """
-    for c in columns:
-        df = df.withColumn(c, F.lit(LabelEnum.unknown.value))
+    if not ctypes or len(ctypes) != len(columns):
+        raise ValueError('Columns and Column Types do not mach')
+    for c, t in zip(columns, ctypes):
+        df = df.withColumn(c, F.lit(LabelEnum.unknown.value).cast(t))
     return df
 
 
