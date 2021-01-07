@@ -3,10 +3,10 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-from collections import defaultdict
 
 import operator
 from random import shuffle
+from collections import defaultdict
 
 from pyspark import SparkConf
 from pyspark.ml.feature import VectorAssembler, StandardScalerModel
@@ -14,7 +14,7 @@ from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.sql import SparkSession, Window
 from pyspark_iforest.ml.iforest import IForestModel
-from pyspark.sql import functions as F, types as T
+from pyspark.sql import functions as F
 from baskerville.models.anomaly_model import AnomalyModel
 from baskerville.util.helpers import get_default_data_path
 
@@ -433,13 +433,14 @@ def construct_tree_graph(trees, feature_names):
     g = nx.Graph()
 
     g.add_node(forest_root, )
-    nodes.append((forest_root, -100, None, None, None, None, None, None))
+    nodes.append((forest_root, -100, -100, -100., -1, -1, -100, "None"))
 
     for i in range(min_key, max_key + 1):
         tree_node = f'tree_{i}'
         g.add_node(tree_node)
-        nodes.append((tree_node, -1, None, None, None, None, None, None ))
+        nodes.append((tree_node, -i, -1, -1., -1, -1, -1, "None"))
         g.add_edge(tree_node, forest_root)
+        edges.append((tree_node, forest_root, 'child'))
         current_tree_details = trees[i].items()
         # iterate the tree nodes:
         # add the k-th node in the graph with the following characteristics:
@@ -472,7 +473,7 @@ def construct_tree_graph(trees, feature_names):
             if k == 0:
                 # connect first node to the corresponding tree
                 g.add_edge(tree_node, k_node)
-                edges.append((tree_node, k_node, '1st'))
+                edges.append((tree_node, k_node, 'child'))
             if lc > -1:
                 g.add_edge(k_node, f'{tree_node}_node_{lc}')
                 edges.append(

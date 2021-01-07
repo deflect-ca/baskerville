@@ -59,6 +59,7 @@ if __name__ == '__main__':
     # draw_graph(g)
     # avg_shortest_path = get_avg_shortest_path_for_forest(g)
     # print(avg_shortest_path)
+    # todo: takes for ever
     # shortest_paths = get_shortest_path_for_g(g)
     #
     # print(shortest_paths)
@@ -67,61 +68,14 @@ if __name__ == '__main__':
     v = spark.createDataFrame(
         nodes,
         ["node", "id", "feature_index", "feature_value", "left", 'right', 'num_instances', 'feature']
-    )
+    ).cache()
+    v = v.withColumn('feature', F.when(F.col('feature').isNull(), 'END').otherwise(F.col('feature')))
     # Edge DataFrame
     e = spark.createDataFrame(edges, ["src", "dst", "rule"])
     # Create a GraphFrame
     g_spark = GraphFrame(v, e)
+    g_spark.vertices.show()
     g_spark.edges.show()
-    g_spark.shortestPaths(list(range(0, max_tree_id))) # root
-
-
-# from graph_tools import Graph
+    # print(g_spark.pageRank(sourceId=-100, maxIter=100))
+    g_spark.shortestPaths([-100, 50])  # -100 is root
 #
-# # create a graph with four nodes and two edges
-# g = Graph(directed=True)
-# g.add_edge(1, 2)
-# g.add_edge(2, 3)
-# g.add_vertex(4)
-# g.add_edge(2, 4)
-# g.add_edge(4, 3)
-#
-# print(g)
-#
-# # find the all shortest paths from vertex 1
-# dist, prev = g.dijkstra(1)
-# print(dist)
-#
-# # generate BA graph with 100 vertices
-# g = Graph(directed=False).create_graph('barabasi', 100)
-#
-# # check if all vertices are mutually connected
-# print(g.is_connected())
-#
-# # compute the betweenness centrality of vertex 1
-# print(g.betweenness(1))
-
-# Row(nodeData=Row(id=0, featureIndex=2, featureValue=2.1980993960346815, leftChild=1, rightChild=2, numInstance=0))
-# do this afterwards:
-# https://stackoverflow.com/questions/49805284/how-to-get-node-information-on-spark-decision-tree-model
-
-# https://stats.stackexchange.com/a/393437/140260
-# I believe it was not implemented in scikit-learn because in contrast with Random Forest algorithm, Isolation Forest feature to split at each node is selected at random. So it is not possible to have a notion of feature importance similar to RF.
-#
-# Having said that, If you are very confident about the results of Isolation Forest
-# classifier and you have a capacity to train another model then you could use the
-# output of Isolation Forest i.e -1/1 values as target-class to train a Random Forest classifier.
-# This will give you feature importance for detecting anomaly.
-
-# Despite all this the iForest is interpretable if its underlying principle is
-# taken advantage of: that outliers have short decision paths on average over all
-# the trees in the iForest. The features that were cut on in these short paths must
-# be more important than those cut on in long decision paths. So here's what
-# you can do to get feature importances:
-
-
-# https://github.com/scikit-learn/scikit-learn/issues/10642
-# SHAP tree explainer
-# https://towardsdatascience.com/explain-your-model-with-the-shap-values-bc36aac4de3d
-# https://github.com/dataman-git/codes_for_articles/blob/master/Explain%20your%20model%20with%20the%20SHAP%20values%20for%20article.ipynb
-
