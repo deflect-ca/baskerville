@@ -4,7 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-ARG baskerville_branch=greenhost
+ARG baskerville_branch=docker
 
 FROM baskerville/spark-py:v3.0.1-j8
 
@@ -24,7 +24,7 @@ RUN git clone https://github.com/equalitie/esretriever.git
 WORKDIR esretriever
 RUN pip3 install .
 WORKDIR /usr/local
-RUN git clone --single-branch --branch greenhost https://github.com/equalitie/baskerville.git
+RUN git clone --single-branch --branch docker https://github.com/equalitie/baskerville.git
 WORKDIR /usr/local/baskerville
 RUN pip3 install -e .
 RUN mkdir -p src/baskerville/logs
