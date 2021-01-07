@@ -136,44 +136,6 @@ def generate_random_ip():
     return '.'.join(str(randint(0, 255)) for _ in range(4))
 
 
-def randomize_data(path_to_json, output_path='test_data_1k.json', take=1000):
-    """
-    Randomize log values and drop unnecessary columns
-    :param str path_to_json: full path to json file that contains the logs in
-    lines
-    :param str output_path: where to save, defaults to json 1k
-    :param int take: how many lines to keep, defaults to 1000
-    :return: None
-    """
-    import pandas as pd
-    import random
-
-    df = pd.read_json(
-        path_to_json,
-        orient='records',
-        lines=True,
-        encoding='utf-8'
-    )
-
-    if 0 < take <= len(df):
-        df = df[:take]
-    df = df.drop('_metadata', axis=1)
-    df['dnet'] = df['dnet'].apply(
-        lambda x: ''.join(random.sample(x, len(x))))
-    df['ISP'] = df['ISP'].apply(
-        lambda x: ''.join(random.sample(x, len(x))))
-    df['host'] = df['host'].apply(
-        lambda x: 'testhost.' + '.'.join(x.split('.')[1:]))
-    df['type'] = 'testdata'
-    df['client_request_host'] = 'testhost.net'
-    df['client_ip'] = df['client_ip'].apply(generate_random_ip)
-    df.to_json(
-        output_path,
-        orient='records',
-        lines=True
-    )
-
-
 def get_objects_attributes(obj, exclude=()):
     return [
         attr

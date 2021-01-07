@@ -8,11 +8,7 @@ python-geoip==1.2
 python-geoip-geolite2==2015.303
 certifi==2018.4.16
 ua-parser==0.8.0
-bokeh==0.12.16
-pandas==0.23.0
 pycountry==18.2.23
-scipy==1.1.0
-matplotlib==2.2.2
 seaborn==0.8.1
 alembic==1.0.8
 enum34==1.1.6
