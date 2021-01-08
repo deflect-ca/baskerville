@@ -19,7 +19,13 @@ WORKDIR /usr/local/spark-iforest/python
 RUN python3 setup.py sdist
 WORKDIR /usr/local
 RUN git clone https://github.com/equalitie/esretriever.git
+
 WORKDIR esretriever
+RUN rm requirements.txt && \
+    echo 'pyspark==2.4.7' >> requirements.txt && \
+    echo 'python-dateutil==2.7.3' >> requirements.txt && \
+    echo 'requests==2.20.0' >> requirements.txt
+
 RUN pip3 install .
 WORKDIR /usr/local
 RUN git clone --single-branch --branch docker https://github.com/equalitie/baskerville.git
