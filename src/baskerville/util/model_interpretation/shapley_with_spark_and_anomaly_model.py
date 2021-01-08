@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+import time
 import warnings
 
 from pyspark.sql import functions as F
@@ -63,7 +64,6 @@ def shapley_values_for_anomaly_model(
         features_col=anomaly_model.features_vector_scaled,
         # anomaly_score_col=anomaly_model.score_column
     )
-    print(shapley_values_for_all_f)
     print('Shapley values for all features:')
     print('-' * 20)
     print(*[f'#{i}. {feat} = {value}\n' for i, (feat, value) in
@@ -109,7 +109,8 @@ if __name__ == '__main__':
         )
     if start and stop and start > stop:
         raise ValueError('Start date is greater than stop date.')
-
+    start = time.time()
+    print('Start:', time.time())
     shapley_values_for_anomaly_model(
         model_path,
         row_id,
@@ -117,3 +118,6 @@ if __name__ == '__main__':
         start,
         stop
     )
+    end = time.time()
+    print('End:', time.time())
+    print(f'Calculation took {int(end - start)} seconds')

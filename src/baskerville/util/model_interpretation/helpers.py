@@ -14,7 +14,7 @@ from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.sql import SparkSession, Window
 from pyspark_iforest.ml.iforest import IForestModel
-from pyspark.sql import functions as F
+from pyspark.sql import functions as F, types as T
 from baskerville.models.anomaly_model import AnomalyModel
 from baskerville.util.helpers import get_default_data_path
 
@@ -240,33 +240,17 @@ def calculate_shapley_values_for_all_features(
         anomaly_score_col: str = 'anomalyScore'
 ):
     """
-    # https://runawayhorse001.github.io/LearningApacheSpark/mc.html
-    for a simulation of size N can be summarized as follows:
-    Construct a list of p random seeds (where p is the number of worker nodes).
-    Parallelize the list so that one random seed is present on each worker.
-    A flatmap operation is applied to the random seeds. Each random seed is
-    used to seed a multivariate Normal random number generator. Given a random
-    vector sampled from the distribution, inner products are evaluated against
-    different financial “instruments”. These are summed and the final value is
-    considered the result of the trial . N/p trials are run on each worker.
-    Since this operation is a flatmap, rather than a map, the result is a list
-    of ~N double precision values corresponding to the result of each trial.
-    The 5% VaR value corresponds to the trial value at index N/20 in the list
-    of trial results, were the list sorted. In the Cloudera code, this is
-    implemented by using the takeOrdered() function to retrieve the smallest
-    N/20 elements from the list, then taking the final value.
-    # https://cloud.google.com/solutions/monte-carlo-methods-with-hadoop-spark
     # https://christophm.github.io/interpretable-ml-book/shapley.html#estimating-the-shapley-value
-    #  First, select an instance of interest x, a feature j and the number of
+    #  "First, select an instance of interest x, a feature j and the number of
     #  iterations M. For each iteration, a random instance z is
     #  selected from the data and a random order of the features is generated.
     #  Two new instances are created by combining values from #  the instance
     #  of interest x and the sample z. The instance  x+j is the instance of
-    #  interest, but all values in the order before  feature j are replaced by
+    #  interest, but all values in the order before feature j are replaced by
     #  feature values from the sample z. The instance x−j is the same as x+j,
     #  but in addition has feature j #  replaced by the value for feature j
     #  from the sample z. The difference in the prediction from the black
-    #  box is computed
+    #  box is computed"
     """
     model_features_col = features_col
     results = {}
@@ -302,99 +286,91 @@ def calculate_shapley_values_for_all_features(
     num_rows = r.max_id + 1
     print('# of Rows:', num_rows)
 
-    # get all permutations - todo:
-    # WIP: permutations could be done like this:
-    # idx_df = idx_df.withColumn(
-    #   'feat_names', F.array(*[F.lit(f) for f in features])
-    # )
-    # idx_df = idx_df.withColumn('feat_perm', F.shuffle('feat_names'))
-    # idx_df.select('feat_names', 'feat_perm').show(2, False)
-    for i in range(0, num_rows + 1):
-        feat_perm_for_all_rows.append(next(random_feature_permutations))
-    shuffle(feat_perm_for_all_rows)
-
-    # set broadcasts
-    FEATURES_PERM_BROADCAST = spark.sparkContext.broadcast(
-        feat_perm_for_all_rows
+    # get permutations
+    idx_df = idx_df.withColumn(
+      'ordered_features', F.array(*[F.lit(f) for f in features])
     )
-    ORDERED_FEATURES_BROADCAST = spark.sparkContext.broadcast(features)
+    idx_df = idx_df.withColumn('features_perm', F.shuffle('ordered_features'))
+    # old way of calculating permutations using a broadcast
+    # for i in range(0, num_rows + 1):
+    #     feat_perm_for_all_rows.append(next(random_feature_permutations))
+    # shuffle(feat_perm_for_all_rows)
+    # shuffle(feat_perm_for_all_rows)
+    #
+    # # set broadcasts
+    # FEATURES_PERM_BROADCAST = spark.sparkContext.broadcast(
+    #     feat_perm_for_all_rows
+    # )
+    # ORDERED_FEATURES_BROADCAST = spark.sparkContext.broadcast(features)
     ROW_OF_INTEREST_BROADCAST = spark.sparkContext.broadcast(row_of_interest)
 
     if not has_features_column:
         idx_df = idx_df.withColumn('features', F.array(*features))
 
-    # todo: use one udf to calculate both -j +j and explode afterwards
-    def calculate_x_minus_j(rid, feature_j, z_features):
-        """
-        The instance  x−j is the same as  x+j, but in addition
-        has feature j replaced by the value for feature j from the sample z
-        """
-        x_interest = ROW_OF_INTEREST_BROADCAST.value
-        curr_feature_perm = list(FEATURES_PERM_BROADCAST.value[rid])
-        ordered_features = list(ORDERED_FEATURES_BROADCAST.value)
-        x_minus_j = list(z_features).copy()
-        f_i = curr_feature_perm.index(feature_j)
-        start = f_i + 1 if f_i < len(ordered_features)-1 else -1
-        if start >= 0:
-            # replace z feature values with x of interest feature values
-            # iterate features in current permutation until one before j
-            # x-j = [z1, z2, ... zj-1, xj, xj+1, ..., xN]
-            # we already have zs so replace z_features with x of interest
-            for f in curr_feature_perm[f_i:]:
-                # get the initial feature index to preserve initial order
-                f_index = ordered_features.index(f)
-                new_value = x_interest[f_index]
-                x_minus_j[f_index] = new_value
-        else:
-            pass
-
-        return Vectors.dense(x_minus_j)
-
-    def calculate_x_plus_j(rid, feature_j, z_features):
+    def calculate_x(rid, feature_j, z_features, curr_feature_perm, ordered_features):
         """
         The instance  x+j is the instance of interest,
         but all values in the order before feature j are
         replaced by feature values from the sample z
+        The instance  x−j is the same as  x+j, but in addition
+        has feature j replaced by the value for feature j from the sample z
         """
         x_interest = ROW_OF_INTEREST_BROADCAST.value
-        curr_feature_perm = list(FEATURES_PERM_BROADCAST.value[rid])
-        ordered_features = list(ORDERED_FEATURES_BROADCAST.value)
+        # curr_feature_perm = list(FEATURES_PERM_BROADCAST.value[rid])
+        # ordered_features = list(ORDERED_FEATURES_BROADCAST.value)
+        x_minus_j = list(z_features).copy()
         x_plus_j = list(z_features).copy()
         f_i = curr_feature_perm.index(feature_j)
-
+        after_j = False
         for f in curr_feature_perm[f_i:]:
+            # replace z feature values with x of interest feature values
+            # iterate features in current permutation until one before j
+            # x-j = [z1, z2, ... zj-1, xj, xj+1, ..., xN]
+            # we already have zs because we go row by row with the udf,
+            # so replace z_features with x of interest
             f_index = ordered_features.index(f)
-            x_plus_j[f_index] = x_interest[f_index]
+            new_value = x_interest[f_index]
+            x_plus_j[f_index] = new_value
+            if after_j:
+                x_minus_j[f_index] = new_value
+            after_j = True
 
-        return Vectors.dense(x_plus_j)
+        # minus must be first because of lag
+        return Vectors.dense(x_minus_j), Vectors.dense(x_plus_j)
 
-    udf_x_minus_j = F.udf(calculate_x_minus_j, VectorUDT())
-    udf_x_plus_j = F.udf(calculate_x_plus_j, VectorUDT())
+    udf_calculate_x = F.udf(calculate_x, T.ArrayType(VectorUDT()))
 
-    temp_df = idx_df.cache()
+    temp_df = idx_df
     for f in features:
         features_col = F.col('features') if has_features_column else F.array(*features)
-        x_minus = f'x_m_j'
-        x_plus = f'x_p_j'
-        temp_df = temp_df.withColumn(x_plus, udf_x_plus_j('id', F.lit(f), features_col))
-        temp_df = temp_df.withColumn(x_minus, udf_x_minus_j('id', F.lit(f), features_col))
-        # new_cols[f] = (x_plus, x_minus)
-        print('Calculating SHAP values for ', f)
+        temp_df = temp_df.withColumn('x', udf_calculate_x(
+            'id', F.lit(f), features_col, 'features_perm', 'ordered_features'
+        ))
+        print(f'Calculating SHAP values for "{f}"...')
         # minus must be first because of lag:
         # F.col('anomalyScore') - F.col('anomalyScore') one row before
-        # so that gives us (x+j - x-j)
+        # so we should have:
+        # [x-j row i,  x+j row i]
+        # [x-j row i+1,  x+j row i+1]
+        # ...
+        # that with explode becomes:
+        # x-j row i
+        # x+j row i
+        # x-j row i+1
+        # x+j row i+1
+        # so that with lag it gives us (x+j - x-j)
         tdf = temp_df.selectExpr(
-            'id', f'explode(array({x_minus}, {x_plus})) as features'
-        ).cache()
-        temp_df = temp_df.drop(x_minus, x_plus)
-        # print('Number of rows after:', tdf.count())
+            'id', 'explode(x) as features'
+        )
+        # drop column to release memory
+        temp_df = temp_df.drop('x')
         if scaler_model:
             tdf = scaler_model.transform(tdf)
         if model_features_col != 'features':
             tdf = tdf.withColumnRenamed('features', model_features_col)
-        ptdf = model.transform(tdf)
+        predict_df = model.transform(tdf)
 
-        ptdf = ptdf.withColumn(
+        predict_df = predict_df.withColumn(
             'marginal_contribution',
             (
                 F.col(anomaly_score_col) - F.lag(
@@ -403,20 +379,17 @@ def calculate_shapley_values_for_all_features(
                 )
             )
         )
-        ptdf = ptdf.filter(ptdf.marginal_contribution.isNotNull())
-        results[f] = ptdf.select(
+        predict_df = predict_df.filter(predict_df.marginal_contribution.isNotNull())
+        results[f] = predict_df.select(
             F.avg('marginal_contribution').alias('shap_value')
         ).collect()[0].shap_value
-        print(f'Marginal Contribution for Feature: {f} = {results[f]} ')
+        print(f'Marginal Contribution for feature: {f} = {results[f]} ')
 
     ordered_results = sorted(
         results.items(),
         key=operator.itemgetter(1),
         reverse=True
     )
-    for k, v in ordered_results:
-        print(f'Feature {k} has a shapley value of: {v}')
-
     return ordered_results
 
 

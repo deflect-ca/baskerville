@@ -1,4 +1,6 @@
 # Sources:
+# https://runawayhorse001.github.io/LearningApacheSpark/mc.html
+# https://cloud.google.com/solutions/monte-carlo-methods-with-hadoop-spark
 # https://towardsdatascience.com/an-implementation-and-explanation-of-the-random-forest-in-python-77bf308a9b76
 # https://towardsdatascience.com/interpreting-random-forest-and-other-black-box-models-like-xgboost-80f9cc4a3c38
 # https://towardsdatascience.com/how-to-visualize-a-decision-tree-from-a-random-forest-in-python-using-scikit-learn-38ad2d75f21c
