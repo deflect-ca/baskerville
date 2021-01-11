@@ -235,8 +235,7 @@ def gather_features_with_assembler(df, features):
 def calculate_shapley_values_for_all_features(
         df, features,
         model: IForestModel,
-        scaler_model: StandardScalerModel = None,
-        features_col: str = 'features',
+        model_features_col: str = 'features',
         anomaly_score_col: str = 'anomalyScore'
 ):
     """
@@ -252,11 +251,13 @@ def calculate_shapley_values_for_all_features(
     #  from the sample z. The difference in the prediction from the black
     #  box is computed"
     """
-    model_features_col = features_col
     results = {}
-    from itertools import cycle, permutations
+    if not df.is_cached:
+        df = df.persist()
     features = list(features) if not isinstance(features, list) else features
     spark = get_spark_session_with_iforest()
+
+    # get row of interest
     has_features_column = 'features' in df.columns
     if has_features_column:
         row_of_interest = df.select('features').where(
@@ -267,47 +268,16 @@ def calculate_shapley_values_for_all_features(
             F.col('is_selected') == True  # noqa
         ).collect()[0]
     print('Row of interest:', row_of_interest)
-    random_feature_permutations = cycle(permutations([f for f in features]))
-    feat_perm_for_all_rows = []
-    # add ids:
-    idx_df = df.rdd.zipWithIndex().toDF()
-    if has_features_column:
-        col_name = f'_1.features'
-        idx_df = idx_df.withColumn('features', F.col(col_name))
-    else:
-        for f in features:
-            col_name = f'_1.{f}'
-            idx_df = idx_df.withColumn(f, F.col(col_name))
-    idx_df = idx_df.withColumn('id', F.col('_2'))
-    idx_df = idx_df.withColumn('is_selected', F.col('_1.is_selected'))
-    idx_df = idx_df.drop('_1', '_2')
-    # get num rows - id starts from 0
-    r = idx_df.select(F.max('id').alias('max_id')).collect()[0]
-    num_rows = r.max_id + 1
-    print('# of Rows:', num_rows)
-
-    # get permutations
-    idx_df = idx_df.withColumn(
-      'ordered_features', F.array(*[F.lit(f) for f in features])
-    )
-    idx_df = idx_df.withColumn('features_perm', F.shuffle('ordered_features'))
-    # old way of calculating permutations using a broadcast
-    # for i in range(0, num_rows + 1):
-    #     feat_perm_for_all_rows.append(next(random_feature_permutations))
-    # shuffle(feat_perm_for_all_rows)
-    # shuffle(feat_perm_for_all_rows)
-    #
-    # # set broadcasts
-    # FEATURES_PERM_BROADCAST = spark.sparkContext.broadcast(
-    #     feat_perm_for_all_rows
-    # )
-    # ORDERED_FEATURES_BROADCAST = spark.sparkContext.broadcast(features)
     ROW_OF_INTEREST_BROADCAST = spark.sparkContext.broadcast(row_of_interest)
 
-    if not has_features_column:
-        idx_df = idx_df.withColumn('features', F.array(*features))
+    # get permutations
+    feat_df = df.withColumn(
+        'ordered_features', F.array(*[F.lit(f) for f in features])
+    ).withColumn(
+        'features_perm', F.shuffle('ordered_features')
+    )
 
-    def calculate_x(rid, feature_j, z_features, curr_feature_perm, ordered_features):
+    def calculate_x(feature_j, z_features, curr_feature_perm, ordered_features):
         """
         The instance  x+j is the instance of interest,
         but all values in the order before feature j are
@@ -340,11 +310,16 @@ def calculate_shapley_values_for_all_features(
 
     udf_calculate_x = F.udf(calculate_x, T.ArrayType(VectorUDT()))
 
-    temp_df = idx_df
+    # persist before processing
+    feat_df = feat_df.persist()
+
     for f in features:
-        features_col = F.col('features') if has_features_column else F.array(*features)
-        temp_df = temp_df.withColumn('x', udf_calculate_x(
-            'id', F.lit(f), features_col, 'features_perm', 'ordered_features'
+        # use features col if exists or gather features in an array
+        features_curr_column = F.col('features') if has_features_column \
+            else F.array(*features)
+        # x contains x-j and x+j
+        feat_df = feat_df.withColumn('x', udf_calculate_x(
+            F.lit(f), features_curr_column, 'features_perm', 'ordered_features'
         ))
         print(f'Calculating SHAP values for "{f}"...')
         # minus must be first because of lag:
@@ -359,30 +334,31 @@ def calculate_shapley_values_for_all_features(
         # x-j row i+1
         # x+j row i+1
         # so that with lag it gives us (x+j - x-j)
-        tdf = temp_df.selectExpr(
-            'id', 'explode(x) as features'
-        )
+        tdf = feat_df.selectExpr(
+            'id', f'explode(x) as {model_features_col}'
+        ).cache()
         # drop column to release memory
-        temp_df = temp_df.drop('x')
-        if scaler_model:
-            tdf = scaler_model.transform(tdf)
-        if model_features_col != 'features':
-            tdf = tdf.withColumnRenamed('features', model_features_col)
+        # temp_df = temp_df.drop('x')
         predict_df = model.transform(tdf)
 
         predict_df = predict_df.withColumn(
             'marginal_contribution',
             (
-                F.col(anomaly_score_col) - F.lag(
+                    F.col(anomaly_score_col) - F.lag(
                     F.col(anomaly_score_col), 1).over(
                     Window.partitionBy("id").orderBy("id")
                 )
             )
         )
-        predict_df = predict_df.filter(predict_df.marginal_contribution.isNotNull())
+        # predict_df = predict_df.filter(
+        #     predict_df.marginal_contribution.isNotNull()
+        # )
         results[f] = predict_df.select(
             F.avg('marginal_contribution').alias('shap_value')
-        ).collect()[0].shap_value
+        ).first().shap_value
+        tdf.unpersist()
+        tdf = None
+        del tdf
         print(f'Marginal Contribution for feature: {f} = {results[f]} ')
 
     ordered_results = sorted(

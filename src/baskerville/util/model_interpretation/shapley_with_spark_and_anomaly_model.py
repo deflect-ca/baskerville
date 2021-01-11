@@ -61,7 +61,7 @@ def shapley_values_for_anomaly_model(
         df,
         feature_names,
         anomaly_model.iforest_model,
-        features_col=anomaly_model.features_vector_scaled,
+        model_features_col=anomaly_model.features_vector_scaled,
         # anomaly_score_col=anomaly_model.score_column
     )
     print('Shapley values for all features:')
