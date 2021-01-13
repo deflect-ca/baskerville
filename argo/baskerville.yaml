@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: preprocessing
+spec:
+  entrypoint: spark
+  templates:
+  - name: spark
+    container:
+      image: baskerville/argo:latest
+      command: [$SPARK_HOME/bin/spark-submit --master k8s://https://kubernetes.docker.internal:6443 --deploy-mode cluster --name preprocessing --conf spark.kubernetes.pyspark.pythonVersion=3 --jars local:///usr/local/baskerville/data/jars/spark-iforest-2.4.0.99.jar,local:///usr/local/baskerville/data/jars/postgresql-42.2.4.jar,local:///usr/local/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,local:///usr/local/baskerville/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar --conf spark.kubernetes.container.image=baskerville/worker_dev:latest /usr/local/baskerville/src/baskerville/main.py preprocessing -c /usr/local/baskerville/conf/preprocessing.yaml ]
+      resources:
+        limits:
+          memory: 32Mi
+          cpu: 100m
