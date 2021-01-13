@@ -861,6 +861,19 @@ class Predict(MLTask):
         return self.df
 
 
+class RefreshModel(MLTask):
+    """
+    Check for a new model and load a new model in ServiceProvider.
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps=()):
+        super().__init__(config, steps)
+
+    def run(self):
+        self.service_provider.refresh_model()
+        return self.df
+
+
 class SaveDfInPostgres(Task):
     def __init__(
             self,

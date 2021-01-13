@@ -69,12 +69,13 @@ class ServiceProvider(Borg):
 
     @property
     def model(self):
+        return self._model
+
+    def refresh_model(self):
         if self.config.engine.model_id and self._model_ts and \
                 (datetime.datetime.utcnow() - self._model_ts).total_seconds() > \
                 self.config.engine.new_model_check_in_seconds:
             self.load_model_from_db()
-
-        return self._model
 
     def create_runtime(self):
         self.runtime = self.tools.create_runtime(
