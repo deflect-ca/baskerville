@@ -236,7 +236,8 @@ def calculate_shapley_values_for_all_features(
         df, features,
         model: IForestModel,
         model_features_col: str = 'features',
-        anomaly_score_col: str = 'anomalyScore'
+        column_to_examine: str = 'anomalyScore',
+        use_absolute: bool = False
 ):
     """
     # https://christophm.github.io/interpretable-ml-book/shapley.html#estimating-the-shapley-value
@@ -344,17 +345,26 @@ def calculate_shapley_values_for_all_features(
         predict_df = predict_df.withColumn(
             'marginal_contribution',
             (
-                    F.col(anomaly_score_col) - F.lag(
-                    F.col(anomaly_score_col), 1).over(
+                    F.col(column_to_examine) - F.lag(
+                    F.col(column_to_examine), 1).over(
                     Window.partitionBy("id").orderBy("id")
                 )
             )
         )
-        # predict_df = predict_df.filter(
-        #     predict_df.marginal_contribution.isNotNull()
-        # )
+        predict_df = predict_df.filter(
+            predict_df.marginal_contribution.isNotNull()
+        )
+
+        # calculate the average and use the absolute values if asked.
+        marginal_contribution_filter = F.avg('marginal_contribution')
+        if use_absolute:
+            marginal_contribution_filter = F.abs(marginal_contribution_filter)
+        marginal_contribution_filter = marginal_contribution_filter.alias(
+            'shap_value'
+        )
+
         results[f] = predict_df.select(
-            F.avg('marginal_contribution').alias('shap_value')
+            marginal_contribution_filter
         ).first().shap_value
         tdf.unpersist()
         tdf = None

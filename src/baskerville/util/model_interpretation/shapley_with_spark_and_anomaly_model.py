@@ -22,7 +22,9 @@ def shapley_values_for_anomaly_model(
         row_id,
         data_path=None,
         start=None,
-        stop=None
+        stop=None,
+        use_absolute=False,
+        column_to_examine=None
 ):
     _ = get_spark_session_with_iforest()
     anomaly_model = load_anomaly_model(model_path)
@@ -62,7 +64,8 @@ def shapley_values_for_anomaly_model(
         feature_names,
         anomaly_model.iforest_model,
         model_features_col=anomaly_model.features_vector_scaled,
-        # anomaly_score_col=anomaly_model.score_column
+        column_to_examine=column_to_examine,
+        use_absolute=use_absolute
     )
     print('Shapley values for all features:')
     print('-' * 20)
@@ -94,9 +97,21 @@ if __name__ == '__main__':
         '-u', '--stop', help='Date used to filter stop field',
         type=dateutil.parser.parse
     )
+    parser.add_argument(
+        '-a', '--absolute', help='Use absolute values', action='store_true',
+    )
+    parser.add_argument(
+        '-c', '--column',
+        help='Column to examine, e.g. prediction. '
+             'Default is "anomalyScore"',
+        default='anomalyScore',
+        type=str
+    )
     args = parser.parse_args()
     model_path = args.modelpath
     data_path = args.datapath
+    use_absolute = args.absolute
+    column_to_examine = args.column
     row_id = args.id
     start = args.start
     stop = args.stop
@@ -116,7 +131,9 @@ if __name__ == '__main__':
         row_id,
         data_path,
         start,
-        stop
+        stop,
+        use_absolute=use_absolute,
+        column_to_examine=column_to_examine
     )
     end = time.time()
     print('End:', time.time())
