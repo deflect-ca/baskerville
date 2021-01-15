@@ -207,7 +207,7 @@ class AnomalyModel(ModelInterface):
         file_manager = FileManager(path, spark_session)
         file_manager.save_to_file(self.get_params(), self._get_params_path(path), format='json')
         if training_config:
-            file_manager.save_to_file(training_config, self._get_training_config_path(), format='json')
+            file_manager.save_to_file(training_config, self._get_training_config_path(path), format='json')
         self.iforest_model.write().overwrite().save(self._get_iforest_path(path))
         self.scaler_model.write().overwrite().save(self._get_scaler_path(path))
 
