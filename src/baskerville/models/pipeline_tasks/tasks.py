@@ -1099,15 +1099,19 @@ class Train(Task):
     def load_dataset(self, df, features):
         dataset = df  # .ppppersist(self.spark_conf.storage_level)
 
-        if self.training_conf.max_samples_per_host:
+        if self.training_conf.data_parameters.max_samples_per_host:
+            self.logger.debug(f'Sampling with max_samples_per_host='
+                              f'{self.training_conf.data_parameters.max_samples_per_host}...')
             counts = dataset.groupby('target').count()
-            counts = counts.withColumn('fraction', self.training_conf.max_samples_per_host / F.col('count'))
+            counts = counts.withColumn('fraction',
+                                       self.training_conf.data_parameters.max_samples_per_host / F.col('count'))
             fractions = dict(counts.select('target', 'fraction').collect())
             for key, value in fractions.items():
                 if value > 1.0:
                     fractions[key] = 1.0
             dataset = dataset.sampleBy('target', fractions, 777)
 
+        self.logger.debug(f'Unwrapping features from json...')
         schema = StructType([])
         for feature in features:
             schema.add(StructField(
@@ -1124,7 +1128,7 @@ class Train(Task):
             feature_class = self.engine_conf.all_features[feature]
             dataset = dataset.withColumn(column, F.col(column).cast(feature_class.spark_type()).alias(column))
 
-        self.logger.debug(f'Loaded {dataset.count()} rows dataset...')
+        self.logger.debug(f'Loaded {dataset.count()} rows dataset.')
         return dataset
 
     def save(self):
