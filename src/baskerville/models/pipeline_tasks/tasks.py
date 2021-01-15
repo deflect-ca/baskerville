@@ -1099,12 +1099,12 @@ class Train(Task):
     def load_dataset(self, df, features):
         dataset = df  # .ppppersist(self.spark_conf.storage_level)
 
-        if self.training_conf.data_parameters.max_samples_per_host:
+        max_samples = self.training_conf.data_parameters.get('max_samples_per_host')
+        if max_samples:
             self.logger.debug(f'Sampling with max_samples_per_host='
-                              f'{self.training_conf.data_parameters.max_samples_per_host}...')
+                              f'{max_samples}...')
             counts = dataset.groupby('target').count()
-            counts = counts.withColumn('fraction',
-                                       self.training_conf.data_parameters.max_samples_per_host / F.col('count'))
+            counts = counts.withColumn('fraction', max_samples / F.col('count'))
             fractions = dict(counts.select('target', 'fraction').collect())
             for key, value in fractions.items():
                 if value > 1.0:
