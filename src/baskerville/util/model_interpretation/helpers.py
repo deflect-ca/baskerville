@@ -321,7 +321,7 @@ def calculate_shapley_values_for_all_features(
         # x contains x-j and x+j
         feat_df = feat_df.withColumn('x', udf_calculate_x(
             F.lit(f), features_curr_column, 'features_perm', 'ordered_features'
-        ))
+        )).persist()
         print(f'Calculating SHAP values for "{f}"...')
         # minus must be first because of lag:
         # F.col('anomalyScore') - F.col('anomalyScore') one row before
