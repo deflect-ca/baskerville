@@ -40,6 +40,7 @@ from dateutil.tz import tzutc
 # broadcasts
 from baskerville.util.enums import LabelEnum
 from baskerville.util.helpers import instantiate_from_str, get_model_path
+from baskerville.util.origin_ips import OriginIPs
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
@@ -1292,7 +1293,6 @@ class AttackDetection(Task):
         super().__init__(config, steps)
         self.df_chunks = []
         self.white_list_ips = set(self.config.engine.white_list_ips)
-        self.df_white_list_ips = None
         self.df_white_list_hosts = None
         self.ip_cache = IPCache(config, self.logger)
         self.report_consumer = None
@@ -1303,6 +1303,11 @@ class AttackDetection(Task):
             )])
         self.producer = KafkaProducer(
             bootstrap_servers=self.config.kafka.bootstrap_servers)
+        self.origin_ips = OriginIPs(
+            url=config.engine.url_origin_ips,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
+        )
 
     def initialize(self):
         global IP_ACC
@@ -1314,12 +1319,7 @@ class AttackDetection(Task):
                     set(self.config.engine.white_list_hosts)
                 ], ['target'])\
                 .withColumn('white_list_host', F.lit(1))
-        if self.white_list_ips:
-            self.df_white_list_ips = self.spark.createDataFrame(
-                [
-                    [ip] for ip in set(self.config.engine.white_list_ips)
-                ],
-                ['ip']).withColumn('white_list_ip', F.lit(1))
+
         from baskerville.spark.helpers import DictAccumulatorParam
         IP_ACC = self.spark.sparkContext.accumulator(defaultdict(int),
                                                      DictAccumulatorParam(
@@ -1499,7 +1499,7 @@ class AttackDetection(Task):
 
         return df
 
-    def apply_white_list(self, ips):
+    def apply_white_list_ips(self, ips):
         if not self.white_list_ips:
             return ips
         self.logger.info('White listing...')
@@ -1508,6 +1508,17 @@ class AttackDetection(Task):
         white_listed = len(ips) - len(result)
         if white_listed > 0:
             self.logger.info(f'White listing {white_listed} ips')
+        return result
+
+    def apply_white_list_origin_ips(self, ips):
+        if not self.origin_ips.get():
+            return ips
+        self.logger.info('White listing origin ips...')
+        result = set(ips) - self.origin_ips.get()
+
+        white_listed = len(ips) - len(result)
+        if white_listed > 0:
+            self.logger.info(f'White listing {white_listed} origin ips')
         return result
 
     def detect_attack(self):
@@ -1544,7 +1555,8 @@ class AttackDetection(Task):
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
 
             ips = [r['ip'] for r in df_ips.collect()]
-            ips = self.apply_white_list(ips)
+            ips = self.apply_white_list_ips(ips)
+            ips = self.apply_white_list_origin_ips(ips)
             ips = self.ip_cache.update(ips)
             num_records = len(ips)
             if num_records > 0:
@@ -1643,36 +1655,6 @@ class AttackDetection(Task):
         #                 ).drop('rchallenged')
         # else:
         #     self.logger.debug('No challenge flag is set, moving on...')
-
-    def apply_whitelist(self, df):
-        cols_to_check = []
-        df = df.withColumn('to_challenge', F.lit(False))
-        if self.df_white_list_hosts:
-            df = df.join(
-                self.df_white_list_hosts,
-                on='target',
-                how='left')  # do we use target or target_original
-            cols_to_check.append(F.when(
-                    F.col('white_list_host').isNull(), True
-                ).otherwise(False))
-        if self.df_white_list_ips:
-            df = df.join(
-                self.df_white_list_ips,
-                on='ip',
-                how='left')
-            cols_to_check.append(F.when(
-                    F.col('white_list_ip').isNull(), True
-                ).otherwise(False))
-        if cols_to_check:
-            for c in cols_to_check:
-                df = df.withColumn('to_challenge', c)
-        # df_ips = df_ips.where(F.col('white_list_host').isNull())
-        # df_ip = df_ips.join()
-        # ips = [r['ip'] for r in df_ips.collect()]
-        # ips = self.apply_white_list(ips)
-        # ips = self.ip_cache.update(ips)
-        # self.df = self.df.fillna({'challenged': 0})
-        return df
 
     def run(self):
         # self.df = self.df.withColumn("features", F.to_json("features"))

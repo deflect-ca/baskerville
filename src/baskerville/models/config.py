@@ -281,6 +281,8 @@ class EngineConfig(Config):
     banjax_sql_update_filter_minutes = 90
     banjax_num_fails_to_ban = 9
     register_banjax_metrics = False
+    origin_ips_refresh_period_in_seconds = 300
+    url_origin_ips = ''
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
