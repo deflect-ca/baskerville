@@ -8,6 +8,7 @@ from urllib.request import urlopen
 import json
 import time
 
+
 class OriginIPs(object):
 
     def __init__(self, url, logger, refresh_period_in_seconds = 300):
