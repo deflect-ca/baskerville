@@ -1514,7 +1514,7 @@ class AttackDetection(Task):
         if not self.origin_ips.get():
             return ips
         self.logger.info('White listing origin ips...')
-        result = set(ips) - self.origin_ips.get()
+        result = set(ips) - set(self.origin_ips.get())
 
         white_listed = len(ips) - len(result)
         if white_listed > 0:
