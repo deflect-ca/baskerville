@@ -37,8 +37,8 @@ class OriginIPs(object):
         self.ips = list(hosts.values())
 
     def get(self):
-
         if not self.ips or int(time.time() - self.last_timestamp) > self.refresh_period_in_seconds:
             self.last_timestamp = time.time()
             self.refresh()
-            return self.ips
+
+        return self.ips
