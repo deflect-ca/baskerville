@@ -16,29 +16,30 @@ class OriginIPs(object):
         self.ips = None
         self.last_timestamp = None
         self.logger = logger
+        self.refresh()
 
     def refresh(self):
-        self.logger.info('Refreshing origin IPs...')
-        try:
-            html = urlopen(self.url).read()
-        except HTTPError as e:
-            self.logger.error(f'HTTP Error {e.code} while parsing origin host IPs from {self.url}')
-            return
-        except URLError as e:
-            self.logger.error(f'URL error {e.reason} while getting origin host IPs from {self.url}')
-            return
+        if not self.last_timestamp or int(time.time() - self.last_timestamp) > self.refresh_period_in_seconds:
+            self.last_timestamp = time.time()
 
-        try:
-            hosts = json.loads(html)
-        except json.JSONDecodeError as e:
-            self.logger.error(f'JSON error {e} while getting origin host IPs from {self.url}')
-            return
+            self.logger.info('Refreshing origin IPs...')
+            try:
+                html = urlopen(self.url).read()
+            except HTTPError as e:
+                self.logger.error(f'HTTP Error {e.code} while parsing origin host IPs from {self.url}')
+                return
+            except URLError as e:
+                self.logger.error(f'URL error {e.reason} while getting origin host IPs from {self.url}')
+                return
 
-        self.ips = list(hosts.values())
+            try:
+                hosts = json.loads(html)
+            except json.JSONDecodeError as e:
+                self.logger.error(f'JSON error {e} while getting origin host IPs from {self.url}')
+                return
+
+            self.ips = list(hosts.values())
 
     def get(self):
-        if not self.ips or int(time.time() - self.last_timestamp) > self.refresh_period_in_seconds:
-            self.last_timestamp = time.time()
-            self.refresh()
-
+        self.refresh()
         return self.ips
