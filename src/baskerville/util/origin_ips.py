@@ -11,7 +11,7 @@ import time
 
 class OriginIPs(object):
 
-    def __init__(self, url, logger, refresh_period_in_seconds = 300):
+    def __init__(self, url, logger, refresh_period_in_seconds=300):
         self.url = url
         self.refresh_period_in_seconds = refresh_period_in_seconds
         self.ips = None
@@ -42,5 +42,8 @@ class OriginIPs(object):
             self.ips = list(hosts.values())
 
     def get(self):
+        if not self.url:
+            return []
+
         self.refresh()
         return self.ips
