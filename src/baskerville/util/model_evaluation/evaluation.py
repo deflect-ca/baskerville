@@ -1,15 +1,20 @@
+from typing import Optional, List
+
 import dateutil
-from pyspark.ml.evaluation import BinaryClassificationEvaluator
+from pyspark.ml import Estimator
+from pyspark.ml.evaluation import BinaryClassificationEvaluator, ParamMap, \
+    Evaluator
 from pyspark.ml.tuning import ParamGridBuilder, CrossValidator, \
     CrossValidatorModel
 from pyspark.sql import functions as F
 
-from baskerville.db import set_up_db
-from baskerville.db.models import RequestSet, Attack, Attribute
+from baskerville.db.models import RequestSet
 from baskerville.models.anomaly_model import AnomalyModel
+from baskerville.models.config import BaskervilleConfig
+from baskerville.spark import get_or_create_spark_session
 from baskerville.spark.helpers import load_df_from_table
-from baskerville.util.model_interpretation.helpers import \
-    get_spark_session_with_iforest, load_anomaly_model
+from baskerville.util.enums import LabelEnum
+from baskerville.util.helpers import parse_config
 
 
 # # https://stackoverflow.com/questions/52847408/pyspark-extract-roc-curve
@@ -52,6 +57,7 @@ def _parallelFitTasks(est, train, eva, validation, epm, collectSubModel):
 
     def singleTask():
         index, model = next(modelIter)
+        # todo: we need ROC here:
         metric = eva.evaluate(model.transform(validation, epm[index]))
         return index, metric, model if collectSubModel else None
 
@@ -59,11 +65,55 @@ def _parallelFitTasks(est, train, eva, validation, epm, collectSubModel):
 
 
 class IForestCrossValidator(CrossValidator):
+    def __init__(self, estimator: Optional[Estimator] = ...,
+                 estimatorParamMaps: Optional[List[ParamMap]] = ...,
+                 evaluator: Optional[Evaluator] = ...,
+                 numFolds: int = ...,
+                 seed: Optional[int] = ...,
+                 parallelism: int = ...,
+                 collectSubModels: bool = ...):
+        super().__init__(estimator, estimatorParamMaps, evaluator, numFolds,
+                         seed, parallelism, collectSubModels)
+        self.start = None
+        self.stop = None
+        self.db_config = None
+        self.attacks_df = None
+
+    def set_start(self, start):
+        self.start = start
+
+    def set_stop(self, stop):
+        self.stop = stop
+
+    def set_db_config(self, db_config):
+        self.db_config = db_config
+
+    def get_attacks_df(self):
+        self.attacks_df = get_attack_df(start, stop, db_config=self.db_config)
+
     def get_train(self, df, condition):
-        return df.filter(~condition).cache()
+        """
+        Train should not have anomalies, so no known attacks should be included
+        """
+        return df.withColumn(
+            'label', F.lit(LabelEnum.benign)
+        ).filter(~condition).cache()
 
     def get_validation(self, df, condition):
-        return df.filter(condition).cache()
+        """
+        Validation should contain anomalies / attacks
+        """
+        df = df.filter(condition).cache()
+        df = df.join(
+            self.attacks_df,
+            df.ip == self.attacks_df.ip_attacker,
+            how='left'
+        )
+        return df.withColumn(
+            'label', F.when(
+                F.col('ip_attacker').isNull(), LabelEnum.benign
+            ).otherwise(LabelEnum.malicious)
+        ).cache()
 
     def _fit(self, dataset):
         import numpy as np
@@ -160,27 +210,32 @@ def get_attack_df(start, stop, db_config, id_attack=None):
     ).cache()
 
 
-def cross_validate(model_path, train_df, test_df, params, num_folds=3):
-    _ = get_spark_session_with_iforest()
-    anomaly_model = load_anomaly_model(model_path)
+def cross_validate(start, stop, config: BaskervilleConfig, num_folds=3):
+    _ = get_or_create_spark_session(config.spark)
+    # anomaly_model = load_anomaly_model(model_path)
     # feature_names = anomaly_model.features.keys()
     evaluator = BinaryClassificationEvaluator()
     param_grid = ParamGridBuilder()
 
-    for k, v in params:
+    evaluation_df = get_train_df(start, stop, db_config={})
+    test_df = get_train_df(start, stop, db_config={})
+
+    for k, v in config.engine.training.cv_params:
         param_grid.addGrid(k, v)
 
     param_grid = param_grid.build()
-    cross_validator = IForestCrossValidator(estimator=AnomalyModel,
-                              estimatorParamMaps=param_grid,
-                              evaluator=evaluator,
-                              numFolds=num_folds)
+    cross_validator = IForestCrossValidator(
+        estimator=AnomalyModel,
+        estimatorParamMaps=param_grid,
+        evaluator=evaluator,
+        numFolds=num_folds
+    )
 
-    cv_model = cross_validator.fit(train_df)
+    cv_model = cross_validator.fit(evaluation_df)
 
     # cv_model uses the best model found
     prediction = cv_model.transform(test_df)
-    selected = prediction.select("id", "text", "probability", "prediction")
+    selected = prediction.select("id", "anomalyScore", "prediction")
     for row in selected.collect():
         print(row)
 
@@ -190,7 +245,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-p', '--datapath', help='The path to the data'
+        '-n', '--numfolds',
+        help='The number of cross-validation folds, defaults to 3',
+        default=3
+    )
+    parser.add_argument(
+        '-c', '--config', help='The path to config.yaml'
     )
     parser.add_argument(
         '-s', '--start', help='Date used to filter stop field',
@@ -202,10 +262,12 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    data_path = args.datapath
+    num_folds = args.numfolds
+    config_path = args.config
     start = args.start
     stop = args.stop
-
-    cross_validate()
+    config = parse_config(config_path)
+    bask_config = BaskervilleConfig(config).validate()
+    cross_validate(start, stop, bask_config, num_folds=num_folds)
 
 

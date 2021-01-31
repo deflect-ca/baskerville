@@ -68,12 +68,12 @@ def load_dataset(query, spark, db_config):
     json_schema = spark.read.json(
         df.limit(1).rdd.map(lambda row: row.features)).schema
 
-    df = df.withColumn('features1', F.from_json('features', json_schema))
+    df = df.withColumn('features', F.from_json('features', json_schema))
     df = df.withColumn('features', F.create_map(
         *list(itertools.chain(
-            *[(F.lit(f), F.col('features1').getItem(f)) for f in
+            *[(F.lit(f), F.col('features').getItem(f)) for f in
               json_schema.__dict__['names']])
-        ))).drop('features1')
+        )))
     return df
 
 
