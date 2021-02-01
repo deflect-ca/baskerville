@@ -54,6 +54,7 @@ class AnomalyModel(ModelInterface):
         self.features_vector_scaled = 'features_values_scaled'
         self.prefix_feature = 'cf_'
         self.prefix_index = 'cf_index_'
+        self.is_prepared = False
 
     def _create_regular_features_vector(self, df):
         if not isinstance(self.features, dict):
@@ -171,7 +172,7 @@ class AnomalyModel(ModelInterface):
         df = df.drop(self.features_vector_scaled)
         df.unpersist()
 
-    def predict(self, df):
+    def prepare_df(self, df):
         self.logger.info('Creating regular features...')
         df = self._create_regular_features_vector(df).persist()
 
@@ -182,6 +183,21 @@ class AnomalyModel(ModelInterface):
         df = self._create_feature_columns(df).persist()
         df = self._add_categorical_features(df, self.features_vector_scaled)
         df = self._drop_feature_columns(df)
+        self.is_prepared = True
+        return df
+
+    def predict(self, df):
+        if not self.is_prepared:
+            df = self.prepare_df(df)
+        # self.logger.info('Creating regular features...')
+        # df = self._create_regular_features_vector(df)
+        # self.logger.info('Scaling...')
+        # df = self.scaler_model.transform(df)
+        # df = df.drop(self.features_vector)
+        # self.logger.info('Adding categorical features...')
+        # df = self._create_feature_columns(df)
+        # df = self._add_categorical_features(df, self.features_vector_scaled)
+        # df = self._drop_feature_columns(df)
         self.logger.info('Isolation forest transform...')
         df = self.iforest_model.transform(df)
         df = df.withColumnRenamed('anomalyScore', self.score_column)
@@ -220,3 +236,4 @@ class AnomalyModel(ModelInterface):
         self.indexes = {}
         for feature in self.categorical_string_features():
             self.indexes[feature] = StringIndexerModel.load(self._get_index_path(path, feature))
+        return self

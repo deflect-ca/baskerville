@@ -173,7 +173,7 @@ class GetFeatures(GetDataKafka):
                 nullable=True))
         schema.add(T.StructField("features", features))
         return schema
-
+    
     def get_data(self):
         self.df = self.spark.createDataFrame(
             self.df,
