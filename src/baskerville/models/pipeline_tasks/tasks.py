@@ -1668,11 +1668,21 @@ class AttackDetection(Task):
         # else:
         #     self.logger.debug('No challenge flag is set, moving on...')
 
+    def update_passed_challenge(self):
+        df_pending = self.session.createDataFrame([[ip] for ip in self.ip_cache.cache_pending.keys()], ['ip'])
+        df_passed = df_pending.join(self.df.select('ip', 'stop'), on='ip', how='inner')\
+            .filter((F.current_timestamp() - F.col("stop")).cast(F.LongType) >
+                    self.config.engine.passed_challenge_delay)
+
+        self.logger.info('Passed')
+        self.logger.info(df_passed.show(10))
+
     def run(self):
         # self.df = self.df.withColumn("features", F.to_json("features"))
         self.df = self.df.repartition('target').persist(
             self.config.spark.storage_level
         )
+        self.update_passed_challenge()
         self.classify_anomalies()
         df_attack = self.detect_attack()
         if df_attack and df_attack.head(1):
