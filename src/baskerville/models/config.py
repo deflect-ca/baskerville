@@ -283,6 +283,7 @@ class EngineConfig(Config):
     register_banjax_metrics = False
     origin_ips_refresh_period_in_seconds = 300
     url_origin_ips = ''
+    new_model_check_in_seconds = 300
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)

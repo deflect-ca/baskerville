@@ -844,7 +844,6 @@ class Predict(MLTask):
 
     def __init__(self, config: BaskervilleConfig, steps=()):
         super().__init__(config, steps)
-        self._can_predict = False
         self._is_initialized = False
 
     def predict(self):
@@ -860,6 +859,19 @@ class Predict(MLTask):
             self.predict()
             self.df = super(Predict, self).run()
             self.reset()
+        return self.df
+
+
+class RefreshModel(MLTask):
+    """
+    Check for a new model and load a new model in ServiceProvider.
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps=()):
+        super().__init__(config, steps)
+
+    def run(self):
+        self.service_provider.refresh_model()
         return self.df
 
 
