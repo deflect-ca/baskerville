@@ -1669,7 +1669,7 @@ class AttackDetection(Task):
         #     self.logger.debug('No challenge flag is set, moving on...')
 
     def update_passed_challenge(self):
-        df_pending = self.session.createDataFrame([[ip] for ip in self.ip_cache.cache_pending.keys()], ['ip'])
+        df_pending = self.spark.createDataFrame([[ip] for ip in self.ip_cache.cache_pending.keys()], ['ip'])
         df_passed = df_pending.join(self.df.select('ip', 'stop'), on='ip', how='inner')\
             .filter((F.current_timestamp() - F.col("stop")).cast(F.LongType) >
                     self.config.engine.passed_challenge_delay)
