@@ -174,7 +174,8 @@ class AnomalyModel(ModelInterface):
 
     def prepare_df(self, df):
         self.logger.info('Creating regular features...')
-        df = self._create_regular_features_vector(df)
+        df = self._create_regular_features_vector(df).persist()
+
         self.logger.info('Scaling...')
         df = self.scaler_model.transform(df).cache()
         df = df.drop(self.features_vector)
