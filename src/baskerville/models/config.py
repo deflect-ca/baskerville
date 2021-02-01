@@ -16,7 +16,7 @@ from baskerville.util.enums import ModelEnum
 from baskerville.util.helpers import get_logger, get_default_data_path, \
     SerializableMixin
 from dateutil.tz import tzutc
-from baskerville.features import FEATURES
+from baskerville.features import FEATURE_NAME_TO_CLASS
 
 logger = get_logger(__name__)
 
@@ -283,6 +283,7 @@ class EngineConfig(Config):
     register_banjax_metrics = False
     origin_ips_refresh_period_in_seconds = 300
     url_origin_ips = ''
+    new_model_check_in_seconds = 300
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
@@ -298,9 +299,8 @@ class EngineConfig(Config):
             self.data_config = DataParsingConfig(self.data_config)
         if self.training:
             self.training = TrainingConfig(self.training, self)
-        self.all_features = dict(
-            (f.feature_name_from_class(), f) for f in FEATURES
-        )
+        self.all_features = FEATURE_NAME_TO_CLASS
+
         if not self.storage_path:
             self.storage_path = os.path.join(
                 get_default_data_path(), 'storage')
