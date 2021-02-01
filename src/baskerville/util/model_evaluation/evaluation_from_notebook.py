@@ -1,14 +1,6 @@
-import os, sys
+import os
 import time
 import itertools
-
-src_dir = os.environ['BASKERVILLE_ROOT'] + '/src'
-if not os.path.lexists(src_dir):
-    raise RuntimeError('Baskerville source dir does not exist!')
-module_path = os.path.abspath(os.path.join(src_dir))
-if module_path not in sys.path:
-    sys.path.append(module_path)
-print(src_dir)
 
 from pyspark import SparkConf
 from pyspark.sql import functions as F
@@ -87,7 +79,8 @@ def evaluate_model(models, spark, db_config):
     for attack in attacks:
 
         print(
-            f'Processing attack {attack.id}: target={attack.target}, start={attack.start}, stop={attack.stop}')
+            f'Processing attack {attack.id}: target={attack.target},'
+            f' start={attack.start}, stop={attack.stop}')
 
         attack_ips = [a.value for a in attack.attributes]
 
@@ -96,8 +89,11 @@ def evaluate_model(models, spark, db_config):
                                                "ip_attacker", StringType())]))
 
         print('Querying database...')
-        query = f'(select ip, target, created_at, features, stop from request_sets where '
-        f'stop > \'{attack.start.strftime("%Y-%m-%d %H:%M:%S")}Z\' and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\') as attack1 '
+        query = f'(select ip, target, created_at, features, stop ' \
+                f'from request_sets where '
+        f'stop > \'{attack.start.strftime("%Y-%m-%d %H:%M:%S")}Z\' ' \
+        f'and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\') ' \
+        f'as attack1 '
 
         rs = load_dataset(query, spark, db_config)
         num_records = rs.count()
@@ -139,5 +135,4 @@ if __name__ == '__main__':
         spark
     )
     config = get_baskerville_config()
-    metrics = evaluate_model([model_0, model_1], spark, config.database)
-    print(metrics)
+    print(evaluate_model([model_0, model_1], spark, config.database))
