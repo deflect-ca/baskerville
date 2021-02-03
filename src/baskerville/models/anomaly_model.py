@@ -186,9 +186,13 @@ class AnomalyModel(ModelInterface):
         self.is_prepared = True
         return df
 
-    def predict(self, df):
-        if not self.is_prepared:
+    def predict(self, df, reuse_dataframe=False):
+        if reuse_dataframe:
+            if not self.is_prepared:
+                df = self.prepare_df(df)
+        else:
             df = self.prepare_df(df)
+
         # self.logger.info('Creating regular features...')
         # df = self._create_regular_features_vector(df)
         # self.logger.info('Scaling...')
