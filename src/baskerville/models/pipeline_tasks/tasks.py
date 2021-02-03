@@ -16,7 +16,7 @@ import traceback
 
 import pyspark
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType, StructField, StructType, DoubleType
+from pyspark.sql.types import StringType, StructField, StructType
 from pyspark.streaming import StreamingContext
 from functools import reduce
 from pyspark.sql import DataFrame
@@ -1671,11 +1671,10 @@ class AttackDetection(Task):
     def update_passed_challenge(self):
         df_pending = self.spark.createDataFrame([[ip] for ip in self.ip_cache.cache_pending.keys()], ['ip'])
         df_passed = df_pending.join(self.df.select('ip', 'stop'), on='ip', how='inner')\
-            .filter((F.current_timestamp() - F.col("stop")).cast(F.LongType) >
-                    self.config.engine.passed_challenge_delay)
-
-        self.logger.info('Passed')
-        self.logger.info(df_passed.show(10))
+            .withColumn('now', F.current_timestamp())\
+            .withColumn('delta', F.unix_timestamp('now') - F.unix_timestamp('stop'))\
+            .filter(F.col('delta') > self.config.engine.passed_challenge_delay)
+        self.logger.info(df_passed.show())
 
     def run(self):
         # self.df = self.df.withColumn("features", F.to_json("features"))
