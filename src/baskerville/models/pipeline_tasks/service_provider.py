@@ -30,6 +30,7 @@ class ServiceProvider(Borg):
     - db connection / db tools
     - ml related stuff: model, model index, feature manager
     """
+
     def __init__(self, config: BaskervilleConfig):
         self.config = config
         self.start_time = datetime.datetime.utcnow()
@@ -38,10 +39,10 @@ class ServiceProvider(Borg):
         self.spark = None
         self.tools = None
         self.request_set_cache = None
-        self.model = None
+        self._model = None
+        self._model_ts = None
         self.model_index = None
         self.feature_manager = None
-        self._can_predict = False
         self.spark_conf = self.config.spark
         self.db_url = get_jdbc_url(self.config.database)
         self.time_bucket = TimeBucket(self.config.engine.time_bucket)
@@ -65,6 +66,16 @@ class ServiceProvider(Borg):
             logging_level=self.config.engine.log_level,
             output_file=self.config.engine.logpath
         )
+
+    @property
+    def model(self):
+        return self._model
+
+    def refresh_model(self):
+        if self.config.engine.model_id and self._model_ts and \
+                (datetime.datetime.utcnow() - self._model_ts).total_seconds() > \
+                self.config.engine.new_model_check_in_seconds:
+            self.load_model_from_db()
 
     def create_runtime(self):
         self.runtime = self.tools.create_runtime(
@@ -101,15 +112,13 @@ class ServiceProvider(Borg):
                 self.request_set_cache = self.request_set_cache.load(
                     update_date=(self.start_time - datetime.timedelta(
                         seconds=self.config.engine.cache_expire_time)
-                    ).replace(tzinfo=tzutc()),
+                                 ).replace(tzinfo=tzutc()),
                     extra_filters=(
-                        F.col('time_bucket') == self.time_bucket.sec
+                            F.col('time_bucket') == self.time_bucket.sec
                     )  # todo: & (F.col("id_runtime") == self.runtime.id)?
                 )
             else:
                 self.request_set_cache.load_empty(rs_cache_schema)
-
-            self.logger.info(f'In cache: {self.request_set_cache.count()}')
 
             return self.request_set_cache
 
@@ -119,31 +128,34 @@ class ServiceProvider(Borg):
             self.tools = BaskervilleDBTools(self.config.database)
             self.tools.connect_to_db()
 
+    def load_model_from_db(self):
+        new_model_index = self.tools.get_ml_model_from_db(
+            self.config.engine.model_id)
+
+        # Do not reload the same model
+        if self.model_index and self.model_index.id == new_model_index.id:
+            return
+
+        self.model_index = new_model_index
+        self._model = instantiate_from_str(self.model_index.algorithm)
+        path = bytes.decode(self.model_index.classifier, 'utf8')
+        self._model.load(path, self.spark)
+        self.model_index.can_predict = self.feature_manager.feature_config_is_valid()
+        self._model.set_logger(self.logger)
+        self._model_ts = datetime.datetime.utcnow()
+        self.logger.info(f'New model (id={self.model_index.id}) is loaded from {path}')
+
     def initialize_model_service(self):
-        if not self.model:
+        if not self._model:
             if self.config.engine.model_id:
-                self.model_index = self.tools.get_ml_model_from_db(
-                    self.config.engine.model_id)
-                self.model = instantiate_from_str(self.model_index.algorithm)
-                self.model.load(bytes.decode(
-                    self.model_index.classifier, 'utf8'), self.spark)
-                if not self.feature_manager:
-                    self.initialize_feature_manager_service()
-                self._can_predict = self.feature_manager.\
-                    feature_config_is_valid() and self.model.iforest_model
-                self.model_index.can_predict = self.feature_manager. \
-                    feature_config_is_valid()
-                self.model.set_logger(self.logger)
+                self.load_model_from_db()
             elif self.config.engine.model_path:
-                self.model = load_model_from_path(
+                self._model = load_model_from_path(
                     self.config.engine.model_path, self.spark
                 )
-                self.model.set_logger(self.logger)
+                self._model.set_logger(self.logger)
             else:
-                self.model = None
-
-        self._can_predict = self.feature_manager\
-                                .feature_config_is_valid() and self.model
+                self._model = None
 
     def initialize_feature_manager_service(self):
         if not self.feature_manager:
@@ -173,7 +185,7 @@ class ServiceProvider(Borg):
         df = df.select(
             F.col('target'),
             F.col('ip'),
-        ).distinct().alias('a')  # ppp.persist(self.spark_conf.storage_level)
+        ).distinct().alias('a')  # .persist(self.spark_conf.storage_level)
 
         self.request_set_cache.filter_by(df)
 
@@ -192,8 +204,6 @@ class ServiceProvider(Borg):
         df = self.request_set_cache.update_df(
             df, select_cols=self.cache_columns
         )
-        self.logger.debug(
-            f'****** > # of rows in cache: {self.request_set_cache.count()}')
         return df
 
     def finish_up(self):

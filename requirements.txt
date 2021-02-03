@@ -21,7 +21,6 @@ tzwhere==3.0.3
 pytz==2014.10
 sqlalchemy_utils==0.33.3
 pyspark==2.4.4
-pyspark-iforest==2.4.0
 es_retriever==1.0.0
 psutil==5.4.6
 psycopg2==2.7.5
@@ -37,5 +36,5 @@ grafanalib==0.5.3
 isoweek==1.3.3
 plotly==4.5.0
 pdoc==0.3.2
-markdown>=3.0
 kafka-python==2.0.1
+cachetools

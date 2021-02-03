@@ -16,7 +16,7 @@ from baskerville.util.enums import ModelEnum
 from baskerville.util.helpers import get_logger, get_default_data_path, \
     SerializableMixin
 from dateutil.tz import tzutc
-from baskerville.features import FEATURES
+from baskerville.features import FEATURE_NAME_TO_CLASS
 
 logger = get_logger(__name__)
 
@@ -100,6 +100,7 @@ def validate(fn):
             logger.error(e)
             raise ValueError(e)
         return fn(*args, **kwargs)
+
     return wrapper
 
 
@@ -267,10 +268,22 @@ class EngineConfig(Config):
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
-    sliding_window = 360
+    sliding_window = 0
     low_rate_attack_period = [600, 3600]
     low_rate_attack_total_request = [400, 2000]
-    white_list = None
+    ip_cache_passed_challenge_ttl = 60 * 60 * 24  # 24h
+    ip_cache_passed_challenge_size = 100000
+    ip_cache_pending_ttl = 60 * 60 * 1  # 1h
+    ip_cache_pending_size = 100000
+
+    white_list_ips = []
+    white_list_hosts = []
+    banjax_sql_update_filter_minutes = 90
+    banjax_num_fails_to_ban = 9
+    register_banjax_metrics = False
+    origin_ips_refresh_period_in_seconds = 300
+    url_origin_ips = ''
+    new_model_check_in_seconds = 300
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
@@ -286,9 +299,8 @@ class EngineConfig(Config):
             self.data_config = DataParsingConfig(self.data_config)
         if self.training:
             self.training = TrainingConfig(self.training, self)
-        self.all_features = dict(
-            (f.feature_name_from_class(), f) for f in FEATURES
-        )
+        self.all_features = FEATURE_NAME_TO_CLASS
+
         if not self.storage_path:
             self.storage_path = os.path.join(
                 get_default_data_path(), 'storage')
@@ -347,6 +359,12 @@ class EngineConfig(Config):
             self.add_error(
                 ConfigError('low_rate_attack_period and low_rate_attack_total_request must be lists of size 2')
             )
+
+        if len(self.white_list_hosts) != len(set(self.white_list_hosts)):
+            warnings.warn('You have duplicates in "white_list_hosts" parameter.')
+
+        if len(self.white_list_ips) != len(set(self.white_list_ips)):
+            warnings.warn('You have duplicates in "white_list_ips" parameter.')
 
         self._is_validated = True
 
@@ -779,6 +797,16 @@ class SparkConfig(Config):
     off_heap_size = None
     redis_host = 'localhost'
     redis_port = 6379
+    auth_secret = None
+    ssl_enabled = False
+    ssl_truststore = None
+    ssl_truststore_password = None
+    ssl_keystore = None
+    ssl_keystore_password = None
+    ssl_keypassword = None
+    ssl_ui_enabled = False
+    ssl_standalone_enabled = False
+    ssl_history_server_enabled = False
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
@@ -889,6 +917,12 @@ class SparkConfig(Config):
                     ))
                     # raise ValueError('serializer_buffer\'s value cannot be '
                     #                  'greater than serializer_buffer_max')
+
+        if self.ssl_enabled:
+            if not self.ssl_truststore:
+                self.add_error(ConfigError('ssl_truststore must be specified if ssl_enabled is true'))
+            if not self.ssl_keystore:
+                self.add_error(ConfigError('ssl_keystore must be specified if ssl_enabled is true'))
 
         self._is_validated = True
         return self

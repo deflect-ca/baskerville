@@ -89,14 +89,16 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
         persist = rsc._load.return_value.persist
         persist.return_value = {}
         rsc.write = mock.MagicMock()
-        returned_rsc = rsc.load(update_date, hosts, extra_filters)
+        rsc.load(update_date, hosts, extra_filters)
         rsc._load.assert_called_once_with(
             update_date=update_date,
             hosts=hosts,
             extra_filters={})
-        persist.assert_called_once()
-        self.assertTrue(isinstance(returned_rsc.cache, dict))
-        self.assertTrue(isinstance(rsc.cache, dict))
+
+        persist.assert_not_called()
+        # persist.assert_called_once()
+        # self.assertTrue(isinstance(returned_rsc.cache, dict))
+        # self.assertTrue(isinstance(rsc.cache, dict))
 
     @mock.patch('baskerville.models.request_set_cache.F.broadcast')
     def test__load(self, mock_broadcast):
