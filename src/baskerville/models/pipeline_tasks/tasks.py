@@ -31,7 +31,7 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
-    send_to_kafka_by_partition_id
+    send_to_kafka_by_partition_id, df_has_rows
 from baskerville.spark.schemas import features_schema, \
     prediction_schema
 from kafka import KafkaProducer
@@ -1141,6 +1141,7 @@ class Train(Task):
         for feature in features:
             column = f'features.{feature}'
             feature_class = self.engine_conf.all_features[feature]
+            # fixme: bug: .alias(column) will give feature.feature_name
             dataset = dataset.withColumn(column, F.col(column).cast(feature_class.spark_type()).alias(column))
 
         self.logger.debug(f'Loaded {dataset.count()} rows dataset.')
@@ -1306,8 +1307,6 @@ class AttackDetection(Task):
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
-        self.white_list_ips = set(self.config.engine.white_list_ips)
-        self.df_white_list_hosts = None
         self.ip_cache = IPCache(config, self.logger)
         self.report_consumer = None
         self.banjax_thread = None
@@ -1315,8 +1314,6 @@ class AttackDetection(Task):
         self.low_rate_attack_schema = T.StructType([T.StructField(
                 name='request_total', dataType=StringType(), nullable=True
             )])
-        self.producer = KafkaProducer(
-            bootstrap_servers=self.config.kafka.bootstrap_servers)
         self.origin_ips = OriginIPs(
             url=config.engine.url_origin_ips,
             logger=self.logger,
@@ -1324,53 +1321,7 @@ class AttackDetection(Task):
         )
 
     def initialize(self):
-        global IP_ACC
         # super(SaveStats, self).initialize()
-        if self.config.engine.white_list_hosts:
-            self.df_white_list_hosts = self.spark.createDataFrame(
-                [
-                    [host] for host in
-                    set(self.config.engine.white_list_hosts)
-                ], ['target'])\
-                .withColumn('white_list_host', F.lit(1))
-
-        from baskerville.spark.helpers import DictAccumulatorParam
-        IP_ACC = self.spark.sparkContext.accumulator(defaultdict(int),
-                                                     DictAccumulatorParam(
-                                                         defaultdict(int)))
-
-        def send_to_kafka(
-                kafka_servers, topic, rows, cmd_name='challenge_host',
-                id_client=None
-        ):
-            """
-            Creates a kafka producer and sends the rows one by one,
-            along with the specified command (challenge_[host, ip])
-            :returns: False if something went wrong, true otherwise
-            """
-            # global IP_ACC
-            try:
-                from kafka import KafkaProducer
-                producer = KafkaProducer(
-                    bootstrap_servers=kafka_servers
-                )
-                for row in rows:
-                    from baskerville.spark.udfs import get_msg
-                    message = get_msg(row, cmd_name)
-                    producer.send(topic, get_msg(row, cmd_name))
-                    if id_client:
-                        producer.send(f'{topic}.{id_client}', message)
-                    # if cmd_name == 'challenge_ip':
-                    #     IP_ACC += {row: 1}
-                producer.flush()
-            except Exception:
-                import traceback
-                traceback.print_exc()
-                return False
-            return True
-
-        self.udf_send_to_kafka = F.udf(send_to_kafka, T.BooleanType())
-
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
             self.register_banjax_metrics()
@@ -1554,47 +1505,133 @@ class AttackDetection(Task):
         self.df = self.detect_low_rate_attack(self.df)
         return df_attack
 
-    def send_challenge(self, df_attack):
-        if self.config.engine.load_test:
-            self.df = self.df.select(
-                F.col('target').contains('_load_test')
-            ).persist(self.config.spark.storage_level)
-        df_ips = self.df.select('ip', 'target').where(
-                (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
-                (F.col('low_rate_attack') == 1)
-            ).cache()
-        if self.config.engine.challenge == 'ip':
-            if not df_ips or not df_ips.head(1):
-                self.df = self.df.withColumn('challenged', F.lit(0))
-                return
+    def updated_df_with_attacks(self, df_attack):
+        self.df = self.df.join(df_attack, on=[df_attack.id_request_sets == self.df.id_request_sets], how='left')
 
-            if self.df_white_list_hosts:
-                df_ips = df_ips.join(self.df_white_list_hosts, on='target', how='left').persist()
-                df_ips = df_ips.where(F.col('white_list_host').isNull())
+    def run(self):
+        if dict(self.df.dtypes).get('features') == 'map<string,double>':
+            self.df = self.df.withColumn("features", F.to_json("features"))
+        self.df = self.df.repartition('target').persist(
+            self.config.spark.storage_level
+        )
+        self.classify_anomalies()
+        df_attack = self.detect_attack()
+        if not df_has_rows(df_attack):
+            self.updated_df_with_attacks(df_attack)
+            self.logger.info('No attacks detected...')
+        self.df = super().run()
+        return self.df
 
-            ips = [r['ip'] for r in df_ips.collect()]
-            ips = self.apply_white_list_ips(ips)
-            ips = self.apply_white_list_origin_ips(ips)
-            ips = self.ip_cache.update(ips)
-            num_records = len(ips)
-            if num_records > 0:
-                challenged_ips = self.spark.createDataFrame(
-                    [[ip, 1] for ip in ips], ['ip', 'challenged']
+
+class Challenge(Task):
+    def __init__(
+            self,
+            config: BaskervilleConfig, steps=(),
+            attack_cols=('prediction', 'attack_prediction', 'low_rate_attack')
+    ):
+        super().__init__(config, steps)
+        self.attack_cols = attack_cols
+        self.white_list_ips = set(self.config.engine.white_list_ips)
+        self.df_white_list_hosts = None
+        self.attack_filter = None
+        self.producer = None
+        self.udf_send_to_kafka = None
+
+    def initialize(self):
+        # global IP_ACC
+        # from baskerville.spark.helpers import DictAccumulatorParam
+        # IP_ACC = self.spark.sparkContext.accumulator(defaultdict(int),
+        #                                              DictAccumulatorParam(
+        #                                                  defaultdict(int)))
+        self.attack_filter = self.get_attack_filter()
+        # self.producer = KafkaProducer(
+        #     bootstrap_servers=self.config.kafka.bootstrap_servers)
+        if self.config.engine.white_list_hosts:
+            self.df_white_list_hosts = self.spark.createDataFrame(
+                [
+                    [host] for host in
+                    set(self.config.engine.white_list_hosts)
+                ], ['target'])\
+                .withColumn('white_list_host', F.lit(1))
+
+        def send_to_kafka(
+                kafka_servers, topic, rows, cmd_name='challenge_host',
+                id_client=None
+        ):
+            """
+            Creates a kafka producer and sends the rows one by one,
+            along with the specified command (challenge_[host, ip])
+            :returns: False if something went wrong, true otherwise
+            """
+            # global IP_ACC
+            try:
+                from kafka import KafkaProducer
+                producer = KafkaProducer(
+                    bootstrap_servers=kafka_servers
                 )
-                self.df = self.df.join(challenged_ips, on='ip', how='left')
-                self.df = self.df.fillna({'challenged': 0})
+                for row in rows:
+                    from baskerville.spark.udfs import get_msg
+                    message = get_msg(row, cmd_name)
+                    producer.send(topic, get_msg(row, cmd_name))
+                    if id_client:
+                        producer.send(f'{topic}.{id_client}', message)
+                    # if cmd_name == 'challenge_ip':
+                    #     IP_ACC += {row: 1}
+                producer.flush()
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                return False
+            return True
 
-                self.logger.info(
-                    f'Sending {num_records} IP challenge commands to '
-                    f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
-                for ip in ips:
-                    message = json.dumps(
-                        {'name': 'challenge_ip', 'value': ip}
-                    ).encode('utf-8')
-                    self.producer.send(self.config.kafka.banjax_command_topic, message)
-                self.producer.flush()
+        self.udf_send_to_kafka = F.udf(send_to_kafka, T.BooleanType())
+
+    def get_attack_filter(self):
+        filter_ = None
+        for f_ in [(F.col(a) == 1) for a in self.attack_cols]:
+            if filter_ is None:
+                filter_ = f_
             else:
-                self.df = self.df.withColumn('challenged', F.lit(0))
+                filter_ = filter_ & f_
+        return filter_
+
+    def send_challenge(self):
+        df_ips = self.get_attack_df()
+        if self.config.engine.challenge == 'ip':
+            if not df_has_rows(df_ips):
+                self.logger.debug('No attacks to be challenged...')
+                return
+            if self.df_white_list_hosts:
+                df_ips = df_ips.join(
+                    self.df_white_list_hosts, on='target', how='left'
+                ).persist()
+                df_ips = df_ips.where(F.col('white_list_host').isNull())
+            if df_has_rows(df_ips):
+                ips = [r['ip'] for r in df_ips.collect()]
+                ips = self.apply_white_list_ips(ips)
+                ips = self.apply_white_list_origin_ips(ips)
+                ips = self.ip_cache.update(ips)
+                num_records = len(ips)
+                if num_records > 0:
+                    # challenged_ips = self.spark.createDataFrame(
+                    #     [[ip, 1] for ip in ips], ['ip', 'challenged']
+                    # )
+                    self.df = self.df.withColumn(
+                        'challenged',
+                        F.when(F.col('ip').isin(F.lit(ips)), 1).otherwise(0)
+                    )
+                    # self.df = self.df.join(challenged_ips, on='ip', how='left')
+                    # self.df = self.df.fillna({'challenged': 0})
+
+                    self.logger.info(
+                        f'Sending {num_records} IP challenge commands to '
+                        f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+                    for ip in ips:
+                        message = json.dumps(
+                            {'name': 'challenge_ip', 'value': ip}
+                        ).encode('utf-8')
+                        # self.producer.send(self.config.kafka.banjax_command_topic, message)
+                    # self.producer.flush()
         #
         # return
 
@@ -1674,17 +1711,28 @@ class AttackDetection(Task):
         # else:
         #     self.logger.debug('No challenge flag is set, moving on...')
 
+    def get_attack_df(self):
+        return self.df.select('ip', 'target').where(self.attack_filter).cache()
+
+    def filter_out_load_test(self):
+        if self.config.engine.load_test:
+            self.df = self.df.select(
+                ~F.col('target').contains('_load_test')
+            ).persist(self.config.spark.storage_level)
+            self.logger.debug(
+                'Filtering out the load test duplications before challenging'
+            )
+
     def run(self):
-        # self.df = self.df.withColumn("features", F.to_json("features"))
-        self.df = self.df.repartition('target').persist(
-            self.config.spark.storage_level
-        )
-        self.classify_anomalies()
-        df_attack = self.detect_attack()
-        if df_attack and df_attack.head(1):
-            self.send_challenge(df_attack)
+        if df_has_rows(self.df):
+            self.df = self.df.withColumn('challenged', F.lit(0))
+            self.filter_out_load_test()
+            self.df.select(
+                F.col('target').contains('_load_test')
+            ).show()
+            self.send_challenge()
         else:
-            self.logger.info('No attacks detected...')
+            self.logger.info('Nothing to be challenged...')
 
         self.df = super().run()
         return self.df
