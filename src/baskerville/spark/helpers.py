@@ -195,9 +195,10 @@ def load_test(df, load_test_num, storage_level):
     """
     if load_test_num > 0:
         df = df.persist(storage_level)
-
+        # print(f'-------- Initial df count {df.count()}')
+        initial_df = df
         for i in range(load_test_num - 1):
-            temp_df = df.withColumn(
+            temp_df = initial_df.withColumn(
                 'client_ip', F.concat(
                     F.round(F.rand(42)).cast('string'), F.lit('_load_test')
                 )
@@ -292,3 +293,7 @@ def send_to_kafka_by_partition_id(
         F.col('sent_to_kafka') == False  # noqa
     ).head(1))
     return g_records
+
+
+def df_has_rows(df):
+    return df and df.head(1)
