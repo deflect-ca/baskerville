@@ -1718,10 +1718,12 @@ class Challenge(Task):
     def filter_out_load_test(self):
         if self.config.engine.load_test:
             self.df = self.df.select(
-                ~F.col('target').contains('_load_test')
+                "*"
+            ).where(
+                ~F.col('ip').contains('_load_test')
             ).persist(self.config.spark.storage_level)
             self.logger.debug(
-                'Filtering out the load test duplications before challenging'
+                'Filtering out the load test duplications before challenging..'
             )
 
     def run(self):
