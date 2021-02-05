@@ -1556,6 +1556,10 @@ class AttackDetection(Task):
         return df_attack
 
     def send_challenge(self, df_attack):
+        if self.config.engine.load_test:
+            self.df = self.df.select(
+                F.col('target').contains('_load_test')
+            ).persist(self.config.spark.storage_level)
         df_ips = self.df.select('ip', 'target').where(
                 (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
                 (F.col('low_rate_attack') == 1)

@@ -198,7 +198,9 @@ def load_test(df, load_test_num, storage_level):
 
         for i in range(load_test_num - 1):
             temp_df = df.withColumn(
-                'client_ip', F.round(F.rand(42)).cast('string')
+                'client_ip', F.concat(
+                    F.round(F.rand(42)).cast('string'), F.lit('_load_test')
+                )
             )
             df = df.union(temp_df).persist(storage_level)
 
