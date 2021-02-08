@@ -3,7 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
+import datetime
 import os
 import _pickle as pickle
 import threading
@@ -12,6 +12,7 @@ from cachetools import TTLCache
 
 from baskerville.util.helpers import get_default_ip_cache_path
 from baskerville.util.singleton_thread_safe import SingletonThreadSafe
+from pyspark.sql import functions as F
 
 
 class IPCache(metaclass=SingletonThreadSafe):
@@ -121,3 +122,38 @@ class IPCache(metaclass=SingletonThreadSafe):
             except KeyError as er:
                 self.logger.info(f'IP cache key error {er}')
                 pass
+
+    def get_time_filter(self):
+        return (datetime.datetime.utcnow() - datetime.timedelta(
+            minutes=self.config.engine.banjax_sql_update_filter_minutes)).strftime("%Y-%m-%d %H:%M:%S %z")
+
+    def update_passed_challenge(self, df, spark, db_session, delay_seconds=240):
+        with self.lock:
+            df_pending = spark.createDataFrame([[ip] for ip in self.ip_cache.cache_pending.keys()], ['ip'])
+            df_passed = df_pending.join(df.select('ip', 'stop'), on='ip', how='inner') \
+                .withColumn('now', F.current_timestamp()) \
+                .withColumn('delta', F.unix_timestamp('now') - F.unix_timestamp('stop')) \
+                .filter(F.col('delta') > delay_seconds)
+            ips = [row['ip'] for row in df_passed['ip'].collect()]
+            for ip in ips:
+                self.cache_passed[ip] = self.cache_pending[ip]
+                del self.cache_pending[ip]
+
+            with open(self.full_path_passed_challenge, 'wb') as f:
+                pickle.dump(self.cache_passed, f)
+
+            self.logger.info(df_passed.show())
+            self.logger.info('Updating passed in the database...')
+            try:
+                ips_string = '\', \''.join(ip for ip in ips)
+                sql = f'update request_sets set banned = 1 where ' \
+                      f'stop > \'{self.get_time_filter()}\' and challenged = 1 ' \
+                      f'and ip in \'{ips_string}\''
+                db_session.execute(sql)
+                db_session.commit()
+
+            except Exception:
+                db_session.rollback()
+                self.logger.error(Exception)
+                raise
+            self.logger.info('Updating passed complete.')
