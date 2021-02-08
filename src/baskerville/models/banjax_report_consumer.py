@@ -98,7 +98,7 @@ class BanjaxReportConsumer(object):
             # 'ip_failed_challenge'-type messages are reported when a challenge is failed
             elif d.get("name") == "ip_failed_challenge":
                 self.consume_ip_failed_challenge_message(d)
-            elif d.get("name") == "ip_passed_challenge":
+            elif d.get("name") == "ip_passed_challenge" or d.get("name") == "ip_passed_challenge2":
                 self.consume_ip_passed_challenge_message(d)
             elif d.get("name") == "ip_banned":
                 self.consume_ip_banned_message(d)
