@@ -50,6 +50,8 @@ class RunType(BaseStrEnum):
     preprocessing = 'preprocessing'
     postprocessing = 'postprocessing'
     predicting = 'predicting'
+    dashboard = 'dashboard'
+    client_rawlog = 'client_rawlog'
 
 
 class Step(BaseStrEnum):
@@ -133,3 +135,17 @@ class PartitionByEnum(BaseStrEnum):
 class ModelEnum(BaseStrEnum):
     AnomalyModelSklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
     AnomalyModel = "baskerville.models.anomaly_model.AnomalyModel"
+
+
+class UserCategoryEnum(BaseStrEnum):
+    admin = 'Administrator'
+    guest = 'Guest'
+    user = 'User'
+
+
+class FeedbackEnum(BaseStrEnum):
+    correct = 'correct'
+    incorrect = 'incorrect'
+    bot = 'bot'
+    not_bot = 'notbot'
+    none = ''
