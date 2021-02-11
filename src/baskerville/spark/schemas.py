@@ -41,3 +41,28 @@ rs_cache_schema = T.StructType([
     T.StructField("old_num_requests", T.IntegerType(), True),
     T.StructField("updated_at", T.TimestampType(), True)
 ])
+
+
+def get_features_schema(all_features: dict) -> T.StructType:
+    schema = T.StructType([
+        T.StructField("id_client", T.StringType(), True),
+        T.StructField("id_request_sets", T.StringType(), False)
+    ])
+    features = T.StructType()
+    for feature in all_features.keys():
+        features.add(T.StructField(
+            name=feature,
+            dataType=T.StringType(),
+            nullable=True))
+    schema.add(T.StructField("features", features))
+    return schema
+
+
+def get_data_schema() -> T.StructType:
+    """
+    Return the kafka data schema
+    """
+    return T.StructType(
+        [T.StructField('key', T.StringType()),
+         T.StructField('message', T.StringType())]
+    )
