@@ -9,7 +9,7 @@ from typing import T, Any, Mapping
 
 from baskerville.spark import get_spark_session
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import TimeBucket
+from baskerville.util.helpers import TimeBucket, get_logger
 from pyspark import AccumulatorParam
 from pyspark import StorageLevel
 from pyspark.sql import functions as F
@@ -121,6 +121,28 @@ def save_df_to_table(
         reWriteBatchedInserts=True,
         useServerPrepStmts=False,
     ).mode(mode).save()
+
+
+def load_df_from_table(
+        table_name_or_q,
+        db_config,
+        db_driver='org.postgresql.Driver',
+        where=None,
+        columns_to_keep=('*',)
+):
+    spark = get_spark_session()
+    df = spark.read.format('jdbc').options(
+        url=db_config['db_url'],
+        driver=db_driver,
+        dbtable=table_name_or_q,
+        user=db_config['user'],
+        password=db_config['password'],
+        fetchsize=1000,
+        max_connections=200,
+    ).load()
+    if where:
+        df = df.where(where).select(*columns_to_keep)
+    return df
 
 
 def map_to_array(df, map_col, array_col, map_keys):
@@ -297,3 +319,7 @@ def send_to_kafka_by_partition_id(
 
 def df_has_rows(df):
     return df and df.head(1)
+
+
+def get_dtype_for_col(df, col):
+    return dict(df.dtypes).get(col)
