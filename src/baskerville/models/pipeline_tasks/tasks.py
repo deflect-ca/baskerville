@@ -31,9 +31,9 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
-    send_to_kafka_by_partition_id, df_has_rows
+    send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col
 from baskerville.spark.schemas import features_schema, \
-    prediction_schema
+    prediction_schema, get_features_schema, get_data_schema
 from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
@@ -72,7 +72,7 @@ class GetDataKafka(Task):
             'group.id': self.config.kafka.consume_group,
             'auto.create.topics.enable': 'true'
         }
-        self.consume_topic = self.config.kafka.logs_topic
+        self.consume_topic = self.config.kafka.data_topic
 
     def initialize(self):
         super(GetDataKafka, self).initialize()
@@ -151,28 +151,8 @@ class GetFeatures(GetDataKafka):
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         super().__init__(config, steps)
         self.consume_topic = self.config.kafka.features_topic
-        self.data_schema = self.get_data_schema()
-        self.features_schema = self.get_features_schema()
-
-    def get_data_schema(self) ->  T.StructType:
-        return T.StructType(
-            [T.StructField('key', T.StringType()),
-             T.StructField('message', T.StringType())]
-        )
-
-    def get_features_schema(self) -> T.StructType:
-        schema = T.StructType([
-            T.StructField("id_client", T.StringType(), True),
-            T.StructField("id_request_sets", T.StringType(), False)
-        ])
-        features = T.StructType()
-        for feature in self.config.engine.all_features.keys():
-            features.add(T.StructField(
-                name=feature,
-                dataType=T.StringType(),
-                nullable=True))
-        schema.add(T.StructField("features", features))
-        return schema
+        self.data_schema = get_data_schema()
+        self.features_schema = get_features_schema(self.config.engine.all_features)
     
     def get_data(self):
         self.df = self.spark.createDataFrame(
@@ -880,12 +860,12 @@ class SaveDfInPostgres(Task):
             self,
             config,
             steps=(),
-            table_name=RequestSet.__tablename__,
+            table_model=RequestSet,
             json_cols=('features',),
             mode='append'
     ):
         super().__init__(config, steps)
-        self.table_name = table_name
+        self.table_model = table_model
         self.json_cols = json_cols
         self.mode = mode
 
@@ -895,7 +875,7 @@ class SaveDfInPostgres(Task):
         if self.df.count() > 0:
             save_df_to_table(
                 self.df,
-                self.table_name,
+                self.table_model.__tablename__,
                 self.config.database.__dict__,
                 json_cols=self.json_cols,
                 storage_level=self.config.spark.storage_level,
@@ -910,25 +890,36 @@ class Save(SaveDfInPostgres):
     """
     Saves dataframe in Postgres (current backend)
     """
+    def __init__(self, config,
+                 steps=(),
+                 table_model=RequestSet,
+                 json_cols=('features',),
+                 mode='append',
+                 not_common=(
+                     'prediction',
+                     'model_version',
+                     'label',
+                     'id_attribute',
+                     'updated_at')
+                 ):
+        self.not_common = set(not_common)
+        super().__init__(config, steps, table_model, json_cols, mode)
 
     def prepare_to_save(self):
-        request_set_columns = RequestSet.columns[:]
-        not_common = {
-            'prediction', 'model_version', 'label', 'id_attribute',
-            'updated_at'
-        }.difference(self.df.columns)
+        table_columns = self.table_model.columns[:]
+        not_common = self.not_common.difference(self.df.columns)
 
         for c in not_common:
-            request_set_columns.remove(c)
+            table_columns.remove(c)
 
-        if len(self.df.columns) < len(request_set_columns):
+        if len(self.df.columns) < len(table_columns):
             # log and let it blow up; we need to know that we cannot save
             self.logger.error(
                 'The input df columns are different than '
                 'the actual table columns'
             )
 
-        self.df = self.df.select(request_set_columns)
+        self.df = self.df.select(table_columns)
         self.df = self.df.withColumn(
             'created_at',
             F.current_timestamp()
@@ -1311,9 +1302,10 @@ class AttackDetection(Task):
         self.report_consumer = None
         self.banjax_thread = None
         self.register_metrics = config.engine.register_banjax_metrics
-        self.low_rate_attack_schema = T.StructType([T.StructField(
-                name='request_total', dataType=StringType(), nullable=True
-            )])
+        self.low_rate_attack_schema = None
+        self.time_filter = None
+        self.lra_condition = None
+        self.features_schema = get_features_schema(self.config.engine.all_features)
         self.origin_ips = OriginIPs(
             url=config.engine.url_origin_ips,
             logger=self.logger,
@@ -1321,12 +1313,28 @@ class AttackDetection(Task):
         )
 
     def initialize(self):
-        # super(SaveStats, self).initialize()
+        lr_attack_period = self.config.engine.low_rate_attack_period
+        lra_total_req = self.config.engine.low_rate_attack_total_request
+        # initialize these here to make sure spark session has been initialized
+        self.low_rate_attack_schema = T.StructType([T.StructField(
+            name='request_total', dataType=StringType(), nullable=True
+        )])
+        self.time_filter = (
+                F.abs(F.unix_timestamp(F.col('stop'))) -
+                F.abs(F.unix_timestamp(F.col('start')))
+        )
+        self.lra_condition = (
+                ((F.col('features.request_total') > lr_attack_period[0]) &
+                (self.time_filter > lra_total_req[0])) |
+                ((F.col('features.request_total') > lr_attack_period[1]) &
+                (self.time_filter > lra_total_req[1]))
+        )
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
             self.register_banjax_metrics()
         self.banjax_thread = threading.Thread(target=self.report_consumer.run)
         self.banjax_thread.start()
+        pass
 
     def finish_up(self):
         if self.banjax_thread:
@@ -1427,42 +1435,24 @@ class AttackDetection(Task):
             # ppp.persist(self.config.spark.storage_level)
         return df
 
-    def detect_low_rate_attack(self, df):
+    def detect_low_rate_attack(self):
         self.logger.info('Low rate attack detecting...')
-        lr_attack_period = self.config.engine.low_rate_attack_period
-        lra_total_req = self.config.engine.low_rate_attack_total_request
-        time_filter = (
-                F.abs(F.unix_timestamp(df.stop)) - F.abs(F.unix_timestamp(df.start))
-        )
         # todo check features dtype and use from_json if necessary
-        df = df.withColumn('f', F.from_json('features', self.low_rate_attack_schema))
-        df = df.withColumn(
-            'f.request_total',
-            F.col('f.request_total').cast(
+        if get_dtype_for_col(self.df, 'features') == 'string':
+            self.df = self.df.withColumn(
+                'features',
+                F.from_json('features', self.low_rate_attack_schema)
+            )
+        self.df = self.df.withColumn(
+            'features.request_total',
+            F.col('features.request_total').cast(
                 T.DoubleType()
-            ).alias('f.request_total')
+            ).alias('features.request_total')
+        ).persist(self.config.spark.storage_level)
+        self.df = self.df.withColumn(
+            'low_rate_attack',
+            F.when(self.lra_condition, 1.0).otherwise(0.0)
         )
-
-        df_attackers = df.filter(
-            ((F.col('f.request_total') > lr_attack_period[0]) &
-             (time_filter > lra_total_req[0]))
-            |
-            ((F.col('f.request_total') > lr_attack_period[1]) &
-             (time_filter > lra_total_req[1]))
-        ).select(
-            'ip', 'target', 'f.request_total', 'start'
-        ).withColumn('low_rate_attack', F.lit(1))
-
-        if df_attackers and df_attackers.head(1):
-            self.logger.info('Low rate attack -------------- ')
-            # fails with Null Pointer Exception - testing with head(1):
-            self.logger.info(df_attackers.show())
-            df = df.join(df_attackers.select('ip', 'low_rate_attack'), on='ip', how='left')
-            df = df.fillna({'low_rate_attack': 0})
-        else:
-            df = df.withColumn('low_rate_attack', F.lit(0))
-
-        return df
 
     def apply_white_list_ips(self, ips):
         if not self.white_list_ips:
@@ -1496,21 +1486,26 @@ class AttackDetection(Task):
             (F.col('attack_score') > self.config.engine.attack_threshold) &
             (F.col('total') > self.config.engine.minimum_number_attackers),
             F.lit(1)).otherwise(F.lit(0)))
-
+        # todo is this right? don't we need to join on ip too??
         self.df = self.df.join(
             df_attack.select(
                 ['target', 'attack_prediction']
             ), on='target', how='left')
 
-        self.df = self.detect_low_rate_attack(self.df)
-        return df_attack
+        self.detect_low_rate_attack()
+        # return df_attack
+        return self.df
 
     def updated_df_with_attacks(self, df_attack):
         self.df = self.df.join(df_attack, on=[df_attack.id_request_sets == self.df.id_request_sets], how='left')
 
     def run(self):
-        if dict(self.df.dtypes).get('features') == 'map<string,double>':
-            self.df = self.df.withColumn("features", F.to_json("features"))
+        if get_dtype_for_col(self.df, 'features') == 'string':
+            # this can be true when running the raw log pipeline
+            self.df = self.df.withColumn(
+                "features",
+                F.from_json("features", self.features_schema)
+            )
         self.df = self.df.repartition('target').persist(
             self.config.spark.storage_level
         )

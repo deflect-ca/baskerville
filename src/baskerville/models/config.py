@@ -726,7 +726,7 @@ class KafkaConfig(Config):
     """
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
-    logs_topic = 'deflect.logs'
+    data_topic = 'deflect.logs'
     features_topic = 'features'
     predictions_topic = 'predictions'
     banjax_command_topic = 'banjax_command_topic'
@@ -757,8 +757,8 @@ class KafkaConfig(Config):
         if not self.zookeeper:
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
-        if not self.logs_topic:
-            warnings.warn('Logs topic is empty.')
+        if not self.data_topic:
+            warnings.warn('Data topic is empty.')
         if not self.features_topic:
             warnings.warn('Features topic is empty')
         if not self.predictions_topic:
