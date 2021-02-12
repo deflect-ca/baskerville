@@ -23,7 +23,7 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
                 CacheSensitiveData(config),
                 SendToKafka(
                     config=config,
-                    columns=('id_client', 'id_request_sets', 'features'),
+                    columns=('id_client', 'uuid_request_set', 'features'),
                     topic=config.kafka.features_topic,
                 ),
                 RefreshCache(config)
@@ -48,7 +48,7 @@ def set_up_client_rawlog_pipeline(config: BaskervilleConfig):
                 # CacheSensitiveData(config),
                 SendToKafka(
                     config=config,
-                    columns=('id_client', 'id_request_sets', 'features'),
+                    columns=('id_client', 'uuid_request_set', 'features'),
                     topic=config.kafka.features_topic,
                 ),
                 Predict(config),

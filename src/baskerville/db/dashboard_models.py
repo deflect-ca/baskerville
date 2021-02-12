@@ -34,11 +34,25 @@ class UserCategory(Base, SerializableMixin):
 #     )
 
 
-class User(Base, SerializableMixin):
-    __tablename__ = 'users'
-
+class Organization(Base, SerializableMixin):
+    __tablename__ = 'organizations'
     id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
     uuid = Column(String(300), primary_key=True, unique=True)
+    name = Column(String(200), index=True)
+    details = Column(TEXT())
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    updated_at = Column(
+        DateTime(timezone=True), nullable=True, onupdate=utcnow()
+    )
+    users = relationship(
+        'User', uselist=False, back_populates='organization'
+    )
+
+
+class User(Base, SerializableMixin):
+    __tablename__ = 'users'
+    id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
+    id_organization = Column(String(300), ForeignKey('organizations.id'))
     id_category = Column(Integer, ForeignKey('user_categories.id'), nullable=False)
     username = Column(String(200), index=True)
     first_name = Column(String(200), index=True)
@@ -58,6 +72,10 @@ class User(Base, SerializableMixin):
         'UserCategory',
         foreign_keys=id_category, back_populates='users'
     )
+    organization = relationship(
+        'Organization',
+        foreign_keys=id_organization, back_populates='users'
+    )
 
     _remove = ['password_hash']
 
@@ -74,10 +92,11 @@ class Feedback(Base, SerializableMixin):
 
     id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
     id_user = Column(BigInteger(), ForeignKey('users.id'), nullable=False)
-    id_request_set = Column(BigInteger(), nullable=False)
+    uuid_request_set = Column(TEXT(), nullable=False)
     prediction = Column(Integer, nullable=False)
     score = Column(Float, nullable=False)
     attack_prediction = Column(Float, nullable=False)
+    low_rate = Column(Boolean(), nullable=False)
     ip = Column(String, nullable=True)
     target = Column(String, nullable=True)
     features = Column(JSON, nullable=True)
@@ -94,10 +113,39 @@ class Feedback(Base, SerializableMixin):
         'User',
         foreign_keys=id_user
     )
-    # request_set = relationship(
-    #     'RequestSet',
-    #     foreign_keys=id_request_set
-    # )
+    request_set = relationship(
+        'RequestSet',
+        primaryjoin='Feedback.uuid_request_set == RequestSet.uuid_request_set'
+    )
+
+
+class SubmittedFeedback(Base, SerializableMixin):
+    __tablename__ = 'submitted_feedback'
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
+    uuid_organization = Column(String(300), nullable=False)
+    uuid_request_set = Column(TEXT(), nullable=False)
+    prediction = Column(Integer, nullable=False)
+    score = Column(Float, nullable=False)
+    attack_prediction = Column(Float, nullable=False)
+    low_rate = Column(Boolean(), nullable=False)
+    features = Column(JSON, nullable=True)
+    feedback = Column(Enum(FeedbackEnum))
+    start = Column(DateTime(timezone=True), nullable=True)
+    stop = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    updated_at = Column(
+        DateTime(timezone=True), nullable=True, onupdate=utcnow()
+    )
+
+    organization = relationship(
+        'Organization',
+        primaryjoin='Feedback.uuid_organization == Organization.uuid_organization'
+    )
+    request_set = relationship(
+        'RequestSet',
+        primaryjoin='Feedback.uuid_request_set == RequestSet.uuid_request_set'
+    )
 
 
 class RuntimeToUser(Base, SerializableMixin):

@@ -168,7 +168,7 @@ class GetFeatures(GetDataKafka):
         self.df = self.df.where(F.col('message.id_client').isNotNull()) \
             .withColumn('features', F.col('message.features')) \
             .withColumn('id_client', F.col('message.id_client')) \
-            .withColumn('id_request_sets', F.col('message.id_request_sets')) \
+            .withColumn('uuid_request_set', F.col('message.uuid_request_set')) \
             .drop('message', 'key').persist(self.config.spark.storage_level)
 
 
@@ -789,13 +789,13 @@ class GenerateFeatures(MLTask):
         self.df = self.df.withColumn(
             'id_client', F.lit(self.config.engine.id_client)
         ).withColumn(
-            'id_request_sets', F.monotonically_increasing_id()
+            'uuid_request_set', F.monotonically_increasing_id()
         ).withColumn(
-            'id_request_sets',
+            'uuid_request_set',
             F.concat_ws(
                 '_',
                 F.col('id_client'),
-                F.col('id_request_sets'),
+                F.col('uuid_request_set'),
                 F.col('start').cast('long').cast('string'))
         )
         # todo: monotonically_increasing_id guarantees uniqueness within
@@ -972,7 +972,7 @@ class CacheSensitiveData(Task):
         ).option(
             'ttl', self.ttl
         ).option(
-            'key.column', 'id_request_sets'
+            'key.column', 'uuid_request_set'
         ).save()
         self.df = super().run()
         return self.df
@@ -995,7 +995,7 @@ class MergeWithSensitiveData(Task):
         ).option(
             'table', self.table_name
         ).option(
-            'key.column', 'id_request_sets'
+            'key.column', 'uuid_request_set'
         ).load().alias('redis_df')
 
         count = self.df.count()
@@ -1004,8 +1004,8 @@ class MergeWithSensitiveData(Task):
 
         self.df = self.df.alias('df')
         self.df = self.redis_df.join(
-            self.df, on=['id_client', 'id_request_sets']
-        ).drop('df.id_client', 'df.id_request_sets')
+            self.df, on=['id_client', 'uuid_request_set']
+        ).drop('df.id_client', 'df.uuid_request_set')
 
         if self.df and self.df.head(1):
             merge_count = self.df.count()
@@ -1198,7 +1198,7 @@ class SaveFeaturesTileDb(MLTask):
         for f_name in self.feature_manager.active_feature_names:
             df = df.withColumn(f_name, F.col('features').getItem(f_name))
         df.select(
-            'id_request_sets',
+            'uuid_request_set',
             'prediction',
             'score',
             'stop',
@@ -1206,7 +1206,7 @@ class SaveFeaturesTileDb(MLTask):
         ).write.format('io.tiledb.spark').option(
             'uri', f'{get_default_data_path()}/tiledbstorage'
         ).option(
-            'schema.dim.0.name', 'id_request_sets'
+            'schema.dim.0.name', 'uuid_request_set'
         ).save()
 
     def run(self):
@@ -1225,9 +1225,9 @@ class SaveFeaturesHbase(MLTask):
         super().__init__(config, steps)
         self.catalog = {
             'table': {'namespace': 'default', 'name': 'request_sets'},
-            'rowkey': 'id_request_sets',
+            'rowkey': 'uuid_request_set',
             'columns': {
-                'id_request_sets': {'cf': 'rowkey', 'col': 'id_request_sets', 'type': 'string'},
+                'uuid_request_set': {'cf': 'rowkey', 'col': 'uuid_request_set', 'type': 'string'},
                 'prediction': {'cf': 'cf1', 'col': 'prediction', 'type': 'int'},
                 'score': {'cf': 'cf1', 'col': 'score', 'type': 'double'},
                 'stop': {'cf': 'cf1', 'col': 'stop', 'type': 'timestamp'},
@@ -1249,7 +1249,7 @@ class SaveFeaturesHbase(MLTask):
         for f_name in self.feature_manager.active_feature_names:
             df = df.withColumn(f_name, F.col('features').getItem(f_name))
         df.select(
-            'id_request_sets',
+            'uuid_request_set',
             'prediction',
             'score',
             'stop',
@@ -1273,7 +1273,7 @@ class SaveFeaturesHive(MLTask):
         for f_name in self.feature_manager.active_feature_names:
             df = df.withColumn(f_name, F.col('features').getItem(f_name))
         df.select(
-            'id_request_sets',
+            'uuid_request_set',
             'prediction',
             'score',
             'stop',
@@ -1281,7 +1281,7 @@ class SaveFeaturesHive(MLTask):
         ).write.format('io.tiledb.spark').option(
             'uri', f'{get_default_data_path()}/tiledbstorage'
         ).option(
-            'schema.dim.0.name', 'id_request_sets'
+            'schema.dim.0.name', 'uuid_request_set'
         ).save()
 
     def run(self):
@@ -1497,7 +1497,7 @@ class AttackDetection(Task):
         return self.df
 
     def updated_df_with_attacks(self, df_attack):
-        self.df = self.df.join(df_attack, on=[df_attack.id_request_sets == self.df.id_request_sets], how='left')
+        self.df = self.df.join(df_attack, on=[df_attack.uuid_request_set == self.df.uuid_request_set], how='left')
 
     def run(self):
         if get_dtype_for_col(self.df, 'features') == 'string':
