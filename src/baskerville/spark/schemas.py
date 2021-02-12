@@ -15,13 +15,13 @@ cross_reference_schema = T.StructType([
 
 features_schema = T.StructType([
     T.StructField("id_client", T.StringType(), True),
-    T.StructField("id_request_sets", T.StringType(), False),
+    T.StructField("uuid_request_set", T.StringType(), False),
     T.StructField("features", T.StringType(), False)
 ])
 
 prediction_schema = T.StructType([
     T.StructField("id_client", T.StringType(), False),
-    T.StructField("id_request_sets", T.StringType(), False),
+    T.StructField("uuid_request_set", T.StringType(), False),
     T.StructField("prediction", T.FloatType(), False),
     T.StructField("score", T.FloatType(), False)
 ])
@@ -46,7 +46,7 @@ rs_cache_schema = T.StructType([
 def get_features_schema(all_features: dict) -> T.StructType:
     schema = T.StructType([
         T.StructField("id_client", T.StringType(), True),
-        T.StructField("id_request_sets", T.StringType(), False)
+        T.StructField("uuid_request_set", T.StringType(), False)
     ])
     features = T.StructType()
     for feature in all_features.keys():
