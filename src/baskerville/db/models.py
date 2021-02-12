@@ -96,7 +96,7 @@ class RequestSet(Base, SerializableMixin):
 
     id = Column(BigInteger, primary_key=True)
     id_runtime = Column(BigInteger, ForeignKey('runtimes.id'), nullable=True)
-    id_request_sets = Column(TEXT())
+    uuid_request_set = Column(TEXT())
     target = Column(TEXT())
     target_original = Column(TEXT())
     ip = Column(String(45))
@@ -152,7 +152,7 @@ class RequestSet(Base, SerializableMixin):
     )
 
     columns = [
-        'id_request_sets',
+        'uuid_request_set',
         'ip',
         'target',
         'target_original',
