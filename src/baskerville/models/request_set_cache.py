@@ -71,6 +71,11 @@ class RequestSetSparkCache(Singleton):
         else:
             self.storage_df = None
 
+            if self.file_manager.path_exists(self.file_name):
+                self.file_manager.delete_path(self.file_name)
+            if self.file_manager.path_exists(self.temp_file_name):
+                self.file_manager.delete_path(self.temp_file_name)
+
     @property
     def cache(self):
         return self.__cache
