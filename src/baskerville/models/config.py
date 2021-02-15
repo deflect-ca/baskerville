@@ -246,6 +246,7 @@ class EngineConfig(Config):
     simulation = None
     datetime_format = '%Y-%m-%d %H:%M:%S'
     cache_path = None
+    save_cache_to_storage = False
     storage_path = None
     cache_expire_time = None
     cache_load_past = False

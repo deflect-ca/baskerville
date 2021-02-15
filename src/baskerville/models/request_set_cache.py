@@ -31,7 +31,8 @@ class RequestSetSparkCache(Singleton):
             session_getter=get_spark_session,
             group_by_fields=('target', 'ip'),
             format_='parquet',
-            path='request_set_cache'
+            path='request_set_cache',
+            save_to_storage=False,
     ):
         self.__cache = None
         self.__persistent_cache = None
@@ -54,17 +55,20 @@ class RequestSetSparkCache(Singleton):
         self._count = 0
         self._last_updated = datetime.datetime.utcnow()
         self._changed = False
-        self.file_manager = FileManager(path, self.session_getter())
+        self._save_to_storage = save_to_storage
 
-        self.file_name = os.path.join(
-            path, f'{self.__class__.__name__}.{self.format_}')
-        self.temp_file_name = os.path.join(
-            path, f'{self.__class__.__name__}temp.{self.format_}')
+        if self._save_to_storage:
+            self.file_manager = FileManager(path, self.session_getter())
 
-        if self.file_manager.path_exists(self.file_name):
-            self.file_manager.delete_path(self.file_name)
-        if self.file_manager.path_exists(self.temp_file_name):
-            self.file_manager.delete_path(self.temp_file_name)
+            self.file_name = os.path.join(
+                path, f'{self.__class__.__name__}.{self.format_}')
+            self.temp_file_name = os.path.join(
+                path, f'{self.__class__.__name__}temp.{self.format_}')
+
+            if self.file_manager.path_exists(self.file_name):
+                self.file_manager.delete_path(self.file_name)
+            if self.file_manager.path_exists(self.temp_file_name):
+                self.file_manager.delete_path(self.temp_file_name)
 
     @property
     def cache(self):
@@ -242,7 +246,7 @@ class RequestSetSparkCache(Singleton):
         if not columns:
             columns = df.columns
 
-        if self.file_manager.path_exists(self.persistent_cache_file):
+        if self._save_to_storage and self.file_manager.path_exists(self.persistent_cache_file):
             self.__cache = self.session_getter().read.format(
                 self.format_
             ).load(self.persistent_cache_file).join(
@@ -311,7 +315,7 @@ class RequestSetSparkCache(Singleton):
         source_df = source_df.select(columns)
 
         # read the whole thing again
-        if self.file_manager.path_exists(self.file_name):
+        if self._save_to_storage and self.file_manager.path_exists(self.file_name):
             if self.__persistent_cache:
                 self.__persistent_cache.unpersist()
             self.__persistent_cache = self.session_getter().read.format(
@@ -364,29 +368,30 @@ class RequestSetSparkCache(Singleton):
                 '*'
             ).where(F.col('updated_at') >= update_date)
 
-        # write back to parquet - different file/folder though
-        # because self.parquet_name is already in use
-        # rename temp to self.parquet_name
-        if self.file_manager.path_exists(self.temp_file_name):
-            self.file_manager.delete_path(self.temp_file_name)
+        if self._save_to_storage:
+            # write back to parquet - different file/folder though
+            # because self.parquet_name is already in use
+            # rename temp to self.parquet_name
+            if self.file_manager.path_exists(self.temp_file_name):
+                self.file_manager.delete_path(self.temp_file_name)
 
-        self.__persistent_cache.write.mode(
-            'overwrite'
-        ).format(
-            self.format_
-        ).save(self.temp_file_name)
+            self.__persistent_cache.write.mode(
+                'overwrite'
+            ).format(
+                self.format_
+            ).save(self.temp_file_name)
 
-        # we don't need anything in memory anymore
-        source_df.unpersist(blocking=True)
-        source_df = None
-        del source_df
-        self.empty_all()
+            # we don't need anything in memory anymore
+            source_df.unpersist(blocking=True)
+            source_df = None
+            del source_df
+            self.empty_all()
 
-        # rename temp to self.parquet_name
-        if self.file_manager.path_exists(self.file_name):
-            self.file_manager.delete_path(self.file_name)
+            # rename temp to self.parquet_name
+            if self.file_manager.path_exists(self.file_name):
+                self.file_manager.delete_path(self.file_name)
 
-        self.file_manager.rename_path(self.temp_file_name, self.file_name)
+            self.file_manager.rename_path(self.temp_file_name, self.file_name)
 
     def refresh(self, update_date, hosts, extra_filters=None):
         df = self._load(
