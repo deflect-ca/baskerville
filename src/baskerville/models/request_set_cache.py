@@ -246,27 +246,41 @@ class RequestSetSparkCache(Singleton):
         if not columns:
             columns = df.columns
 
-        if self._save_to_storage and self.file_manager.path_exists(self.persistent_cache_file):
-            self.__cache = self.session_getter().read.format(
-                self.format_
-            ).load(self.persistent_cache_file).join(
-                df,
-                on=columns,
-                how='inner'
-            ).drop(
-                'a.ip'
-            ) #.persist(self.storage_level)
-        else:
-            if self.__cache:
-                self.__cache = self.__cache.join(
+        if self._save_to_storage:
+            if self.file_manager.path_exists(self.persistent_cache_file):
+                self.__cache = self.session_getter().read.format(
+                    self.format_
+                ).load(self.persistent_cache_file).join(
                     df,
                     on=columns,
                     how='inner'
                 ).drop(
                     'a.ip'
-                )# .persist(self.storage_level)
+                ) #.persist(self.storage_level)
+            else:
+                if self.__cache:
+                    self.__cache = self.__cache.join(
+                        df,
+                        on=columns,
+                        how='inner'
+                    ).drop(
+                        'a.ip'
+                    )# .persist(self.storage_level)
+                else:
+                    self.load_empty(self.schema)
+        else:
+            # memory only, no saving to parquet
+            if self.__persistent_cache:
+                self.__cache = self.__persistent_cache.join(
+                    df,
+                    on=columns,
+                    how='inner'
+                ).drop(
+                    'a.ip'
+                )  # .persist(self.storage_level)
             else:
                 self.load_empty(self.schema)
+
 
         # if self.__persistent_cache:
         #     self.__cache = self.__persistent_cache.join(
