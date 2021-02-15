@@ -308,6 +308,7 @@ class RequestSetSparkCache(Singleton):
                 else:
                     self.load_empty(self.schema)
 
+
         # if self.__persistent_cache:
         #     self.__cache = self.__persistent_cache.join(
         #         df,
