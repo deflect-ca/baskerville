@@ -39,7 +39,8 @@ class BaskervilleDBTools(object):
             file_name=None,
             processed=None,
             comment=None,
-            conf=None
+            conf=None,
+            id_user=None
     ):
         """
         Create a record in runtimes table.
@@ -54,9 +55,10 @@ class BaskervilleDBTools(object):
             runtime.processed = processed
             runtime.comment = comment
             runtime.config = str(conf)
-
+            runtime.id_user = id_user
             self.session.add(runtime)
             self.session.commit()
+
             return runtime
         except Exception:
             self.session.rollback()
