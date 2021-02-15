@@ -320,7 +320,7 @@ class SerializableMixin(object):
         :rtype: dict[str, T]
         """
         if not cols:
-            if getattr(self, '__table__', None):
+            if getattr(self, '__table__') is not None:
                 cols = self.__table__.columns
                 basic_attrs = {c.name: getattr(self, c.name)
                                for c in cols
@@ -346,9 +346,9 @@ class SerializableMixin(object):
                 if d is None:
                     continue
                 if isinstance(d, (list, tuple, set)):
-                    extra_attrs[attr] = [each.as_dict() for each in d]
+                    extra_attrs[attr] = [each.to_dict() for each in d]
                 else:
-                    extra_attrs[attr] = d.as_dict()
+                    extra_attrs[attr] = d.to_dict()
             basic_attrs.update(extra_attrs)
 
         for k, v in basic_attrs.items():

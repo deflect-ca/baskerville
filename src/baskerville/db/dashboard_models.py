@@ -36,10 +36,11 @@ class UserCategory(Base, SerializableMixin):
 
 class Organization(Base, SerializableMixin):
     __tablename__ = 'organizations'
-    id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
+    id = Column(BigInteger(), primary_key=True, autoincrement=True, unique=True)
     uuid = Column(String(300), primary_key=True, unique=True)
     name = Column(String(200), index=True)
     details = Column(TEXT())
+    registered = Column(Boolean(), default=False)
     created_at = Column(DateTime(timezone=True), server_default=utcnow())
     updated_at = Column(
         DateTime(timezone=True), nullable=True, onupdate=utcnow()
@@ -51,8 +52,8 @@ class Organization(Base, SerializableMixin):
 
 class User(Base, SerializableMixin):
     __tablename__ = 'users'
-    id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
-    id_organization = Column(String(300), ForeignKey('organizations.id'))
+    id = Column(BigInteger(), primary_key=True, autoincrement=True, unique=True)
+    id_organization = Column(BigInteger(), ForeignKey('organizations.id'))
     id_category = Column(Integer, ForeignKey('user_categories.id'), nullable=False)
     username = Column(String(200), index=True)
     first_name = Column(String(200), index=True)
@@ -75,6 +76,11 @@ class User(Base, SerializableMixin):
     organization = relationship(
         'Organization',
         foreign_keys=id_organization, back_populates='users'
+    )
+    runtimes = relationship(
+        'Runtime',
+        uselist=False,
+        # back_populates='user'
     )
 
     _remove = ['password_hash']
@@ -115,7 +121,7 @@ class Feedback(Base, SerializableMixin):
     )
     request_set = relationship(
         'RequestSet',
-        primaryjoin='Feedback.uuid_request_set == RequestSet.uuid_request_set'
+        primaryjoin='foreign(Feedback.uuid_request_set) == remote(RequestSet.uuid_request_set)'
     )
 
 
@@ -140,11 +146,11 @@ class SubmittedFeedback(Base, SerializableMixin):
 
     organization = relationship(
         'Organization',
-        primaryjoin='Feedback.uuid_organization == Organization.uuid_organization'
+        primaryjoin='foreign(SubmittedFeedback.uuid_organization) == remote(Organization.uuid)'
     )
     request_set = relationship(
         'RequestSet',
-        primaryjoin='Feedback.uuid_request_set == RequestSet.uuid_request_set'
+        primaryjoin='foreign(SubmittedFeedback.uuid_request_set) == remote(RequestSet.uuid_request_set)'
     )
 
 
