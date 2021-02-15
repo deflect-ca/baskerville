@@ -395,17 +395,17 @@ class RequestSetSparkCache(Singleton):
                 self.format_
             ).save(self.temp_file_name)
 
-            # we don't need anything in memory anymore
-            source_df.unpersist(blocking=True)
-            source_df = None
-            del source_df
-            self.empty_all()
-
             # rename temp to self.parquet_name
             if self.file_manager.path_exists(self.file_name):
                 self.file_manager.delete_path(self.file_name)
 
             self.file_manager.rename_path(self.temp_file_name, self.file_name)
+
+        # we don't need anything in memory anymore
+        source_df.unpersist(blocking=True)
+        source_df = None
+        del source_df
+        self.empty_all()
 
     def refresh(self, update_date, hosts, extra_filters=None):
         df = self._load(
@@ -471,11 +471,13 @@ class RequestSetSparkCache(Singleton):
     def empty_all(self):
         if self.__cache is not None:
             self.__cache.unpersist(blocking=True)
-        if self.__persistent_cache is not None:
-            self.__persistent_cache.unpersist(blocking=True)
-
         self.__cache = None
-        self.__persistent_cache = None
+
+        if self._save_to_storage:
+            if self.__persistent_cache is not None:
+                self.__persistent_cache.unpersist(blocking=True)
+            self.__persistent_cache = None
+
         gc.collect()
         self.session_getter().sparkContext._jvm.System.gc()
 
