@@ -14,12 +14,33 @@ from baskerville.models.pipeline_tasks.tasks import GetDataKafka, \
     GetDataLog, Predict, Challenge
 
 
-def set_up_preprocessing_pipeline(config: BaskervilleConfig):
+def set_up_registration_pipeline(config: BaskervilleConfig):
     task = [
         GetDataKafka(
             config,
             steps=[
-                GenerateFeatures(config),
+                Register(config),
+                CacheSensitiveData(config),
+                SendToKafka(
+                    config=config,
+                    columns=('id_client', 'uuid_request_set', 'features'),
+                    topic=config.kafka.features_topic,
+                ),
+                RefreshCache(config)
+            ]),
+    ]
+
+    main_task = Task(config, task)
+    main_task.name = 'Preprocessing Pipeline'
+    return main_task
+
+
+def set_up_user_creation_pipeline(config: BaskervilleConfig):
+    task = [
+        GetDataKafka(
+            config,
+            steps=[
+                Register(config),
                 CacheSensitiveData(config),
                 SendToKafka(
                     config=config,
