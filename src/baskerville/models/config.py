@@ -182,12 +182,13 @@ class BaskervilleConfig(Config):
     - kafka      : optional - depends on the chosen pipeline
 
     """
-    database = None
-    elastic = None
-    misp = None
-    engine = None
-    kafka = None
-    spark = None
+    database: 'DatabaseConfig' = None
+    elastic: 'ElasticConfig' = None
+    misp: 'MispConfig' = None
+    engine: 'EngineConfig' = None
+    kafka: 'KafkaConfig' = None
+    spark: 'SparkConfig' = None
+    user_details: 'UserDetailsConfig' = None
 
     def __init__(self, config):
         super(BaskervilleConfig, self).__init__(config)
@@ -203,6 +204,8 @@ class BaskervilleConfig(Config):
             self.kafka = KafkaConfig(self.kafka)
         if self.spark:
             self.spark = SparkConfig(self.spark)
+        if self.user_details:
+            self.user_details = UserDetailsConfig(self.user_details)
 
     def validate(self):
         logger.debug('Validating BaskervilleConfig...')
@@ -226,6 +229,10 @@ class BaskervilleConfig(Config):
             self.spark.validate()
         else:
             logger.debug('No spark config')
+        if self.user_details:
+            self.user_details.validate()
+        else:
+            logger.error('No user_details config')
 
         self._is_validated = True
         self._is_valid = len(self.errors) == 0
@@ -969,9 +976,6 @@ class DataParsingConfig(Config):
     group_by_cols = ('client_request_host', 'client_ip')
     timestamp_column = '@timestamp'
 
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
-
     def validate(self):
         logger.debug('Validating DataParsingConfig...')
         from baskerville.models.log_parsers import LOG_PARSERS
@@ -1002,3 +1006,31 @@ class DataParsingConfig(Config):
 
         self._is_validated = True
         return self
+
+
+class UserDetailsConfig(Config):
+    username = ''
+    password = ''
+    organization_uuid = ''
+
+    def validate(self):
+        logger.debug('Validating UserDetailsConfig...')
+        if not self.username:
+            self.add_error(ConfigError(
+                f'Please, provide a username',
+                ['username'],
+                exception_type=ValueError
+            ))
+        if not self.password:
+            self.add_error(ConfigError(
+                f'Please, provide a password',
+                ['password'],
+                exception_type=ValueError
+            ))
+        if not self.organization_uuid:
+            self.add_error(ConfigError(
+                f'Please, provide an organization_uuid',
+                ['organization_uuid'],
+                exception_type=ValueError
+            ))
+

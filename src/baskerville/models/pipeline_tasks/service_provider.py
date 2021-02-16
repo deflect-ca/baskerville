@@ -78,9 +78,23 @@ class ServiceProvider(Borg):
             self.load_model_from_db()
 
     def create_runtime(self):
+        from baskerville.db.dashboard_models import User, Organization
+        org = self.tools.session.query(Organization).filter_by(
+            uuid=self.config.user_details.organization_uuid
+        ).first()
+        if not org:
+            raise ValueError(f'No such organization.')
+
+        user = self.tools.session.query(User).filter_by(
+            username=self.config.user_details.username).filter_by(
+            id_organization=org.id
+        ).first()
+        if not user:
+            raise ValueError(f'No such user.')
         self.runtime = self.tools.create_runtime(
             start=self.start_time,
-            conf=self.config.engine
+            conf=self.config.engine,
+            id_user=user.id
         )
         self.logger.info(f'Created runtime {self.runtime.id}')
 
