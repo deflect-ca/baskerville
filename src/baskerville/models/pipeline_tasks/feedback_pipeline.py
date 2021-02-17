@@ -6,7 +6,7 @@
 from baskerville.db.dashboard_models import Feedback
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
-from baskerville.models.pipeline_tasks.tasks import GetDataKafka, Save
+from baskerville.models.pipeline_tasks.tasks import GetDataKafka, SaveFeedback
 
 
 def set_up_feedback_pipeline(config: BaskervilleConfig):
@@ -21,10 +21,10 @@ def set_up_feedback_pipeline(config: BaskervilleConfig):
         GetDataKafka(
             config,
             steps=[
-                Save(
+                SaveFeedback(
                     config,
                     table_model=Feedback,
-                    not_common=()
+                    not_common=('feedback_context', 'progress_count')
                 ),
             ]),
     ]

@@ -20,9 +20,10 @@ from pyspark.sql.types import StringType, StructField, StructType, DoubleType
 from pyspark.streaming import StreamingContext
 from functools import reduce
 from pyspark.sql import DataFrame
+from sqlalchemy.exc import SQLAlchemyError
 
 from baskerville.db import get_jdbc_url
-from baskerville.db.models import RequestSet, Model
+from baskerville.db.models import RequestSet, Model, Attack
 from baskerville.models.banjax_report_consumer import BanjaxReportConsumer
 from baskerville.models.ip_cache import IPCache
 from baskerville.models.metrics.registry import metrics_registry
@@ -931,6 +932,50 @@ class Save(SaveDfInPostgres):
         self.logger.debug('Saving request_sets')
         self.df = super().run()
         return self.df
+
+
+class SaveFeedback(Save):
+    def upsert_attack(self):
+        new_ = False
+        success = False
+        try:
+            feedback_context = self.df.select('feedback_context').collect()
+            attack = self.db_tools.session.query(Attack).filter_by(
+                    uuid=feedback_context.uuid
+            ).filter_by(
+                start=feedback_context.start
+            ).filter_by(stop=feedback_context.stop).first()
+            if not attack:
+                attack = Attack()
+                new_ = True
+            attack.uuid_org = feedback_context.uuid
+            attack.start = feedback_context.start
+            attack.stop = feedback_context.stop
+            attack.target = feedback_context.target
+            attack.ip_count = feedback_context.ip_count
+            attack.notes = feedback_context.notes
+            attack.progress_report = feedback_context.progress_report
+            if new_:
+                self.db_tools.session.add(attack)
+            self.db_tools.session.commit()
+            success = True
+        except SQLAlchemyError as sqle:
+            traceback.print_exc()
+            self.db_tools.session.rollback()
+            success = False
+            self.logger.error(str(sqle))
+            # todo: what should the handling be?
+        except Exception as e:
+            traceback.print_exc()
+            success = False
+            self.logger.error(str(e))
+            # todo: what should the handling be?
+        return success
+
+    def prepare_to_save(self):
+        success = self.upsert_attack()
+        if success:
+            super(SaveFeedback, self).prepare_to_save()
 
 
 class RefreshCache(CacheTask):
