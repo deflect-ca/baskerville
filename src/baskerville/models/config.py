@@ -283,7 +283,7 @@ class EngineConfig(Config):
     ip_cache_passed_challenge_size = 100000
     ip_cache_pending_ttl = 60 * 60 * 1  # 1h
     ip_cache_pending_size = 100000
-
+    save_to_storage = True
     white_list_ips = []
     white_list_hosts = []
     banjax_sql_update_filter_minutes = 90
@@ -736,7 +736,11 @@ class KafkaConfig(Config):
     zookeeper = 'localhost:2181'
     data_topic = 'deflect.logs'
     features_topic = 'features'
+    feedback_topic = 'feedback'
+    feedback_response_topic = ''
     predictions_topic = 'predictions'
+    register_topic = 'register'
+    auto_offset_reset = 'largest'
     banjax_command_topic = 'banjax_command_topic'
     banjax_report_topic = 'banjax_report_topic'
     security_protocol = 'PLAINTEXT'
@@ -767,6 +771,10 @@ class KafkaConfig(Config):
             warnings.warn('Zookeeper url is empty.')
         if not self.data_topic:
             warnings.warn('Data topic is empty.')
+        if not self.feedback_topic:
+            warnings.warn('Feedback topic is empty.')
+        if not self.feedback_response_topic:
+            warnings.warn('Feedback response topic is empty.')
         if not self.features_topic:
             warnings.warn('Features topic is empty')
         if not self.predictions_topic:

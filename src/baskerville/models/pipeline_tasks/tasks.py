@@ -15,6 +15,7 @@ import threading
 import traceback
 
 import pyspark
+from baskerville.db.dashboard_models import FeedbackContext
 from pyspark.sql import functions as F, types as T
 from pyspark.sql.types import StringType, StructField, StructType, DoubleType
 from pyspark.streaming import StreamingContext
@@ -34,7 +35,8 @@ from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
     send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col
 from baskerville.spark.schemas import features_schema, \
-    prediction_schema, get_features_schema, get_data_schema
+    prediction_schema, get_features_schema, get_data_schema, \
+    get_feedback_context_schema
 from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
@@ -69,7 +71,7 @@ class GetDataKafka(Task):
         self.data_parser = self.config.engine.data_config.parser
         self.kafka_params = {
             'metadata.broker.list': self.config.kafka.bootstrap_servers,
-            'auto.offset.reset': 'largest',
+            'auto.offset.reset': self.config.kafka.auto_offset_reset,
             'group.id': self.config.kafka.consume_group,
             'auto.create.topics.enable': 'true'
         }
@@ -934,31 +936,56 @@ class Save(SaveDfInPostgres):
         return self.df
 
 
-class SaveFeedback(Save):
-    def upsert_attack(self):
+class SaveFeedback(SaveDfInPostgres):
+    def __init__(self, config,
+                 steps=(),
+                 table_model=RequestSet,
+                 json_cols=('features',),
+                 mode='append',
+                 not_common=(
+                     'prediction',
+                     'model_version',
+                     'label',
+                     'id_attribute',
+                     'updated_at')
+                 ):
+        self.not_common = set(not_common)
+        super().__init__(config, steps, table_model, json_cols, mode)
+
+    def upsert_feedback_context(self):
         new_ = False
         success = False
         try:
-            feedback_context = self.df.select('feedback_context').collect()
-            attack = self.db_tools.session.query(Attack).filter_by(
-                    uuid=feedback_context.uuid
-            ).filter_by(
-                start=feedback_context.start
-            ).filter_by(stop=feedback_context.stop).first()
-            if not attack:
-                attack = Attack()
-                new_ = True
-            attack.uuid_org = feedback_context.uuid
-            attack.start = feedback_context.start
-            attack.stop = feedback_context.stop
-            attack.target = feedback_context.target
-            attack.ip_count = feedback_context.ip_count
-            attack.notes = feedback_context.notes
-            attack.progress_report = feedback_context.progress_report
-            if new_:
-                self.db_tools.session.add(attack)
-            self.db_tools.session.commit()
-            success = True
+            self.df = self.df.withColumn('id_fc', F.lit(None))
+            uuid_organization, feedback_context = self.df.select(
+                'uuid_organization', 'feedback_context'
+            ).collect()[0]
+            print(">>>>>>>> feedback_context", feedback_context)
+            if feedback_context:
+                fc = self.db_tools.session.query(FeedbackContext).filter_by(
+                        uuid_organization=uuid_organization
+                ).filter_by(
+                    start=feedback_context.start
+                ).filter_by(stop=feedback_context.stop).first()
+                if not fc:
+                    fc = FeedbackContext()
+                    new_ = True
+                # fc.uuid_org = feedback_context.uuid_org
+                fc.reason = feedback_context.reason
+                fc.reason_descr = feedback_context.reason_descr
+                fc.start = feedback_context.start
+                fc.stop = feedback_context.stop
+                fc.ip_count = feedback_context.ip_count
+                fc.notes = feedback_context.notes
+                fc.progress_report = feedback_context.progress_report
+                if new_:
+                    self.db_tools.session.add(fc)
+                self.db_tools.session.commit()
+                self.df = self.df.withColumn('id_fc', F.lit(fc.id))
+                success = True
+            else:
+                self.logger.info('No feedback context.')
+                success = True
         except SQLAlchemyError as sqle:
             traceback.print_exc()
             self.db_tools.session.rollback()
@@ -973,9 +1000,42 @@ class SaveFeedback(Save):
         return success
 
     def prepare_to_save(self):
-        success = self.upsert_attack()
-        if success:
-            super(SaveFeedback, self).prepare_to_save()
+        try:
+            success = self.upsert_feedback_context()
+            self.df.show()
+            success = True
+            if success:
+                # explode submitted feedback first
+                # updated feedback will be inserted and identical uuid_request_set
+                # can be filtered out with created_at or max(id)
+                self.df = self.df.select(
+                    'uuid_organization',
+                    'id_context',
+                    F.col('id_fc').alias('sumbitted_context_id'),
+                    F.explode('feedback').alias('feedback')
+                ).cache()
+                self.df.show()
+                self.df = self.df.select(
+                    F.col('uuid_organization').alias('top_uuid_organization'),
+                    F.col('id_context').alias('client_id_context'),
+                    F.col('sumbitted_context_id'),
+                    *[F.col(f'feedback.{c}').alias(c) for c in self.table_model.columns]
+                ).cache()
+                self.df = self.df.withColumnRenamed('id_context', 'client_id_context')
+                self.df = self.df.drop('updated_at')
+                self.df = self.df.withColumn('id_context', F.col('sumbitted_context_id')).drop('sumbitted_context_id')
+                self.df.show()
+                Save.prepare_to_save(self)
+                self.df = SaveDfInPostgres.run(self)
+            self.df = self.df.groupBy('uuid_organization', 'id_context').count().toDF()
+            self.df = self.df.withColumn('success', F.lit(True))
+        except:
+            self.df = self.df.withColumn('success', F.lit(False))
+
+    def run(self):
+        self.upsert_feedback_context()
+        self.prepare_to_save()
+        return self.df
 
 
 class RefreshCache(CacheTask):
@@ -1079,13 +1139,17 @@ class SendToKafka(Task):
             config: BaskervilleConfig,
             columns,
             topic,
+            cmd='prediction_center',
             cc_to_client=False,
+            client_only=True,
             steps: list = (),
     ):
         super().__init__(config, steps)
         self.columns = columns
         self.topic = topic
+        self.cmd = cmd
         self.cc_to_client = cc_to_client
+        self.client_only = client_only
 
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')

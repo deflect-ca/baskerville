@@ -11,7 +11,8 @@ from sqlalchemy import Column, Integer, ForeignKey, DateTime, Enum, String, \
 from sqlalchemy.orm import relationship
 from passlib.apps import custom_app_context as pwd_context
 
-from baskerville.util.enums import UserCategoryEnum, FeedbackEnum
+from baskerville.util.enums import UserCategoryEnum, FeedbackEnum, \
+    FeedbackContextTypeEnum
 
 
 class UserCategory(Base, SerializableMixin):
@@ -22,16 +23,6 @@ class UserCategory(Base, SerializableMixin):
     users = relationship(
         'User', uselist=True, back_populates='category'
     )
-
-#
-# class UserProfile(Base, SerializableMixin):
-#     __tablename__ = 'user_profiles'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     id_user = Column(Integer, ForeignKey('users.id'), nullable=False)
-#     created_at = Column(DateTime(timezone=True), server_default=utcnow())
-#     updated_at = Column(
-#         DateTime(timezone=True), nullable=True, onupdate=utcnow()
-#     )
 
 
 class Organization(Base, SerializableMixin):
@@ -93,22 +84,37 @@ class User(Base, SerializableMixin):
         return pwd_context.verify(password, self.password_hash)
 
 
+class FeedbackContext(Base, SerializableMixin):
+    __tablename__ = 'feedback_contexts'
+    id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
+    uuid_organization = Column(String(300), nullable=False)
+    reason = Column(Enum(FeedbackContextTypeEnum))
+    reason_descr = Column(TEXT())
+    start = Column(DateTime(timezone=True))
+    stop = Column(DateTime(timezone=True))
+    ip_count = Column(Integer)
+    notes = Column(TEXT)
+    progress_report = Column(TEXT)
+    pending = Column(Boolean(), default=True)
+
+
 class Feedback(Base, SerializableMixin):
     __tablename__ = 'feedback'
 
     id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
+    id_feedback_context = Column(BigInteger(), ForeignKey('feedback_contexts.id'), nullable=False)
     id_user = Column(BigInteger(), ForeignKey('users.id'), nullable=False)
     uuid_request_set = Column(TEXT(), nullable=False)
     prediction = Column(Integer, nullable=False)
     score = Column(Float, nullable=False)
     attack_prediction = Column(Float, nullable=False)
-    low_rate = Column(Boolean(), nullable=False)
-    ip = Column(String, nullable=True)
-    target = Column(String, nullable=True)
-    features = Column(JSON, nullable=True)
+    low_rate = Column(Boolean(), nullable=True)
+    ip = Column(String, nullable=False)
+    target = Column(String, nullable=False)
+    features = Column(JSON, nullable=False)
     feedback = Column(Enum(FeedbackEnum))
-    start = Column(DateTime(timezone=True), nullable=True)
-    stop = Column(DateTime(timezone=True), nullable=True)
+    start = Column(DateTime(timezone=True), nullable=False)
+    stop = Column(DateTime(timezone=True), nullable=False)
     submitted = Column(Boolean(), default=False)
     created_at = Column(DateTime(timezone=True), server_default=utcnow())
     updated_at = Column(
@@ -123,22 +129,29 @@ class Feedback(Base, SerializableMixin):
         'RequestSet',
         primaryjoin='foreign(Feedback.uuid_request_set) == remote(RequestSet.uuid_request_set)'
     )
+    feedback_context = relationship(
+        'FeedbackContext',
+        foreign_keys=id_feedback_context
+    )
 
 
 class SubmittedFeedback(Base, SerializableMixin):
     __tablename__ = 'submitted_feedback'
 
     id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
+    # not all feedback is part of an attack
+    id_context = Column(BigInteger(), ForeignKey('feedback_contexts.id'), nullable=False)
     uuid_organization = Column(String(300), nullable=False)
     uuid_request_set = Column(TEXT(), nullable=False)
     prediction = Column(Integer, nullable=False)
     score = Column(Float, nullable=False)
     attack_prediction = Column(Float, nullable=False)
-    low_rate = Column(Boolean(), nullable=False)
+    low_rate = Column(Boolean(), nullable=True)
     features = Column(JSON, nullable=True)
     feedback = Column(Enum(FeedbackEnum))
     start = Column(DateTime(timezone=True), nullable=True)
     stop = Column(DateTime(timezone=True), nullable=True)
+    submitted_at = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=utcnow())
     updated_at = Column(
         DateTime(timezone=True), nullable=True, onupdate=utcnow()
@@ -152,21 +165,18 @@ class SubmittedFeedback(Base, SerializableMixin):
         'RequestSet',
         primaryjoin='foreign(SubmittedFeedback.uuid_request_set) == remote(RequestSet.uuid_request_set)'
     )
-
-
-class RuntimeToUser(Base, SerializableMixin):
-    __tablename__ = 'runtimes_to_users'
-    id_user = Column(BigInteger, ForeignKey('users.id'), nullable=False, primary_key=True)
-    id_runtime = Column(BigInteger, ForeignKey('runtimes.id'), nullable=False, primary_key=True)
-    created_at = Column(DateTime(timezone=True), server_default=utcnow())
-    updated_at = Column(
-        DateTime(timezone=True), nullable=True, onupdate=utcnow()
-    )
-    user = relationship(
-        'User',
-        foreign_keys=id_user
-    )
-    runtime = relationship(
-        'Runtime',
-        foreign_keys=id_runtime
-    )
+    columns = [
+        'id',
+        'id_context',
+        'uuid_organization',
+        'uuid_request_set',
+        'prediction',
+        'score',
+        'attack_prediction',
+        'low_rate',
+        'features',
+        'feedback',
+        'start',
+        'submitted_at',
+        'updated_at'
+    ]

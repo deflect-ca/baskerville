@@ -210,7 +210,7 @@ class ModelTrainingSetLink(Base, SerializableMixin):
 class Attack(Base, SerializableMixin):
     __tablename__ = 'attacks'
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
     id_misp = Column(BigInteger)
     uuid_org = Column(TEXT())
     date = Column(DateTime(timezone=True))
