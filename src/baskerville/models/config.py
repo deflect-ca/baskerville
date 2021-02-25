@@ -284,6 +284,7 @@ class EngineConfig(Config):
     origin_ips_refresh_period_in_seconds = 300
     url_origin_ips = ''
     new_model_check_in_seconds = 300
+    kafka_send_by_partition = True
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)

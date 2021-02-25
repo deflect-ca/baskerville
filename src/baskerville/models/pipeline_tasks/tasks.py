@@ -1053,31 +1053,33 @@ class SendToKafka(Task):
 
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
-        send_to_kafka_by_partition_id(
-            self.df.select(
-                F.struct(
-                    *list(
-                        F.col(c) for c in self.columns
-                    )).alias('rows'),
-                F.spark_partition_id().alias('pid')
-            ),
-            self.config.kafka.bootstrap_servers,
-            self.topic,
-            'prediction_center',
-            id_client=self.cc_to_client
-        )
 
-        # producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
-        # records = self.df.collect()
-        # for record in records:
-        #     message = json.dumps(
-        #         {key: record[key] for key in self.columns}
-        #     ).encode('utf-8')
-        #     producer.send(self.topic, message)
-        #     if self.cc_to_client:
-        #         id_client = record['id_client']
-        #         producer.send(f'{self.topic}.{id_client}', message)
-        #     producer.flush()
+        if self.config.engine.kafka_send_by_partition:
+            send_to_kafka_by_partition_id(
+                self.df.select(
+                    F.struct(
+                        *list(
+                            F.col(c) for c in self.columns
+                        )).alias('rows'),
+                    F.spark_partition_id().alias('pid')
+                ),
+                self.config.kafka.bootstrap_servers,
+                self.topic,
+                'prediction_center',
+                id_client=self.cc_to_client
+            )
+        else:
+            producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
+            records = self.df.collect()
+            for record in records:
+                message = json.dumps(
+                    {key: record[key] for key in self.columns}
+                ).encode('utf-8')
+                producer.send(self.topic, message)
+                if self.cc_to_client:
+                    id_client = record['id_client']
+                    producer.send(f'{self.topic}.{id_client}', message)
+            producer.flush()
 
         # does no work, possible jar conflict
         # self.df = self.df.select(
