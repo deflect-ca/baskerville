@@ -14,7 +14,7 @@ from dateutil.tz import tzutc
 from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-from tzwhere import tzwhere
+# from tzwhere import tzwhere
 import numpy as np
 
 
@@ -252,12 +252,17 @@ def get_msg(row, cmd_name):
         return json.dumps(
             {'name': cmd_name, 'value': row}
         ).encode('utf-8')
-    elif cmd_name == 'prediction_center':
+    elif cmd_name == 'prediction_center' or 'feedback_center':
         return json.dumps(row.asDict()).encode('utf-8')
 
 
 def send_to_kafka(
-        kafka_servers, topic, rows, cmd_name='challenge_host', id_client=None
+        kafka_servers,
+        topic,
+        rows,
+        cmd_name='challenge_host',
+        id_client=None,
+        client_only=False,
 ):
     """
     Creates a kafka producer and sends the rows one by one,
@@ -267,11 +272,12 @@ def send_to_kafka(
     try:
         from kafka import KafkaProducer
         producer = KafkaProducer(
-            bootstrap_servers=kafka_servers
+            bootstrap_servers=kafka_servers,
         )
         for row in rows:
             message = get_msg(row, cmd_name)
-            producer.send(topic, get_msg(row, cmd_name))
+            if not client_only:
+                producer.send(topic, get_msg(row, cmd_name))
             if id_client:
                 producer.send(f'{topic}.{id_client}', message)
         producer.flush()

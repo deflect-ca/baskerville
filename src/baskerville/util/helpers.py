@@ -14,7 +14,7 @@ from functools import wraps
 
 import yaml
 
-from baskerville.util.enums import ModelEnum
+from baskerville.util.enums import ModelEnum, BaseStrEnum
 
 FOLDER_MODELS = 'models'
 FOLDER_CACHE = 'cache'
@@ -356,6 +356,8 @@ class SerializableMixin(object):
                 if hasattr(v, 'parent') and 'parent' not in v._remove:
                     v._remove += ('parent')
                 basic_attrs[k] = v.to_dict()
+            if isinstance(v, BaseStrEnum):
+                basic_attrs[k] = str(v)
 
         return basic_attrs
 

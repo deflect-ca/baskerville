@@ -287,7 +287,13 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str):
 
 
 def send_to_kafka_by_partition_id(
-        df_to_send, bootstrap_servers, cmd_topic, cmd, id_client=None, udf_=None
+        df_to_send,
+        bootstrap_servers,
+        cmd_topic,
+        cmd,
+        id_client=None,
+        client_only=False,
+        udf_=None
 ):
     from baskerville.spark.udfs import udf_send_to_kafka
     df_to_send = df_to_send.withColumn('pid', F.spark_partition_id()).cache()
@@ -307,7 +313,8 @@ def send_to_kafka_by_partition_id(
             F.lit(cmd_topic),
             F.col('rows'),
             F.lit(cmd),
-            F.lit('id_client') if id_client else F.lit(None)
+            F.lit('id_client') if id_client else F.lit(None),
+            F.lit(client_only)
         )
     )
     # False means something went wrong:
