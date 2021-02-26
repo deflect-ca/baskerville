@@ -79,7 +79,7 @@ def get_or_create_spark_session(spark_conf):
     # conf.set('spark.python.worker.memory', '1g')
     conf.set('spark.executor.logs.rolling.strategy', 'time')
     conf.set('spark.executor.logs.rolling.time.interval', 'daily')
-    # conf.set('spark.python.worker.reuse', 'true')
+    conf.set('spark.python.worker.reuse', 'true')
     conf.set('spark.ui.port', '4042')
     # conf.set('spark.python.profile', 'true')
     conf.set('spark.rdd.compress', 'true')
@@ -168,6 +168,7 @@ def get_or_create_spark_session(spark_conf):
     )
     conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
     # conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+    # https://issues.apache.org/jira/browse/SPARK-25998
     conf.set('spark.sql.autoBroadcastJoinThreshold', -1)  # disable
 
     spark = SparkSession.builder \

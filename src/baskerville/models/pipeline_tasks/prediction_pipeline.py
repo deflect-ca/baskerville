@@ -8,7 +8,7 @@
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GetFeatures, \
-    SendToKafka, Predict
+    SendToKafka, Predict, RefreshModel
 
 
 def set_up_prediction_pipeline(config: BaskervilleConfig):
@@ -23,6 +23,7 @@ def set_up_prediction_pipeline(config: BaskervilleConfig):
                     topic=config.kafka.predictions_topic,
                     cc_to_client=True,
                 ),
+                RefreshModel(config),
             ]),
     ]
 

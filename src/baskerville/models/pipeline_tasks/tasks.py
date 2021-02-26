@@ -40,6 +40,7 @@ from dateutil.tz import tzutc
 # broadcasts
 from baskerville.util.enums import LabelEnum
 from baskerville.util.helpers import instantiate_from_str, get_model_path
+from baskerville.util.origin_ips import OriginIPs
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
@@ -172,7 +173,7 @@ class GetFeatures(GetDataKafka):
                 nullable=True))
         schema.add(T.StructField("features", features))
         return schema
-
+    
     def get_data(self):
         self.df = self.spark.createDataFrame(
             self.df,
@@ -843,7 +844,6 @@ class Predict(MLTask):
 
     def __init__(self, config: BaskervilleConfig, steps=()):
         super().__init__(config, steps)
-        self._can_predict = False
         self._is_initialized = False
 
     def predict(self):
@@ -859,6 +859,19 @@ class Predict(MLTask):
             self.predict()
             self.df = super(Predict, self).run()
             self.reset()
+        return self.df
+
+
+class RefreshModel(MLTask):
+    """
+    Check for a new model and load a new model in ServiceProvider.
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps=()):
+        super().__init__(config, steps)
+
+    def run(self):
+        self.service_provider.refresh_model()
         return self.df
 
 
@@ -1040,31 +1053,33 @@ class SendToKafka(Task):
 
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
-        send_to_kafka_by_partition_id(
-            self.df.select(
-                F.struct(
-                    *list(
-                        F.col(c) for c in self.columns
-                    )).alias('rows'),
-                F.spark_partition_id().alias('pid')
-            ),
-            self.config.kafka.bootstrap_servers,
-            self.topic,
-            'prediction_center',
-            id_client=self.cc_to_client
-        )
 
-        # producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
-        # records = self.df.collect()
-        # for record in records:
-        #     message = json.dumps(
-        #         {key: record[key] for key in self.columns}
-        #     ).encode('utf-8')
-        #     producer.send(self.topic, message)
-        #     if self.cc_to_client:
-        #         id_client = record['id_client']
-        #         producer.send(f'{self.topic}.{id_client}', message)
-        #     producer.flush()
+        if self.config.engine.kafka_send_by_partition:
+            send_to_kafka_by_partition_id(
+                self.df.select(
+                    F.struct(
+                        *list(
+                            F.col(c) for c in self.columns
+                        )).alias('rows'),
+                    F.spark_partition_id().alias('pid')
+                ),
+                self.config.kafka.bootstrap_servers,
+                self.topic,
+                'prediction_center',
+                id_client=self.cc_to_client
+            )
+        else:
+            producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
+            records = self.df.collect()
+            for record in records:
+                message = json.dumps(
+                    {key: record[key] for key in self.columns}
+                ).encode('utf-8')
+                producer.send(self.topic, message)
+                if self.cc_to_client:
+                    id_client = record['id_client']
+                    producer.send(f'{self.topic}.{id_client}', message)
+            producer.flush()
 
         # does no work, possible jar conflict
         # self.df = self.df.select(
@@ -1099,15 +1114,19 @@ class Train(Task):
     def load_dataset(self, df, features):
         dataset = df  # .ppppersist(self.spark_conf.storage_level)
 
-        if self.training_conf.max_samples_per_host:
+        max_samples = self.training_conf.data_parameters.get('max_samples_per_host')
+        if max_samples:
+            self.logger.debug(f'Sampling with max_samples_per_host='
+                              f'{max_samples}...')
             counts = dataset.groupby('target').count()
-            counts = counts.withColumn('fraction', self.training_conf.max_samples_per_host / F.col('count'))
+            counts = counts.withColumn('fraction', max_samples / F.col('count'))
             fractions = dict(counts.select('target', 'fraction').collect())
             for key, value in fractions.items():
                 if value > 1.0:
                     fractions[key] = 1.0
             dataset = dataset.sampleBy('target', fractions, 777)
 
+        self.logger.debug(f'Unwrapping features from json...')
         schema = StructType([])
         for feature in features:
             schema.add(StructField(
@@ -1124,7 +1143,7 @@ class Train(Task):
             feature_class = self.engine_conf.all_features[feature]
             dataset = dataset.withColumn(column, F.col(column).cast(feature_class.spark_type()).alias(column))
 
-        self.logger.debug(f'Loaded {dataset.count()} rows dataset...')
+        self.logger.debug(f'Loaded {dataset.count()} rows dataset.')
         return dataset
 
     def save(self):
@@ -1133,7 +1152,7 @@ class Train(Task):
         :return: None
         """
         model_path = get_model_path(self.engine_conf.storage_path, self.model.__class__.__name__)
-        self.model.save(path=model_path, spark_session=self.spark, training_config=self.config.engine.training)
+        self.model.save(path=model_path, spark_session=self.spark)
         self.logger.debug(f'The new model has been saved to: {model_path}')
 
         db_model = Model()
@@ -1288,7 +1307,6 @@ class AttackDetection(Task):
         super().__init__(config, steps)
         self.df_chunks = []
         self.white_list_ips = set(self.config.engine.white_list_ips)
-        self.df_white_list_ips = None
         self.df_white_list_hosts = None
         self.ip_cache = IPCache(config, self.logger)
         self.report_consumer = None
@@ -1299,6 +1317,11 @@ class AttackDetection(Task):
             )])
         self.producer = KafkaProducer(
             bootstrap_servers=self.config.kafka.bootstrap_servers)
+        self.origin_ips = OriginIPs(
+            url=config.engine.url_origin_ips,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
+        )
 
     def initialize(self):
         global IP_ACC
@@ -1310,12 +1333,7 @@ class AttackDetection(Task):
                     set(self.config.engine.white_list_hosts)
                 ], ['target'])\
                 .withColumn('white_list_host', F.lit(1))
-        if self.white_list_ips:
-            self.df_white_list_ips = self.spark.createDataFrame(
-                [
-                    [ip] for ip in set(self.config.engine.white_list_ips)
-                ],
-                ['ip']).withColumn('white_list_ip', F.lit(1))
+
         from baskerville.spark.helpers import DictAccumulatorParam
         IP_ACC = self.spark.sparkContext.accumulator(defaultdict(int),
                                                      DictAccumulatorParam(
@@ -1495,7 +1513,7 @@ class AttackDetection(Task):
 
         return df
 
-    def apply_white_list(self, ips):
+    def apply_white_list_ips(self, ips):
         if not self.white_list_ips:
             return ips
         self.logger.info('White listing...')
@@ -1504,6 +1522,17 @@ class AttackDetection(Task):
         white_listed = len(ips) - len(result)
         if white_listed > 0:
             self.logger.info(f'White listing {white_listed} ips')
+        return result
+
+    def apply_white_list_origin_ips(self, ips):
+        if not self.origin_ips.get():
+            return ips
+        self.logger.info('White listing origin ips...')
+        result = set(ips) - set(self.origin_ips.get())
+
+        white_listed = len(ips) - len(result)
+        if white_listed > 0:
+            self.logger.info(f'White listing {white_listed} origin ips')
         return result
 
     def detect_attack(self):
@@ -1540,7 +1569,8 @@ class AttackDetection(Task):
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
 
             ips = [r['ip'] for r in df_ips.collect()]
-            ips = self.apply_white_list(ips)
+            ips = self.apply_white_list_ips(ips)
+            ips = self.apply_white_list_origin_ips(ips)
             ips = self.ip_cache.update(ips)
             num_records = len(ips)
             if num_records > 0:
@@ -1639,36 +1669,6 @@ class AttackDetection(Task):
         #                 ).drop('rchallenged')
         # else:
         #     self.logger.debug('No challenge flag is set, moving on...')
-
-    def apply_whitelist(self, df):
-        cols_to_check = []
-        df = df.withColumn('to_challenge', F.lit(False))
-        if self.df_white_list_hosts:
-            df = df.join(
-                self.df_white_list_hosts,
-                on='target',
-                how='left')  # do we use target or target_original
-            cols_to_check.append(F.when(
-                    F.col('white_list_host').isNull(), True
-                ).otherwise(False))
-        if self.df_white_list_ips:
-            df = df.join(
-                self.df_white_list_ips,
-                on='ip',
-                how='left')
-            cols_to_check.append(F.when(
-                    F.col('white_list_ip').isNull(), True
-                ).otherwise(False))
-        if cols_to_check:
-            for c in cols_to_check:
-                df = df.withColumn('to_challenge', c)
-        # df_ips = df_ips.where(F.col('white_list_host').isNull())
-        # df_ip = df_ips.join()
-        # ips = [r['ip'] for r in df_ips.collect()]
-        # ips = self.apply_white_list(ips)
-        # ips = self.ip_cache.update(ips)
-        # self.df = self.df.fillna({'challenged': 0})
-        return df
 
     def run(self):
         # self.df = self.df.withColumn("features", F.to_json("features"))
