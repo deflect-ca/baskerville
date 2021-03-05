@@ -808,6 +808,9 @@ class SparkConfig(Config):
     ssl_ui_enabled = False
     ssl_standalone_enabled = False
     ssl_history_server_enabled = False
+    s3_endpoint: None
+    s3_access_key: None
+    s3_secret_key: None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
