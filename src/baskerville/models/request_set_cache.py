@@ -407,7 +407,7 @@ class RequestSetSparkCache(Singleton):
                 self.format_
             ).save(self.next_persistent_cache_file)
         else:
-            self.storage_df = self.__persistent_cach
+            self.storage_df = self.__persistent_cache
 
         # we don't need anything in memory anymore
         source_df.unpersist(blocking=True)
