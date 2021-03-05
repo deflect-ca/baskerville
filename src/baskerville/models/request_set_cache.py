@@ -416,6 +416,7 @@ class RequestSetSparkCache(Singleton):
             ).save(self.next_persistent_cache_file)
         else:
             self.storage_df = self.__persistent_cache
+            self.logger.info(f'Cache size = {self.storage_df.rdd.count()}')
 
         # we don't need anything in memory anymore
         source_df.unpersist(blocking=True)
