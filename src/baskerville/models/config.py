@@ -285,6 +285,7 @@ class EngineConfig(Config):
     url_origin_ips = ''
     new_model_check_in_seconds = 300
     kafka_send_by_partition = True
+    use_storage_for_request_cache = False
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
