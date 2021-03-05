@@ -378,10 +378,6 @@ class RequestSetSparkCache(Singleton):
             ).where(F.col('updated_at') >= update_date)
 
         # write back to parquet - different file/folder though
-        # because self.parquet_name is already in use
-        if self.file_manager.path_exists(self.next_persistent_cache_file):
-            self.file_manager.delete_path(self.next_persistent_cache_file)
-
         self.__persistent_cache.write.mode(
             'overwrite'
         ).format(
@@ -393,6 +389,9 @@ class RequestSetSparkCache(Singleton):
         source_df = None
         del source_df
         self.empty_all()
+
+        if self.file_manager.path_exists(self.persistent_cache_file):
+            self.file_manager.delete_path(self.persistent_cache_file)
 
         self.alternate_persistent_cache_file()
 
