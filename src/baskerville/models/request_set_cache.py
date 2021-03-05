@@ -56,15 +56,15 @@ class RequestSetSparkCache(Singleton):
         self._changed = False
         self.file_manager = FileManager(path, self.session_getter())
 
-        self.file_name = os.path.join(
-            path, f'{self.__class__.__name__}.{self.format_}')
-        self.temp_file_name = os.path.join(
-            path, f'{self.__class__.__name__}temp.{self.format_}')
+        self.file_names = [
+            os.path.join(path, f'{self.__class__.__name__}_A.{self.format_}'),
+            os.path.join(path, f'{self.__class__.__name__}_B.{self.format_}')
+        ]
+        self.file_name_index = 0
 
-        if self.file_manager.path_exists(self.file_name):
-            self.file_manager.delete_path(self.file_name)
-        if self.file_manager.path_exists(self.temp_file_name):
-            self.file_manager.delete_path(self.temp_file_name)
+        for f in self.file_names:
+            if self.file_manager.path_exists(f):
+                self.file_manager.delete_path(f)
 
     @property
     def cache(self):
@@ -76,7 +76,20 @@ class RequestSetSparkCache(Singleton):
 
     @property
     def persistent_cache_file(self):
-        return self.file_name
+        return self.file_names[self.file_name_index]
+
+    @property
+    def next_persistent_cache_file(self):
+        if self.file_name_index == 0:
+            return self.file_names[1]
+        else:
+            return self.file_names[0]
+
+    def alternate_persistent_cache_file(self):
+        if self.file_name_index == 0:
+            self.file_name_index = 1
+        else:
+            self.file_name_index = 0
 
     def _get_load_q(self):
         return f'''(SELECT *
@@ -311,13 +324,13 @@ class RequestSetSparkCache(Singleton):
         source_df = source_df.select(columns)
 
         # read the whole thing again
-        if self.file_manager.path_exists(self.file_name):
+        if self.file_manager.path_exists(self.persistent_cache_file):
             if self.__persistent_cache:
                 self.__persistent_cache.unpersist()
             self.__persistent_cache = self.session_getter().read.format(
                 self.format_
             ).load(
-                self.file_name
+                self.persistent_cache_file
             )# .persist(self.storage_level)
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
@@ -366,15 +379,14 @@ class RequestSetSparkCache(Singleton):
 
         # write back to parquet - different file/folder though
         # because self.parquet_name is already in use
-        # rename temp to self.parquet_name
-        if self.file_manager.path_exists(self.temp_file_name):
-            self.file_manager.delete_path(self.temp_file_name)
+        if self.file_manager.path_exists(self.next_persistent_cache_file):
+            self.file_manager.delete_path(self.next_persistent_cache_file)
 
         self.__persistent_cache.write.mode(
             'overwrite'
         ).format(
             self.format_
-        ).save(self.temp_file_name)
+        ).save(self.next_persistent_cache_file)
 
         # we don't need anything in memory anymore
         source_df.unpersist(blocking=True)
@@ -382,11 +394,7 @@ class RequestSetSparkCache(Singleton):
         del source_df
         self.empty_all()
 
-        # rename temp to self.parquet_name
-        if self.file_manager.path_exists(self.file_name):
-            self.file_manager.delete_path(self.file_name)
-
-        self.file_manager.rename_path(self.temp_file_name, self.file_name)
+        self.alternate_persistent_cache_file()
 
     def refresh(self, update_date, hosts, extra_filters=None):
         df = self._load(

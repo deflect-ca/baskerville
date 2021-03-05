@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: preprocessing
+  namespace: default
+spec:
+  arguments: {}
+  entrypoint: spark-submit
+  templates:
+    - name: spark-submit
+      arguments: {}
+      container:
+        args:
+        - /opt/spark/bin/spark-submit
+        - --master
+        - k8s://https://kubernetes.default.svc
+        - --deploy-mode
+        - cluster
+        - --conf
+        - spark.kubernetes.namespace=default
+        - --conf
+        - spark.kubernetes.container.image=sparkimage
+        - --conf
+        - spark.executor.instances=3
+        - --name
+        - preprocessing
+        - --conf
+        - spark.kubernetes.pyspark.pythonVersion=3
+        - --jars
+        - local:///usr/local/baskerville/data/jars/hadoop-aws-2.7.1.jar,local:///usr/local/baskerville/data/jars/aws-java-sdk-1.7.4.jar,local:///usr/local/baskerville/data/jars/spark-iforest-2.4.0.99.jar,local:///usr/local/baskerville/data/jars/postgresql-42.2.4.jar,local:///usr/local/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,local:///usr/local/baskerville/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar
+        - --conf
+        - spark.kubernetes.container.image=mazhurin/baskerville:worker_dev
+        - /usr/local/baskerville/src/baskerville/main.py
+        - preprocessing
+        - -c
+        - /usr/local/baskerville/conf/preprocessing.yaml
+
+#        - --class
+#        - org.apache.spark.examples.SparkPi
+#        - local:///opt/spark/examples/examples/jars/spark-examples_2.12-2.4.2.jar
+        command:
+        - sh
+        image: mazhurin/baskerville:worker_dev
+        imagePullPolicy: Always
+        name: ""
+        resources: {}
+  inputs: {}
+  metadata: {}
+  outputs: {}

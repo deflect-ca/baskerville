@@ -138,8 +138,7 @@ def main():
             raise RuntimeError('Cannot start exporter without metrics config')
         port = baskerville_engine.config.engine.metrics.port
         start_http_server(port)
-        logger.info(f'Starting Baskerville Exporter at '
-                    f'http://localhost:{port}')
+        logger.info(f'Starting Baskerville Exporter at http://localhost:{port}')
 
     for p in PROCESS_LIST[::-1]:
         print(f"{p.name} starting...")

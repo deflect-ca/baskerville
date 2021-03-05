@@ -171,10 +171,22 @@ def get_or_create_spark_session(spark_conf):
     # https://issues.apache.org/jira/browse/SPARK-25998
     conf.set('spark.sql.autoBroadcastJoinThreshold', -1)  # disable
 
+    conf.set('spark.kubernetes.memoryOverheadFactor', '0.5')
+
     spark = SparkSession.builder \
         .config(conf=conf) \
         .appName(spark_conf.app_name) \
         .getOrCreate()
+
+    if spark_conf.s3_endpoint:
+        hadoop_config = spark._jsc.hadoopConfiguration()
+        hadoop_config.set('fs.s3n.impl', 'org.apache.hadoop.fs.s3native.NativeS3FileSystem')
+        hadoop_config.set('fs.s3a.impl', 'org.apache.hadoop.fs.s3a.S3AFileSystem')
+        hadoop_config.set('fs.s3a.aws.credentials.provider', 'org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider')
+        hadoop_config.set('com.amazonaws.services.s3.enableV4', 'true')
+        hadoop_config.set('fs.s3a.endpoint', spark_conf.s3_endpoint)
+        hadoop_config.set('fs.s3a.access.key', spark_conf.s3_access_key)
+        hadoop_config.set('fs.s3a.secret.key', spark_conf.s3_secret_key)
 
     if spark_conf.log_level:
         spark.sparkContext.setLogLevel(spark_conf.log_level)
