@@ -390,8 +390,8 @@ class RequestSetSparkCache(Singleton):
         del source_df
         self.empty_all()
 
-        if self.file_manager.path_exists(self.persistent_cache_file):
-            self.file_manager.delete_path(self.persistent_cache_file)
+        # if self.file_manager.path_exists(self.persistent_cache_file):
+        #     self.file_manager.delete_path(self.persistent_cache_file)
 
         self.alternate_persistent_cache_file()
 
