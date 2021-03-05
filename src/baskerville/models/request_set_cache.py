@@ -283,17 +283,25 @@ class RequestSetSparkCache(Singleton):
                 else:
                     self.load_empty(self.schema)
         else:
-            # memory only, no saving to parquet
-            if self.__persistent_cache:
-                self.__cache = self.__persistent_cache.join(
+            if self.storage_df:
+                self.__cache = self.storage_df.join(
                     df,
                     on=columns,
                     how='inner'
                 ).drop(
                     'a.ip'
-                )  # .persist(self.storage_level)
+                ) #.persist(self.storage_level)
             else:
-                self.load_empty(self.schema)
+                if self.__cache:
+                    self.__cache = self.__cache.join(
+                        df,
+                        on=columns,
+                        how='inner'
+                    ).drop(
+                        'a.ip'
+                    )# .persist(self.storage_level)
+                else:
+                    self.load_empty(self.schema)
 
         # if self.__persistent_cache:
         #     self.__cache = self.__persistent_cache.join(
