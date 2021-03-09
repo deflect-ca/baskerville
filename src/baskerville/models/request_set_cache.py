@@ -361,6 +361,8 @@ class RequestSetSparkCache(Singleton):
                 )# .persist(self.storage_level)
         else:
             if self.storage_df:
+                if self.__persistent_cache:
+                    self.__persistent_cache.unpersist()
                 self.__persistent_cache = self.storage_df
 
         # http://www.learnbymarketing.com/1100/pyspark-joins-by-example/
@@ -415,7 +417,9 @@ class RequestSetSparkCache(Singleton):
                 self.format_
             ).save(self.next_persistent_cache_file)
         else:
-            self.storage_df = self.__persistent_cache
+            spark = self.session_getter()
+            self.storage_df = spark.createDataFrame(
+                self.__persistent_cache.collect(), self.__persistent_cache.schema)
             self.logger.info(f'Cache size = {self.storage_df.rdd.count()}')
 
         # we don't need anything in memory anymore
