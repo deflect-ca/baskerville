@@ -420,7 +420,6 @@ class RequestSetSparkCache(Singleton):
             spark = self.session_getter()
             self.storage_df = spark.createDataFrame(
                 self.__persistent_cache.collect(), self.__persistent_cache.schema)
-            self.logger.info(f'Cache size = {self.storage_df.rdd.count()}')
 
         # we don't need anything in memory anymore
         source_df.unpersist(blocking=True)
