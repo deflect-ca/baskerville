@@ -22,7 +22,7 @@ def set_up_isac_rawlog_pipeline(config: BaskervilleConfig):
                 AttackDetection(config),
                 Challenge(config),
                 Save(config),
-                RefreshCache(config),
+                # RefreshCache(config),
             ]),
     ]
 
