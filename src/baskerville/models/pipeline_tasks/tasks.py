@@ -271,11 +271,10 @@ class GetDataLog(Task):
             step.initialize()
 
     def create_runtime(self):
-        self.runtime = self.tools.create_runtime(
-            file_name=self.current_log_path,
-            conf=self.config.engine,
-            comment=f'batch runtime {self.batch_i} of {self.batch_n}',
-        )
+        self.service_provider.create_runtime()
+        self.runtime.file_name = self.current_log_path
+        self.runtime.comment=f'batch runtime {self.batch_i} of {self.batch_n}'
+        self.db_tools.session.commit()
         self.logger.info('Created runtime {}'.format(self.runtime.id))
 
     def get_data(self):
