@@ -90,7 +90,7 @@ def model_transfer(
             model_out.analysis_notebook = model.analysis_notebook
             model_out.notes = model.notes
             model_out.threshold = model.threshold
-            model_out.request_sets = None
+            model_out.request_sets = []
             model_out.created_at = model.created_at
             out_session.add(model_out)
             out_session.commit()
