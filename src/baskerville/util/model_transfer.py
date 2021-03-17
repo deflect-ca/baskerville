@@ -75,20 +75,23 @@ def model_transfer(
         for model in models_in:
             print(f'Getting model with id: {model.id}')
             model_out = Model()
-            model_out.scaler = model.scaler
-            model_out.classifier = model.classifier
             model_out.features = model.features
             model_out.algorithm = model.algorithm
-            model_out.analysis_notebook = model.analysis_notebook
-            model_out.created_at = model.created_at
+            model_out.scaler_type = model.scaler_type
+            model_out.parameters = model.parameters
+            model_out.recall = model.recall
+            model_out.precision = model.precision
             model_out.f1_score = model.f1_score
+            model_out.classifier = model.classifier
+            model_out.scaler = model.scaler
+            model_out.host_encoder = model.host_encoder
             model_out.n_training = model.n_training
             model_out.n_testing = model.n_testing
+            model_out.analysis_notebook = model.analysis_notebook
             model_out.notes = model.notes
-            model_out.parameters = model.parameters
-            model_out.precision = model.precision
-            model_out.recall = model.recall
-            model_out.request_sets = model.request_sets
+            model_out.threshold = model.threshold
+            model_out.request_sets = []
+            model_out.created_at = model.created_at
             out_session.add(model_out)
             out_session.commit()
     except Exception:

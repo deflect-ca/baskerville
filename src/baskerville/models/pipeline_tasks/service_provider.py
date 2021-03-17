@@ -78,9 +78,23 @@ class ServiceProvider(Borg):
             self.load_model_from_db()
 
     def create_runtime(self):
+        from baskerville.db.dashboard_models import User, Organization
+        org = self.tools.session.query(Organization).filter_by(
+            uuid=self.config.user_details.organization_uuid
+        ).first()
+        if not org:
+            raise ValueError(f'No such organization.')
+
+        user = self.tools.session.query(User).filter_by(
+            username=self.config.user_details.username).filter_by(
+            id_organization=org.id
+        ).first()
+        if not user:
+            raise ValueError(f'No such user.')
         self.runtime = self.tools.create_runtime(
             start=self.start_time,
-            conf=self.config.engine
+            conf=self.config.engine,
+            id_user=user.id
         )
         self.logger.info(f'Created runtime {self.runtime.id}')
 
@@ -106,7 +120,8 @@ class ServiceProvider(Borg):
                 expire_if_longer_than=self.config.engine.cache_expire_time,
                 path=os.path.join(self.config.engine.storage_path,
                                   FOLDER_CACHE),
-                logger=self.logger
+                logger=self.logger,
+                use_storage=self.config.engine.use_storage_for_request_cache
             )
             if self.config.engine.cache_load_past:
                 self.request_set_cache = self.request_set_cache.load(

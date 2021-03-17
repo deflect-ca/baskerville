@@ -63,6 +63,22 @@ class PipelineFactory(object):
             from baskerville.models.pipeline_tasks.training_pipeline \
                 import set_up_training_pipeline
             return set_up_training_pipeline(config)
+        # elif run_type == RunType.dashboard_preprocessing:
+        #     from baskerville.models.pipeline_tasks.dashboard_pipeline import \
+        #         set_up_dashboard_preprocessing_pipeline
+        #     return set_up_dashboard_preprocessing_pipeline(config)
+        # elif run_type == RunType.dashboard:
+        #     from baskerville.models.pipeline_tasks.dashboard_pipeline import \
+        #         set_up_dashboard_pipeline
+        #     return set_up_dashboard_pipeline(config)
+        elif run_type == RunType.client_rawlog:
+            from baskerville.models.pipeline_tasks.client_pipeline import \
+                set_up_client_rawlog_pipeline
+            return set_up_client_rawlog_pipeline(config)
+        elif run_type == RunType.feedback:
+            from baskerville.models.pipeline_tasks.feedback_pipeline import \
+                set_up_feedback_pipeline
+            return set_up_feedback_pipeline(config)
 
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'
