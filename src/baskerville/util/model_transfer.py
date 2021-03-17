@@ -88,7 +88,7 @@ def model_transfer(
             model_out.parameters = model.parameters
             model_out.precision = model.precision
             model_out.recall = model.recall
-            model_out.request_sets = model.request_sets
+            # model_out.request_sets = model.request_sets
             out_session.add(model_out)
             out_session.commit()
     except Exception:
