@@ -17,6 +17,7 @@ WORKDIR /usr/local
 RUN git clone --single-branch --branch categorical_features https://github.com/equalitie/spark-iforest.git
 WORKDIR /usr/local/spark-iforest/python
 RUN python3 setup.py sdist
+RUN pip3 install dist/pyspark-iforest-2.4.0.99.tar.gz
 WORKDIR /usr/local
 RUN git clone https://github.com/equalitie/esretriever.git
 

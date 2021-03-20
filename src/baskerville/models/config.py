@@ -809,9 +809,17 @@ class SparkConfig(Config):
     ssl_ui_enabled = False
     ssl_standalone_enabled = False
     ssl_history_server_enabled = False
-    s3_endpoint: None
-    s3_access_key: None
-    s3_secret_key: None
+    s3_endpoint = None
+    s3_access_key = None
+    s3_secret_key = None
+    spark_kubernetes_driver_request_cores = None
+    spark_kubernetes_driver_limit_cores = None
+    spark_kubernetes_executor_request_cores = None
+    spark_kubernetes_executor_limit_cores = None
+    spark_kubernetes_driver_memory = None
+    spark_kubernetes_driver_memoryOverhead = None
+    spark_kubernetes_executor_memory = None
+    spark_kubernetes_executor_memoryOverhead = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
