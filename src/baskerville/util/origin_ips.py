@@ -55,7 +55,6 @@ class OriginIPs(object):
                         self.ips.append(ip.split('/')[0])
 
             self.ips = list(set(self.ips))
-            self.logger.info(f'Origin ips whitelisted: {self.ips}')
 
     def get(self):
         if not self.url:
