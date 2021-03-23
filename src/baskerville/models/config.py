@@ -794,6 +794,7 @@ class SparkConfig(Config):
     driver_extra_class_path = None
     spark_executor_instances = None
     spark_executor_cores = None
+    spark_driver_cores = None
     spark_executor_memory = None
     spark_python_profile = False
     storage_level = None
