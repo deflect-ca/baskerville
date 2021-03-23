@@ -30,7 +30,7 @@ from baskerville.models.ip_cache import IPCache
 from baskerville.models.metrics.registry import metrics_registry
 from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
     CacheTask
-from baskerville.models.config import BaskervilleConfig
+from baskerville.models.config import BaskervilleConfig, TrainingConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
     send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col
@@ -198,6 +198,42 @@ class GetPredictions(GetDataKafka):
         #     'features',
         #     F.from_json('features', json_schema)
         # )
+
+
+class ReTrain(GetDataKafka):
+    def __init__(self, config, steps: list = ()):
+        super(ReTrain, self).__init__(config, steps)
+        self.producer = KafkaProducer(
+            bootstrap_servers=self.config.kafka.bootstrap_servers
+        )
+
+    def run(self):
+        current_reply_topic = ''
+        try:
+            # get config
+            org_uuid, training_config = self.df.collect()
+            current_reply_topic = f'{org_uuid}.{self.config.kafka.data_topic}'
+            # todo: validate org_uuid
+            training_config = TrainingConfig(
+                json.loads(training_config)
+            ).validate()
+            if not training_config.errors:
+                # set the training config on all steps:
+                self.config.engine.training = training_config
+                self.set_on_all_steps('config', self.config)
+                self.producer.send(
+                    current_reply_topic,
+                    'Received configuration and will start training.'
+                )
+            self.df = super().run()
+        except Exception:
+            traceback.print_exc()
+            if current_reply_topic:
+                self.producer.send(
+                    current_reply_topic,
+                    'Failed to retrain, please, check the logs and try again'
+                )
+        return self.df
 
 
 class GetDataKafkaStreaming(Task):
@@ -848,10 +884,6 @@ class RefreshModel(MLTask):
     """
     Check for a new model and load a new model in ServiceProvider.
     """
-
-    def __init__(self, config: BaskervilleConfig, steps=()):
-        super().__init__(config, steps)
-
     def run(self):
         self.service_provider.refresh_model()
         return self.df

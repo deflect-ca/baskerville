@@ -1,0 +1,13 @@
+{
+   "name": "RetrainSchema",
+   "properties": {
+     "uuid_organization": {
+       "type": "string"
+     },
+     "training_config": {
+       "type": "string"
+     }
+   },
+  "required": ["uuid_organization", "training_config"],
+   "additionalProperties": false
+}
