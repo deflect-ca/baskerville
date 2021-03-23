@@ -53,6 +53,8 @@ class OriginIPs(object):
                 for k, v in data.items():
                     for ip in v:
                         self.ips.append(ip.split('/')[0])
+
+            self.ips = list(set(self.ips))
             self.logger.info(f'Origin ips whitelisted: {self.ips}')
 
     def get(self):
