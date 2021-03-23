@@ -48,7 +48,7 @@ class OriginIPs(object):
                 self.ips = list(data.values())
 
             self.logger.info('Refreshing origin IPs 2 ...')
-            data = self.read_json_from_url(self.url)
+            data = self.read_json_from_url(self.url2)
             if data:
                 for k, v in data.items():
                     for ip in v:
