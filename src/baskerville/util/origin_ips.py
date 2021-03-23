@@ -51,7 +51,9 @@ class OriginIPs(object):
             data = self.read_json_from_url(self.url)
             if data:
                 for k, v in data.items():
-                    self.ips += v
+                    for ip in v:
+                        self.ips.append(ip.split('/')[0])
+            self.logger.info(f'Origin ips whitelisted: {self.ips}')
 
     def get(self):
         if not self.url:
