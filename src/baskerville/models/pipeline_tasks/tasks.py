@@ -42,7 +42,8 @@ from dateutil.tz import tzutc
 
 # broadcasts
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import instantiate_from_str, get_model_path
+from baskerville.util.helpers import instantiate_from_str, get_model_path, \
+    parse_config
 from baskerville.util.origin_ips import OriginIPs
 
 TOPIC_BC = None
@@ -211,11 +212,11 @@ class ReTrain(GetDataKafka):
         current_reply_topic = ''
         try:
             # get config
-            org_uuid, training_config = self.df.collect()
+            timestamp, org_uuid, training_config = self.df.collect()[0]
             current_reply_topic = f'{org_uuid}.{self.config.kafka.data_topic}'
             # todo: validate org_uuid
             training_config = TrainingConfig(
-                json.loads(training_config)
+                parse_config(data=training_config)
             ).validate()
             if not training_config.errors:
                 # set the training config on all steps:
@@ -223,15 +224,20 @@ class ReTrain(GetDataKafka):
                 self.set_on_all_steps('config', self.config)
                 self.producer.send(
                     current_reply_topic,
-                    'Received configuration and will start training.'
+                    bytes('Received configuration and will start training.'.encode('utf-8'))
                 )
             self.df = super().run()
+            self.producer.send(
+                current_reply_topic,
+                bytes('Finished training.'.encode(
+                    'utf-8'))
+            )
         except Exception:
             traceback.print_exc()
             if current_reply_topic:
                 self.producer.send(
                     current_reply_topic,
-                    'Failed to retrain, please, check the logs and try again'
+                    bytes('Failed to retrain, please, check the logs and try again'.encode('utf-8'))
                 )
         return self.df
 
@@ -435,6 +441,10 @@ class GetDataPostgres(Task):
             f'Fetching {bounds.rows} rows. '
             f'min: {bounds.min_id} max: {bounds.max_id}'
         )
+        if bounds.rows == 0:
+            self.logger.info('No data for this period')
+            raise ValueError('No data for this period, check configuration.')
+
         q = f'(select id, {",".join(self.columns_to_keep)} ' \
             f'from request_sets where id >= {bounds.min_id}  ' \
             f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
