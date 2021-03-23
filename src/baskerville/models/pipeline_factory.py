@@ -79,6 +79,10 @@ class PipelineFactory(object):
             from baskerville.models.pipeline_tasks.feedback_pipeline import \
                 set_up_feedback_pipeline
             return set_up_feedback_pipeline(config)
+        elif run_type == RunType.retrain:
+            from baskerville.models.pipeline_tasks.retrain_pipeline import \
+                set_up_retraining_pipeline
+            return set_up_retraining_pipeline(config)
 
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'

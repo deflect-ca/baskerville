@@ -22,5 +22,5 @@ def set_up_retraining_pipeline(config: BaskervilleConfig):
     ]
 
     training_pipeline = Task(config, training_tasks)
-    training_pipeline.name = 'Training Pipeline'
+    training_pipeline.name = 'Re-training Pipeline'
     return training_pipeline

@@ -455,7 +455,7 @@ class GetDataPostgres(Task):
             table=q,
             numPartitions=int(self.spark.conf.get(
                 'spark.sql.shuffle.partitions'
-            )) or os.cpu_count() * 2,
+            ), os.cpu_count() * 2),
             column='id',
             lowerBound=bounds.min_id,
             upperBound=bounds.max_id + 1,

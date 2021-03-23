@@ -53,6 +53,7 @@ class RunType(BaseStrEnum):
     dashboard = 'dashboard'
     client_rawlog = 'client_rawlog'
     feedback = 'feedback'
+    retrain = 'retrain'
 
 
 class Step(BaseStrEnum):
