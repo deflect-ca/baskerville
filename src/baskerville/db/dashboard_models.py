@@ -180,3 +180,37 @@ class SubmittedFeedback(Base, SerializableMixin):
         'submitted_at',
         'updated_at'
     ]
+
+
+class Notification(Base, SerializableMixin):
+    __tablename__ = 'notifications'
+    id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
+    id_user = Column(BigInteger(), ForeignKey('users.id'), nullable=True)
+    uuid_organization = Column(String(300), nullable=False)
+    message = Column(TEXT(), nullable=False)
+    severity = Column(String(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    user = relationship(
+        'User',
+        foreign_keys=id_user
+    )
+    organization = relationship(
+        'Organization',
+        primaryjoin='foreign(Notification.uuid_organization) == remote(Organization.uuid)'
+    )
+
+class PendingWork(Base, SerializableMixin):
+    __tablename__ = 'pending_work'
+    id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
+    id_user = Column(BigInteger(), ForeignKey('users.id'), nullable=False)
+    uuid = Column(String(), nullable=False)
+    description = Column(TEXT(), nullable=False)
+    logs = Column(TEXT(), nullable=True)
+    success = Column(Boolean(), nullable=False, default=False)
+    pending = Column(Boolean(), nullable=False, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=utcnow())
+    updated_at = Column(DateTime(timezone=True), server_default=utcnow())
+    user = relationship(
+        'User',
+        foreign_keys=id_user
+    )

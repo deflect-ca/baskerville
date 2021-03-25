@@ -6,6 +6,9 @@
        "format": "date",
        "pattern": "(\\d\\d\\d\\d-([0-2])?\\d-([0-3])?\\dT?([0-2])?\\d:([0-5])?\\d:([0-5])?\\d\\.\\d?\\d?\\d?Z?)"
      },
+     "uuid": {
+       "type": "string"
+     },
      "uuid_organization": {
        "type": "string"
      },
@@ -13,6 +16,6 @@
        "type": "string"
      }
    },
-  "required": ["timestamp", "uuid_organization", "training_config"],
+  "required": ["timestamp", "uuid", "uuid_organization", "training_config"],
    "additionalProperties": false
 }

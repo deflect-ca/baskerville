@@ -204,40 +204,80 @@ class GetPredictions(GetDataKafka):
 class ReTrain(GetDataKafka):
     def __init__(self, config, steps: list = ()):
         super(ReTrain, self).__init__(config, steps)
+        self.in_progress = False
         self.producer = KafkaProducer(
             bootstrap_servers=self.config.kafka.bootstrap_servers
         )
 
     def run(self):
         current_reply_topic = ''
+        uuid = ''
+        org_uuid = ''
         try:
             # get config
-            timestamp, org_uuid, training_config = self.df.collect()[0]
+            timestamp, uuid, org_uuid, training_config = self.df.collect()[0]
             current_reply_topic = f'{org_uuid}.{self.config.kafka.data_topic}'
-            # todo: validate org_uuid
-            training_config = TrainingConfig(
-                parse_config(data=training_config)
-            ).validate()
-            if not training_config.errors:
-                # set the training config on all steps:
-                self.config.engine.training = training_config
-                self.set_on_all_steps('config', self.config)
+            if not self.in_progress:
+                self.in_progress = True
+                # todo: validate org_uuid
+                training_config = TrainingConfig(
+                    parse_config(data=training_config)
+                ).validate()
+                if not training_config.errors:
+                    reply = {
+                        'uuid': uuid,
+                        'uuid_organization': org_uuid,
+                        'message': 'Received configuration and will start training.',
+                        'success': True,
+                        'pending': True
+                    }
+                    # set the training config on all steps:
+                    self.config.engine.training = training_config
+                    self.set_on_all_steps('config', self.config)
+                    self.producer.send(
+                        current_reply_topic,
+                        bytes(json.dumps(reply).encode('utf-8'))
+                    )
+                self.df = super().run()
+                finished_reply = {
+                    'uuid': uuid,
+                    'uuid_organization': org_uuid,
+                    'message': 'Finished training.',
+                    'success': True,
+                    'pending': False
+                }
                 self.producer.send(
                     current_reply_topic,
-                    bytes('Received configuration and will start training.'.encode('utf-8'))
+                    bytes(json.dumps(finished_reply).encode('utf-8'))
                 )
-            self.df = super().run()
-            self.producer.send(
-                current_reply_topic,
-                bytes('Finished training.'.encode(
-                    'utf-8'))
-            )
+            else:
+                abort = {
+                    'uuid': uuid,
+                    'uuid_organization': org_uuid,
+                    'message': 'Cannot start another training job.',
+                    'success': False,
+                    'pending': False
+                }
+                self.producer.send(
+                    current_reply_topic,
+                    bytes(json.dumps(abort).encode('utf-8'))
+                )
         except Exception:
+            self.in_progress = False
+            error_reply = {
+                'uuid': uuid,
+                'uuid_organization': org_uuid,
+                'message': 'Failed to retrain, please, '
+                           'check the logs and try again',
+                'success': False,
+                'pending': False
+            }
             traceback.print_exc()
+            print(error_reply)
             if current_reply_topic:
                 self.producer.send(
                     current_reply_topic,
-                    bytes('Failed to retrain, please, check the logs and try again'.encode('utf-8'))
+                    bytes(json.dumps(error_reply).encode('utf-8'))
                 )
         return self.df
 
