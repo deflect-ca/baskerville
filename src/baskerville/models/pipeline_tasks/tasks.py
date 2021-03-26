@@ -973,10 +973,12 @@ class CacheSensitiveData(Task):
         )
 
         if self.config.engine.use_kafka_for_sensitive_data:
+            self.logger.info('Sending sensitive data from kafka...')
             send_to_kafka(df=df_sensitive,
                           columns=df_sensitive.columns,
                           bootstrap_servers=self.config.kafka.bootstrap_servers,
                           topic=self.config.engine.kafka_topic_sensitive)
+            self.logger.info('Done.')
         else:
             df_sensitive.write.format(
                 'org.apache.spark.sql.redis'
@@ -1026,11 +1028,13 @@ class MergeWithSensitiveData(Task):
 
     def run(self):
         if self.config.engine.use_kafka_for_sensitive_data:
+            self.logger.info('Reading sensitive data from kafka...')
             self.df_sensitive = read_from_kafka_from_the_beginning(
                 bootstrap_servers=self.config.kafka.bootstrap_servers,
                 topic=self.config.engine.kafka_topic_sensitive,
                 schema=self.get_sensitive_schema()
             ).alias('df_sensitive')
+            self.logger.info('Done.')
         else:
             self.df_sensitive = self.spark.read.format(
                 'org.apache.spark.sql.redis'
