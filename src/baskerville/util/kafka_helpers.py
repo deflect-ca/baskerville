@@ -27,9 +27,7 @@ def read_from_kafka_from_the_beginning(bootstrap_servers, topic, schema, spark):
     )
     data = []
     for message in consumer:
-        print(message)
         data.append([message.value.decode("utf-8")])
-        break
     df = spark.createDataFrame(data, ['data'])
     df = df.rdd.map(lambda l: json.loads(l[0])).toDF(schema)
     return df
