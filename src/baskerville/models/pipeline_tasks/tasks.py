@@ -1022,9 +1022,9 @@ class MergeWithSensitiveData(Task):
             T.StructField('subset_count', T.IntegerType(), True),
             T.StructField('dt', T.FloatType(), True),
             T.StructField('features', T.StringType(), True),
-            T.StructField('total_seconds', T.IntegerType(), True),
-            T.StructField('id_client', T.IntegerType(), True),
-            T.StructField('id_request_sets', T.IntegerType(), True)
+            T.StructField('total_seconds', T.FloatType(), True),
+            T.StructField('id_client', T.StringType(), True),
+            T.StructField('id_request_sets', T.StringType(), True)
         ])
 
     def run(self):
