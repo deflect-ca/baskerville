@@ -970,10 +970,12 @@ class CacheSensitiveData(Task):
             'start', F.date_format(F.col('start'), 'yyyy-MM-dd HH:mm:ss')
         ).withColumn(
             'stop', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
+        ).withColumn(
+            'first_ever_request', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
         )
 
         if self.config.engine.use_kafka_for_sensitive_data:
-            self.logger.info('Sending sensitive data from kafka...')
+            self.logger.info('Sending sensitive data to kafka...')
             send_to_kafka(df=df_sensitive,
                           columns=df_sensitive.columns,
                           bootstrap_servers=self.config.kafka.bootstrap_servers,
@@ -1025,14 +1027,14 @@ class MergeWithSensitiveData(Task):
             T.StructField('id_request_sets', T.IntegerType(), True)
         ])
 
-
     def run(self):
         if self.config.engine.use_kafka_for_sensitive_data:
             self.logger.info('Reading sensitive data from kafka...')
             self.df_sensitive = read_from_kafka_from_the_beginning(
                 bootstrap_servers=self.config.kafka.bootstrap_servers,
                 topic=self.config.engine.kafka_topic_sensitive,
-                schema=self.get_sensitive_schema()
+                schema=self.get_sensitive_schema(),
+                spark=self.spark
             ).alias('df_sensitive')
             self.logger.info('Done.')
         else:
@@ -1046,7 +1048,8 @@ class MergeWithSensitiveData(Task):
 
         count = self.df.count()
         self.df_sensitive = self.df_sensitive.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss")) \
-            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
+            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss")) \
+            .withColumn('first_ever_request', F.to_timestamp(F.col('first_ever_request'), "yyyy-MM-dd HH:mm:ss"))
 
         self.df = self.df.alias('df')
         self.df = self.df_sensitive.join(
