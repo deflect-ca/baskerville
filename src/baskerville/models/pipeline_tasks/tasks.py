@@ -1052,8 +1052,8 @@ class MergeWithSensitiveData(Task):
             .withColumn('first_ever_request', F.to_timestamp(F.col('first_ever_request'), "yyyy-MM-dd HH:mm:ss"))
 
         self.df = self.df.alias('df')
-        self.df = self.df_sensitive.join(
-            self.df, on=['id_client', 'id_request_sets']
+        self.df = self.df.join(
+            self.df_sensitive, on=['id_client', 'id_request_sets'], how='inner'
         ).drop('df.id_client', 'df.id_request_sets')
 
         if self.df and self.df.head(1):
