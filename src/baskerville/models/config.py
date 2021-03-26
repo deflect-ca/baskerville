@@ -288,6 +288,9 @@ class EngineConfig(Config):
     kafka_send_by_partition = True
     use_storage_for_request_cache = False
 
+    use_kafka_for_sensitive_data = False
+    kafka_topic_sensitive = 'sensitive'
+
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
         if self.es_log:
