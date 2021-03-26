@@ -1053,7 +1053,7 @@ class MergeWithSensitiveData(Task):
 
         self.df = self.df.alias('df')
         self.df = self.df.join(
-            self.df_sensitive, on=['id_client', 'id_request_sets'], how='inner'
+            self.df_sensitive, on=['id_client', 'id_request_sets'], how='left'
         ).drop('df.id_client', 'df.id_request_sets')
 
         if self.df and self.df.head(1):
