@@ -283,9 +283,13 @@ class EngineConfig(Config):
     register_banjax_metrics = False
     origin_ips_refresh_period_in_seconds = 300
     url_origin_ips = ''
+    url_origin_ips2 = ''
     new_model_check_in_seconds = 300
     kafka_send_by_partition = True
     use_storage_for_request_cache = False
+
+    use_kafka_for_sensitive_data = False
+    kafka_topic_sensitive = 'sensitive'
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
@@ -793,6 +797,7 @@ class SparkConfig(Config):
     driver_extra_class_path = None
     spark_executor_instances = None
     spark_executor_cores = None
+    spark_driver_cores = None
     spark_executor_memory = None
     spark_python_profile = False
     storage_level = None

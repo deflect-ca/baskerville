@@ -38,8 +38,8 @@ from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
 # broadcasts
-from baskerville.util.enums import LabelEnum
 from baskerville.util.helpers import instantiate_from_str, get_model_path
+from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
 from baskerville.util.origin_ips import OriginIPs
 
 TOPIC_BC = None
@@ -964,26 +964,36 @@ class CacheSensitiveData(Task):
 
     def run(self):
         self.df = self.df.drop('vectorized_features')
-        redis_df = self.df.withColumn("features", F.to_json("features"))
+        df_sensitive = self.df.withColumn("features", F.to_json("features"))
 
-        redis_df = redis_df.withColumn(
+        df_sensitive = df_sensitive.withColumn(
             'start', F.date_format(F.col('start'), 'yyyy-MM-dd HH:mm:ss')
         ).withColumn(
             'stop', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
+        ).withColumn(
+            'first_ever_request', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
         )
 
-        redis_df.write.format(
-            'org.apache.spark.sql.redis'
-        ).mode(
-            'append'
-        ).option(
-            'table', self.table_name
-        ).option(
-            'ttl', self.ttl
-        ).option(
-            'key.column', 'id_request_sets'
-        ).save()
-        self.df = super().run()
+        if self.config.engine.use_kafka_for_sensitive_data:
+            self.logger.info('Sending sensitive data to kafka...')
+            send_to_kafka(df=df_sensitive,
+                          columns=df_sensitive.columns,
+                          bootstrap_servers=self.config.kafka.bootstrap_servers,
+                          topic=self.config.engine.kafka_topic_sensitive)
+            self.logger.info('Done.')
+        else:
+            df_sensitive.write.format(
+                'org.apache.spark.sql.redis'
+            ).mode(
+                'append'
+            ).option(
+                'table', self.table_name
+            ).option(
+                'ttl', self.ttl
+            ).option(
+                'key.column', 'id_request_sets'
+            ).save()
+            self.df = super().run()
         return self.df
 
 
@@ -995,25 +1005,55 @@ class MergeWithSensitiveData(Task):
             table_name=RequestSet.__tablename__,
     ):
         super().__init__(config, steps)
-        self.redis_df = None
+        self.df_sensitive = None
         self.table_name = table_name
 
+    def get_sensitive_schema(self):
+        return T.StructType([
+            T.StructField("target", T.StringType(), True),
+            T.StructField('ip', T.StringType(), True),
+            T.StructField('num_requests', T.IntegerType(), True),
+            T.StructField('target_original', T.StringType(), True),
+            T.StructField('first_ever_request', T.StringType(), True),
+            T.StructField('id_runtime', T.IntegerType(), True),
+            T.StructField('time_bucket', T.IntegerType(), True),
+            T.StructField('start', T.StringType(), True),
+            T.StructField('stop', T.StringType(), True),
+            T.StructField('subset_count', T.IntegerType(), True),
+            T.StructField('dt', T.FloatType(), True),
+            T.StructField('features', T.StringType(), True),
+            T.StructField('total_seconds', T.FloatType(), True),
+            T.StructField('id_client', T.StringType(), True),
+            T.StructField('id_request_sets', T.StringType(), True)
+        ])
+
     def run(self):
-        self.redis_df = self.spark.read.format(
-            'org.apache.spark.sql.redis'
-        ).option(
-            'table', self.table_name
-        ).option(
-            'key.column', 'id_request_sets'
-        ).load().alias('redis_df')
+        if self.config.engine.use_kafka_for_sensitive_data:
+            self.logger.info('Reading sensitive data from kafka...')
+            self.df_sensitive = read_from_kafka_from_the_beginning(
+                bootstrap_servers=self.config.kafka.bootstrap_servers,
+                topic=self.config.engine.kafka_topic_sensitive,
+                schema=self.get_sensitive_schema(),
+                spark=self.spark
+            ).alias('df_sensitive')
+            self.logger.info('Done.')
+        else:
+            self.df_sensitive = self.spark.read.format(
+                'org.apache.spark.sql.redis'
+            ).option(
+                'table', self.table_name
+            ).option(
+                'key.column', 'id_request_sets'
+            ).load().alias('df_sensitive')
 
         count = self.df.count()
-        self.redis_df = self.redis_df.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss")) \
-            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
+        self.df_sensitive = self.df_sensitive.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss")) \
+            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss")) \
+            .withColumn('first_ever_request', F.to_timestamp(F.col('first_ever_request'), "yyyy-MM-dd HH:mm:ss"))
 
         self.df = self.df.alias('df')
-        self.df = self.redis_df.join(
-            self.df, on=['id_client', 'id_request_sets']
+        self.df = self.df.join(
+            self.df_sensitive, on=['id_client', 'id_request_sets'], how='left'
         ).drop('df.id_client', 'df.id_request_sets')
 
         if self.df and self.df.head(1):
@@ -1023,7 +1063,7 @@ class MergeWithSensitiveData(Task):
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-                self.logger.warning('No sensitive data in Redis. Probably postprocessing is underperforming.')
+                self.logger.warning('No sensitive data. Probably postprocessing is underperforming.')
                 self.logger.warning(f'Batch count = {count}. After merge count = {merge_count}')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
@@ -1069,17 +1109,11 @@ class SendToKafka(Task):
                 id_client=self.cc_to_client
             )
         else:
-            producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
-            records = self.df.collect()
-            for record in records:
-                message = json.dumps(
-                    {key: record[key] for key in self.columns}
-                ).encode('utf-8')
-                producer.send(self.topic, message)
-                if self.cc_to_client:
-                    id_client = record['id_client']
-                    producer.send(f'{self.topic}.{id_client}', message)
-            producer.flush()
+            send_to_kafka(df=self.df,
+                          columns=self.columns,
+                          bootstrap_servers=self.config.kafka.bootstrap_servers,
+                          topic=self.topic,
+                          cc_to_client=self.cc_to_client)
 
         # does no work, possible jar conflict
         # self.df = self.df.select(
@@ -1319,6 +1353,7 @@ class AttackDetection(Task):
             bootstrap_servers=self.config.kafka.bootstrap_servers)
         self.origin_ips = OriginIPs(
             url=config.engine.url_origin_ips,
+            url2=config.engine.url_origin_ips2,
             logger=self.logger,
             refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
         )
