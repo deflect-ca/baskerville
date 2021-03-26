@@ -106,7 +106,8 @@ class ServiceProvider(Borg):
                 expire_if_longer_than=self.config.engine.cache_expire_time,
                 path=os.path.join(self.config.engine.storage_path,
                                   FOLDER_CACHE),
-                logger=self.logger
+                logger=self.logger,
+                use_storage=self.config.engine.use_storage_for_request_cache
             )
             if self.config.engine.cache_load_past:
                 self.request_set_cache = self.request_set_cache.load(

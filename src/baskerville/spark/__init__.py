@@ -29,14 +29,6 @@ def get_or_create_spark_session(spark_conf):
         conf.set('spark.redis.port', spark_conf.redis_port)
         conf.set('spark.redis.auth', spark_conf.redis_password)
 
-    if spark_conf.spark_executor_instances:
-        conf.set('spark.executor.instances',
-                 spark_conf.spark_executor_instances)
-        # conf.set('spark.streaming.dynamicAllocation.minExecutors', spark_conf.spark_executor_instances)
-    if spark_conf.spark_executor_cores:
-        conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
-    if spark_conf.spark_executor_memory:
-        conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     # todo: https://stackoverflow.com/questions/
     #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
     # https://medium.com/@pmatpadi/spark-streaming-dynamic-scaling-and-backpressure-in-action-6ebdbc782a69
@@ -120,11 +112,13 @@ def get_or_create_spark_session(spark_conf):
     if not os.path.exists('/tmp/spark-events'):
         os.makedirs('/tmp/spark-events')
         conf.set('spark.eventLog.dir', '/tmp/spark-events')
+
+    if spark_conf.spark_driver_cores:
+        conf.set('spark.driver.cores', spark_conf.spark_driver_cores)
     if spark_conf.spark_executor_cores:
         conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_instances:
-        conf.set('spark.executor.instances',
-                 spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances', spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_memory:
         conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     if spark_conf.serializer:
@@ -175,6 +169,16 @@ def get_or_create_spark_session(spark_conf):
         .config(conf=conf) \
         .appName(spark_conf.app_name) \
         .getOrCreate()
+
+    if spark_conf.s3_endpoint:
+        hadoop_config = spark._jsc.hadoopConfiguration()
+        hadoop_config.set('fs.s3n.impl', 'org.apache.hadoop.fs.s3native.NativeS3FileSystem')
+        hadoop_config.set('fs.s3a.impl', 'org.apache.hadoop.fs.s3a.S3AFileSystem')
+        hadoop_config.set('fs.s3a.aws.credentials.provider', 'org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider')
+        hadoop_config.set('com.amazonaws.services.s3.enableV4', 'true')
+        hadoop_config.set('fs.s3a.endpoint', spark_conf.s3_endpoint)
+        hadoop_config.set('fs.s3a.access.key', spark_conf.s3_access_key)
+        hadoop_config.set('fs.s3a.secret.key', spark_conf.s3_secret_key)
 
     if spark_conf.log_level:
         spark.sparkContext.setLogLevel(spark_conf.log_level)

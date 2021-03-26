@@ -1319,6 +1319,7 @@ class AttackDetection(Task):
             bootstrap_servers=self.config.kafka.bootstrap_servers)
         self.origin_ips = OriginIPs(
             url=config.engine.url_origin_ips,
+            url2=config.engine.url_origin_ips2,
             logger=self.logger,
             refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
         )
