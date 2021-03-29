@@ -42,17 +42,19 @@ class OriginIPs(object):
         if not self.last_timestamp or int(time.time() - self.last_timestamp) > self.refresh_period_in_seconds:
             self.last_timestamp = time.time()
             self.ips = []
-            self.logger.info('Refreshing origin IPs...')
-            data = self.read_json_from_url(self.url)
-            if data:
-                self.ips = list(data.values())
+            if self.url:
+                self.logger.info('Refreshing origin IPs...')
+                data = self.read_json_from_url(self.url)
+                if data:
+                    self.ips = list(data.values())
 
-            self.logger.info('Refreshing origin IPs 2 ...')
-            data = self.read_json_from_url(self.url2)
-            if data:
-                for k, v in data.items():
-                    for ip in v:
-                        self.ips.append(ip.split('/')[0])
+            if self.url2:
+                self.logger.info('Refreshing origin IPs 2 ...')
+                data = self.read_json_from_url(self.url2)
+                if data:
+                    for k, v in data.items():
+                        for ip in v:
+                            self.ips.append(ip.split('/')[0])
 
             self.ips = list(set(self.ips))
 
