@@ -987,8 +987,7 @@ class CacheSensitiveData(Task):
                     ),
                     self.config.kafka.bootstrap_servers,
                     self.config.engine.kafka_topic_sensitive,
-                    'prediction_center',
-                    id_client=self.cc_to_client
+                    'prediction_center'
                 )
             else:
                 send_to_kafka(df=df_sensitive,
