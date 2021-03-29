@@ -976,10 +976,25 @@ class CacheSensitiveData(Task):
 
         if self.config.engine.use_kafka_for_sensitive_data:
             self.logger.info('Sending sensitive data to kafka...')
-            send_to_kafka(df=df_sensitive,
-                          columns=df_sensitive.columns,
-                          bootstrap_servers=self.config.kafka.bootstrap_servers,
-                          topic=self.config.engine.kafka_topic_sensitive)
+            if self.config.engine.kafka_send_by_partition:
+                send_to_kafka_by_partition_id(
+                    df_sensitive.select(
+                        F.struct(
+                            *list(
+                                F.col(c) for c in df_sensitive.columns
+                            )).alias('rows'),
+                        F.spark_partition_id().alias('pid')
+                    ),
+                    self.config.kafka.bootstrap_servers,
+                    self.config.engine.kafka_topic_sensitive,
+                    'prediction_center',
+                    id_client=self.cc_to_client
+                )
+            else:
+                send_to_kafka(df=df_sensitive,
+                              columns=df_sensitive.columns,
+                              bootstrap_servers=self.config.kafka.bootstrap_servers,
+                              topic=self.config.engine.kafka_topic_sensitive)
             self.logger.info('Done.')
         else:
             df_sensitive.write.format(

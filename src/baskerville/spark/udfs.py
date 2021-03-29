@@ -271,7 +271,7 @@ def send_to_kafka(
         )
         for row in rows:
             message = get_msg(row, cmd_name)
-            producer.send(topic, get_msg(row, cmd_name))
+            producer.send(topic, message)
             if id_client:
                 producer.send(f'{topic}.{id_client}', message)
         producer.flush()
