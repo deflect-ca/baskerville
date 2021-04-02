@@ -7,6 +7,8 @@
 
 from typing import T, Any, Mapping
 
+import pyspark
+
 from baskerville.spark import get_spark_session
 from baskerville.util.enums import LabelEnum
 from baskerville.util.helpers import TimeBucket, get_logger
@@ -142,6 +144,12 @@ def load_df_from_table(
     ).load()
     if where:
         df = df.where(where).select(*columns_to_keep)
+    return df
+
+
+def handle_missing_col(df: pyspark.sql.DataFrame, col: str, value=None):
+    if col not in df.columns:
+        df = df.withColumn(col, F.lit(value))
     return df
 
 

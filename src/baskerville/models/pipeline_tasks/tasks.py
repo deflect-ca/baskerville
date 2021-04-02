@@ -33,7 +33,8 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
 from baskerville.models.config import BaskervilleConfig, TrainingConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
-    send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col
+    send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col, \
+    handle_missing_col
 from baskerville.spark.schemas import features_schema, \
     prediction_schema, get_features_schema, get_data_schema, \
     get_feedback_context_schema
@@ -211,12 +212,12 @@ class ReTrain(GetDataKafka):
 
     def run(self):
         current_reply_topic = ''
-        uuid = ''
-        org_uuid = ''
+        id_data = {}
         try:
             # get config
-            timestamp, uuid, org_uuid, training_config = self.df.collect()[0]
+            timestamp, pw_uuid, org_uuid, training_config = self.df.collect()[0]
             current_reply_topic = f'{org_uuid}.{self.config.kafka.data_topic}'
+            id_data = dict(pw_uuid=pw_uuid, uuid_organization=org_uuid)
             if not self.in_progress:
                 self.in_progress = True
                 # todo: validate org_uuid
@@ -225,8 +226,7 @@ class ReTrain(GetDataKafka):
                 ).validate()
                 if not training_config.errors:
                     reply = {
-                        'uuid': uuid,
-                        'uuid_organization': org_uuid,
+                        **id_data,
                         'message': 'Received configuration and will start training.',
                         'success': True,
                         'pending': True
@@ -240,8 +240,7 @@ class ReTrain(GetDataKafka):
                     )
                 self.df = super().run()
                 finished_reply = {
-                    'uuid': uuid,
-                    'uuid_organization': org_uuid,
+                    **id_data,
                     'message': 'Finished training.',
                     'success': True,
                     'pending': False
@@ -252,8 +251,7 @@ class ReTrain(GetDataKafka):
                 )
             else:
                 abort = {
-                    'uuid': uuid,
-                    'uuid_organization': org_uuid,
+                    **id_data,
                     'message': 'Cannot start another training job.',
                     'success': False,
                     'pending': False
@@ -264,17 +262,16 @@ class ReTrain(GetDataKafka):
                 )
         except Exception:
             self.in_progress = False
-            error_reply = {
-                'uuid': uuid,
-                'uuid_organization': org_uuid,
-                'message': 'Failed to retrain, please, '
-                           'check the logs and try again',
-                'success': False,
-                'pending': False
-            }
             traceback.print_exc()
-            print(error_reply)
-            if current_reply_topic:
+            if current_reply_topic and id_data:
+                error_reply = {
+                    **id_data,
+                    'message': 'Failed to retrain, please, '
+                               'check the logs and try again',
+                    'success': False,
+                    'pending': False
+                }
+                print(error_reply)
                 self.producer.send(
                     current_reply_topic,
                     bytes(json.dumps(error_reply).encode('utf-8'))
@@ -914,6 +911,23 @@ class Predict(MLTask):
         super().__init__(config, steps)
         self._is_initialized = False
 
+    def handle_missing_features(self):
+        """
+        Add any missing features and fill any missing values with each
+        feature's default value
+        """
+        from baskerville.features import FEATURE_NAME_TO_CLASS
+
+        for f_ in self.model.features:
+            feat_dict_col = f'features.{f_}'
+            default_value = FEATURE_NAME_TO_CLASS[f_].feature_default
+            self.df = handle_missing_col(
+                self.df,
+                feat_dict_col,
+                default_value
+            )
+            self.df = self.df.fillna(default_value, subset=[feat_dict_col])
+
     def predict(self):
         if self.model:
             self.df = self.model.predict(self.df)
@@ -924,6 +938,8 @@ class Predict(MLTask):
     def run(self):
         if self.df and self.df.head(1):
             self.df = self.df.persist(self.config.spark.storage_level)
+            if self.config.engine.handle_missing_features:
+                self.handle_missing_features()
             self.predict()
             self.df = super(Predict, self).run()
             self.reset()

@@ -182,8 +182,8 @@ class SubmittedFeedback(Base, SerializableMixin):
     ]
 
 
-class Notification(Base, SerializableMixin):
-    __tablename__ = 'notifications'
+class Message(Base, SerializableMixin):
+    __tablename__ = 'messages'
     id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
     id_user = Column(BigInteger(), ForeignKey('users.id'), nullable=True)
     uuid_organization = Column(String(300), nullable=False)
@@ -196,8 +196,9 @@ class Notification(Base, SerializableMixin):
     )
     organization = relationship(
         'Organization',
-        primaryjoin='foreign(Notification.uuid_organization) == remote(Organization.uuid)'
+        primaryjoin='foreign(Message.uuid_organization) == remote(Organization.uuid)'
     )
+
 
 class PendingWork(Base, SerializableMixin):
     __tablename__ = 'pending_work'
