@@ -1,49 +1,91 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
 metadata:
   name: preprocessing
   namespace: default
+  selfLink: >-
+    /apis/argoproj.io/v1alpha1/namespaces/default/workflowtemplates/preprocessing
+  uid: a0bcc644-0b40-4200-9b33-6f0813c60470
+  resourceVersion: '15527163'
+  generation: 53
+  creationTimestamp: '2021-03-15T14:16:24Z'
+  labels:
+    workflows.argoproj.io/creator: system-serviceaccount-argo-argo-server
+  managedFields:
+    - manager: argo
+      operation: Update
+      apiVersion: argoproj.io/v1alpha1
+      time: '2021-03-29T16:14:19Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:labels':
+            .: {}
+            'f:workflows.argoproj.io/creator': {}
+        'f:spec':
+          .: {}
+          'f:arguments':
+            .: {}
+            'f:parameters': {}
+          'f:entrypoint': {}
+          'f:templates': {}
 spec:
-  arguments: {}
-  entrypoint: spark-submit
   templates:
     - name: spark-submit
-      arguments: {}
+      inputs:
+        parameters:
+          - name: baskerville_image
+      outputs: {}
+      metadata: {}
       container:
-        args:
-        - /opt/spark/bin/spark-submit
-        - --master
-        - k8s://https://kubernetes.default.svc
-        - --deploy-mode
-        - cluster
-        - --conf
-        - spark.kubernetes.namespace=default
-        - --conf
-        - spark.kubernetes.container.image=sparkimage
-        - --conf
-        - spark.executor.instances=3
-        - --name
-        - preprocessing
-        - --conf
-        - spark.kubernetes.pyspark.pythonVersion=3
-        - '--conf'
-        - spark.driver.memory=4g
-        - '--conf'
-        - spark.executor.memory=6g
-        - --jars
-        - local:///usr/local/baskerville/data/jars/hadoop-aws-2.7.1.jar,local:///usr/local/baskerville/data/jars/aws-java-sdk-1.7.4.jar,local:///usr/local/baskerville/data/jars/spark-iforest-2.4.0.99.jar,local:///usr/local/baskerville/data/jars/postgresql-42.2.4.jar,local:///usr/local/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,local:///usr/local/baskerville/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar
-        - --conf
-        - spark.kubernetes.container.image=mazhurin/baskerville:worker_dev
-        - /usr/local/baskerville/src/baskerville/main.py
-        - preprocessing
-        - -c
-        - /usr/local/baskerville/conf/preprocessing.yaml
+        name: ''
+        image: '{{inputs.parameters.baskerville_image}}'
         command:
-        - sh
-        image: mazhurin/baskerville:worker_dev
-        imagePullPolicy: Always
-        name: ""
+          - sh
+        args:
+          - /opt/spark/bin/spark-submit
+          - '--master'
+          - 'k8s://https://kubernetes.default.svc'
+          - '--deploy-mode'
+          - cluster
+          - '--conf'
+          - spark.kubernetes.namespace=default
+          - '--conf'
+          - spark.kubernetes.container.image=sparkimage
+          - '--conf'
+          - spark.executor.instances=3
+          - '--name'
+          - preprocessing
+          - '--conf'
+          - spark.kubernetes.pyspark.pythonVersion=3
+          - '--conf'
+          - spark.kubernetes.memoryOverheadFactor=0.2
+          - '--conf'
+          - spark.memory.fraction=0.2
+          - '--conf'
+          - spark.kubernetes.driver.request.cores=6
+          - '--conf'
+          - spark.kubernetes.driver.limit.cores=6
+          - '--conf'
+          - spark.kubernetes.executor.request.cores=4
+          - '--conf'
+          - spark.kubernetes.executor.limit.cores=4
+          - '--conf'
+          - spark.driver.memory=4G
+          - '--conf'
+          - spark.executor.memory=16G
+          - '--jars'
+          - >-
+            local:///usr/local/baskerville/data/jars/hadoop-aws-2.7.1.jar,local:///usr/local/baskerville/data/jars/aws-java-sdk-1.7.4.jar,local:///usr/local/baskerville/data/jars/spark-iforest-2.4.0.99.jar,local:///usr/local/baskerville/data/jars/postgresql-42.2.4.jar,local:///usr/local/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,local:///usr/local/baskerville/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar
+          - '--conf'
+          - >-
+            spark.kubernetes.container.image={{inputs.parameters.baskerville_image}}
+          - /usr/local/baskerville/src/baskerville/main.py
+          - preprocessing
+          - '-c'
+          - /usr/local/baskerville/conf/___preprocessing.yaml
         resources: {}
-  inputs: {}
-  metadata: {}
-  outputs: {}
+        imagePullPolicy: Always
+  entrypoint: spark-submit
+  arguments:
+    parameters:
+      - name: baskerville_image
+        value: 'mazhurin/baskerville:latest5'

@@ -87,7 +87,8 @@ def save_df_to_table(
         storage_level='OFF_HEAP',
         json_cols=('features',),
         mode='append',
-        db_driver='org.postgresql.Driver'
+        db_driver='org.postgresql.Driver',
+        logger=None
 ):
     """
     Save the dataframe to the database. Jsonify any columns that need to
@@ -106,8 +107,14 @@ def save_df_to_table(
     if not isinstance(storage_level, StorageLevel):
         storage_level = StorageLevelFactory.get_storage_level(storage_level)
     #df = df.persist(storage_level)
+    if logger:
+        logger.info('before col_to_json')
+        logger.info(df.show(1))
     for c in json_cols:
         df = col_to_json(df, c)
+    if logger:
+        logger.info('after col_to_json')
+        logger.info(df.show(1))
     df.write.format('jdbc').options(
         url=db_config['conn_str'],
         driver=db_driver,
@@ -283,6 +290,31 @@ def send_to_kafka_by_partition_id(
             F.col('rows'),
             F.lit(cmd),
             F.lit('id_client') if id_client else F.lit(None)
+        )
+    )
+    # False means something went wrong:
+    print(g_records.select('*').where(
+        F.col('sent_to_kafka') == False  # noqa
+    ).head(1))
+    return g_records
+
+
+def send_to_kafka2_by_partition_id(
+        df, bootstrap_servers, topic1, topic2, columns1, columns2
+):
+    from baskerville.spark.udfs import udf_send_to_kafka2
+    df = df.withColumn('pid', F.spark_partition_id()).cache()
+    f_ = F.collect_list('rows')
+    g_records = df.groupBy('pid').agg(f_.alias('rows')).cache()
+    g_records = g_records.withColumn(
+        'sent_to_kafka',
+        udf_send_to_kafka2(
+            F.lit(bootstrap_servers),
+            F.lit(topic1),
+            F.lit(topic2),
+            F.array([F.lit(x) for x in columns1]),
+            F.array([F.lit(x) for x in columns2]),
+            F.col('rows'),
         )
     )
     # False means something went wrong:

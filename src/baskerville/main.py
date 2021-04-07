@@ -10,6 +10,7 @@
 import argparse
 import atexit
 import json
+import requests
 import os
 import time
 
@@ -111,7 +112,11 @@ def main():
     )
 
     args = parser.parse_args()
-    conf = parse_config(path=args.conf_file)
+    if args.conf_file.startswith('https://raw'):
+        response = requests.get(args.conf_file)
+        conf = parse_config(path=None, data=response.content.decode("utf-8"))
+    else:
+        conf = parse_config(path=args.conf_file)
 
     baskerville_engine = BaskervilleAnalyticsEngine(
         args.pipeline, conf, register_metrics=args.start_exporter
@@ -121,6 +126,8 @@ def main():
         logging_level=baskerville_engine.config.engine.log_level,
         output_file=baskerville_engine.config.engine.logpath
     )
+
+    logger.info(f'Postgres password={baskerville_engine.config.database.password}')
 
     # start simulation if specified
     if args.simulate:

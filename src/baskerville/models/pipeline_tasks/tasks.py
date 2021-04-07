@@ -31,7 +31,7 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
 from baskerville.models.config import BaskervilleConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
-    send_to_kafka_by_partition_id
+    send_to_kafka_by_partition_id, send_to_kafka2_by_partition_id
 from baskerville.spark.schemas import features_schema, \
     prediction_schema
 from kafka import KafkaProducer
@@ -39,7 +39,7 @@ from dateutil.tz import tzutc
 
 # broadcasts
 from baskerville.util.helpers import instantiate_from_str, get_model_path
-from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
+from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning, send_to_kafka2
 from baskerville.util.origin_ips import OriginIPs
 
 TOPIC_BC = None
@@ -154,7 +154,7 @@ class GetFeatures(GetDataKafka):
         self.data_schema = self.get_data_schema()
         self.features_schema = self.get_features_schema()
 
-    def get_data_schema(self) ->  T.StructType:
+    def get_data_schema(self) -> T.StructType:
         return T.StructType(
             [T.StructField('key', T.StringType()),
              T.StructField('message', T.StringType())]
@@ -173,7 +173,7 @@ class GetFeatures(GetDataKafka):
                 nullable=True))
         schema.add(T.StructField("features", features))
         return schema
-    
+
     def get_data(self):
         self.df = self.spark.createDataFrame(
             self.df,
@@ -204,9 +204,9 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        )#.persist(
-         # self.config.spark.storage_level
-        #)
+        )  # .persist(
+        # self.config.spark.storage_level
+        # )
         # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
@@ -303,7 +303,7 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        ) #.persist(self.config.spark.storage_level)
+        )  # .persist(self.config.spark.storage_level)
 
         self.df = load_test(
             self.df,
@@ -325,7 +325,7 @@ class GetDataLog(Task):
             ):
                 self.df = window_df.repartition(
                     *self.group_by_cols
-                )#.persist(self.config.spark.storage_level)
+                )  # .persist(self.config.spark.storage_level)
                 self.remaining_steps = list(self.step_to_action.keys())
                 self.df = super().run()
                 self.reset()
@@ -690,7 +690,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        #self.df.persist(self.config.spark.storage_level)
+        # self.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -900,7 +900,8 @@ class SaveDfInPostgres(Task):
                 json_cols=self.json_cols,
                 storage_level=self.config.spark.storage_level,
                 mode=self.mode,
-                db_driver=self.config.spark.db_driver
+                db_driver=self.config.spark.db_driver,
+                logger=self.logger
             )
         self.df = super().run()
         return self.df
@@ -1144,6 +1145,56 @@ class SendToKafka(Task):
         return self.df
 
 
+class SendToKafka2(Task):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            topic1,
+            topic2,
+            columns1,
+            columns2,
+            steps: list = (),
+    ):
+        super().__init__(config, steps)
+        self.topic1 = topic1
+        self.topic2 = topic2
+        self.columns1 = columns1
+        self.columns2 = columns2
+
+    def run(self):
+        self.logger.info(f'Sending to kafka topics \'{self.topic1}\' and \'{self.topic2}\' ...')
+
+        df = self.df.withColumn(
+            'start', F.date_format(F.col('start'), 'yyyy-MM-dd HH:mm:ss')
+        ).withColumn(
+            'stop', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
+        ).withColumn(
+            'first_ever_request', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
+        )
+
+        if self.config.engine.kafka_send_by_partition:
+            send_to_kafka2_by_partition_id(
+                df.select(
+                    F.struct(
+                        *list(
+                            F.col(c) for c in set(self.columns1+self.columns2)
+                        )).alias('rows'),
+                    F.spark_partition_id().alias('pid')
+                ),
+                self.config.kafka.bootstrap_servers,
+                self.topic1,
+                self.topic2,
+                self.columns1,
+                self.columns2
+            )
+        else:
+            send_to_kafka2(df, self.topic1, self.topic2, self.columns1, self.columns2,
+                           bootstrap_servers=self.config.kafka.bootstrap_servers,
+                           logger=self.logger
+                           )
+        return self.df
+
+
 class Train(Task):
 
     def __init__(
@@ -1351,6 +1402,7 @@ class AttackDetection(Task):
     """
     Calculates prediction per IP, attack_score per Target, regular vs anomaly counts, attack_prediction
     """
+
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
@@ -1361,8 +1413,8 @@ class AttackDetection(Task):
         self.banjax_thread = None
         self.register_metrics = config.engine.register_banjax_metrics
         self.low_rate_attack_schema = T.StructType([T.StructField(
-                name='request_total', dataType=StringType(), nullable=True
-            )])
+            name='request_total', dataType=StringType(), nullable=True
+        )])
         self.producer = KafkaProducer(
             bootstrap_servers=self.config.kafka.bootstrap_servers)
         self.origin_ips = OriginIPs(
@@ -1380,7 +1432,7 @@ class AttackDetection(Task):
                 [
                     [host] for host in
                     set(self.config.engine.white_list_hosts)
-                ], ['target'])\
+                ], ['target']) \
                 .withColumn('white_list_host', F.lit(1))
 
         from baskerville.spark.helpers import DictAccumulatorParam
@@ -1605,9 +1657,9 @@ class AttackDetection(Task):
 
     def send_challenge(self, df_attack):
         df_ips = self.df.select('ip', 'target').where(
-                (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
-                (F.col('low_rate_attack') == 1)
-            ).cache()
+            (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
+            (F.col('low_rate_attack') == 1)
+        ).cache()
         if self.config.engine.challenge == 'ip':
             if not df_ips or not df_ips.head(1):
                 self.df = self.df.withColumn('challenged', F.lit(0))
