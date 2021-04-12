@@ -816,7 +816,7 @@ class GenerateFeatures(MLTask):
                 '_',
                 F.col('id_client'),
                 F.col('id_request_sets'),
-                F.col('start').cast('long').cast('string'))
+                F.col('stop').cast('long').cast('string'))
         )
         # todo: monotonically_increasing_id guarantees uniqueness within
         #  the current batch, this will cause conflicts with caching - use
