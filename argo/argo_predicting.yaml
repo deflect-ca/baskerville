@@ -3,8 +3,8 @@ metadata:
   namespace: default
   selfLink: /apis/argoproj.io/v1alpha1/namespaces/default/workflowtemplates/predicting
   uid: 2254a1f4-1ddd-44ca-b7d9-ff3e90154e9f
-  resourceVersion: '15527894'
-  generation: 13
+  resourceVersion: '18662392'
+  generation: 21
   creationTimestamp: '2021-03-15T14:16:47Z'
   labels:
     workflows.argoproj.io/creator: system-serviceaccount-argo-argo-server
@@ -12,7 +12,7 @@ metadata:
     - manager: argo
       operation: Update
       apiVersion: argoproj.io/v1alpha1
-      time: '2021-03-29T16:19:06Z'
+      time: '2021-04-09T17:29:11Z'
       fieldsType: FieldsV1
       fieldsV1:
         'f:metadata':
@@ -26,12 +26,14 @@ metadata:
             'f:parameters': {}
           'f:entrypoint': {}
           'f:templates': {}
+          'f:volumes': {}
 spec:
   templates:
     - name: spark-submit
       inputs:
         parameters:
           - name: baskerville_image
+          - name: config
       outputs: {}
       metadata: {}
       container:
@@ -44,7 +46,7 @@ spec:
           - '--master'
           - 'k8s://https://kubernetes.default.svc'
           - '--deploy-mode'
-          - cluster
+          - client
           - '--conf'
           - spark.kubernetes.namespace=default
           - '--conf'
@@ -64,7 +66,7 @@ spec:
           - '--conf'
           - spark.kubernetes.driver.limit.cores=1
           - '--conf'
-          - spark.kubernetes.executor.request.cores=2
+          - spark.kubernetes.executor.request.cores=1
           - '--conf'
           - spark.kubernetes.executor.limit.cores=2
           - '--conf'
@@ -80,11 +82,52 @@ spec:
           - /usr/local/baskerville/src/baskerville/main.py
           - predicting
           - '-c'
-          - /usr/local/baskerville/conf/predicting.yaml
+          - '{{inputs.parameters.config}}'
+        env:
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: POSTGRES_PASS
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_password
+          - name: S3_ACCESS
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: s3_access
+          - name: S3_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: s3_secret
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: redis_password
         resources: {}
+        volumeMounts:
+          - name: ssh-secrets
+            mountPath: /usr/local/baskerville/ssh
         imagePullPolicy: Always
   entrypoint: spark-submit
   arguments:
     parameters:
       - name: baskerville_image
-        value: 'mazhurin/baskerville:latest'
+        value: 'equalitie/baskerville:latest'
+      - name: config
+        value: 'git@github.com:equalitie/baskerville_config.git'
+      - name: config-branch
+        value: main
+  volumes:
+    - name: ssh-secrets
+      secret:
+        secretName: ssh-secrets
+        defaultMode: 384

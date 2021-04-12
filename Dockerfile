@@ -4,7 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-FROM mazhurin/baskerville:worker
+FROM equalitie/baskerville:worker
 
 ENV BASKERVILLE_ROOT=/usr/local/baskerville
 ENV POSTGRES_HOST=213.108.110.212

@@ -187,6 +187,9 @@ def get_or_create_spark_session(spark_conf):
     if spark_conf.spark_kubernetes_executor_memoryOverhead:
         conf.set('spark.kubernetes.executor.memoryOverhead', spark_conf.spark_kubernetes_executor_memoryOverhead)
 
+    conf.set('spark.kubernetes.driver.pod.name', os.environ['MY_POD_NAME'])
+    conf.set('spark.driver.host', os.environ['MY_POD_IP'])
+    conf.set('spark.driver.port', 20020)
 
     spark = SparkSession.builder \
         .config(conf=conf) \

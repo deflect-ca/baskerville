@@ -25,6 +25,7 @@ from baskerville.db.models import Model
 from baskerville.models.config import DatabaseConfig
 from baskerville.models.engine import BaskervilleAnalyticsEngine
 from baskerville.simulation.real_timeish_simulation import simulation
+from baskerville.util.git_helpers import git_clone
 from baskerville.util.helpers import get_logger, parse_config, \
     get_default_data_path
 
@@ -111,10 +112,19 @@ def main():
         help="Path to config file"
     )
 
+    parser.add_argument(
+        "-cb", "--conf-branch", action="store", dest="conf_branch",
+        default=None,
+        help="Path to config file"
+    )
+
     args = parser.parse_args()
     if args.conf_file.startswith('https://raw'):
         response = requests.get(args.conf_file)
         conf = parse_config(path=None, data=response.content.decode("utf-8"))
+    elif args.conf_file.startswith('git@'):
+        path = git_clone(args.conf_file, branch=args.conf_branch)
+        conf = parse_config(path=os.path.join(path, f'{args.pipeline}.yaml'))
     else:
         conf = parse_config(path=args.conf_file)
 

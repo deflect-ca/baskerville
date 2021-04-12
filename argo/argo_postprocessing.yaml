@@ -4,8 +4,8 @@ metadata:
   selfLink: >-
     /apis/argoproj.io/v1alpha1/namespaces/default/workflowtemplates/postprocessing
   uid: 3e886157-b580-4571-bb7c-b95a2a4e7cc9
-  resourceVersion: '15528736'
-  generation: 11
+  resourceVersion: '18668236'
+  generation: 25
   creationTimestamp: '2021-03-15T15:59:15Z'
   labels:
     workflows.argoproj.io/creator: system-serviceaccount-argo-argo-server
@@ -13,7 +13,7 @@ metadata:
     - manager: argo
       operation: Update
       apiVersion: argoproj.io/v1alpha1
-      time: '2021-03-29T16:24:11Z'
+      time: '2021-04-09T17:44:10Z'
       fieldsType: FieldsV1
       fieldsV1:
         'f:metadata':
@@ -27,12 +27,14 @@ metadata:
             'f:parameters': {}
           'f:entrypoint': {}
           'f:templates': {}
+          'f:volumes': {}
 spec:
   templates:
     - name: spark-submit
       inputs:
         parameters:
           - name: baskerville_image
+          - name: config
       outputs: {}
       metadata: {}
       container:
@@ -45,7 +47,7 @@ spec:
           - '--master'
           - 'k8s://https://kubernetes.default.svc'
           - '--deploy-mode'
-          - cluster
+          - client
           - '--conf'
           - spark.kubernetes.namespace=default
           - '--conf'
@@ -57,7 +59,7 @@ spec:
           - '--conf'
           - spark.kubernetes.pyspark.pythonVersion=3
           - '--conf'
-          - spark.kubernetes.memoryOverheadFactor=0.1
+          - spark.kubernetes.memoryOverheadFactor=0.5
           - '--conf'
           - spark.memory.fraction=0.1
           - '--conf'
@@ -69,9 +71,11 @@ spec:
           - '--conf'
           - spark.kubernetes.executor.limit.cores=2
           - '--conf'
-          - spark.driver.memory=2G
+          - spark.driver.memory=5G
           - '--conf'
-          - spark.executor.memory=3G
+          - spark.rpc.message.maxSize=512
+          - '--conf'
+          - spark.executor.memory=2G
           - '--jars'
           - >-
             local:///usr/local/baskerville/data/jars/hadoop-aws-2.7.1.jar,local:///usr/local/baskerville/data/jars/aws-java-sdk-1.7.4.jar,local:///usr/local/baskerville/data/jars/spark-iforest-2.4.0.99.jar,local:///usr/local/baskerville/data/jars/postgresql-42.2.4.jar,local:///usr/local/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,local:///usr/local/baskerville/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar
@@ -81,11 +85,52 @@ spec:
           - /usr/local/baskerville/src/baskerville/main.py
           - postprocessing
           - '-c'
-          - /usr/local/baskerville/conf/postprocessing.yaml
+          - '{{inputs.parameters.config}}'
+        env:
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: POSTGRES_PASS
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_password
+          - name: S3_ACCESS
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: s3_access
+          - name: S3_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: s3_secret
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: redis_password
         resources: {}
+        volumeMounts:
+          - name: ssh-secrets
+            mountPath: /usr/local/baskerville/ssh
         imagePullPolicy: Always
   entrypoint: spark-submit
   arguments:
     parameters:
       - name: baskerville_image
-        value: 'mazhurin/baskerville:latest'
+        value: 'equalitie/baskerville:latest'
+      - name: config
+        value: 'git@github.com:equalitie/baskerville_config.git'
+      - name: config-branch
+        value: main
+  volumes:
+    - name: ssh-secrets
+      secret:
+        secretName: ssh-secrets
+        defaultMode: 384
