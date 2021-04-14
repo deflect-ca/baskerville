@@ -109,12 +109,12 @@ def save_df_to_table(
     #df = df.persist(storage_level)
     if logger:
         logger.info('before col_to_json')
-        logger.info(df.show(1))
+        logger.info(df.select('features').limit(1).collect())
     for c in json_cols:
         df = col_to_json(df, c)
     if logger:
         logger.info('after col_to_json')
-        logger.info(df.show(1))
+        logger.info(df.select('features').limit(1).collect())
     df.write.format('jdbc').options(
         url=db_config['conn_str'],
         driver=db_driver,
@@ -126,7 +126,7 @@ def save_df_to_table(
         max_connections=1250,
         rewriteBatchedStatements=True,
         reWriteBatchedInserts=True,
-        useServerPrepStmts=False,
+        useServerPrepStmts=False
     ).mode(mode).save()
 
 
