@@ -545,7 +545,7 @@ class GenerateFeatures(MLTask):
             F.lit(False))
         self.df = self.df.filter(~starts_with)
 
-        self.df = self.df.drop(['client_request_host_no_www', 'url'])
+        self.df = self.df.drop('client_request_host_no_www').drop('url')
 
     def normalize_host_names(self):
         """
