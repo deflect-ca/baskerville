@@ -87,8 +87,7 @@ def save_df_to_table(
         storage_level='OFF_HEAP',
         json_cols=('features',),
         mode='append',
-        db_driver='org.postgresql.Driver',
-        logger=None
+        db_driver='org.postgresql.Driver'
 ):
     """
     Save the dataframe to the database. Jsonify any columns that need to
@@ -107,14 +106,9 @@ def save_df_to_table(
     if not isinstance(storage_level, StorageLevel):
         storage_level = StorageLevelFactory.get_storage_level(storage_level)
     #df = df.persist(storage_level)
-    if logger:
-        logger.info('before col_to_json')
-        logger.info(df.select('features').limit(1).collect())
+
     for c in json_cols:
         df = col_to_json(df, c)
-    if logger:
-        logger.info('after col_to_json')
-        logger.info(df.select('features').limit(1).collect())
     df.write.format('jdbc').options(
         url=db_config['conn_str'],
         driver=db_driver,

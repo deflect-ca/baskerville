@@ -816,7 +816,7 @@ class GenerateFeatures(MLTask):
                 '_',
                 F.col('id_client'),
                 F.col('id_request_sets'),
-                F.col('start').cast('long').cast('string'))
+                F.col('stop').cast('long').cast('string'))
         )
         # todo: monotonically_increasing_id guarantees uniqueness within
         #  the current batch, this will cause conflicts with caching - use
@@ -900,8 +900,7 @@ class SaveDfInPostgres(Task):
                 json_cols=self.json_cols,
                 storage_level=self.config.spark.storage_level,
                 mode=self.mode,
-                db_driver=self.config.spark.db_driver,
-                logger=self.logger
+                db_driver=self.config.spark.db_driver
             )
         self.df = super().run()
         return self.df
@@ -911,7 +910,6 @@ class Save(SaveDfInPostgres):
     """
     Saves dataframe in Postgres (current backend)
     """
-
     def prepare_to_save(self):
         request_set_columns = RequestSet.columns[:]
         not_common = {
@@ -1087,7 +1085,7 @@ class MergeWithSensitiveData(Task):
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-                self.logger.warning('No sensitive data. Probably postprocessing is underperforming.')
+                self.logger.warning('Join sensitive data issue. Probably postprocessing is underperforming.')
                 self.logger.warning(f'Batch count = {count}. After merge count = {merge_count}')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
