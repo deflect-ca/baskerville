@@ -45,6 +45,7 @@ def read_from_kafka_from_the_beginning(bootstrap_servers, topic, schema, spark):
         enable_auto_commit=False,
         consumer_timeout_ms=3000,
     )
+
     data = []
     for message in consumer:
         data.append([message.value.decode("utf-8")])

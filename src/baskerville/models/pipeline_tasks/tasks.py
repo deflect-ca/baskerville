@@ -936,7 +936,6 @@ class Save(SaveDfInPostgres):
         )
 
     def run(self):
-        self.json_cols = ()
         self.prepare_to_save()
         # save request_sets
         self.logger.debug('Saving request_sets')
@@ -1025,6 +1024,13 @@ class MergeWithSensitiveData(Task):
         self.table_name = table_name
 
     def get_sensitive_schema(self):
+        features = T.StructType()
+        for feature in self.config.engine.all_features.keys():
+            features.add(T.StructField(
+                name=feature,
+                dataType=T.StringType(),
+                nullable=True))
+
         return T.StructType([
             T.StructField("target", T.StringType(), True),
             T.StructField('ip', T.StringType(), True),
@@ -1037,7 +1043,7 @@ class MergeWithSensitiveData(Task):
             T.StructField('stop', T.StringType(), True),
             T.StructField('subset_count', T.IntegerType(), True),
             T.StructField('dt', T.FloatType(), True),
-            T.StructField('features', T.StringType(), True),
+            T.StructField("features", features),
             T.StructField('total_seconds', T.FloatType(), True),
             T.StructField('id_client', T.StringType(), True),
             T.StructField('id_request_sets', T.StringType(), True)
@@ -1588,22 +1594,27 @@ class AttackDetection(Task):
                 F.abs(F.unix_timestamp(df.stop)) - F.abs(F.unix_timestamp(df.start))
         )
         # todo check features dtype and use from_json if necessary
-        df = df.withColumn('f', F.from_json('features', self.low_rate_attack_schema))
+        if self.config.engine.use_kafka_for_sensitive_data:
+            f = 'features'
+        else:
+            f = 'f'
+            df = df.withColumn(f, F.from_json('features', self.low_rate_attack_schema))
+
         df = df.withColumn(
-            'f.request_total',
-            F.col('f.request_total').cast(
+            f'{f}.request_total',
+            F.col(f'{f}.request_total').cast(
                 T.DoubleType()
-            ).alias('f.request_total')
+            ).alias(f'{f}.request_total')
         )
 
         df_attackers = df.filter(
-            ((F.col('f.request_total') > lr_attack_period[0]) &
+            ((F.col(f'{f}.request_total') > lr_attack_period[0]) &
              (time_filter > lra_total_req[0]))
             |
-            ((F.col('f.request_total') > lr_attack_period[1]) &
+            ((F.col(f'{f}.request_total') > lr_attack_period[1]) &
              (time_filter > lra_total_req[1]))
         ).select(
-            'ip', 'target', 'f.request_total', 'start'
+            'ip', 'target', f'{f}.request_total', 'start'
         ).withColumn('low_rate_attack', F.lit(1))
 
         if df_attackers and df_attackers.head(1):
