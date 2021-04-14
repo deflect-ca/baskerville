@@ -278,6 +278,7 @@ class EngineConfig(Config):
 
     white_list_ips = []
     white_list_hosts = []
+    white_list_urls = []
     banjax_sql_update_filter_minutes = 90
     banjax_num_fails_to_ban = 9
     register_banjax_metrics = False

@@ -173,7 +173,7 @@ class GetFeatures(GetDataKafka):
                 nullable=True))
         schema.add(T.StructField("features", features))
         return schema
-    
+
     def get_data(self):
         self.df = self.spark.createDataFrame(
             self.df,
@@ -515,6 +515,38 @@ class GenerateFeatures(MLTask):
     def handle_missing_values(self):
         self.df = self.data_parser.fill_missing_values(self.df)
 
+    def white_list_urls(self):
+        from baskerville.spark.udfs import udf_remove_www
+
+        self.df = self.df.fillna({'client_request_host': ''})
+
+        urls = self.config.engine.white_list_urls
+        if not urls:
+            return
+
+        domains = []
+        for url in urls:
+            if url.find('/') < 0:
+                domains.append(url)
+
+        self.df = self.df.withColumn('client_request_host_no_www',
+            udf_remove_www(F.col('client_request_host').cast(T.StringType())))
+
+        # filter out only the exact domain match
+        self.df = self.df.filter(~F.col('client_request_host_no_www').isin(domains))
+
+        # concatenate the full path URL
+        self.df = self.df.withColumn('url', F.concat(F.col('client_request_host_no_www'), F.col('client_url')))
+
+        # filter out the domain + path match
+        starts_with = reduce(
+            lambda x, y: x | y,
+            [F.col("url").startswith(s) for s in urls],
+            F.lit(False))
+        self.df = self.df.filter(~starts_with)
+
+        self.df = self.df.remove('client_request_host_no_www').remove('url')
+
     def normalize_host_names(self):
         """
         From www.somedomain.tld keep somedomain
@@ -824,6 +856,7 @@ class GenerateFeatures(MLTask):
 
     def run(self):
         self.handle_missing_columns()
+        self.white_list_urls()
         self.normalize_host_names()
         self.df = self.df.repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
         self.rename_columns()
@@ -1303,6 +1336,7 @@ class AttackDetection(Task):
     """
     Calculates prediction per IP, attack_score per Target, regular vs anomaly counts, attack_prediction
     """
+
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
@@ -1313,8 +1347,8 @@ class AttackDetection(Task):
         self.banjax_thread = None
         self.register_metrics = config.engine.register_banjax_metrics
         self.low_rate_attack_schema = T.StructType([T.StructField(
-                name='request_total', dataType=StringType(), nullable=True
-            )])
+            name='request_total', dataType=StringType(), nullable=True
+        )])
         self.producer = KafkaProducer(
             bootstrap_servers=self.config.kafka.bootstrap_servers)
         self.origin_ips = OriginIPs(
@@ -1332,7 +1366,7 @@ class AttackDetection(Task):
                 [
                     [host] for host in
                     set(self.config.engine.white_list_hosts)
-                ], ['target'])\
+                ], ['target']) \
                 .withColumn('white_list_host', F.lit(1))
 
         from baskerville.spark.helpers import DictAccumulatorParam
@@ -1557,9 +1591,9 @@ class AttackDetection(Task):
 
     def send_challenge(self, df_attack):
         df_ips = self.df.select('ip', 'target').where(
-                (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
-                (F.col('low_rate_attack') == 1)
-            ).cache()
+            (F.col('attack_prediction') == 1) & (F.col('prediction') == 1) |
+            (F.col('low_rate_attack') == 1)
+        ).cache()
         if self.config.engine.challenge == 'ip':
             if not df_ips or not df_ips.head(1):
                 self.df = self.df.withColumn('challenged', F.lit(0))

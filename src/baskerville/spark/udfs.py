@@ -18,6 +18,11 @@ from tzwhere import tzwhere
 import numpy as np
 
 
+def remove_www(host):
+    if host[:4] == 'www.':
+        return host[4:]
+    return host
+
 def normalize_host_name(host):
     if host[:4] == 'www.':
         host = host[4:]
@@ -288,6 +293,7 @@ prediction_schema = T.StructType([
 ])
 
 udf_normalize_host_name = F.udf(normalize_host_name, T.StringType())
+udf_remove_www = F.udf(remove_www(), T.StringType())
 udf_predict_dict = F.udf(predict_dict, prediction_schema)
 udf_compute_geotime = F.udf(compute_geotime, T.FloatType())
 udf_delete_by = F.udf(delete_by, T.BooleanType())
