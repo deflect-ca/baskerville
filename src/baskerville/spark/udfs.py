@@ -23,6 +23,7 @@ def remove_www(host):
         return host[4:]
     return host
 
+
 def normalize_host_name(host):
     if host[:4] == 'www.':
         host = host[4:]
