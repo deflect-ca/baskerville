@@ -1056,8 +1056,6 @@ class MergeWithSensitiveData(Task):
                 schema=self.get_sensitive_schema(),
                 spark=self.spark
             ).alias('df_sensitive')
-            self.logger.info('Read sensitive data from kafka:')
-            self.logger.info(self.df_sensitive.limit(1).collect())
             self.logger.info('Done.')
         else:
             self.df_sensitive = self.spark.read.format(
