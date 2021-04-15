@@ -28,8 +28,10 @@ def set_up_spark():
     conf.set('spark.master', 'local[10]')
 
     conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
-    conf.set('spark.jars',
-             os.environ['BASKERVILLE_ROOT'] + '/data/jars/postgresql-42.2.4.jar')
+    conf.set(
+        'spark.jars',
+        os.environ['BASKERVILLE_ROOT'] + '/data/jars/postgresql-42.2.4.jar'
+    )
     conf.set('spark.executor.memory', '40G')
     conf.set('spark.memory.offHeap.enabled', 'true')
     conf.set('spark.memory.offHeap.size', '35G')
@@ -113,12 +115,12 @@ def evaluate_model(models, spark, db_config):
             rs1 = model.predict(rs)
             print('Calculating metrics...')
             metrics = BinaryClassificationMetrics(
-                rs1.select(['score', 'label']).rdd)
+                rs1.select(['score', 'label']).rdd
+            )
             auc = metrics.areaUnderPR
             print(f'Area under PR curve = {auc}')
             aucs.append(auc)
-        result.append((attack, aucs))
-
+            result.append((attack, aucs))
     db_tools.disconnect_from_db()
 
     return result

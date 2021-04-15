@@ -72,15 +72,40 @@ class ServiceProvider(Borg):
         return self._model
 
     def refresh_model(self):
-        if self.config.engine.model_id and self._model_ts and \
-                (datetime.datetime.utcnow() - self._model_ts).total_seconds() > \
+        """
+        If there is a model_id defined and there has been a reload (_model_ts
+        exists,
+        """
+
+        if self.config.engine.model_id and self._model_ts:
+            seconds_since_last_update = (
+                        datetime.datetime.utcnow() - self._model_ts
+            ).total_seconds()
+            self.logger.debug(
+                f'Seconds since last update: {seconds_since_last_update}'
+            )
+            if seconds_since_last_update > \
                 self.config.engine.new_model_check_in_seconds:
-            self.load_model_from_db()
+                self.load_model_from_db()
 
     def create_runtime(self):
+        from baskerville.db.dashboard_models import User, Organization
+        org = self.tools.session.query(Organization).filter_by(
+            uuid=self.config.user_details.organization_uuid
+        ).first()
+        if not org:
+            raise ValueError(f'No such organization.')
+
+        user = self.tools.session.query(User).filter_by(
+            username=self.config.user_details.username).filter_by(
+            id_organization=org.id
+        ).first()
+        if not user:
+            raise ValueError(f'No such user.')
         self.runtime = self.tools.create_runtime(
             start=self.start_time,
-            conf=self.config.engine
+            conf=self.config.engine,
+            id_user=user.id
         )
         self.logger.info(f'Created runtime {self.runtime.id}')
 
@@ -130,6 +155,17 @@ class ServiceProvider(Borg):
             self.tools.connect_to_db()
 
     def load_model_from_db(self):
+        """
+        For the live loading mechanism.
+        0. Retrieves the model index as defined
+        by self.config.engine.model_id (checks the database because model_id
+        might be invalid).
+        1. If the this is the first time, it loads the model as
+        defined in the Model's table.
+        2. If this is a re-load, it checks whether
+        the already loaded model_index is the same with the latest model index
+        and if true, reloading is skipped. Else, go on with 1.
+        """
         new_model_index = self.tools.get_ml_model_from_db(
             self.config.engine.model_id)
 

@@ -5,11 +5,10 @@
 # LICENSE file in the root directory of this source tree.
 
 import operator
-from random import shuffle
 from collections import defaultdict
 
 from pyspark import SparkConf
-from pyspark.ml.feature import VectorAssembler, StandardScalerModel
+from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.sql import SparkSession, Window
@@ -48,7 +47,8 @@ class Node:
 
     def __init__(self, node_data: dict, nodes: dict, is_left=True):
         self.id = node_data['id']
-        self.feature = Feature(node_data['featureIndex'], node_data['featureValue'])
+        self.feature = Feature(node_data['featureIndex'],
+                               node_data['featureValue'])
         self.is_left = is_left
         self.is_top = self.id == 0
         self.num_instances = node_data['numInstance']
@@ -56,14 +56,12 @@ class Node:
         self.set_nodes(node_data, nodes)
 
     def __str__(self):
-        str_ln = 'N/A' if not self.left_node else str(self.left_node)
+        # str_ln = 'N/A' if not self.left_node else str(self.left_node)
         str_rn = 'N/A' if not self.right_node else str(self.right_node)
-        direction = 'top' if self.is_top else 'left' if self.is_left else 'right'
-        self_str = f'{direction} node [#{self.num_instances}]: {self.condition}\n'
-        self_str += 3 * '/                                             \\\n'
-        self_str += 'LN                                                   RN\n'
-        self_str += 'V                                                   V\n'
-        self_str += f'{str_ln}                                              {str_rn}\n '
+        direction = 'top' if self.is_top else 'left' \
+            if self.is_left else 'right'
+        self_str = f'{direction} node [#{self.num_instances}]: ' \
+                   f'{self.condition}\n\\nRN\nV\n{str_rn}\n '
         return self_str
 
     def set_nodes(self, node_data, nodes):
@@ -125,7 +123,7 @@ def get_spark_session_with_iforest():
         get_default_data_path(), 'jars', 'spark-iforest-2.4.0.99.jar'
     )
     # half of total memory - todo: should be configurable, use yaml or so
-    memory = f'{int(round((mem.total/ 2)/1024/1024/1024, 0))}G'
+    memory = f'{int(round((mem.total / 2) / 1024 / 1024 / 1024, 0))}G'
     print(memory)
     conf.set('spark.jars', iforest_jar)
     conf.set('spark.driver.memory', memory)
@@ -152,7 +150,8 @@ def load_dataframe(full_path, features):
     from baskerville.features import FEATURE_NAME_TO_CLASS
     spark = get_spark_session_with_iforest()
     df = spark.read.json(full_path).cache()
-    schema = spark.read.json(df.limit(1).rdd.map(lambda row: row.features)).schema
+    schema = spark.read.json(
+        df.limit(1).rdd.map(lambda row: row.features)).schema
     df = df.withColumn(
         'features',
         F.from_json('features', schema)
@@ -181,44 +180,45 @@ def select_row(df, row_id):
 
 def get_sample_labeled_data():
     return [
-    {'feature1': 10., 'feature2': 3., 'feature3': 0.9, 'feature4': 0.1,
-     'label': 1},
-    {'feature1': 1.12, 'feature2': 0.22, 'feature3': 0.38, 'feature4': 0.001,
-     'label': 0},
-    {'feature1': 101., 'feature2': 13., 'feature3': 0.9, 'feature4': 0.91,
-     'label': 1},
-    {'feature1': 43., 'feature2': 11., 'feature3': 1.2, 'feature4': 1.91,
-     'label': 1},
-    {'feature1': 2., 'feature2': 11., 'feature3': 1.2, 'feature4': 0.13,
-     'label': 0},
-    {'feature1': 132., 'feature2': 8., 'feature3': 1.2, 'feature4': 1.91,
-     'label': 1},
-    {'feature1': 99., 'feature2': 11., 'feature3': 1.2, 'feature4': 1.17,
-     'label': 1},
-    {'feature1': 123., 'feature2': 11., 'feature3': 1.2, 'feature4': 1.98,
-     'label': 1},
-    {'feature1': 440., 'feature2': 39., 'feature3': 1.2, 'feature4': 1.11,
-     'label': 1},
-    {'feature1': 4., 'feature2': 11., 'feature3': 0.9, 'feature4': 0.33,
-     'label': 0},
-    {'feature1': 1.4, 'feature2': 0.3, 'feature3': 1.2, 'feature4': 1.3,
-     'label': 1},
-    {'feature1': 101., 'feature2': 11., 'feature3': 1.2, 'feature4': 2.,
-     'label': 1},
-    {'feature1': 210.3, 'feature2': 11., 'feature3': 1.2, 'feature4': 3.1,
-     'label': 1},
-    {'feature1': 2., 'feature2': 1.5, 'feature3': 1.0, 'feature4': 0.3,
-     'label': 0},
-]
+        {'feature1': 10., 'feature2': 3., 'feature3': 0.9, 'feature4': 0.1,
+         'label': 1},
+        {'feature1': 1.12, 'feature2': 0.22, 'feature3': 0.38,
+         'feature4': 0.001,
+         'label': 0},
+        {'feature1': 101., 'feature2': 13., 'feature3': 0.9, 'feature4': 0.91,
+         'label': 1},
+        {'feature1': 43., 'feature2': 11., 'feature3': 1.2, 'feature4': 1.91,
+         'label': 1},
+        {'feature1': 2., 'feature2': 11., 'feature3': 1.2, 'feature4': 0.13,
+         'label': 0},
+        {'feature1': 132., 'feature2': 8., 'feature3': 1.2, 'feature4': 1.91,
+         'label': 1},
+        {'feature1': 99., 'feature2': 11., 'feature3': 1.2, 'feature4': 1.17,
+         'label': 1},
+        {'feature1': 123., 'feature2': 11., 'feature3': 1.2, 'feature4': 1.98,
+         'label': 1},
+        {'feature1': 440., 'feature2': 39., 'feature3': 1.2, 'feature4': 1.11,
+         'label': 1},
+        {'feature1': 4., 'feature2': 11., 'feature3': 0.9, 'feature4': 0.33,
+         'label': 0},
+        {'feature1': 1.4, 'feature2': 0.3, 'feature3': 1.2, 'feature4': 1.3,
+         'label': 1},
+        {'feature1': 101., 'feature2': 11., 'feature3': 1.2, 'feature4': 2.,
+         'label': 1},
+        {'feature1': 210.3, 'feature2': 11., 'feature3': 1.2, 'feature4': 3.1,
+         'label': 1},
+        {'feature1': 2., 'feature2': 1.5, 'feature3': 1.0, 'feature4': 0.3,
+         'label': 0},
+    ]
 
 
 def get_sample_labeled_point_data():
     return [
-    LabeledPoint(0.0, [0.0]),
-    LabeledPoint(0.0, [1.0]),
-    LabeledPoint(1.0, [2.0]),
-    LabeledPoint(1.0, [3.0])
-]
+        LabeledPoint(0.0, [0.0]),
+        LabeledPoint(0.0, [1.0]),
+        LabeledPoint(1.0, [2.0]),
+        LabeledPoint(1.0, [3.0])
+    ]
 
 
 def gather_features_with_assembler(df, features):
@@ -278,7 +278,8 @@ def calculate_shapley_values_for_all_features(
         'features_perm', F.shuffle('ordered_features')
     )
 
-    def calculate_x(feature_j, z_features, curr_feature_perm, ordered_features):
+    def calculate_x(feature_j, z_features, curr_feature_perm,
+                    ordered_features):
         """
         The instance  x+j is the instance of interest,
         but all values in the order before feature j are
@@ -346,9 +347,9 @@ def calculate_shapley_values_for_all_features(
             'marginal_contribution',
             (
                     F.col(column_to_examine) - F.lag(
-                    F.col(column_to_examine), 1).over(
-                    Window.partitionBy("id").orderBy("id")
-                )
+                F.col(column_to_examine), 1).over(
+                Window.partitionBy("id").orderBy("id")
+            )
             )
         )
         predict_df = predict_df.filter(
@@ -441,7 +442,7 @@ def construct_tree_graph(trees, feature_names):
                         f'{tree_node}_node_{lc}',
                         'child'
                         # f'{feature}<{v["featureValue"]}'
-                        )
+                    )
                 )
             if rc > -1:
                 g.add_edge(k_node, f'{tree_node}_node_{rc}')
@@ -488,8 +489,8 @@ def draw_graph(g):
     import networkx as nx
     plt.rcParams["figure.figsize"] = (20, 20)
     nx.draw(g, node_size=1200,
-        node_color='lightblue', linewidths=0.25, font_size=10,
-        font_weight='bold', with_labels=True)
+            node_color='lightblue', linewidths=0.25, font_size=10,
+            font_weight='bold', with_labels=True)
     # pos=nx.nx_pydot.graphviz_layout(g),
     plt.show()
     print(g)

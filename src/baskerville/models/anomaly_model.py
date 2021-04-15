@@ -192,16 +192,6 @@ class AnomalyModel(ModelInterface):
                 df = self.prepare_df(df)
         else:
             df = self.prepare_df(df)
-
-        # self.logger.info('Creating regular features...')
-        # df = self._create_regular_features_vector(df)
-        # self.logger.info('Scaling...')
-        # df = self.scaler_model.transform(df)
-        # df = df.drop(self.features_vector)
-        # self.logger.info('Adding categorical features...')
-        # df = self._create_feature_columns(df)
-        # df = self._add_categorical_features(df, self.features_vector_scaled)
-        # df = self._drop_feature_columns(df)
         self.logger.info('Isolation forest transform...')
         df = self.iforest_model.transform(df)
         df = df.withColumnRenamed('anomalyScore', self.score_column)

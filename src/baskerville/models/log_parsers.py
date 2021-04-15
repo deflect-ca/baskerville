@@ -11,6 +11,7 @@ import warnings
 import warlock
 import pyspark.sql.types as T
 import pyspark.sql.functions as F
+from baskerville.spark.schemas import NAME_TO_SCHEMA
 from baskerville.util.helpers import SerializableMixin
 
 
@@ -125,13 +126,16 @@ class JSONLogParser(LogParser, SerializableMixin):
 
 
 class JSONLogSparkParser(JSONLogParser, SerializableMixin):
+    _name = ''
 
     def __init__(self, schema, drop_row_if_missing=None, sample=None):
+        self._name = schema['name']
 
         self.str_to_type = {
-            'string': (lambda sample: T.StringType()),
-            'number': (lambda sample: T.FloatType()),
-            'integer': (lambda sample: T.IntegerType()),
+            'string': (lambda sample, name: T.StringType()),
+            'number': (lambda sample, name: T.FloatType()),
+            'integer': (lambda sample, name: T.IntegerType()),
+            'object': (lambda sample, name: NAME_TO_SCHEMA[self._name].get(name)),
         }
         self.sample = sample
 
@@ -144,7 +148,7 @@ class JSONLogSparkParser(JSONLogParser, SerializableMixin):
             if 'type' in value.keys():
                 parent.add(T.StructField(
                     name,
-                    self.str_to_type[value['type']](value.get('default')),
+                    self.str_to_type[value['type']](value.get('default'), name),
                     not value.get('required', False)
                 ))
                 return

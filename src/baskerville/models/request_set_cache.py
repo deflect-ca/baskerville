@@ -303,6 +303,7 @@ class RequestSetSparkCache(Singleton):
                 else:
                     self.load_empty(self.schema)
 
+
         # if self.__persistent_cache:
         #     self.__cache = self.__persistent_cache.join(
         #         df,
@@ -337,7 +338,7 @@ class RequestSetSparkCache(Singleton):
             'prediction', 'r', 'score', 'to_update', 'id', 'id_runtime',
             'features', 'start', 'stop', 'subset_count', 'num_requests',
             'total_seconds', 'time_bucket', 'model_version', 'to_update',
-            'label', 'id_attribute', 'id_request_sets', 'created_at',
+            'label', 'id_attribute', 'uuid_request_set', 'created_at',
             'dt', 'id_client'
         ]
         now = datetime.datetime.utcnow()

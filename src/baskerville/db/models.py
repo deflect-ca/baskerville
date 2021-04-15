@@ -13,6 +13,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import expression
 
 from baskerville.db import Base
+from baskerville.util.helpers import SerializableMixin
 
 
 LONG_TEXT_LEN = 4294000000
@@ -26,33 +27,6 @@ class utcnow(expression.FunctionElement):
 @compiles(utcnow, 'postgresql')
 def pg_utcnow(element, compiler, **kw):
     return "TIMEZONE('utc', CURRENT_TIMESTAMP)"
-
-
-class SerializableMixin(object):
-    def as_dict(self, extra_cols=(), remove=()):
-        """
-
-        :param set extra_cols:
-        :param set remove:
-        :return:
-        :rtype: dict[str, T]
-        """
-        basic_attrs = {c.name: getattr(self, c.name)
-                       for c in self.__table__.columns
-                       if c not in remove}
-        extra_attrs = {}
-        if len(extra_cols) > 0:
-            for attr in extra_cols:
-                d = getattr(self, attr)
-                if d is None:
-                    continue
-                if isinstance(d, list):
-                    extra_attrs[attr] = [each.as_dict() for each in d]
-                else:
-                    extra_attrs[attr] = d.as_dict()
-            basic_attrs.update(extra_attrs)
-
-        return basic_attrs
 
 
 class Encryption(Base, SerializableMixin):
@@ -69,6 +43,7 @@ class Runtime(Base, SerializableMixin):
 
     id = Column(BigInteger, primary_key=True)
     id_encryption = Column(BigInteger, ForeignKey('encryption.id'))
+    id_user = Column(BigInteger, ForeignKey('users.id'))
     start = Column(DateTime(timezone=True))
     stop = Column(DateTime(timezone=True))
     target = Column(TEXT(), nullable=True)
@@ -89,6 +64,15 @@ class Runtime(Base, SerializableMixin):
         'Encryption',
         foreign_keys=id_encryption, back_populates='runtimes'
     )
+    # runtimes * - 1 users
+    try:
+        from baskerville.db.dashboard_models import User
+    except:
+        pass
+    user = relationship(
+        'User',
+        foreign_keys=id_user, back_populates='runtimes'
+    )
 
 
 class RequestSet(Base, SerializableMixin):
@@ -96,7 +80,7 @@ class RequestSet(Base, SerializableMixin):
 
     id = Column(BigInteger, primary_key=True)
     id_runtime = Column(BigInteger, ForeignKey('runtimes.id'), nullable=True)
-    id_request_sets = Column(TEXT())
+    uuid_request_set = Column(TEXT())
     target = Column(TEXT())
     target_original = Column(TEXT())
     ip = Column(String(45))
@@ -152,7 +136,7 @@ class RequestSet(Base, SerializableMixin):
     )
 
     columns = [
-        'id_request_sets',
+        'uuid_request_set',
         'ip',
         'target',
         'target_original',
@@ -226,8 +210,9 @@ class ModelTrainingSetLink(Base, SerializableMixin):
 class Attack(Base, SerializableMixin):
     __tablename__ = 'attacks'
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
     id_misp = Column(BigInteger)
+    uuid_org = Column(TEXT())
     date = Column(DateTime(timezone=True))
     start = Column(DateTime(timezone=True))
     stop = Column(DateTime(timezone=True))
@@ -240,6 +225,7 @@ class Attack(Base, SerializableMixin):
     sync_stop = Column(DateTime(timezone=True))
     processed = Column(Integer)
     notes = Column(TEXT)
+    progress_report = Column(TEXT)
     analysis_notebook = Column(TEXT)
 
     request_sets = relationship(
@@ -249,6 +235,10 @@ class Attack(Base, SerializableMixin):
     attributes = relationship(
         'Attribute', secondary='attribute_attack_link',
         back_populates='attacks'
+    )
+    organization = relationship(
+        'Organization',
+        primaryjoin='foreign(Attack.uuid_org) == remote(Organization.uuid)'
     )
 
 
