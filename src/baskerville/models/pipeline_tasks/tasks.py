@@ -580,6 +580,38 @@ class GenerateFeatures(MLTask):
     def handle_missing_values(self):
         self.df = self.data_parser.fill_missing_values(self.df)
 
+    def white_list_urls(self):
+        from baskerville.spark.udfs import udf_remove_www
+
+        self.df = self.df.fillna({'client_request_host': ''})
+
+        urls = self.config.engine.white_list_urls
+        if not urls:
+            return
+
+        domains = []
+        for url in urls:
+            if url.find('/') < 0:
+                domains.append(url)
+
+        self.df = self.df.withColumn('client_request_host_no_www',
+            udf_remove_www(F.col('client_request_host').cast(T.StringType())))
+
+        # filter out only the exact domain match
+        self.df = self.df.filter(~F.col('client_request_host_no_www').isin(domains))
+
+        # concatenate the full path URL
+        self.df = self.df.withColumn('url', F.concat(F.col('client_request_host_no_www'), F.col('client_url')))
+
+        # filter out the domain + path match
+        starts_with = reduce(
+            lambda x, y: x | y,
+            [F.col("url").startswith(s) for s in urls],
+            F.lit(False))
+        self.df = self.df.filter(~starts_with)
+
+        self.df = self.df.drop('client_request_host_no_www').drop('url')
+
     def normalize_host_names(self):
         """
         From www.somedomain.tld keep somedomain
@@ -889,6 +921,7 @@ class GenerateFeatures(MLTask):
 
     def run(self):
         self.handle_missing_columns()
+        self.white_list_urls()
         self.normalize_host_names()
         self.df = self.df.repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
         self.rename_columns()
@@ -1501,6 +1534,7 @@ class AttackDetection(Task):
     """
     Calculates prediction per IP, attack_score per Target, regular vs anomaly counts, attack_prediction
     """
+
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
