@@ -10,8 +10,7 @@ from pyspark.sql import functions as F
 from baskerville.util.helpers import get_default_data_path
 from baskerville.util.model_interpretation.helpers import \
     get_spark_session_with_iforest, load_anomaly_model, \
-    get_trees_and_features, construct_tree_graph, get_shortest_path_for_g, \
-    get_avg_shortest_path_for_forest, draw_graph
+    get_trees_and_features, construct_tree_graph
 
 if __name__ == '__main__':
     data_path = get_default_data_path()

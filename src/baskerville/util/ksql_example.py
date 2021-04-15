@@ -6,7 +6,9 @@ client = KSQLAPI('http://0.0.0.0:8088')
 df = None
 table_name = 'sensitive_data'
 topic = 'predictions'
-column_type = ['uuid_request_set bigint','ip varchar','target varchar', 'stop varchar']
+column_type = [
+    'uuid_request_set bigint','ip varchar','target varchar', 'stop varchar'
+]
 print(client.ksql('show tables'))
 client.create_stream(table_name, column_type, topic)
 print(client.query(f'select * from {table_name}', use_http2=True))
