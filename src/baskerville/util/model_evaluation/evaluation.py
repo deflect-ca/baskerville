@@ -65,7 +65,8 @@ def _parallelFitTasks(est, train, eva, validation, epm, collectSubModel):
 
 
 class IForestCrossValidator(CrossValidator):
-    def __init__(self, estimator: Optional[Estimator] = ...,
+    def __init__(self,
+                 estimator: Optional[Estimator] = ...,
                  estimatorParamMaps: Optional[List[ParamMap]] = ...,
                  evaluator: Optional[Evaluator] = ...,
                  numFolds: int = ...,
@@ -90,6 +91,9 @@ class IForestCrossValidator(CrossValidator):
 
     def get_attacks_df(self):
         self.attacks_df = get_attack_df(start, stop, db_config=self.db_config)
+
+    def get_feedback_df(self):
+        self.feedback_df = get_attack_df(start, stop, db_config=self.db_config)
 
     def get_train(self, df, condition):
         """
@@ -165,7 +169,7 @@ class IForestCrossValidator(CrossValidator):
             CrossValidatorModel(bestModel, metrics, subModels))
 
 
-def get_train_df(start, stop, db_config):
+def get_df(start, stop, db_config):
     # todo: date might have to be str
     return load_df_from_table(
         RequestSet.__tablename__,
@@ -174,25 +178,37 @@ def get_train_df(start, stop, db_config):
     ).cache()
 
 
-def get_test_df(start, stop, db_config):
+def get_train_df(df, split_condition):
+    return df.select(split_condition).cache()
+
+
+def get_random_attacks_by_percentage(
+        attack_df,
+        percent_anomalies=50.,
+        random_col='rand_col'
+):
+    h = 1.0 / (percent_anomalies / 10)
+    validateLB = h
+    validateUB = 6 * h
+    condition = (attack_df[random_col] >= validateLB) & (
+            attack_df[random_col] < validateUB)
+    return attack_df.select(
+        "*", F.rand(43).alias(random_col)
+    ).select(condition).cache()
+
+
+def get_test_df(df, attack_df, percent_anomalies=50):
     """
     The test set should be comprised of part of attack data and part of
     normal data
     """
-    attack_df = get_attack_df(start, stop, db_config)
-
-    # todo: date might have to be str
-    normal_data = load_df_from_table(
-        RequestSet.__tablename__,
-        db_config,
-        (F.col('stop') >= start & F.col('stop') <= stop)
-    ).cache()
-    normal_data = normal_data.join(
-        attack_df, normal_data.ip == attack_df.ip_attacker, how='left'
-    )
-    test_df = normal_data.withColumn(
+    anomalies_df = get_random_attacks_by_percentage(attack_df, percent_anomalies)
+    test_df = df.join(
+        anomalies_df, df.ip == anomalies_df.ip_attacker, how='left'
+    ).withColumn(
         'label', F.when(F.col('ip_attacker').isNull(), 0.0).otherwise(1.0)
     ).cache()
+    test_df.show(10, False)
     return test_df
 
 
@@ -217,8 +233,11 @@ def cross_validate(start, stop, config: BaskervilleConfig, num_folds=3):
     evaluator = BinaryClassificationEvaluator()
     param_grid = ParamGridBuilder()
 
-    evaluation_df = get_train_df(start, stop, db_config={})
-    test_df = get_train_df(start, stop, db_config={})
+    df = get_df(start, stop, db_config=config.database.__dict__)
+    attack_df = get_attack_df(start, stop, db_config=config.database.__dict__)
+
+    evaluation_df = get_train_df(df, )
+    test_df = get_train_df(df, attack_df)
 
     for k, v in config.engine.training.cv_params:
         param_grid.addGrid(k, v)
@@ -235,7 +254,7 @@ def cross_validate(start, stop, config: BaskervilleConfig, num_folds=3):
 
     # cv_model uses the best model found
     prediction = cv_model.transform(test_df)
-    selected = prediction.select("id", "anomalyScore", "prediction")
+    selected = prediction.select("id", "score", "prediction")
     for row in selected.collect():
         print(row)
 

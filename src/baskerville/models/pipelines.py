@@ -12,7 +12,10 @@ import math
 
 from baskerville.models.base_spark import SparkPipelineBase
 from pyspark.streaming import StreamingContext
-from pyspark.streaming.kafka import KafkaUtils
+try:
+    from pyspark.streaming.kafka import KafkaUtils
+except ImportError:
+    print('Cannot import KafkaUtils - check pyspark version')
 
 
 class ElasticsearchPipeline(SparkPipelineBase):
@@ -296,7 +299,7 @@ class KafkaPipeline(SparkPipelineBase):
 
         kafkaStream = KafkaUtils.createDirectStream(
             self.ssc,
-            [self.kafka_conf.logs_topic],
+            [self.kafka_conf.data_topic],
             kafkaParams=kafkaParams,
             # fromOffsets={TopicAndPartition(
             # self.kafka_conf.consume_topic, 0): 0}
@@ -463,7 +466,7 @@ class SparkStructuredStreamingRealTimePipeline(SparkPipelineBase):
 
         kafkaStream = KafkaUtils.createDirectStream(
             self.ssc,
-            [self.kafka_conf.logs_topic],
+            [self.kafka_conf.data_topic],
             {
                 # 'bootstrap.servers': self.kafka_conf.zookeeper,
                 'metadata.broker.list': self.kafka_conf.url,

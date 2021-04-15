@@ -73,6 +73,12 @@ class Task(object, metaclass=abc.ABCMeta):
     def db_tools(self):
         return self.service_provider.tools
 
+    def set_on_all_steps(self, attr, value):
+        for step in self.steps:
+            setattr(step, attr, value)
+            if step.steps:
+                step.set_on_all_steps(attr, value)
+
     def set_df(self, df):
         self.df = df
         return self
