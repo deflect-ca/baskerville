@@ -36,8 +36,8 @@ from baskerville.spark.helpers import map_to_array, load_test, \
     send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col, \
     handle_missing_col
 from baskerville.spark.schemas import features_schema, \
-    prediction_schema, get_features_schema, get_data_schema, \
-    get_feedback_context_schema
+    prediction_schema, get_message_schema, get_data_schema, \
+    get_feedback_context_schema, get_features_schema
 from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
@@ -157,7 +157,7 @@ class GetFeatures(GetDataKafka):
         super().__init__(config, steps)
         self.consume_topic = self.config.kafka.features_topic
         self.data_schema = get_data_schema()
-        self.features_schema = get_features_schema(self.config.engine.all_features)
+        self.message_schema = get_message_schema(self.config.engine.all_features)
     
     def get_data(self):
         self.df = self.spark.createDataFrame(
@@ -167,7 +167,7 @@ class GetFeatures(GetDataKafka):
 
         self.df = self.df.withColumn(
             'message',
-            F.from_json('message', self.features_schema)
+            F.from_json('message', self.message_schema)
         )
 
         self.df = self.df.where(F.col('message.id_client').isNotNull()) \

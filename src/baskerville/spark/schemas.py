@@ -42,19 +42,23 @@ rs_cache_schema = T.StructType([
 ])
 
 
-def get_features_schema(all_features: dict) -> T.StructType:
+def get_message_schema(all_features: dict) -> T.StructType:
     schema = T.StructType([
         T.StructField("id_client", T.StringType(), True),
         T.StructField("uuid_request_set", T.StringType(), False)
     ])
+    schema.add(T.StructField("features", get_features_schema(all_features)))
+    return schema
+
+
+def get_features_schema(all_features: dict) -> T.StructType:
     features = T.StructType()
     for feature in all_features.keys():
         features.add(T.StructField(
             name=feature,
             dataType=T.StringType(),
             nullable=True))
-    schema.add(T.StructField("features", features))
-    return schema
+    return features
 
 
 def get_data_schema() -> T.StructType:
