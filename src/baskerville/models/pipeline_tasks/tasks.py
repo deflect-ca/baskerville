@@ -1679,11 +1679,14 @@ class AttackDetection(Task):
     def detect_low_rate_attack(self):
         self.logger.info('Low rate attack detecting...')
         # todo check features dtype and use from_json if necessary
+        self.df.show(1, False)
         if get_dtype_for_col(self.df, 'features') == 'string':
+            self.logger.warning('features is string... using low_rate_attack_schema')
             self.df = self.df.withColumn(
                 'features',
                 F.from_json('features', self.low_rate_attack_schema)
             )
+        self.df.show(1, False)
         self.df = self.df.withColumn(
             'features.request_total',
             F.col('features.request_total').cast(
@@ -1738,7 +1741,11 @@ class AttackDetection(Task):
         return self.df
 
     def updated_df_with_attacks(self, df_attack):
-        self.df = self.df.join(df_attack, on=[df_attack.uuid_request_set == self.df.uuid_request_set], how='left')
+        self.df = self.df.join(
+            df_attack,
+            on=[df_attack.uuid_request_set == self.df.uuid_request_set],
+            how='left'
+        )
 
     def run(self):
         if get_dtype_for_col(self.df, 'features') == 'string':
