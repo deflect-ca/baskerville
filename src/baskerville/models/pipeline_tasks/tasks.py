@@ -1046,7 +1046,7 @@ class Save(SaveDfInPostgres):
 
         for c in not_common:
             table_columns.remove(c)
-        print('>>>> 1.2', table_columns)
+        print('>>>> 5.2', table_columns)
 
         if len(self.df.columns) < len(table_columns):
             # log and let it blow up; we need to know that we cannot save
@@ -1056,16 +1056,16 @@ class Save(SaveDfInPostgres):
             )
 
         self.df = self.df.select(table_columns)
-        print('>>>> 1.3', self.df.columns)
+        print('>>>> 5.3', self.df.columns)
         self.df = self.df.withColumn(
             'created_at',
             F.current_timestamp()
         )
-        print('>>>> 1.2', self.df.columns)
+        print('>>>> 5.4', self.df.columns)
         self.df.show(1, False)
 
     def run(self):
-        self.prepare_to_save()
+        Save.prepare_to_save(self)
         # save request_sets
         self.logger.debug('Saving request_sets')
         self.df = super().run()
@@ -1701,28 +1701,6 @@ class AttackDetection(Task):
             F.when(self.lra_condition, 1.0).otherwise(0.0)
         )
 
-    def apply_white_list_ips(self, ips):
-        if not self.white_list_ips:
-            return ips
-        self.logger.info('White listing...')
-        result = set(ips) - self.white_list_ips
-
-        white_listed = len(ips) - len(result)
-        if white_listed > 0:
-            self.logger.info(f'White listing {white_listed} ips')
-        return result
-
-    def apply_white_list_origin_ips(self, ips):
-        if not self.origin_ips.get():
-            return ips
-        self.logger.info('White listing origin ips...')
-        result = set(ips) - set(self.origin_ips.get())
-
-        white_listed = len(ips) - len(result)
-        if white_listed > 0:
-            self.logger.info(f'White listing {white_listed} origin ips')
-        return result
-
     def detect_attack(self):
         self.logger.info('Attack detecting...')
 
@@ -1840,6 +1818,28 @@ class Challenge(Task):
             else:
                 filter_ = filter_ & f_
         return filter_
+
+    def apply_white_list_ips(self, ips):
+        if not self.white_list_ips:
+            return ips
+        self.logger.info('White listing...')
+        result = set(ips) - self.white_list_ips
+
+        white_listed = len(ips) - len(result)
+        if white_listed > 0:
+            self.logger.info(f'White listing {white_listed} ips')
+        return result
+
+    def apply_white_list_origin_ips(self, ips):
+        if not self.origin_ips.get():
+            return ips
+        self.logger.info('White listing origin ips...')
+        result = set(ips) - set(self.origin_ips.get())
+
+        white_listed = len(ips) - len(result)
+        if white_listed > 0:
+            self.logger.info(f'White listing {white_listed} origin ips')
+        return result
 
     def send_challenge(self):
         df_ips = self.get_attack_df()
