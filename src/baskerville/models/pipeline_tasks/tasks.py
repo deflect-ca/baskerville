@@ -1090,7 +1090,6 @@ class SaveFeedback(SaveDfInPostgres):
             uuid_organization, feedback_context = self.df.select(
                 'uuid_organization', 'feedback_context'
             ).collect()[0]
-            print(">>>>>>>> feedback_context", feedback_context)
             if feedback_context:
                 fc = self.db_tools.session.query(FeedbackContext).filter_by(
                         uuid_organization=uuid_organization
@@ -1262,6 +1261,8 @@ class MergeWithSensitiveData(Task):
             )
 
         self.df = super().run()
+        print('0.1 >>>>>>>')
+        self.df.select('features').show(1, False)
         return self.df
 
 
@@ -1344,7 +1345,7 @@ class Train(Task):
         super().initialize()
 
     def load_dataset(self, df, features):
-        dataset = df  # .ppppersist(self.spark_conf.storage_level)
+        dataset = df  # .persist(self.spark_conf.storage_level)
 
         max_samples = self.training_conf.data_parameters.get('max_samples_per_host')
         if max_samples:
@@ -1752,6 +1753,8 @@ class AttackDetection(Task):
         )
 
     def run(self):
+        print('>>>>>> 0.3')
+        self.df.select('features').show(1, False)
         if get_dtype_for_col(self.df, 'features') == 'string':
             # this can be true when running the raw log pipeline
             self.df = self.df.withColumn(
