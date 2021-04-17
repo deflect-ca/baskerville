@@ -1039,6 +1039,8 @@ class Save(SaveDfInPostgres):
         super().__init__(config, steps, table_model, json_cols, mode)
 
     def prepare_to_save(self):
+        print('>>>> 1', self.df.columns)
+        self.df.show(1, False)
         table_columns = self.table_model.columns[:]
         not_common = self.not_common.difference(self.df.columns)
 
@@ -1870,8 +1872,8 @@ class Challenge(Task):
                         message = json.dumps(
                             {'name': 'challenge_ip', 'value': ip}
                         ).encode('utf-8')
-                        # self.producer.send(self.config.kafka.banjax_command_topic, message)
-                    # self.producer.flush()
+                        self.producer.send(self.config.kafka.banjax_command_topic, message)
+                    self.producer.flush()
         #
         # return
 
@@ -1964,17 +1966,19 @@ class Challenge(Task):
             self.logger.debug(
                 'Filtering out the load test duplications before challenging..'
             )
-
-    def run(self):
-        if df_has_rows(self.df):
-            self.df = self.df.withColumn('challenged', F.lit(0))
-            self.filter_out_load_test()
             self.df.select(
                 F.col('target').contains('_load_test')
             ).show()
+
+    def run(self):
+        print('>>>>>> 2.', self.df.columns)
+        if df_has_rows(self.df):
+            self.df = self.df.withColumn('challenged', F.lit(0))
+            self.filter_out_load_test()
             self.send_challenge()
         else:
             self.logger.info('Nothing to be challenged...')
-
+        print('>>>>>> 3.', self.df.columns)
         self.df = super().run()
+        print('>>>>>> 4.', self.df.columns)
         return self.df
