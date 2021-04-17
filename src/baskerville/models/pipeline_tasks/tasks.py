@@ -1244,6 +1244,8 @@ class MergeWithSensitiveData(Task):
 
         if self.df and self.df.head(1):
             merge_count = self.df.count()
+            print('0. >>>>>>>')
+            self.df.select('features').show(1, False)
 
             if count != merge_count:
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
