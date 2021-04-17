@@ -1624,9 +1624,11 @@ class AttackDetection(Task):
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
-        self.df = self.df.withColumn('prediction',
-                                     F.when(F.col('score') > self.config.engine.anomaly_threshold,
-                                            F.lit(1.0)).otherwise(F.lit(0.)))
+        self.df = self.df.withColumn(
+            'prediction',
+            F.when(F.col('score') > self.config.engine.anomaly_threshold,
+            F.lit(1.0)).otherwise(F.lit(0.))
+        )
 
     def update_sliding_window(self):
         if self.config.engine.sliding_window == 0:
@@ -1681,8 +1683,7 @@ class AttackDetection(Task):
         # todo check features dtype and use from_json if necessary
         self.df.select('features').show(1, False)
         print('>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', get_dtype_for_col(self.df, 'features'))
-        if get_dtype_for_col(self.df, 'features') == 'string' or True:
-            self.logger.warning('features is string... using low_rate_attack_schema')
+        if get_dtype_for_col(self.df, 'features') == 'string':
             self.df = self.df.withColumn(
                 'features',
                 F.from_json('features', self.low_rate_attack_schema)
@@ -1755,11 +1756,17 @@ class AttackDetection(Task):
                 "features",
                 F.from_json("features", self.features_schema)
             )
+        print('>>>>>> 1.')
+        self.df.select('features').show(1, False)
         self.df = self.df.repartition('target').persist(
             self.config.spark.storage_level
         )
         self.classify_anomalies()
+        print('>>>>>> 2.')
+        self.df.select('features').show(1, False)
         df_attack = self.detect_attack()
+        print('>>>>>> 3.')
+        self.df.select('features').show(1, False)
         if not df_has_rows(df_attack):
             self.updated_df_with_attacks(df_attack)
             self.logger.info('No attacks detected...')
