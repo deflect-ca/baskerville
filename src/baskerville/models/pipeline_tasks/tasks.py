@@ -1005,7 +1005,7 @@ class SaveDfInPostgres(Task):
     def run(self):
         self.config.database.conn_str = self.db_url
 
-        if self.df.count() > 0:
+        if df_has_rows(self.df):
             save_df_to_table(
                 self.df,
                 self.table_model.__tablename__,
@@ -1046,6 +1046,7 @@ class Save(SaveDfInPostgres):
 
         for c in not_common:
             table_columns.remove(c)
+        print('>>>> 1.2', table_columns)
 
         if len(self.df.columns) < len(table_columns):
             # log and let it blow up; we need to know that we cannot save
@@ -1055,10 +1056,13 @@ class Save(SaveDfInPostgres):
             )
 
         self.df = self.df.select(table_columns)
+        print('>>>> 1.3', self.df.columns)
         self.df = self.df.withColumn(
             'created_at',
             F.current_timestamp()
         )
+        print('>>>> 1.2', self.df.columns)
+        self.df.show(1, False)
 
     def run(self):
         self.prepare_to_save()
