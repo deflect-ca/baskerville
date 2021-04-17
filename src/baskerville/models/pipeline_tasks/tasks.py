@@ -1039,14 +1039,11 @@ class Save(SaveDfInPostgres):
         super().__init__(config, steps, table_model, json_cols, mode)
 
     def prepare_to_save(self):
-        print('>>>> 1', self.df.columns)
-        self.df.show(1, False)
         table_columns = self.table_model.columns[:]
         not_common = self.not_common.difference(self.df.columns)
 
         for c in not_common:
             table_columns.remove(c)
-        print('>>>> 5.2', table_columns)
 
         if len(self.df.columns) < len(table_columns):
             # log and let it blow up; we need to know that we cannot save
@@ -1056,12 +1053,10 @@ class Save(SaveDfInPostgres):
             )
 
         self.df = self.df.select(table_columns)
-        print('>>>> 5.3', self.df.columns)
         self.df = self.df.withColumn(
             'created_at',
             F.current_timestamp()
         )
-        print('>>>> 5.4', self.df.columns)
         self.df.show(1, False)
 
     def run(self):
@@ -1975,14 +1970,11 @@ class Challenge(Task):
             ).show()
 
     def run(self):
-        print('>>>>>> 2.', self.df.columns)
         if df_has_rows(self.df):
             self.df = self.df.withColumn('challenged', F.lit(0))
             self.filter_out_load_test()
             self.send_challenge()
         else:
             self.logger.info('Nothing to be challenged...')
-        print('>>>>>> 3.', self.df.columns)
         self.df = super().run()
-        print('>>>>>> 4.', self.df.columns)
         return self.df
