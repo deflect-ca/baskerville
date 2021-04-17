@@ -72,7 +72,7 @@ def set_up_postprocessing_pipeline(config: BaskervilleConfig):
                 MergeWithSensitiveData(config),
                 AttackDetection(config),
                 Challenge(config),
-                Save(config, json_cols=[]),
+                Save(config, json_cols=['features']),
             ]),
     ]
 
