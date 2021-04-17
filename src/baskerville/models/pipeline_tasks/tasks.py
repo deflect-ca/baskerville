@@ -1243,9 +1243,6 @@ class MergeWithSensitiveData(Task):
 
         if self.df and self.df.head(1):
             merge_count = self.df.count()
-            print('0. >>>>>>>')
-            self.df.select('features').show(1, False)
-
             if count != merge_count:
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
@@ -1261,8 +1258,6 @@ class MergeWithSensitiveData(Task):
             )
 
         self.df = super().run()
-        print('0.1 >>>>>>>')
-        self.df.select('features').show(1, False)
         return self.df
 
 
@@ -1683,9 +1678,6 @@ class AttackDetection(Task):
 
     def detect_low_rate_attack(self):
         self.logger.info('Low rate attack detecting...')
-        # todo check features dtype and use from_json if necessary
-        self.df.select('features').show(1, False)
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', get_dtype_for_col(self.df, 'features'))
         if get_dtype_for_col(self.df, 'features') == 'string':
             self.df = self.df.withColumn(
                 'features',
@@ -1753,25 +1745,17 @@ class AttackDetection(Task):
         )
 
     def run(self):
-        print('>>>>>> 0.3')
-        self.df.select('features').show(1, False)
         if get_dtype_for_col(self.df, 'features') == 'string':
             # this can be true when running the raw log pipeline
             self.df = self.df.withColumn(
                 "features",
                 F.from_json("features", self.features_schema)
             )
-        print('>>>>>> 1.')
-        self.df.select('features').show(1, False)
         self.df = self.df.repartition('target').persist(
             self.config.spark.storage_level
         )
         self.classify_anomalies()
-        print('>>>>>> 2.')
-        self.df.select('features').show(1, False)
         df_attack = self.detect_attack()
-        print('>>>>>> 3.')
-        self.df.select('features').show(1, False)
         if not df_has_rows(df_attack):
             self.updated_df_with_attacks(df_attack)
             self.logger.info('No attacks detected...')
