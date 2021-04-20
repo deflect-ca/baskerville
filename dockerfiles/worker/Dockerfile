@@ -33,3 +33,7 @@ RUN git clone --single-branch --branch docker https://github.com/equalitie/baske
 WORKDIR /usr/local/baskerville
 RUN pip3 install -e .
 RUN mkdir -p src/baskerville/logs
+
+ENV BASKERVILLE_ROOT=/usr/local/baskerville
+ENV HADOOP_USER_NAME=hdfs
+ENV PYSPARK_PYTHON=python3.7
