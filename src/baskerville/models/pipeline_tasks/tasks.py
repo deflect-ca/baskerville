@@ -1291,7 +1291,7 @@ class SendToKafka(Task):
                             F.col(c) for c in self.columns
                         )).alias('rows'),
                     F.spark_partition_id().alias('pid')
-                ).cache(),
+                ),
                 self.config.kafka.bootstrap_servers,
                 self.topic,
                 'prediction_center',

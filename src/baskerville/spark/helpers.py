@@ -320,9 +320,9 @@ def send_to_kafka_by_partition_id(
             F.lit(bootstrap_servers),
             F.lit(cmd_topic),
             F.col('rows'),
-            cmd_name=F.lit(cmd),
-            id_client=F.lit('id_client') if id_client else F.lit(None),
-            client_only=F.lit(client_only)
+            F.lit(cmd),
+            F.lit('id_client') if id_client else F.lit(None),
+            F.lit(client_only)
         )
     )
     # False means something went wrong:
