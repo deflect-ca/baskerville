@@ -36,8 +36,8 @@ from baskerville.spark.helpers import map_to_array, load_test, \
     send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col, \
     handle_missing_col
 from baskerville.spark.schemas import features_schema, \
-    prediction_schema, get_features_schema, get_data_schema, \
-    get_feedback_context_schema
+    prediction_schema, get_message_schema, get_data_schema, \
+    get_feedback_context_schema, get_features_schema
 from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
@@ -157,7 +157,7 @@ class GetFeatures(GetDataKafka):
         super().__init__(config, steps)
         self.consume_topic = self.config.kafka.features_topic
         self.data_schema = get_data_schema()
-        self.features_schema = get_features_schema(self.config.engine.all_features)
+        self.message_schema = get_message_schema(self.config.engine.all_features)
     
     def get_data(self):
         self.df = self.spark.createDataFrame(
@@ -167,7 +167,7 @@ class GetFeatures(GetDataKafka):
 
         self.df = self.df.withColumn(
             'message',
-            F.from_json('message', self.features_schema)
+            F.from_json('message', self.message_schema)
         )
 
         self.df = self.df.where(F.col('message.id_client').isNotNull()) \
@@ -1005,7 +1005,7 @@ class SaveDfInPostgres(Task):
     def run(self):
         self.config.database.conn_str = self.db_url
 
-        if self.df.count() > 0:
+        if df_has_rows(self.df):
             save_df_to_table(
                 self.df,
                 self.table_model.__tablename__,
@@ -1057,9 +1057,10 @@ class Save(SaveDfInPostgres):
             'created_at',
             F.current_timestamp()
         )
+        self.df.show(1, False)
 
     def run(self):
-        self.prepare_to_save()
+        Save.prepare_to_save(self)
         # save request_sets
         self.logger.debug('Saving request_sets')
         self.df = super().run()
@@ -1090,7 +1091,6 @@ class SaveFeedback(SaveDfInPostgres):
             uuid_organization, feedback_context = self.df.select(
                 'uuid_organization', 'feedback_context'
             ).collect()[0]
-            print(">>>>>>>> feedback_context", feedback_context)
             if feedback_context:
                 fc = self.db_tools.session.query(FeedbackContext).filter_by(
                         uuid_organization=uuid_organization
@@ -1244,7 +1244,6 @@ class MergeWithSensitiveData(Task):
 
         if self.df and self.df.head(1):
             merge_count = self.df.count()
-
             if count != merge_count:
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
@@ -1342,7 +1341,7 @@ class Train(Task):
         super().initialize()
 
     def load_dataset(self, df, features):
-        dataset = df  # .ppppersist(self.spark_conf.storage_level)
+        dataset = df  # .persist(self.spark_conf.storage_level)
 
         max_samples = self.training_conf.data_parameters.get('max_samples_per_host')
         if max_samples:
@@ -1680,9 +1679,6 @@ class AttackDetection(Task):
 
     def detect_low_rate_attack(self):
         self.logger.info('Low rate attack detecting...')
-        # todo check features dtype and use from_json if necessary
-        self.df.select('features').show(1, False)
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', get_dtype_for_col(self.df, 'features'))
         if get_dtype_for_col(self.df, 'features') == 'string':
             self.df = self.df.withColumn(
                 'features',
@@ -1699,28 +1695,6 @@ class AttackDetection(Task):
             'low_rate_attack',
             F.when(self.lra_condition, 1.0).otherwise(0.0)
         )
-
-    def apply_white_list_ips(self, ips):
-        if not self.white_list_ips:
-            return ips
-        self.logger.info('White listing...')
-        result = set(ips) - self.white_list_ips
-
-        white_listed = len(ips) - len(result)
-        if white_listed > 0:
-            self.logger.info(f'White listing {white_listed} ips')
-        return result
-
-    def apply_white_list_origin_ips(self, ips):
-        if not self.origin_ips.get():
-            return ips
-        self.logger.info('White listing origin ips...')
-        result = set(ips) - set(self.origin_ips.get())
-
-        white_listed = len(ips) - len(result)
-        if white_listed > 0:
-            self.logger.info(f'White listing {white_listed} origin ips')
-        return result
 
     def detect_attack(self):
         self.logger.info('Attack detecting...')
@@ -1756,17 +1730,11 @@ class AttackDetection(Task):
                 "features",
                 F.from_json("features", self.features_schema)
             )
-        print('>>>>>> 1.')
-        self.df.select('features').show(1, False)
         self.df = self.df.repartition('target').persist(
             self.config.spark.storage_level
         )
         self.classify_anomalies()
-        print('>>>>>> 2.')
-        self.df.select('features').show(1, False)
         df_attack = self.detect_attack()
-        print('>>>>>> 3.')
-        self.df.select('features').show(1, False)
         if not df_has_rows(df_attack):
             self.updated_df_with_attacks(df_attack)
             self.logger.info('No attacks detected...')
@@ -1846,6 +1814,28 @@ class Challenge(Task):
                 filter_ = filter_ & f_
         return filter_
 
+    def apply_white_list_ips(self, ips):
+        if not self.white_list_ips:
+            return ips
+        self.logger.info('White listing...')
+        result = set(ips) - self.white_list_ips
+
+        white_listed = len(ips) - len(result)
+        if white_listed > 0:
+            self.logger.info(f'White listing {white_listed} ips')
+        return result
+
+    def apply_white_list_origin_ips(self, ips):
+        if not self.origin_ips.get():
+            return ips
+        self.logger.info('White listing origin ips...')
+        result = set(ips) - set(self.origin_ips.get())
+
+        white_listed = len(ips) - len(result)
+        if white_listed > 0:
+            self.logger.info(f'White listing {white_listed} origin ips')
+        return result
+
     def send_challenge(self):
         df_ips = self.get_attack_df()
         if self.config.engine.challenge == 'ip':
@@ -1881,8 +1871,8 @@ class Challenge(Task):
                         message = json.dumps(
                             {'name': 'challenge_ip', 'value': ip}
                         ).encode('utf-8')
-                        # self.producer.send(self.config.kafka.banjax_command_topic, message)
-                    # self.producer.flush()
+                        self.producer.send(self.config.kafka.banjax_command_topic, message)
+                    self.producer.flush()
         #
         # return
 
@@ -1975,17 +1965,16 @@ class Challenge(Task):
             self.logger.debug(
                 'Filtering out the load test duplications before challenging..'
             )
+            self.df.select(
+                F.col('target').contains('_load_test')
+            ).show()
 
     def run(self):
         if df_has_rows(self.df):
             self.df = self.df.withColumn('challenged', F.lit(0))
             self.filter_out_load_test()
-            self.df.select(
-                F.col('target').contains('_load_test')
-            ).show()
             self.send_challenge()
         else:
             self.logger.info('Nothing to be challenged...')
-
         self.df = super().run()
         return self.df
