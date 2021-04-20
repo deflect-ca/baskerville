@@ -1,0 +1,19 @@
+{
+   "name": "FeedbackSchema",
+   "properties": {
+     "id_context": {
+       "type": "string"
+     },
+     "uuid_organization": {
+       "type": "string"
+     },
+     "feedback_context": {
+       "type": "object"
+     },
+     "feedback": {
+       "type": "object"
+     }
+   },
+  "required": ["id_context", "uuid_organization", "feedback_context", "feedback"],
+   "additionalProperties": false
+}

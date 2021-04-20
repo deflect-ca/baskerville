@@ -28,7 +28,7 @@ def simulation(
         spark=None,
 ):
     """
-    Loads feature vectors with id_client and id_request_sets and publishes them one by
+    Loads feature vectors with id_client and uuid_request_set and publishes them one by
     one with some random delay to the defined topic. This is used
     :param str path: the path to feature vector samples
     :param str kafka_url: the url to kafka, defaults to '0.0.0.0:9092'
@@ -38,7 +38,7 @@ def simulation(
     """
 
     if topic_name:
-        active_columns = ['id_client', 'id_request_sets', 'features']
+        active_columns = ['id_client', 'uuid_request_set', 'features']
 
         if not spark:
             from baskerville.spark import get_spark_session
@@ -62,7 +62,7 @@ def simulation(
                 json.dumps(
                     {
                         'id_client': id_client,
-                        'id_request_sets': id_request_sets,
+                        'uuid_request_set': id_request_sets,
                         'features': features
                     }).encode('utf-8')
             )
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 #   'id_client',
 #   F.monotonically_increasing_id()
 # ).withColumn(
-#     'id_request_sets', F.monotonically_increasing_id()
+#     'uuid_request_set', F.monotonically_increasing_id()
 # )
-# data.select('id_client', 'id_request_sets', 'features').write.format('json').save(
+# data.select('id_client', 'uuid_request_set', 'features').write.format('json').save(
 #     '/path/to/baskerville/data/samples/sample_vectors')

@@ -182,12 +182,13 @@ class BaskervilleConfig(Config):
     - kafka      : optional - depends on the chosen pipeline
 
     """
-    database = None
-    elastic = None
-    misp = None
-    engine = None
-    kafka = None
-    spark = None
+    database: 'DatabaseConfig' = None
+    elastic: 'ElasticConfig' = None
+    misp: 'MispConfig' = None
+    engine: 'EngineConfig' = None
+    kafka: 'KafkaConfig' = None
+    spark: 'SparkConfig' = None
+    user_details: 'UserDetailsConfig' = None
 
     def __init__(self, config):
         super(BaskervilleConfig, self).__init__(config)
@@ -203,6 +204,8 @@ class BaskervilleConfig(Config):
             self.kafka = KafkaConfig(self.kafka)
         if self.spark:
             self.spark = SparkConfig(self.spark)
+        if self.user_details:
+            self.user_details = UserDetailsConfig(self.user_details)
 
     def validate(self):
         logger.debug('Validating BaskervilleConfig...')
@@ -226,6 +229,10 @@ class BaskervilleConfig(Config):
             self.spark.validate()
         else:
             logger.debug('No spark config')
+        if self.user_details:
+            self.user_details.validate()
+        else:
+            logger.error('No user_details config')
 
         self._is_validated = True
         self._is_valid = len(self.errors) == 0
@@ -246,6 +253,7 @@ class EngineConfig(Config):
     simulation = None
     datetime_format = '%Y-%m-%d %H:%M:%S'
     cache_path = None
+    save_cache_to_storage = False
     storage_path = None
     cache_expire_time = None
     cache_load_past = False
@@ -275,9 +283,10 @@ class EngineConfig(Config):
     ip_cache_passed_challenge_size = 100000
     ip_cache_pending_ttl = 60 * 60 * 1  # 1h
     ip_cache_pending_size = 100000
-
+    save_to_storage = True
     white_list_ips = []
     white_list_hosts = []
+    white_list_urls = []
     banjax_sql_update_filter_minutes = 90
     banjax_num_fails_to_ban = 9
     register_banjax_metrics = False
@@ -287,6 +296,7 @@ class EngineConfig(Config):
     new_model_check_in_seconds = 300
     kafka_send_by_partition = True
     use_storage_for_request_cache = False
+    handle_missing_features = False
 
     use_kafka_for_sensitive_data = False
     kafka_topic_sensitive = 'sensitive'
@@ -729,9 +739,13 @@ class KafkaConfig(Config):
     """
     bootstrap_servers = '0.0.0.0:9092'
     zookeeper = 'localhost:2181'
-    logs_topic = 'deflect.logs'
+    data_topic = 'deflect.logs'
     features_topic = 'features'
+    feedback_topic = 'feedback'
+    feedback_response_topic = ''
     predictions_topic = 'predictions'
+    register_topic = 'register'
+    auto_offset_reset = 'largest'
     banjax_command_topic = 'banjax_command_topic'
     banjax_report_topic = 'banjax_report_topic'
     security_protocol = 'PLAINTEXT'
@@ -760,8 +774,12 @@ class KafkaConfig(Config):
         if not self.zookeeper:
             # kafka client can be used without zookeeper
             warnings.warn('Zookeeper url is empty.')
-        if not self.logs_topic:
-            warnings.warn('Logs topic is empty.')
+        if not self.data_topic:
+            warnings.warn('Data topic is empty.')
+        if not self.feedback_topic:
+            warnings.warn('Feedback topic is empty.')
+        if not self.feedback_response_topic:
+            warnings.warn('Feedback response topic is empty.')
         if not self.features_topic:
             warnings.warn('Features topic is empty')
         if not self.predictions_topic:
@@ -980,9 +998,6 @@ class DataParsingConfig(Config):
     group_by_cols = ('client_request_host', 'client_ip')
     timestamp_column = '@timestamp'
 
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
-
     def validate(self):
         logger.debug('Validating DataParsingConfig...')
         from baskerville.models.log_parsers import LOG_PARSERS
@@ -1013,3 +1028,31 @@ class DataParsingConfig(Config):
 
         self._is_validated = True
         return self
+
+
+class UserDetailsConfig(Config):
+    username = ''
+    password = ''
+    organization_uuid = ''
+
+    def validate(self):
+        logger.debug('Validating UserDetailsConfig...')
+        if not self.username:
+            self.add_error(ConfigError(
+                f'Please, provide a username',
+                ['username'],
+                exception_type=ValueError
+            ))
+        if not self.password:
+            self.add_error(ConfigError(
+                f'Please, provide a password',
+                ['password'],
+                exception_type=ValueError
+            ))
+        if not self.organization_uuid:
+            self.add_error(ConfigError(
+                f'Please, provide an organization_uuid',
+                ['organization_uuid'],
+                exception_type=ValueError
+            ))
+

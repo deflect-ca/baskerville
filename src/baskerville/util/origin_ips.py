@@ -39,6 +39,8 @@ class OriginIPs(object):
         return data
 
     def refresh(self):
+        if not self.url:
+            return
         if not self.last_timestamp or int(time.time() - self.last_timestamp) > self.refresh_period_in_seconds:
             self.last_timestamp = time.time()
             self.ips = []

@@ -18,6 +18,12 @@ from tzwhere import tzwhere
 import numpy as np
 
 
+def remove_www(host):
+    if host[:4] == 'www.':
+        return host[4:]
+    return host
+
+
 def normalize_host_name(host):
     if host[:4] == 'www.':
         host = host[4:]
@@ -252,12 +258,17 @@ def get_msg(row, cmd_name):
         return json.dumps(
             {'name': cmd_name, 'value': row}
         ).encode('utf-8')
-    elif cmd_name == 'prediction_center':
+    elif cmd_name == 'prediction_center' or 'feedback_center':
         return json.dumps(row.asDict()).encode('utf-8')
 
 
 def send_to_kafka(
-        kafka_servers, topic, rows, cmd_name='challenge_host', id_client=None
+        kafka_servers,
+        topic,
+        rows,
+        cmd_name='challenge_host',
+        id_client=None,
+        client_only=False,
 ):
     """
     Creates a kafka producer and sends the rows one by one,
@@ -267,11 +278,12 @@ def send_to_kafka(
     try:
         from kafka import KafkaProducer
         producer = KafkaProducer(
-            bootstrap_servers=kafka_servers
+            bootstrap_servers=kafka_servers,
         )
         for row in rows:
             message = get_msg(row, cmd_name)
-            producer.send(topic, message)
+            if not client_only:
+                producer.send(topic, get_msg(row, cmd_name))
             if id_client:
                 producer.send(f'{topic}.{id_client}', message)
         producer.flush()
@@ -319,6 +331,7 @@ prediction_schema = T.StructType([
 ])
 
 udf_normalize_host_name = F.udf(normalize_host_name, T.StringType())
+udf_remove_www = F.udf(remove_www, T.StringType())
 udf_predict_dict = F.udf(predict_dict, prediction_schema)
 udf_compute_geotime = F.udf(compute_geotime, T.FloatType())
 udf_delete_by = F.udf(delete_by, T.BooleanType())
