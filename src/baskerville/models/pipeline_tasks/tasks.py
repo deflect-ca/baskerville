@@ -1650,7 +1650,6 @@ class AttackDetection(Task):
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
-        self.ip_cache = IPCache(config, self.logger)
         self.report_consumer = None
         self.banjax_thread = None
         self.register_metrics = config.engine.register_banjax_metrics
@@ -1861,6 +1860,7 @@ class Challenge(Task):
         self.attack_filter = None
         self.producer = None
         self.udf_send_to_kafka = None
+        self.ip_cache = IPCache(config, self.logger)
         self.origin_ips = OriginIPs(
             url=config.engine.url_origin_ips,
             url2=config.engine.url_origin_ips2,
