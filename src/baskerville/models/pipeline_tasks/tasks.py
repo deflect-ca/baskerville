@@ -1851,7 +1851,7 @@ class Challenge(Task):
     def __init__(
             self,
             config: BaskervilleConfig, steps=(),
-            attack_cols=('prediction', 'attack_prediction', 'low_rate_attack')
+            attack_cols=('prediction', 'low_rate_attack')
     ):
         super().__init__(config, steps)
         self.attack_cols = attack_cols
@@ -1875,8 +1875,8 @@ class Challenge(Task):
         #                                              DictAccumulatorParam(
         #                                                  defaultdict(int)))
         self.attack_filter = self.get_attack_filter()
-        # self.producer = KafkaProducer(
-        #     bootstrap_servers=self.config.kafka.bootstrap_servers)
+        self.producer = KafkaProducer(
+            bootstrap_servers=self.config.kafka.bootstrap_servers)
         if self.config.engine.white_list_hosts:
             self.df_white_list_hosts = self.spark.createDataFrame(
                 [
@@ -1923,7 +1923,7 @@ class Challenge(Task):
             if filter_ is None:
                 filter_ = f_
             else:
-                filter_ = filter_ & f_
+                filter_ = filter_ | f_
         return filter_
 
     def apply_white_list_ips(self, ips):
@@ -1971,7 +1971,7 @@ class Challenge(Task):
                     # )
                     self.df = self.df.withColumn(
                         'challenged',
-                        F.when(F.col('ip').isin(F.lit(ips)), 1).otherwise(0)
+                        F.when(F.col('ip').isin([f'{ip}' for ip in ips]), 1).otherwise(0)
                     )
                     # self.df = self.df.join(challenged_ips, on='ip', how='left')
                     # self.df = self.df.fillna({'challenged': 0})
