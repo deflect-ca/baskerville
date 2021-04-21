@@ -1658,12 +1658,6 @@ class AttackDetection(Task):
         self.time_filter = None
         self.lra_condition = None
         self.features_schema = get_features_schema(self.config.engine.all_features)
-        self.origin_ips = OriginIPs(
-            url=config.engine.url_origin_ips,
-            url2=config.engine.url_origin_ips2,
-            logger=self.logger,
-            refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
-        )
 
     def initialize(self):
         lr_attack_period = self.config.engine.low_rate_attack_period
@@ -1867,6 +1861,12 @@ class Challenge(Task):
         self.attack_filter = None
         self.producer = None
         self.udf_send_to_kafka = None
+        self.origin_ips = OriginIPs(
+            url=config.engine.url_origin_ips,
+            url2=config.engine.url_origin_ips2,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
+        )
 
     def initialize(self):
         # global IP_ACC
