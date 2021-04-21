@@ -90,7 +90,7 @@ def set_up_postprocessing_pipeline(config: BaskervilleConfig):
                 MergeWithSensitiveData(config),
                 AttackDetection(config),
                 Challenge(config),
-                Save(config, json_cols=('features',) if config.engine.use_kafka_for_sensitive_data else []),
+                Save(config),
             ]),
     ]
 
