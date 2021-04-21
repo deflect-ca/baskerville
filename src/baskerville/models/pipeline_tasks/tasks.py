@@ -160,7 +160,7 @@ class GetFeatures(GetDataKafka):
         self.consume_topic = self.config.kafka.features_topic
         self.data_schema = get_data_schema()
         self.message_schema = get_message_schema(self.config.engine.all_features)
-    
+
     def get_data(self):
         self.df = self.spark.createDataFrame(
             self.df,
@@ -191,9 +191,9 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        )#.persist(
-         # self.config.spark.storage_level
-        #)
+        )  # .persist(
+        # self.config.spark.storage_level
+        # )
         # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
@@ -354,7 +354,7 @@ class GetDataLog(Task):
     def create_runtime(self):
         self.service_provider.create_runtime()
         self.runtime.file_name = self.current_log_path
-        self.runtime.comment=f'batch runtime {self.batch_i} of {self.batch_n}'
+        self.runtime.comment = f'batch runtime {self.batch_i} of {self.batch_n}'
         self.db_tools.session.commit()
         self.logger.info('Created runtime {}'.format(self.runtime.id))
 
@@ -366,7 +366,7 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        ) #.persist(self.config.spark.storage_level)
+        )  # .persist(self.config.spark.storage_level)
 
         self.df = load_test(
             self.df,
@@ -597,7 +597,7 @@ class GenerateFeatures(MLTask):
                 domains.append(url)
 
         self.df = self.df.withColumn('client_request_host_no_www',
-            udf_remove_www(F.col('client_request_host').cast(T.StringType())))
+                                     udf_remove_www(F.col('client_request_host').cast(T.StringType())))
 
         # filter out only the exact domain match
         self.df = self.df.filter(~F.col('client_request_host_no_www').isin(domains))
@@ -789,7 +789,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        #self.df.persist(self.config.spark.storage_level)
+        # self.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -1029,17 +1029,18 @@ class Save(SaveDfInPostgres):
     """
     Saves dataframe in Postgres (current backend)
     """
+
     def __init__(self, config,
                  steps=(),
                  table_model=RequestSet,
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                     'prediction',
-                     'model_version',
-                     'label',
-                     'id_attribute',
-                     'updated_at')
+                         'prediction',
+                         'model_version',
+                         'label',
+                         'id_attribute',
+                         'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1080,11 +1081,11 @@ class SaveFeedback(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                     'prediction',
-                     'model_version',
-                     'label',
-                     'id_attribute',
-                     'updated_at')
+                         'prediction',
+                         'model_version',
+                         'label',
+                         'id_attribute',
+                         'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1099,7 +1100,7 @@ class SaveFeedback(SaveDfInPostgres):
             ).collect()[0]
             if feedback_context:
                 fc = self.db_tools.session.query(FeedbackContext).filter_by(
-                        uuid_organization=uuid_organization
+                    uuid_organization=uuid_organization
                 ).filter_by(
                     start=feedback_context.start
                 ).filter_by(stop=feedback_context.stop).first()
@@ -1419,7 +1420,7 @@ class SendToKafka2(Task):
                 df.select(
                     F.struct(
                         *list(
-                            F.col(c) for c in set(self.columns1+self.columns2)
+                            F.col(c) for c in set(self.columns1 + self.columns2)
                         )).alias('rows'),
                     F.spark_partition_id().alias('pid')
                 ),
@@ -1677,9 +1678,9 @@ class AttackDetection(Task):
         )
         self.lra_condition = (
                 ((F.col('features.request_total') > lr_attack_period[0]) &
-                (self.time_filter > lra_total_req[0])) |
+                 (self.time_filter > lra_total_req[0])) |
                 ((F.col('features.request_total') > lr_attack_period[1]) &
-                (self.time_filter > lra_total_req[1]))
+                 (self.time_filter > lra_total_req[1]))
         )
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
@@ -1737,7 +1738,7 @@ class AttackDetection(Task):
         self.df = self.df.withColumn(
             'prediction',
             F.when(F.col('score') > self.config.engine.anomaly_threshold,
-            F.lit(1.0)).otherwise(F.lit(0.))
+                   F.lit(1.0)).otherwise(F.lit(0.))
         )
 
     def update_sliding_window(self):
@@ -1881,7 +1882,7 @@ class Challenge(Task):
                 [
                     [host] for host in
                     set(self.config.engine.white_list_hosts)
-                ], ['target'])\
+                ], ['target']) \
                 .withColumn('white_list_host', F.lit(1))
 
         def send_to_kafka(
