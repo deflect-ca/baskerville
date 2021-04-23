@@ -1979,11 +1979,19 @@ class Challenge(Task):
                     self.logger.info(
                         f'Sending {num_records} IP challenge commands to '
                         f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+                    null_ips = False
                     for ip in ips:
-                        message = json.dumps(
-                            {'name': 'challenge_ip', 'value': ip}
-                        ).encode('utf-8')
-                        self.producer.send(self.config.kafka.banjax_command_topic, message)
+                        if ip:
+                            message = json.dumps(
+                                {'name': 'challenge_ip', 'value': ip}
+                            ).encode('utf-8')
+                            self.producer.send(self.config.kafka.banjax_command_topic, message)
+                        else:
+                            null_ips = True
+                    if null_ips:
+                        self.logger.info('Null ips')
+                        self.logger.info(f'{ips}')
+
                     self.producer.flush()
         #
         # return
