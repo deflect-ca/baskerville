@@ -293,8 +293,8 @@ class EngineConfig(Config):
     dashboard_config_refresh_period_in_seconds = 300
     url_origin_ips = ''
     url_origin_ips2 = ''
-    url_whitelist_hosts = ''
     url_whitelist_urls = ''
+    url_whitelist_hosts = ''
     new_model_check_in_seconds = 300
     kafka_send_by_partition = True
     use_storage_for_request_cache = False
