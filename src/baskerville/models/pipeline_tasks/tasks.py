@@ -48,6 +48,8 @@ from baskerville.util.helpers import instantiate_from_str, get_model_path, \
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning, send_to_kafka2
 from baskerville.util.origin_ips import OriginIPs
+from baskerville.util.whitelist_hosts import WhitelistHosts
+from baskerville.util.whitelist_urls import WhitelistURLs
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
@@ -523,6 +525,11 @@ class GenerateFeatures(MLTask):
         self.columns_to_filter_by = None
         self.drop_if_missing_filter = None
         self.cols_to_drop = None
+        self.whitelist_urls = WhitelistURLs(
+            url=config.engine.url_whitelist_urls,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
+        )
 
     def initialize(self):
         MLTask.initialize(self)
@@ -587,9 +594,13 @@ class GenerateFeatures(MLTask):
 
         self.df = self.df.fillna({'client_request_host': ''})
 
-        urls = self.config.engine.white_list_urls
-        if not urls:
-            return
+        urls = []
+        if self.config.engine.white_list_urls:
+            urls = self.config.engine.white_list_urls
+        urls_from_dashboard = self.whitelist_urls.get()
+        if urls_from_dashboard:
+            urls += urls_from_dashboard
+        urls = list(set(urls))
 
         domains = []
         for url in urls:
@@ -1307,7 +1318,7 @@ class MergeWithSensitiveData(Task):
 
         self.df = self.df.alias('df')
         self.df = self.df.join(
-            self.df_sensitive, on=['id_client', 'uuid_request_set'], how='left'
+            self.df_sensitive, on=['id_client', 'uuid_request_set'], how='inner'
         ).drop('df.id_client', 'df.uuid_request_set')
 
         if self.df and self.df.head(1):
@@ -1856,7 +1867,6 @@ class Challenge(Task):
         super().__init__(config, steps)
         self.attack_cols = attack_cols
         self.white_list_ips = set(self.config.engine.white_list_ips)
-        self.df_white_list_hosts = None
         self.attack_filter = None
         self.producer = None
         self.udf_send_to_kafka = None
@@ -1865,7 +1875,12 @@ class Challenge(Task):
             url=config.engine.url_origin_ips,
             url2=config.engine.url_origin_ips2,
             logger=self.logger,
-            refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
+            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
+        )
+        self.whitelist_hosts = WhitelistHosts(
+            url=config.engine.url_whitelist_hosts,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
         )
 
     def initialize(self):
@@ -1877,13 +1892,6 @@ class Challenge(Task):
         self.attack_filter = self.get_attack_filter()
         self.producer = KafkaProducer(
             bootstrap_servers=self.config.kafka.bootstrap_servers)
-        if self.config.engine.white_list_hosts:
-            self.df_white_list_hosts = self.spark.createDataFrame(
-                [
-                    [host] for host in
-                    set(self.config.engine.white_list_hosts)
-                ], ['target']) \
-                .withColumn('white_list_host', F.lit(1))
 
         def send_to_kafka(
                 kafka_servers, topic, rows, cmd_name='challenge_host',
@@ -1938,10 +1946,15 @@ class Challenge(Task):
         return result
 
     def apply_white_list_origin_ips(self, ips):
-        if not self.origin_ips.get():
+        whitelist = []
+        if self.config.engine.white_list_ips:
+            whitelist = self.config.engine.white_list_ips
+        if self.origin_ips.get():
+            whitelist += self.origin_ips.get()
+        if len(whitelist) == 0:
             return ips
         self.logger.info('White listing origin ips...')
-        result = set(ips) - set(self.origin_ips.get())
+        result = set(ips) - set(whitelist)
 
         white_listed = len(ips) - len(result)
         if white_listed > 0:
@@ -1954,11 +1967,23 @@ class Challenge(Task):
             if not df_has_rows(df_ips):
                 self.logger.debug('No attacks to be challenged...')
                 return
-            if self.df_white_list_hosts:
+
+            # host white listing
+            hosts = []
+            if self.config.engine.white_list_hosts:
+                hosts = self.config.engine.white_list_hosts
+
+            if self.whitelist_hosts.get():
+                hosts += self.whitelist_hosts.get()
+
+            if len(hosts):
+                df_white_list_hosts = self.spark.createDataFrame(
+                        [[host] for host in set(hosts)], ['target']).withColumn('white_list_host', F.lit(1))
                 df_ips = df_ips.join(
-                    self.df_white_list_hosts, on='target', how='left'
+                    df_white_list_hosts, on='target', how='left'
                 ).persist()
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
+
             if df_has_rows(df_ips):
                 ips = [r['ip'] for r in df_ips.collect()]
                 ips = self.apply_white_list_ips(ips)

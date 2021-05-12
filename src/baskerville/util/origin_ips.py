@@ -3,66 +3,30 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-from urllib.error import HTTPError, URLError
-from urllib.request import urlopen
-import json
-import time
+
+from baskerville.util.json_url_reader import JsonUrlReader
 
 
 class OriginIPs(object):
 
     def __init__(self, url, url2, logger, refresh_period_in_seconds=300):
-        self.url = url
-        self.url2 = url2
-        self.refresh_period_in_seconds = refresh_period_in_seconds
+        self.reader1 = JsonUrlReader(url=url, logger=logger, refresh_period_in_seconds=refresh_period_in_seconds)
+        self.reader2 = JsonUrlReader(url=url2, logger=logger, refresh_period_in_seconds=refresh_period_in_seconds)
         self.ips = None
-        self.last_timestamp = None
         self.logger = logger
-        self.refresh()
-
-    def read_json_from_url(self, url):
-        try:
-            html = urlopen(url).read()
-        except HTTPError as e:
-            self.logger.error(f'HTTP Error {e.code} while parsing origin host IPs from {url}')
-            return None
-        except URLError as e:
-            self.logger.error(f'URL error {e.reason} while getting origin host IPs from {url}')
-            return None
-
-        try:
-            data = json.loads(html)
-        except json.JSONDecodeError as e:
-            self.logger.error(f'JSON error {e} while getting origin host IPs from {url}')
-            return None
-
-        return data
-
-    def refresh(self):
-        if not self.url:
-            return
-        if not self.last_timestamp or int(time.time() - self.last_timestamp) > self.refresh_period_in_seconds:
-            self.last_timestamp = time.time()
-            self.ips = []
-            if self.url:
-                self.logger.info('Refreshing origin IPs...')
-                data = self.read_json_from_url(self.url)
-                if data:
-                    self.ips = list(data.values())
-
-            if self.url2:
-                self.logger.info('Refreshing origin IPs 2 ...')
-                data = self.read_json_from_url(self.url2)
-                if data:
-                    for k, v in data.items():
-                        for ip in v:
-                            self.ips.append(ip.split('/')[0])
-
-            self.ips = list(set(self.ips))
 
     def get(self):
-        if not self.url:
-            return []
+        ips = []
+        data1 = self.reader1.get()
+        if data1:
+            ips = list(data1.values())
 
-        self.refresh()
-        return self.ips
+        data2 = self.reader2.get()
+        if data2:
+            for k, v in data2.items():
+                for ip in v:
+                    ips.append(ip.split('/')[0])
+        ips = list(set(ips))
+        self.logger.info(f'Origin ips = {ips}')
+        return ips
+

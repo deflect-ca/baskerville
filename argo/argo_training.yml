@@ -1,33 +1,6 @@
 metadata:
-  name: preprocessing
+  name: training
   namespace: default
-  selfLink: >-
-    /apis/argoproj.io/v1alpha1/namespaces/default/workflowtemplates/preprocessing
-  uid: 25c5a5f9-c01f-4020-ace3-b763f1f3f70f
-  resourceVersion: '21796225'
-  generation: 8
-  creationTimestamp: '2021-04-09T17:05:41Z'
-  labels:
-    workflows.argoproj.io/creator: system-serviceaccount-argo-argo-server
-  managedFields:
-    - manager: argo
-      operation: Update
-      apiVersion: argoproj.io/v1alpha1
-      time: '2021-04-09T17:10:56Z'
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:metadata':
-          'f:labels':
-            .: {}
-            'f:workflows.argoproj.io/creator': {}
-        'f:spec':
-          .: {}
-          'f:arguments':
-            .: {}
-            'f:parameters': {}
-          'f:entrypoint': {}
-          'f:templates': {}
-          'f:volumes': {}
 spec:
   templates:
     - name: spark-submit
@@ -82,7 +55,7 @@ spec:
           - >-
             spark.kubernetes.container.image={{inputs.parameters.baskerville_image}}
           - /usr/local/baskerville/src/baskerville/main.py
-          - preprocessing
+          - training
           - '-c'
           - '{{inputs.parameters.config}}'
           - '-cb'
