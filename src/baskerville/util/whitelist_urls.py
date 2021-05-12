@@ -17,7 +17,7 @@ class WhitelistURLs(object):
         urls = []
         data = self.reader.get()
         if data:
-            urls = set(data['white_list_urls'])
+            urls = list(set(data['white_list_urls']))
 
         self.logger.info(f'Whitelist urls = {urls}')
         return urls
