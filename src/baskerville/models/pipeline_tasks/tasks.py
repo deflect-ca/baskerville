@@ -47,7 +47,7 @@ from baskerville.util.helpers import instantiate_from_str, get_model_path, \
     parse_config
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning, send_to_kafka2
-from baskerville.util.origin_ips import OriginIPs
+from baskerville.util.whitelist_ips import WhitelistIPs
 from baskerville.util.whitelist_hosts import WhitelistHosts
 from baskerville.util.whitelist_urls import WhitelistURLs
 
@@ -530,6 +530,12 @@ class GenerateFeatures(MLTask):
             logger=self.logger,
             refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
         )
+        self.whitelist_ips = WhitelistIPs(
+            url=config.engine.url_origin_ips,
+            url2=config.engine.url_whitelist_ips,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
+        )
 
     def initialize(self):
         MLTask.initialize(self)
@@ -589,11 +595,27 @@ class GenerateFeatures(MLTask):
     def handle_missing_values(self):
         self.df = self.data_parser.fill_missing_values(self.df)
 
+    def white_list_ips(self):
+        whitelist = []
+        if self.config.engine.white_list_ips:
+            whitelist = self.config.engine.white_list_ips
+        if self.whitelist_ips.get_global_ips():
+            whitelist += self.whitelist_ips.get_global_ips()
+        if len(whitelist) == 0:
+            return
+        self.df = self.df.filter(~F.col('client_ip').isin(whitelist))
+
+        host_ips = self.whitelist_ips.get_host_ips()
+        host_ip_list = []
+        for host, v in host_ips.items():
+            for ip in v:
+                host_ip_list.append(f'{host}{ip}')
+
+        self.df = self.df.withColumn('host_ip', F.concat(F.col('target_original'), F.col('client_ip')))
+        self.df = self.df.filter(~F.col('host_ip').isin(host_ip_list))
+        self.df = self.df.drop('host_ip')
+
     def white_list_urls(self):
-        from baskerville.spark.udfs import udf_remove_www
-
-        self.df = self.df.fillna({'client_request_host': ''})
-
         urls = []
         if self.config.engine.white_list_urls:
             urls = self.config.engine.white_list_urls
@@ -607,14 +629,11 @@ class GenerateFeatures(MLTask):
             if url.find('/') < 0:
                 domains.append(url)
 
-        self.df = self.df.withColumn('client_request_host_no_www',
-                                     udf_remove_www(F.col('client_request_host').cast(T.StringType())))
-
         # filter out only the exact domain match
-        self.df = self.df.filter(~F.col('client_request_host_no_www').isin(domains))
+        self.df = self.df.filter(~F.col('target_original').isin(domains))
 
         # concatenate the full path URL
-        self.df = self.df.withColumn('url', F.concat(F.col('client_request_host_no_www'), F.col('client_url')))
+        self.df = self.df.withColumn('url', F.concat(F.col('target_original'), F.col('client_url')))
 
         # filter out the domain + path match
         starts_with = reduce(
@@ -622,8 +641,6 @@ class GenerateFeatures(MLTask):
             [F.col("url").startswith(s) for s in urls],
             F.lit(False))
         self.df = self.df.filter(~starts_with)
-
-        self.df = self.df.drop('client_request_host_no_www').drop('url')
 
     def normalize_host_names(self):
         """
@@ -633,8 +650,10 @@ class GenerateFeatures(MLTask):
         :return:
         """
         from baskerville.spark.udfs import udf_normalize_host_name
+        from baskerville.spark.udfs import udf_remove_www
         self.df = self.df.fillna({'client_request_host': ''})
-        self.df = self.df.withColumn('target_original', F.col('client_request_host').cast(T.StringType()))
+        self.df = self.df.withColumn('target_original',
+                                     udf_remove_www(F.col('client_request_host').cast(T.StringType())))
         self.df = self.df.withColumn(
             'client_request_host',
             udf_normalize_host_name(
@@ -934,8 +953,9 @@ class GenerateFeatures(MLTask):
 
     def run(self):
         self.handle_missing_columns()
-        self.white_list_urls()
         self.normalize_host_names()
+        self.white_list_ips()
+        self.white_list_urls()
         self.df = self.df.repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
         self.rename_columns()
         self.filter_columns()
@@ -1871,12 +1891,6 @@ class Challenge(Task):
         self.producer = None
         self.udf_send_to_kafka = None
         self.ip_cache = IPCache(config, self.logger)
-        self.origin_ips = OriginIPs(
-            url=config.engine.url_origin_ips,
-            url2=config.engine.url_origin_ips2,
-            logger=self.logger,
-            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
-        )
         self.whitelist_hosts = WhitelistHosts(
             url=config.engine.url_whitelist_hosts,
             logger=self.logger,
@@ -1934,33 +1948,6 @@ class Challenge(Task):
                 filter_ = filter_ | f_
         return filter_
 
-    def apply_white_list_ips(self, ips):
-        if not self.white_list_ips:
-            return ips
-        self.logger.info('White listing...')
-        result = set(ips) - self.white_list_ips
-
-        white_listed = len(ips) - len(result)
-        if white_listed > 0:
-            self.logger.info(f'White listing {white_listed} ips')
-        return result
-
-    def apply_white_list_origin_ips(self, ips):
-        whitelist = []
-        if self.config.engine.white_list_ips:
-            whitelist = self.config.engine.white_list_ips
-        if self.origin_ips.get():
-            whitelist += self.origin_ips.get()
-        if len(whitelist) == 0:
-            return ips
-        self.logger.info('White listing origin ips...')
-        result = set(ips) - set(whitelist)
-
-        white_listed = len(ips) - len(result)
-        if white_listed > 0:
-            self.logger.info(f'White listing {white_listed} origin ips')
-        return result
-
     def send_challenge(self):
         df_ips = self.get_attack_df()
         if self.config.engine.challenge == 'ip':
@@ -1986,8 +1973,6 @@ class Challenge(Task):
 
             if df_has_rows(df_ips):
                 ips = [r['ip'] for r in df_ips.collect()]
-                ips = self.apply_white_list_ips(ips)
-                ips = self.apply_white_list_origin_ips(ips)
                 ips = self.ip_cache.update(ips)
                 num_records = len(ips)
                 if num_records > 0:

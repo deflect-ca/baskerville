@@ -292,7 +292,7 @@ class EngineConfig(Config):
     register_banjax_metrics = False
     dashboard_config_refresh_period_in_seconds = 300
     url_origin_ips = ''
-    url_origin_ips2 = ''
+    url_whitelist_ips = ''
     url_whitelist_urls = ''
     url_whitelist_hosts = ''
     new_model_check_in_seconds = 300

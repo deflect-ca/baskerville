@@ -19,5 +19,4 @@ class WhitelistURLs(object):
         if data:
             urls = list(set(data['white_list_urls']))
 
-        self.logger.info(f'Whitelist urls = {urls}')
         return urls
