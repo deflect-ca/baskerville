@@ -606,6 +606,11 @@ class GenerateFeatures(MLTask):
         self.df = self.df.filter(~F.col('client_ip').isin(whitelist))
 
         host_ips = self.whitelist_ips.get_host_ips()
+
+        if len(host_ips.keys()) == 0:
+            return
+
+        host_ips = self.whitelist_ips.get_host_ips()
         host_ip_list = []
         for host, v in host_ips.items():
             for ip in v:
@@ -614,6 +619,14 @@ class GenerateFeatures(MLTask):
         self.df = self.df.withColumn('host_ip', F.concat(F.col('target_original'), F.col('client_ip')))
         self.df = self.df.filter(~F.col('host_ip').isin(host_ip_list))
         self.df = self.df.drop('host_ip')
+
+        # @F.udf(returnType=T.BooleanType())
+        # def filter_ips(target, ip):
+        #     if target not in host_ips:
+        #         return True
+        #     return ip not in host_ips[target]
+        # self.df = self.df.filter(filter_ips('target_original', 'client_ip'))
+
 
     def white_list_urls(self):
         urls = []
@@ -635,12 +648,14 @@ class GenerateFeatures(MLTask):
         # concatenate the full path URL
         self.df = self.df.withColumn('url', F.concat(F.col('target_original'), F.col('client_url')))
 
-        # filter out the domain + path match
-        starts_with = reduce(
-            lambda x, y: x | y,
-            [F.col("url").startswith(s) for s in urls],
-            F.lit(False))
-        self.df = self.df.filter(~starts_with)
+        @F.udf(returnType=T.BooleanType())
+        def filter_urls(url):
+            for url_prefix in urls:
+                if url.startswith(url_prefix):
+                    return False
+            return True
+
+        self.df = self.df.filter(filter_urls('url'))
 
     def normalize_host_names(self):
         """
@@ -954,7 +969,8 @@ class GenerateFeatures(MLTask):
     def run(self):
         self.handle_missing_columns()
         self.normalize_host_names()
-        self.white_list_ips()
+        # self.df = self.df.repartition('target_original')
+        # self.white_list_ips()
         self.white_list_urls()
         self.df = self.df.repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
         self.rename_columns()
