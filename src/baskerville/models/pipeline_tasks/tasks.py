@@ -34,7 +34,7 @@ from baskerville.models.config import BaskervilleConfig, TrainingConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
     send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col, \
-    handle_missing_col
+    handle_missing_col, send_to_kafka2_by_partition_id
 from baskerville.spark.schemas import features_schema, \
     prediction_schema, get_message_schema, get_data_schema, \
     get_feedback_context_schema, get_features_schema
@@ -45,7 +45,11 @@ from dateutil.tz import tzutc
 from baskerville.util.enums import LabelEnum
 from baskerville.util.helpers import instantiate_from_str, get_model_path, \
     parse_config
-from baskerville.util.origin_ips import OriginIPs
+from baskerville.util.helpers import instantiate_from_str, get_model_path
+from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning, send_to_kafka2
+from baskerville.util.whitelist_ips import WhitelistIPs
+from baskerville.util.whitelist_hosts import WhitelistHosts
+from baskerville.util.whitelist_urls import WhitelistURLs
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
@@ -158,7 +162,7 @@ class GetFeatures(GetDataKafka):
         self.consume_topic = self.config.kafka.features_topic
         self.data_schema = get_data_schema()
         self.message_schema = get_message_schema(self.config.engine.all_features)
-    
+
     def get_data(self):
         self.df = self.spark.createDataFrame(
             self.df,
@@ -189,9 +193,9 @@ class GetPredictions(GetDataKafka):
     def get_data(self):
         self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
             prediction_schema  # todo: dataparser.schema
-        )#.persist(
-         # self.config.spark.storage_level
-        #)
+        )  # .persist(
+        # self.config.spark.storage_level
+        # )
         # self.df.show()
         # json_schema = self.spark.read.json(
         #     self.df.limit(1).rdd.map(lambda row: row.features)
@@ -352,7 +356,7 @@ class GetDataLog(Task):
     def create_runtime(self):
         self.service_provider.create_runtime()
         self.runtime.file_name = self.current_log_path
-        self.runtime.comment=f'batch runtime {self.batch_i} of {self.batch_n}'
+        self.runtime.comment = f'batch runtime {self.batch_i} of {self.batch_n}'
         self.db_tools.session.commit()
         self.logger.info('Created runtime {}'.format(self.runtime.id))
 
@@ -364,7 +368,7 @@ class GetDataLog(Task):
 
         self.df = self.spark.read.json(
             self.current_log_path
-        ) #.persist(self.config.spark.storage_level)
+        )  # .persist(self.config.spark.storage_level)
 
         self.df = load_test(
             self.df,
@@ -386,7 +390,7 @@ class GetDataLog(Task):
             ):
                 self.df = window_df.repartition(
                     *self.group_by_cols
-                )#.persist(self.config.spark.storage_level)
+                )  # .persist(self.config.spark.storage_level)
                 self.remaining_steps = list(self.step_to_action.keys())
                 self.df = super().run()
                 self.reset()
@@ -521,6 +525,17 @@ class GenerateFeatures(MLTask):
         self.columns_to_filter_by = None
         self.drop_if_missing_filter = None
         self.cols_to_drop = None
+        self.whitelist_urls = WhitelistURLs(
+            url=config.engine.url_whitelist_urls,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
+        )
+        self.whitelist_ips = WhitelistIPs(
+            url=config.engine.url_origin_ips,
+            url2=config.engine.url_whitelist_ips,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
+        )
 
     def initialize(self):
         MLTask.initialize(self)
@@ -580,37 +595,67 @@ class GenerateFeatures(MLTask):
     def handle_missing_values(self):
         self.df = self.data_parser.fill_missing_values(self.df)
 
-    def white_list_urls(self):
-        from baskerville.spark.udfs import udf_remove_www
-
-        self.df = self.df.fillna({'client_request_host': ''})
-
-        urls = self.config.engine.white_list_urls
-        if not urls:
+    def white_list_ips(self):
+        whitelist = []
+        if self.config.engine.white_list_ips:
+            whitelist = self.config.engine.white_list_ips
+        if self.whitelist_ips.get_global_ips():
+            whitelist += self.whitelist_ips.get_global_ips()
+        if len(whitelist) == 0:
             return
+        self.df = self.df.filter(~F.col('client_ip').isin(whitelist))
+
+        host_ips = self.whitelist_ips.get_host_ips()
+
+        if len(host_ips.keys()) == 0:
+            return
+
+        host_ips = self.whitelist_ips.get_host_ips()
+        host_ip_list = []
+        for host, v in host_ips.items():
+            for ip in v:
+                host_ip_list.append(f'{host}{ip}')
+
+        self.df = self.df.withColumn('host_ip', F.concat(F.col('target_original'), F.col('client_ip')))
+        self.df = self.df.filter(~F.col('host_ip').isin(host_ip_list))
+        self.df = self.df.drop('host_ip')
+
+        # @F.udf(returnType=T.BooleanType())
+        # def filter_ips(target, ip):
+        #     if target not in host_ips:
+        #         return True
+        #     return ip not in host_ips[target]
+        # self.df = self.df.filter(filter_ips('target_original', 'client_ip'))
+
+
+    def white_list_urls(self):
+        urls = []
+        if self.config.engine.white_list_urls:
+            urls = self.config.engine.white_list_urls
+        urls_from_dashboard = self.whitelist_urls.get()
+        if urls_from_dashboard:
+            urls += urls_from_dashboard
+        urls = list(set(urls))
 
         domains = []
         for url in urls:
             if url.find('/') < 0:
                 domains.append(url)
 
-        self.df = self.df.withColumn('client_request_host_no_www',
-            udf_remove_www(F.col('client_request_host').cast(T.StringType())))
-
         # filter out only the exact domain match
-        self.df = self.df.filter(~F.col('client_request_host_no_www').isin(domains))
+        self.df = self.df.filter(~F.col('target_original').isin(domains))
 
         # concatenate the full path URL
-        self.df = self.df.withColumn('url', F.concat(F.col('client_request_host_no_www'), F.col('client_url')))
+        self.df = self.df.withColumn('url', F.concat(F.col('target_original'), F.col('client_url')))
 
-        # filter out the domain + path match
-        starts_with = reduce(
-            lambda x, y: x | y,
-            [F.col("url").startswith(s) for s in urls],
-            F.lit(False))
-        self.df = self.df.filter(~starts_with)
+        @F.udf(returnType=T.BooleanType())
+        def filter_urls(url):
+            for url_prefix in urls:
+                if url.startswith(url_prefix):
+                    return False
+            return True
 
-        self.df = self.df.drop('client_request_host_no_www').drop('url')
+        self.df = self.df.filter(filter_urls('url'))
 
     def normalize_host_names(self):
         """
@@ -620,8 +665,10 @@ class GenerateFeatures(MLTask):
         :return:
         """
         from baskerville.spark.udfs import udf_normalize_host_name
+        from baskerville.spark.udfs import udf_remove_www
         self.df = self.df.fillna({'client_request_host': ''})
-        self.df = self.df.withColumn('target_original', F.col('client_request_host').cast(T.StringType()))
+        self.df = self.df.withColumn('target_original',
+                                     udf_remove_www(F.col('client_request_host').cast(T.StringType())))
         self.df = self.df.withColumn(
             'client_request_host',
             udf_normalize_host_name(
@@ -787,7 +834,7 @@ class GenerateFeatures(MLTask):
         ]
         self.df = columns_to_dict(self.df, 'features', columns_to_gather)
         self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
-        #self.df.persist(self.config.spark.storage_level)
+        # self.df.persist(self.config.spark.storage_level)
 
         for f in self.feature_manager.updateable_active_features:
             self.df = f.update(self.df).cache()
@@ -921,8 +968,10 @@ class GenerateFeatures(MLTask):
 
     def run(self):
         self.handle_missing_columns()
-        self.white_list_urls()
         self.normalize_host_names()
+        # self.df = self.df.repartition('target_original')
+        # self.white_list_ips()
+        self.white_list_urls()
         self.df = self.df.repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
         self.rename_columns()
         self.filter_columns()
@@ -983,6 +1032,10 @@ class RefreshModel(MLTask):
     """
     Check for a new model and load a new model in ServiceProvider.
     """
+
+    def __init__(self, config: BaskervilleConfig, steps=()):
+        super().__init__(config, steps)
+
     def run(self):
         self.service_provider.refresh_model()
         return self.df
@@ -1023,17 +1076,18 @@ class Save(SaveDfInPostgres):
     """
     Saves dataframe in Postgres (current backend)
     """
+
     def __init__(self, config,
                  steps=(),
                  table_model=RequestSet,
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                     'prediction',
-                     'model_version',
-                     'label',
-                     'id_attribute',
-                     'updated_at')
+                         'prediction',
+                         'model_version',
+                         'label',
+                         'id_attribute',
+                         'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1057,7 +1111,7 @@ class Save(SaveDfInPostgres):
             'created_at',
             F.current_timestamp()
         )
-        self.df.show(1, False)
+        # self.df.show(1, False)
 
     def run(self):
         Save.prepare_to_save(self)
@@ -1074,11 +1128,11 @@ class SaveFeedback(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                     'prediction',
-                     'model_version',
-                     'label',
-                     'id_attribute',
-                     'updated_at')
+                         'prediction',
+                         'model_version',
+                         'label',
+                         'id_attribute',
+                         'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1093,7 +1147,7 @@ class SaveFeedback(SaveDfInPostgres):
             ).collect()[0]
             if feedback_context:
                 fc = self.db_tools.session.query(FeedbackContext).filter_by(
-                        uuid_organization=uuid_organization
+                    uuid_organization=uuid_organization
                 ).filter_by(
                     start=feedback_context.start
                 ).filter_by(stop=feedback_context.stop).first()
@@ -1190,25 +1244,49 @@ class CacheSensitiveData(Task):
 
     def run(self):
         self.df = self.df.drop('vectorized_features')
-        redis_df = self.df.withColumn("features", F.to_json("features"))
+        df_sensitive = self.df.withColumn("features", F.to_json("features"))
 
-        redis_df = redis_df.withColumn(
+        df_sensitive = df_sensitive.withColumn(
             'start', F.date_format(F.col('start'), 'yyyy-MM-dd HH:mm:ss')
         ).withColumn(
             'stop', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
+        ).withColumn(
+            'first_ever_request', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
         )
 
-        redis_df.write.format(
-            'org.apache.spark.sql.redis'
-        ).mode(
-            'append'
-        ).option(
-            'table', self.table_name
-        ).option(
-            'ttl', self.ttl
-        ).option(
-            'key.column', 'uuid_request_set'
-        ).save()
+        if self.config.engine.use_kafka_for_sensitive_data:
+            self.logger.info('Sending sensitive data to kafka...')
+            if self.config.engine.kafka_send_by_partition:
+                send_to_kafka_by_partition_id(
+                    df_sensitive.select(
+                        F.struct(
+                            *list(
+                                F.col(c) for c in df_sensitive.columns
+                            )).alias('rows'),
+                        F.spark_partition_id().alias('pid')
+                    ),
+                    self.config.kafka.bootstrap_servers,
+                    self.config.engine.kafka_topic_sensitive,
+                    'prediction_center'
+                )
+            else:
+                send_to_kafka(df=df_sensitive,
+                              columns=df_sensitive.columns,
+                              bootstrap_servers=self.config.kafka.bootstrap_servers,
+                              topic=self.config.engine.kafka_topic_sensitive)
+            self.logger.info('Done.')
+        else:
+            df_sensitive.write.format(
+                'org.apache.spark.sql.redis'
+            ).mode(
+                'append'
+            ).option(
+                'table', self.table_name
+            ).option(
+                'ttl', self.ttl
+            ).option(
+                'key.column', 'uuid_request_set'
+            ).save()
         self.df = super().run()
         return self.df
 
@@ -1221,34 +1299,72 @@ class MergeWithSensitiveData(Task):
             table_name=RequestSet.__tablename__,
     ):
         super().__init__(config, steps)
-        self.redis_df = None
+        self.df_sensitive = None
         self.table_name = table_name
 
+    def get_sensitive_schema(self):
+        features = T.StructType()
+        for feature in self.config.engine.all_features.keys():
+            features.add(T.StructField(
+                name=feature,
+                dataType=T.StringType(),
+                nullable=True))
+
+        return T.StructType([
+            T.StructField("target", T.StringType(), True),
+            T.StructField('ip', T.StringType(), True),
+            T.StructField('num_requests', T.IntegerType(), True),
+            T.StructField('target_original', T.StringType(), True),
+            T.StructField('first_ever_request', T.StringType(), True),
+            T.StructField('id_runtime', T.IntegerType(), True),
+            T.StructField('time_bucket', T.IntegerType(), True),
+            T.StructField('start', T.StringType(), True),
+            T.StructField('stop', T.StringType(), True),
+            T.StructField('subset_count', T.IntegerType(), True),
+            T.StructField('dt', T.FloatType(), True),
+            T.StructField("features", features),
+            T.StructField('total_seconds', T.FloatType(), True),
+            T.StructField('id_client', T.StringType(), True),
+            T.StructField('id_request_sets', T.StringType(), True)
+        ])
+
     def run(self):
-        self.redis_df = self.spark.read.format(
-            'org.apache.spark.sql.redis'
-        ).option(
-            'table', self.table_name
-        ).option(
-            'key.column', 'uuid_request_set'
-        ).load().alias('redis_df')
+        if self.config.engine.use_kafka_for_sensitive_data:
+            self.logger.info('Reading sensitive data from kafka...')
+            self.df_sensitive = read_from_kafka_from_the_beginning(
+                bootstrap_servers=self.config.kafka.bootstrap_servers,
+                topic=self.config.engine.kafka_topic_sensitive,
+                schema=self.get_sensitive_schema(),
+                spark=self.spark
+            ).alias('df_sensitive')
+            self.logger.info('Done.')
+        else:
+            self.df_sensitive = self.spark.read.format(
+                'org.apache.spark.sql.redis'
+            ).option(
+                'table', self.table_name
+            ).option(
+                'key.column', 'uuid_request_set'
+            ).load().alias('df_sensitive')
 
         count = self.df.count()
-        self.redis_df = self.redis_df.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss")) \
-            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
+        self.df_sensitive = self.df_sensitive.withColumn('start', F.to_timestamp(F.col('start'), "yyyy-MM-dd HH:mm:ss")) \
+            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss")) \
+            .withColumn('first_ever_request', F.to_timestamp(F.col('first_ever_request'), "yyyy-MM-dd HH:mm:ss"))
 
         self.df = self.df.alias('df')
-        self.df = self.redis_df.join(
-            self.df, on=['id_client', 'uuid_request_set']
+        self.df = self.df.join(
+            self.df_sensitive, on=['id_client', 'uuid_request_set'], how='inner'
         ).drop('df.id_client', 'df.uuid_request_set')
 
         if self.df and self.df.head(1):
             merge_count = self.df.count()
+
             if count != merge_count:
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-                self.logger.warning('No sensitive data in Redis. Probably postprocessing is underperforming.')
+                self.logger.warning('Join sensitive data issue. Probably postprocessing is underperforming.')
                 self.logger.warning(f'Batch count = {count}. After merge count = {merge_count}')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
@@ -1298,17 +1414,11 @@ class SendToKafka(Task):
                 id_client=self.cc_to_client
             )
         else:
-            producer = KafkaProducer(bootstrap_servers=self.config.kafka.bootstrap_servers)
-            records = self.df.collect()
-            for record in records:
-                message = json.dumps(
-                    {key: record[key] for key in self.columns}
-                ).encode('utf-8')
-                producer.send(self.topic, message)
-                if self.cc_to_client:
-                    id_client = record['id_client']
-                    producer.send(f'{self.topic}.{id_client}', message)
-            producer.flush()
+            send_to_kafka(df=self.df,
+                          columns=self.columns,
+                          bootstrap_servers=self.config.kafka.bootstrap_servers,
+                          topic=self.topic,
+                          cc_to_client=self.cc_to_client)
 
         # does no work, possible jar conflict
         # self.df = self.df.select(
@@ -1322,6 +1432,56 @@ class SendToKafka(Task):
         #     .option('kafka.bootstrap.servers', self.config.kafka.bootstrap_servers) \
         #     .option('topic', self.topic) \
         #     .save()
+        return self.df
+
+
+class SendToKafka2(Task):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            topic1,
+            topic2,
+            columns1,
+            columns2,
+            steps: list = (),
+    ):
+        super().__init__(config, steps)
+        self.topic1 = topic1
+        self.topic2 = topic2
+        self.columns1 = columns1
+        self.columns2 = columns2
+
+    def run(self):
+        self.logger.info(f'Sending to kafka topics \'{self.topic1}\' and \'{self.topic2}\' ...')
+
+        df = self.df.withColumn(
+            'start', F.date_format(F.col('start'), 'yyyy-MM-dd HH:mm:ss')
+        ).withColumn(
+            'stop', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
+        ).withColumn(
+            'first_ever_request', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
+        )
+
+        if self.config.engine.kafka_send_by_partition:
+            send_to_kafka2_by_partition_id(
+                df.select(
+                    F.struct(
+                        *list(
+                            F.col(c) for c in set(self.columns1 + self.columns2)
+                        )).alias('rows'),
+                    F.spark_partition_id().alias('pid')
+                ),
+                self.config.kafka.bootstrap_servers,
+                self.topic1,
+                self.topic2,
+                self.columns1,
+                self.columns2
+            )
+        else:
+            send_to_kafka2(df, self.topic1, self.topic2, self.columns1, self.columns2,
+                           bootstrap_servers=self.config.kafka.bootstrap_servers,
+                           logger=self.logger
+                           )
         return self.df
 
 
@@ -1537,7 +1697,6 @@ class AttackDetection(Task):
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.df_chunks = []
-        self.ip_cache = IPCache(config, self.logger)
         self.report_consumer = None
         self.banjax_thread = None
         self.register_metrics = config.engine.register_banjax_metrics
@@ -1545,12 +1704,6 @@ class AttackDetection(Task):
         self.time_filter = None
         self.lra_condition = None
         self.features_schema = get_features_schema(self.config.engine.all_features)
-        self.origin_ips = OriginIPs(
-            url=config.engine.url_origin_ips,
-            url2=config.engine.url_origin_ips2,
-            logger=self.logger,
-            refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
-        )
 
     def initialize(self):
         lr_attack_period = self.config.engine.low_rate_attack_period
@@ -1565,16 +1718,15 @@ class AttackDetection(Task):
         )
         self.lra_condition = (
                 ((F.col('features.request_total') > lr_attack_period[0]) &
-                (self.time_filter > lra_total_req[0])) |
+                 (self.time_filter > lra_total_req[0])) |
                 ((F.col('features.request_total') > lr_attack_period[1]) &
-                (self.time_filter > lra_total_req[1]))
+                 (self.time_filter > lra_total_req[1]))
         )
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
             self.register_banjax_metrics()
         self.banjax_thread = threading.Thread(target=self.report_consumer.run)
         self.banjax_thread.start()
-        pass
 
     def finish_up(self):
         if self.banjax_thread:
@@ -1626,7 +1778,7 @@ class AttackDetection(Task):
         self.df = self.df.withColumn(
             'prediction',
             F.when(F.col('score') > self.config.engine.anomaly_threshold,
-            F.lit(1.0)).otherwise(F.lit(0.))
+                   F.lit(1.0)).otherwise(F.lit(0.))
         )
 
     def update_sliding_window(self):
@@ -1746,15 +1898,20 @@ class Challenge(Task):
     def __init__(
             self,
             config: BaskervilleConfig, steps=(),
-            attack_cols=('prediction', 'attack_prediction', 'low_rate_attack')
+            attack_cols=('prediction', 'low_rate_attack')
     ):
         super().__init__(config, steps)
         self.attack_cols = attack_cols
         self.white_list_ips = set(self.config.engine.white_list_ips)
-        self.df_white_list_hosts = None
         self.attack_filter = None
         self.producer = None
         self.udf_send_to_kafka = None
+        self.ip_cache = IPCache(config, self.logger)
+        self.whitelist_hosts = WhitelistHosts(
+            url=config.engine.url_whitelist_hosts,
+            logger=self.logger,
+            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
+        )
 
     def initialize(self):
         # global IP_ACC
@@ -1763,15 +1920,8 @@ class Challenge(Task):
         #                                              DictAccumulatorParam(
         #                                                  defaultdict(int)))
         self.attack_filter = self.get_attack_filter()
-        # self.producer = KafkaProducer(
-        #     bootstrap_servers=self.config.kafka.bootstrap_servers)
-        if self.config.engine.white_list_hosts:
-            self.df_white_list_hosts = self.spark.createDataFrame(
-                [
-                    [host] for host in
-                    set(self.config.engine.white_list_hosts)
-                ], ['target'])\
-                .withColumn('white_list_host', F.lit(1))
+        self.producer = KafkaProducer(
+            bootstrap_servers=self.config.kafka.bootstrap_servers)
 
         def send_to_kafka(
                 kafka_servers, topic, rows, cmd_name='challenge_host',
@@ -1811,30 +1961,8 @@ class Challenge(Task):
             if filter_ is None:
                 filter_ = f_
             else:
-                filter_ = filter_ & f_
+                filter_ = filter_ | f_
         return filter_
-
-    def apply_white_list_ips(self, ips):
-        if not self.white_list_ips:
-            return ips
-        self.logger.info('White listing...')
-        result = set(ips) - self.white_list_ips
-
-        white_listed = len(ips) - len(result)
-        if white_listed > 0:
-            self.logger.info(f'White listing {white_listed} ips')
-        return result
-
-    def apply_white_list_origin_ips(self, ips):
-        if not self.origin_ips.get():
-            return ips
-        self.logger.info('White listing origin ips...')
-        result = set(ips) - set(self.origin_ips.get())
-
-        white_listed = len(ips) - len(result)
-        if white_listed > 0:
-            self.logger.info(f'White listing {white_listed} origin ips')
-        return result
 
     def send_challenge(self):
         df_ips = self.get_attack_df()
@@ -1842,15 +1970,25 @@ class Challenge(Task):
             if not df_has_rows(df_ips):
                 self.logger.debug('No attacks to be challenged...')
                 return
-            if self.df_white_list_hosts:
+
+            # host white listing
+            hosts = []
+            if self.config.engine.white_list_hosts:
+                hosts = self.config.engine.white_list_hosts
+
+            if self.whitelist_hosts.get():
+                hosts += self.whitelist_hosts.get()
+
+            if len(hosts):
+                df_white_list_hosts = self.spark.createDataFrame(
+                        [[host] for host in set(hosts)], ['target']).withColumn('white_list_host', F.lit(1))
                 df_ips = df_ips.join(
-                    self.df_white_list_hosts, on='target', how='left'
+                    df_white_list_hosts, on='target', how='left'
                 ).persist()
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
+
             if df_has_rows(df_ips):
                 ips = [r['ip'] for r in df_ips.collect()]
-                ips = self.apply_white_list_ips(ips)
-                ips = self.apply_white_list_origin_ips(ips)
                 ips = self.ip_cache.update(ips)
                 num_records = len(ips)
                 if num_records > 0:
@@ -1859,7 +1997,7 @@ class Challenge(Task):
                     # )
                     self.df = self.df.withColumn(
                         'challenged',
-                        F.when(F.col('ip').isin(F.lit(ips)), 1).otherwise(0)
+                        F.when(F.col('ip').isin([f'{ip}' for ip in ips]), 1).otherwise(0)
                     )
                     # self.df = self.df.join(challenged_ips, on='ip', how='left')
                     # self.df = self.df.fillna({'challenged': 0})
@@ -1867,11 +2005,19 @@ class Challenge(Task):
                     self.logger.info(
                         f'Sending {num_records} IP challenge commands to '
                         f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+                    null_ips = False
                     for ip in ips:
-                        message = json.dumps(
-                            {'name': 'challenge_ip', 'value': ip}
-                        ).encode('utf-8')
-                        self.producer.send(self.config.kafka.banjax_command_topic, message)
+                        if ip:
+                            message = json.dumps(
+                                {'name': 'challenge_ip', 'value': ip}
+                            ).encode('utf-8')
+                            self.producer.send(self.config.kafka.banjax_command_topic, message)
+                        else:
+                            null_ips = True
+                    if null_ips:
+                        self.logger.info('Null ips')
+                        self.logger.info(f'{ips}')
+
                     self.producer.flush()
         #
         # return

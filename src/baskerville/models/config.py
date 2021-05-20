@@ -290,13 +290,18 @@ class EngineConfig(Config):
     banjax_sql_update_filter_minutes = 90
     banjax_num_fails_to_ban = 9
     register_banjax_metrics = False
-    origin_ips_refresh_period_in_seconds = 300
+    dashboard_config_refresh_period_in_seconds = 300
     url_origin_ips = ''
-    url_origin_ips2 = ''
+    url_whitelist_ips = ''
+    url_whitelist_urls = ''
+    url_whitelist_hosts = ''
     new_model_check_in_seconds = 300
     kafka_send_by_partition = True
     use_storage_for_request_cache = False
     handle_missing_features = False
+
+    use_kafka_for_sensitive_data = False
+    kafka_topic_sensitive = 'sensitive'
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
@@ -829,9 +834,17 @@ class SparkConfig(Config):
     ssl_ui_enabled = False
     ssl_standalone_enabled = False
     ssl_history_server_enabled = False
-    s3_endpoint: None
-    s3_access_key: None
-    s3_secret_key: None
+    s3_endpoint = None
+    s3_access_key = None
+    s3_secret_key = None
+    spark_kubernetes_driver_request_cores = None
+    spark_kubernetes_driver_limit_cores = None
+    spark_kubernetes_executor_request_cores = None
+    spark_kubernetes_executor_limit_cores = None
+    spark_kubernetes_driver_memory = None
+    spark_kubernetes_driver_memoryOverhead = None
+    spark_kubernetes_executor_memory = None
+    spark_kubernetes_executor_memoryOverhead = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
@@ -868,6 +881,7 @@ class SparkConfig(Config):
                 self.shuffle_partitions = int(self.shuffle_partitions)
             except ValueError:
                 self.add_error(ConfigError(
+                    'Spark shuffle_partitions should be an integer',
                     'Spark shuffle_partitions should be an integer',
                     ['shuffle_partitions'],
                 ))

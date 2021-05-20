@@ -1,0 +1,12 @@
+notebooks
+container
+docs
+ip_cache
+src/baskerville/logs
+data/airflow
+data/feature_overview
+data/img
+data/scripts
+data/templates
+ip_cache
+alembic

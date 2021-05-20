@@ -10,15 +10,29 @@ from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GetDataKafka, \
     GenerateFeatures, \
     Save, CacheSensitiveData, SendToKafka, \
-    GetPredictions, MergeWithSensitiveData, RefreshCache, AttackDetection, \
+    GetPredictions, MergeWithSensitiveData, RefreshCache, AttackDetection, SendToKafka2, \
     GetDataLog, Predict, Challenge
 
 
 def set_up_preprocessing_pipeline(config: BaskervilleConfig):
-    task = [
-        GetDataKafka(
-            config,
-            steps=[
+    if config.engine.use_kafka_for_sensitive_data:
+        steps = [
+                GenerateFeatures(config),
+                SendToKafka2(
+                    config=config,
+                    topic1=config.kafka.features_topic,
+                    columns1=('id_client', 'uuid_request_set', 'features'),
+                    topic2=config.engine.kafka_topic_sensitive,
+                    columns2=(
+                        'id_client', 'id_request_sets',
+                        'features',
+                        'target', 'ip', 'num_requests', 'target_original', 'first_ever_request',
+                        'id_runtime', 'time_bucket', 'start', 'stop', 'subset_count', 'dt', 'features')
+                ),
+                RefreshCache(config)
+            ]
+    else:
+        steps = [
                 GenerateFeatures(config),
                 CacheSensitiveData(config),
                 SendToKafka(
@@ -27,7 +41,11 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
                     topic=config.kafka.features_topic,
                 ),
                 RefreshCache(config)
-            ]),
+            ]
+    task = [
+        GetDataKafka(
+            config,
+            steps=steps),
     ]
 
     main_task = Task(config, task)
@@ -72,7 +90,7 @@ def set_up_postprocessing_pipeline(config: BaskervilleConfig):
                 MergeWithSensitiveData(config),
                 AttackDetection(config),
                 Challenge(config),
-                Save(config, json_cols=['features']),
+                Save(config),
             ]),
     ]
 

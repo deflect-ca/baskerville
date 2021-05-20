@@ -338,3 +338,27 @@ def df_has_rows(df):
 
 def get_dtype_for_col(df, col):
     return dict(df.dtypes).get(col)
+
+def send_to_kafka2_by_partition_id(
+        df, bootstrap_servers, topic1, topic2, columns1, columns2
+):
+    from baskerville.spark.udfs import udf_send_to_kafka2
+    df = df.withColumn('pid', F.spark_partition_id()).cache()
+    f_ = F.collect_list('rows')
+    g_records = df.groupBy('pid').agg(f_.alias('rows')).cache()
+    g_records = g_records.withColumn(
+        'sent_to_kafka',
+        udf_send_to_kafka2(
+            F.lit(bootstrap_servers),
+            F.lit(topic1),
+            F.lit(topic2),
+            F.array([F.lit(x) for x in columns1]),
+            F.array([F.lit(x) for x in columns2]),
+            F.col('rows'),
+        )
+    )
+    # False means something went wrong:
+    print(g_records.select('*').where(
+        F.col('sent_to_kafka') == False  # noqa
+    ).head(1))
+    return g_records
