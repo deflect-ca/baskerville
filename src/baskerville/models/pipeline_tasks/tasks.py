@@ -33,8 +33,8 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
 from baskerville.models.config import BaskervilleConfig, TrainingConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
-    send_to_kafka_by_partition_id, df_has_rows, get_dtype_for_col, \
-    handle_missing_col, send_to_kafka2_by_partition_id
+    df_has_rows, get_dtype_for_col, \
+    handle_missing_col
 from baskerville.spark.schemas import features_schema, \
     prediction_schema, get_message_schema, get_data_schema, \
     get_feedback_context_schema, get_features_schema
@@ -46,7 +46,7 @@ from baskerville.util.enums import LabelEnum
 from baskerville.util.helpers import instantiate_from_str, get_model_path, \
     parse_config
 from baskerville.util.helpers import instantiate_from_str, get_model_path
-from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning, send_to_kafka2
+from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
 from baskerville.util.whitelist_ips import WhitelistIPs
 from baskerville.util.whitelist_hosts import WhitelistHosts
 from baskerville.util.whitelist_urls import WhitelistURLs
@@ -76,7 +76,7 @@ class GetDataKafka(Task):
         self.group_by_cols = group_by_cols
         self.data_parser = self.config.engine.data_config.parser
         self.kafka_params = {
-            'metadata.broker.list': self.config.kafka.bootstrap_servers,
+            'metadata.broker.list': self.config.kafka.connection['bootstrap_servers'],
             'auto.offset.reset': self.config.kafka.auto_offset_reset,
             'group.id': self.config.kafka.consume_group,
             'auto.create.topics.enable': 'true'
@@ -210,9 +210,7 @@ class ReTrain(GetDataKafka):
     def __init__(self, config, steps: list = ()):
         super(ReTrain, self).__init__(config, steps)
         self.in_progress = False
-        self.producer = KafkaProducer(
-            bootstrap_servers=self.config.kafka.bootstrap_servers
-        )
+        self.producer = KafkaProducer(**self.config.kafka.connection)
 
     def run(self):
         current_reply_topic = ''
@@ -288,7 +286,7 @@ class GetDataKafkaStreaming(Task):
         super().__init__(config, steps)
         self.stream_df = None
         self.kafka_params = {
-            'kafka.bootstrap.servers': self.config.bootstrap_servers,
+            'kafka.bootstrap.servers': self.config.connection['bootstrap_servers'],
             'metadata.broker.list': self.config.kafka.bootstrap_servers,
             'auto.offset.reset': 'largest',
             'group.id': self.config.kafka.consume_group,
@@ -301,7 +299,7 @@ class GetDataKafkaStreaming(Task):
         self.stream_df = self.spark \
             .readStream \
             .format("kafka") \
-            .option("kafka.bootstrap.servers", self.config.kafka.bootstrap_servers) \
+            .option("kafka.bootstrap.servers", self.config.kafka.connection['bootstrap_servers']) \
             .option("subscribe", self.config.kafka.predictions_topic) \
             .option("startingOffsets", "earliest")
 
@@ -626,7 +624,6 @@ class GenerateFeatures(MLTask):
         #         return True
         #     return ip not in host_ips[target]
         # self.df = self.df.filter(filter_ips('target_original', 'client_ip'))
-
 
     def white_list_urls(self):
         urls = []
@@ -1256,24 +1253,13 @@ class CacheSensitiveData(Task):
 
         if self.config.engine.use_kafka_for_sensitive_data:
             self.logger.info('Sending sensitive data to kafka...')
-            if self.config.engine.kafka_send_by_partition:
-                send_to_kafka_by_partition_id(
-                    df_sensitive.select(
-                        F.struct(
-                            *list(
-                                F.col(c) for c in df_sensitive.columns
-                            )).alias('rows'),
-                        F.spark_partition_id().alias('pid')
-                    ),
-                    self.config.kafka.bootstrap_servers,
-                    self.config.engine.kafka_topic_sensitive,
-                    'prediction_center'
-                )
-            else:
-                send_to_kafka(df=df_sensitive,
-                              columns=df_sensitive.columns,
-                              bootstrap_servers=self.config.kafka.bootstrap_servers,
-                              topic=self.config.engine.kafka_topic_sensitive)
+            send_to_kafka(
+                self.spark,
+                df=df_sensitive,
+                columns=df_sensitive.columns,
+                topic=self.config.engine.kafka_topic_sensitive,
+                use_partitions=self.config.engine.kafka_send_by_partition
+            )
             self.logger.info('Done.')
         else:
             df_sensitive.write.format(
@@ -1332,7 +1318,7 @@ class MergeWithSensitiveData(Task):
         if self.config.engine.use_kafka_for_sensitive_data:
             self.logger.info('Reading sensitive data from kafka...')
             self.df_sensitive = read_from_kafka_from_the_beginning(
-                bootstrap_servers=self.config.kafka.bootstrap_servers,
+                bootstrap_servers=self.config.kafka.connection['bootstrap_servers'],
                 topic=self.config.engine.kafka_topic_sensitive,
                 schema=self.get_sensitive_schema(),
                 spark=self.spark
@@ -1383,105 +1369,40 @@ class SendToKafka(Task):
             self,
             config: BaskervilleConfig,
             columns,
-            topic,
-            cmd='prediction_center',
+            topic=None,
             cc_to_client=False,
-            client_only=True,
+            client_topic=None,
+            send_to_clearing_house=False,
             steps: list = (),
     ):
         super().__init__(config, steps)
         self.columns = columns
         self.topic = topic
-        self.cmd = cmd
-        self.cc_to_client = cc_to_client
-        self.client_only = client_only
+        self.cc_to_client=cc_to_client
+        self.client_topic = client_topic
+
+        if send_to_clearing_house:
+            self.connection = self.config.kafka.clearing_house_connection
+        else:
+            self.connection = self.config.kafka.connection
+
+        self.client_connections = self.config.kafka.client_connections
 
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
 
-        if self.config.engine.kafka_send_by_partition:
-            send_to_kafka_by_partition_id(
-                self.df.select(
-                    F.struct(
-                        *list(
-                            F.col(c) for c in self.columns
-                        )).alias('rows'),
-                    F.spark_partition_id().alias('pid')
-                ),
-                self.config.kafka.bootstrap_servers,
-                self.topic,
-                'prediction_center',
-                id_client=self.cc_to_client
-            )
-        else:
-            send_to_kafka(df=self.df,
-                          columns=self.columns,
-                          bootstrap_servers=self.config.kafka.bootstrap_servers,
-                          topic=self.topic,
-                          cc_to_client=self.cc_to_client)
-
-        # does no work, possible jar conflict
-        # self.df = self.df.select(
-        #         F.col('id_client').alias('key'),
-        #         F.to_json(
-        #             F.struct([self.df[x] for x in self.df.columns])
-        #         ).alias('value')
-        #     ) \
-        #     .write \
-        #     .format('kafka') \
-        #     .option('kafka.bootstrap.servers', self.config.kafka.bootstrap_servers) \
-        #     .option('topic', self.topic) \
-        #     .save()
-        return self.df
-
-
-class SendToKafka2(Task):
-    def __init__(
-            self,
-            config: BaskervilleConfig,
-            topic1,
-            topic2,
-            columns1,
-            columns2,
-            steps: list = (),
-    ):
-        super().__init__(config, steps)
-        self.topic1 = topic1
-        self.topic2 = topic2
-        self.columns1 = columns1
-        self.columns2 = columns2
-
-    def run(self):
-        self.logger.info(f'Sending to kafka topics \'{self.topic1}\' and \'{self.topic2}\' ...')
-
-        df = self.df.withColumn(
-            'start', F.date_format(F.col('start'), 'yyyy-MM-dd HH:mm:ss')
-        ).withColumn(
-            'stop', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
-        ).withColumn(
-            'first_ever_request', F.date_format(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')
+        send_to_kafka(
+            spark=self.spark,
+            df=self.df,
+            columns=self.columns,
+            topic=self.topic,
+            connection=self.connection,
+            cc_to_client=self.cc_to_client,
+            client_topic=self.client_topic,
+            client_connections=self.client_connections,
+            use_partitions=self.config.engine.kafka_send_by_partition
         )
 
-        if self.config.engine.kafka_send_by_partition:
-            send_to_kafka2_by_partition_id(
-                df.select(
-                    F.struct(
-                        *list(
-                            F.col(c) for c in set(self.columns1 + self.columns2)
-                        )).alias('rows'),
-                    F.spark_partition_id().alias('pid')
-                ),
-                self.config.kafka.bootstrap_servers,
-                self.topic1,
-                self.topic2,
-                self.columns1,
-                self.columns2
-            )
-        else:
-            send_to_kafka2(df, self.topic1, self.topic2, self.columns1, self.columns2,
-                           bootstrap_servers=self.config.kafka.bootstrap_servers,
-                           logger=self.logger
-                           )
         return self.df
 
 
@@ -1905,7 +1826,6 @@ class Challenge(Task):
         self.white_list_ips = set(self.config.engine.white_list_ips)
         self.attack_filter = None
         self.producer = None
-        self.udf_send_to_kafka = None
         self.ip_cache = IPCache(config, self.logger)
         self.whitelist_hosts = WhitelistHosts(
             url=config.engine.url_whitelist_hosts,
@@ -1921,7 +1841,7 @@ class Challenge(Task):
         #                                                  defaultdict(int)))
         self.attack_filter = self.get_attack_filter()
         self.producer = KafkaProducer(
-            bootstrap_servers=self.config.kafka.bootstrap_servers)
+            bootstrap_servers=self.config.kafka.connection['bootstrap_servers'])
 
         def send_to_kafka(
                 kafka_servers, topic, rows, cmd_name='challenge_host',
@@ -1952,8 +1872,6 @@ class Challenge(Task):
                 traceback.print_exc()
                 return False
             return True
-
-        self.udf_send_to_kafka = F.udf(send_to_kafka, T.BooleanType())
 
     def get_attack_filter(self):
         filter_ = None

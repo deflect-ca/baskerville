@@ -58,12 +58,7 @@ class BanjaxReportConsumer(object):
         consumer = KafkaConsumer(
             self.kafka_config.banjax_report_topic,
             group_id=None,
-            bootstrap_servers=self.kafka_config.bootstrap_servers,
-            security_protocol=self.kafka_config.security_protocol,
-            ssl_check_hostname=self.kafka_config.ssl_check_hostname,
-            ssl_cafile=self.kafka_config.ssl_cafile,
-            ssl_certfile=self.kafka_config.ssl_certfile,
-            ssl_keyfile=self.kafka_config.ssl_keyfile,
+            **self.config.kafka.connection
         )
 
         for message in consumer:
@@ -173,14 +168,7 @@ class ChallengeProducer(object):
         self.logger = logger
 
     def run(self):
-        producer = KafkaProducer(
-            bootstrap_servers=self.config.bootstrap_servers,
-            security_protocol=self.config.security_protocol,
-            ssl_check_hostname=self.config.ssl_check_hostname,
-            ssl_cafile=self.config.ssl_cafile,
-            ssl_certfile=self.config.ssl_certfile,
-            ssl_keyfile=self.config.ssl_keyfile,
-        )
+        producer = KafkaProducer(**self.config.kafka.connection)
 
         number = 0
         while True:

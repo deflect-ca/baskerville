@@ -299,32 +299,6 @@ def get_msg_from_columns(row, columns):
     return json.dumps(dict((k, row[k]) for k in columns)).encode('utf-8')
 
 
-def send_to_kafka2(
-        kafka_servers, topic1, topic2, columns1, columns2, rows
-):
-    """
-    Creates a kafka producer and sends the specified columns one by one,
-    to 2 different topics with the corresponding 2 columns subsets
-    :returns: False if something went wrong, true otherwise
-    """
-    try:
-        from kafka import KafkaProducer
-        producer = KafkaProducer(
-            bootstrap_servers=kafka_servers
-        )
-        for row in rows:
-            row_dict = row.asDict()
-            producer.send(topic1, get_msg_from_columns(row_dict, columns1))
-            producer.send(topic2, get_msg_from_columns(row_dict, columns2))
-        producer.flush()
-
-    except Exception:
-        import traceback
-        traceback.print_exc()
-        return False
-    return True
-
-
 prediction_schema = T.StructType([
     T.StructField("prediction", T.FloatType(), False),
     T.StructField("r", T.FloatType(), False)
@@ -343,5 +317,3 @@ udf_update_features = F.udf(
 udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())
 udf_to_dense_vector = F.udf(lambda l: Vectors.dense(l), VectorUDT())
 udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())
-udf_send_to_kafka = F.udf(send_to_kafka, T.BooleanType())
-udf_send_to_kafka2 = F.udf(send_to_kafka2, T.BooleanType())

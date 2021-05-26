@@ -303,6 +303,8 @@ class EngineConfig(Config):
     use_kafka_for_sensitive_data = False
     kafka_topic_sensitive = 'sensitive'
 
+    client_mode = False
+
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
         if self.es_log:
@@ -383,6 +385,11 @@ class EngineConfig(Config):
 
         if len(self.white_list_ips) != len(set(self.white_list_ips)):
             warnings.warn('You have duplicates in "white_list_ips" parameter.')
+
+        if self.client_mode and not self.config.kafka.clearing_house_connection:
+            self.add_error(
+                ConfigError('You must specify "clearing_house_connection" if "client_mode" is True')
+            )
 
         self._is_validated = True
 
@@ -740,12 +747,12 @@ class KafkaConfig(Config):
     Configuration for access to a Kafka instance for the kafka pipeline.
     """
     bootstrap_servers = '0.0.0.0:9092'
-    zookeeper = 'localhost:2181'
     data_topic = 'deflect.logs'
     features_topic = 'features'
     feedback_topic = 'feedback'
     feedback_response_topic = ''
     predictions_topic = 'predictions'
+    predictions_topic_client = None
     register_topic = 'register'
     auto_offset_reset = 'largest'
     banjax_command_topic = 'banjax_command_topic'
@@ -761,21 +768,15 @@ class KafkaConfig(Config):
     ssl_cafile = ''
     ssl_certfile = ''
     ssl_keyfile = ''
+    connection = None
+    clearing_house_connection = None
+    client_connections = {}
 
     def __init__(self, config):
         super(KafkaConfig, self).__init__(config)
 
     def validate(self):
         logger.debug('Validating KafkaConfig...')
-        if not self.bootstrap_servers:
-            self.add_error(ConfigError(
-                'Kafka bootstrap_servers is empty.',
-                ['bootstrap_servers'],
-            ))
-            # raise ValueError('Kafka bootstrap_servers is empty.')
-        if not self.zookeeper:
-            # kafka client can be used without zookeeper
-            warnings.warn('Zookeeper url is empty.')
         if not self.data_topic:
             warnings.warn('Data topic is empty.')
         if not self.feedback_topic:
