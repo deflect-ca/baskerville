@@ -66,7 +66,7 @@ def run_simulation(conf, spark=None):
         kwargs={
             'topic_name': kafka_conf['consume_topic'],
             'sleep': engine_conf.simulation.sleep,
-            'kafka_url': kafka_conf.bootstrap_servers,
+            'kafka_url': kafka_conf.connection['bootstrap_servers']['bootstrap_servers'],
             'zookeeper_url': kafka_conf.zookeeper,
             'verbose': engine_conf.simulation.verbose,
             'spark': spark,

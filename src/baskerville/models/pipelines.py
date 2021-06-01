@@ -278,7 +278,7 @@ class KafkaPipeline(SparkPipelineBase):
 
         kafkaParams = {
             # 'bootstrap.servers': self.kafka_conf.bootstrap_servers,
-            'metadata.broker.list': self.kafka_conf.bootstrap_servers,
+            'metadata.broker.list': self.kafka_conf.connection['bootstrap_servers'],
             'auto.offset.reset': 'largest',
             # 'security.protocol': self.kafka_conf.security_protocol,
             # 'ssl.truststore.location': self.kafka_conf

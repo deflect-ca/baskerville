@@ -10,7 +10,7 @@ from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GetDataKafka, \
     GenerateFeatures, \
     Save, CacheSensitiveData, SendToKafka, \
-    GetPredictions, MergeWithSensitiveData, RefreshCache, AttackDetection, SendToKafka2, \
+    GetPredictions, MergeWithSensitiveData, RefreshCache, AttackDetection, \
     GetDataLog, Predict, Challenge
 
 
@@ -18,16 +18,20 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
     if config.engine.use_kafka_for_sensitive_data:
         steps = [
                 GenerateFeatures(config),
-                SendToKafka2(
+                SendToKafka(
                     config=config,
-                    topic1=config.kafka.features_topic,
-                    columns1=('id_client', 'uuid_request_set', 'features'),
-                    topic2=config.engine.kafka_topic_sensitive,
-                    columns2=(
+                    columns=('id_client', 'uuid_request_set', 'features'),
+                    topic=config.kafka.features_topic,
+                ),
+                SendToKafka(
+                    config=config,
+                    columns=(
                         'id_client', 'id_request_sets',
                         'features',
                         'target', 'ip', 'num_requests', 'target_original', 'first_ever_request',
-                        'id_runtime', 'time_bucket', 'start', 'stop', 'subset_count', 'dt', 'features')
+                        'id_runtime', 'time_bucket', 'start', 'stop', 'subset_count', 'dt', 'features'),
+                    topic=config.engine.kafka_topic_sensitive,
+                    send_to_clearing_house=config.engine.client_mode
                 ),
                 RefreshCache(config)
             ]
