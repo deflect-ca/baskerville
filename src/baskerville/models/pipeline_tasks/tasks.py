@@ -599,13 +599,15 @@ class GenerateFeatures(MLTask):
             whitelist = self.config.engine.white_list_ips
         if self.whitelist_ips.get_global_ips():
             whitelist += self.whitelist_ips.get_global_ips()
-        if len(whitelist) == 0:
-            return
-        self.df = self.df.filter(~F.col('client_ip').isin(whitelist))
+        if len(whitelist) > 0:
+            self.df = self.df.filter(~F.col('client_ip').isin(whitelist))
+        else:
+            self.logger.warning('whitelist_ips.get_global_ips() empty')
 
         host_ips = self.whitelist_ips.get_host_ips()
 
         if len(host_ips.keys()) == 0:
+            self.logger.warning('whitelist_ips.get_host_ips() empty')
             return
 
         host_ips = self.whitelist_ips.get_host_ips()
@@ -967,7 +969,7 @@ class GenerateFeatures(MLTask):
         self.handle_missing_columns()
         self.normalize_host_names()
         # self.df = self.df.repartition('target_original')
-        # self.white_list_ips()
+        self.white_list_ips()
         self.white_list_urls()
         self.df = self.df.repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
         self.rename_columns()
