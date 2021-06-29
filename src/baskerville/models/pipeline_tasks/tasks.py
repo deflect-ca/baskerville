@@ -50,6 +50,7 @@ from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_t
 from baskerville.util.whitelist_ips import WhitelistIPs
 from baskerville.util.whitelist_hosts import WhitelistHosts
 from baskerville.util.whitelist_urls import WhitelistURLs
+from pyspark.sql.functions import broadcast
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
@@ -599,31 +600,37 @@ class GenerateFeatures(MLTask):
             whitelist = self.config.engine.white_list_ips
         if self.whitelist_ips.get_global_ips():
             whitelist += self.whitelist_ips.get_global_ips()
-        if len(whitelist) == 0:
-            return
-        self.df = self.df.filter(~F.col('client_ip').isin(whitelist))
+        if len(whitelist) > 0:
+            df_ips = self.spark.createDataFrame(
+                [[ip] for ip in whitelist],
+                schema=T.StructType([T.StructField("client_ip", T.StringType())])
+            )
+            self.df = self.df.join(
+                broadcast(df_ips),
+                on=['client_ip'], how='left_anti'
+            )
 
         host_ips = self.whitelist_ips.get_host_ips()
 
         if len(host_ips.keys()) == 0:
+            self.logger.warning('whitelist_ips.get_host_ips() empty')
             return
 
-        host_ips = self.whitelist_ips.get_host_ips()
         host_ip_list = []
-        for host, v in host_ips.items():
+        for host, v in self.whitelist_ips.get_host_ips().items():
             for ip in v:
-                host_ip_list.append(f'{host}{ip}')
+                host_ip_list.append([host, ip])
 
-        self.df = self.df.withColumn('host_ip', F.concat(F.col('target_original'), F.col('client_ip')))
-        self.df = self.df.filter(~F.col('host_ip').isin(host_ip_list))
-        self.df = self.df.drop('host_ip')
+        df_host_ips = self.spark.createDataFrame(
+            host_ip_list,
+            schema=T.StructType([T.StructField('target_original', T.StringType()),
+                                 T.StructField("client_ip", T.StringType())])
+        )
 
-        # @F.udf(returnType=T.BooleanType())
-        # def filter_ips(target, ip):
-        #     if target not in host_ips:
-        #         return True
-        #     return ip not in host_ips[target]
-        # self.df = self.df.filter(filter_ips('target_original', 'client_ip'))
+        self.df = self.df.join(
+            broadcast(df_host_ips),
+            on=['target_original', 'client_ip'], how='left_anti'
+        )
 
     def white_list_urls(self):
         urls = []
@@ -967,7 +974,7 @@ class GenerateFeatures(MLTask):
         self.handle_missing_columns()
         self.normalize_host_names()
         # self.df = self.df.repartition('target_original')
-        # self.white_list_ips()
+        self.white_list_ips()
         self.white_list_urls()
         self.df = self.df.repartition(*self.group_by_cols).persist(self.spark_conf.storage_level)
         self.rename_columns()
