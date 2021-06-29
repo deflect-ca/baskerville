@@ -27,7 +27,8 @@ def get_or_create_spark_session(spark_conf):
     if spark_conf.redis_host:
         conf.set('spark.redis.host', spark_conf.redis_host)
         conf.set('spark.redis.port', spark_conf.redis_port)
-        conf.set('spark.redis.auth', spark_conf.redis_password)
+        if spark_conf.redis_password:
+            conf.set('spark.redis.auth', spark_conf.redis_password)
 
     # todo: https://stackoverflow.com/questions/
     #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
@@ -166,30 +167,30 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.sql.autoBroadcastJoinThreshold', -1)  # disable
 
     # conf.set('spark.kubernetes.memoryOverheadFactor', '0.5')
+    if spark_conf.kubernetes:
+        if spark_conf.spark_kubernetes_driver_request_cores:
+            conf.set('spark.kubernetes.driver.request.cores', spark_conf.spark_kubernetes_driver_request_cores)
+        if spark_conf.spark_kubernetes_driver_limit_cores:
+            conf.set('spark.kubernetes.driver.limit.cores', spark_conf.spark_kubernetes_driver_limit_cores)
 
-    if spark_conf.spark_kubernetes_driver_request_cores:
-        conf.set('spark.kubernetes.driver.request.cores', spark_conf.spark_kubernetes_driver_request_cores)
-    if spark_conf.spark_kubernetes_driver_limit_cores:
-        conf.set('spark.kubernetes.driver.limit.cores', spark_conf.spark_kubernetes_driver_limit_cores)
+        if spark_conf.spark_kubernetes_executor_request_cores:
+            conf.set('spark.kubernetes.executor.request.cores', spark_conf.spark_kubernetes_executor_request_cores)
+        if spark_conf.spark_kubernetes_executor_limit_cores:
+            conf.set('spark.kubernetes.executor.limit.cores', spark_conf.spark_kubernetes_executor_limit_cores)
 
-    if spark_conf.spark_kubernetes_executor_request_cores:
-        conf.set('spark.kubernetes.executor.request.cores', spark_conf.spark_kubernetes_executor_request_cores)
-    if spark_conf.spark_kubernetes_executor_limit_cores:
-        conf.set('spark.kubernetes.executor.limit.cores', spark_conf.spark_kubernetes_executor_limit_cores)
+        if spark_conf.spark_kubernetes_driver_memory:
+            conf.set('spark.kubernetes.driver.memory', spark_conf.spark_kubernetes_driver_memory)
+        if spark_conf.spark_kubernetes_driver_memoryOverhead:
+            conf.set('spark.kubernetes.driver.memoryOverhead', spark_conf.spark_kubernetes_driver_memoryOverhead)
 
-    if spark_conf.spark_kubernetes_driver_memory:
-        conf.set('spark.kubernetes.driver.memory', spark_conf.spark_kubernetes_driver_memory)
-    if spark_conf.spark_kubernetes_driver_memoryOverhead:
-        conf.set('spark.kubernetes.driver.memoryOverhead', spark_conf.spark_kubernetes_driver_memoryOverhead)
+        if spark_conf.spark_kubernetes_executor_memory:
+            conf.set('spark.kubernetes.executor.memory', spark_conf.spark_kubernetes_executor_memory)
+        if spark_conf.spark_kubernetes_executor_memoryOverhead:
+            conf.set('spark.kubernetes.executor.memoryOverhead', spark_conf.spark_kubernetes_executor_memoryOverhead)
 
-    if spark_conf.spark_kubernetes_executor_memory:
-        conf.set('spark.kubernetes.executor.memory', spark_conf.spark_kubernetes_executor_memory)
-    if spark_conf.spark_kubernetes_executor_memoryOverhead:
-        conf.set('spark.kubernetes.executor.memoryOverhead', spark_conf.spark_kubernetes_executor_memoryOverhead)
-
-    conf.set('spark.kubernetes.driver.pod.name', os.environ['MY_POD_NAME'])
-    conf.set('spark.driver.host', os.environ['MY_POD_IP'])
-    conf.set('spark.driver.port', 20020)
+        conf.set('spark.kubernetes.driver.pod.name', os.environ['MY_POD_NAME'])
+        conf.set('spark.driver.host', os.environ['MY_POD_IP'])
+        conf.set('spark.driver.port', 20020)
 
     spark = SparkSession.builder \
         .config(conf=conf) \
