@@ -386,11 +386,6 @@ class EngineConfig(Config):
         if len(self.white_list_ips) != len(set(self.white_list_ips)):
             warnings.warn('You have duplicates in "white_list_ips" parameter.')
 
-        if self.client_mode and not self.config.kafka.clearing_house_connection:
-            self.add_error(
-                ConfigError('You must specify "clearing_house_connection" if "client_mode" is True')
-            )
-
         self._is_validated = True
 
         return self
@@ -838,6 +833,7 @@ class SparkConfig(Config):
     s3_endpoint = None
     s3_access_key = None
     s3_secret_key = None
+    kubernetes = True
     spark_kubernetes_driver_request_cores = None
     spark_kubernetes_driver_limit_cores = None
     spark_kubernetes_executor_request_cores = None

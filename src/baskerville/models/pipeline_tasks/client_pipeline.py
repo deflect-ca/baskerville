@@ -43,6 +43,7 @@ def set_up_preprocessing_pipeline(config: BaskervilleConfig):
                     config=config,
                     columns=('id_client', 'uuid_request_set', 'features'),
                     topic=config.kafka.features_topic,
+                    send_to_clearing_house=config.engine.client_mode
                 ),
                 RefreshCache(config)
             ]
