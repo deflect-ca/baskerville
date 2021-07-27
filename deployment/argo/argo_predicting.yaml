@@ -1,5 +1,5 @@
 metadata:
-  name: training
+  name: predicting
   namespace: default
 spec:
   templates:
@@ -8,7 +8,6 @@ spec:
         parameters:
           - name: baskerville_image
           - name: config
-          - name: config-branch
       outputs: {}
       metadata: {}
       container:
@@ -29,25 +28,28 @@ spec:
           - '--conf'
           - spark.executor.instances=3
           - '--name'
-          - preprocessing
+          - predicting
           - '--conf'
           - spark.kubernetes.pyspark.pythonVersion=3
           - '--conf'
-          - spark.kubernetes.memoryOverheadFactor=0.5
+          - spark.kubernetes.memoryOverheadFactor=0.1
           - '--conf'
-          - spark.memory.fraction=0.2
+          - spark.memory.fraction=0.1
           - '--conf'
-          - spark.kubernetes.driver.request.cores=2
+          - spark.kubernetes.driver.request.cores=1
           - '--conf'
-          - spark.kubernetes.driver.limit.cores=2
+          - spark.kubernetes.driver.limit.cores=1
           - '--conf'
-          - spark.kubernetes.executor.request.cores=8
+          - spark.kubernetes.executor.request.cores=1
           - '--conf'
-          - spark.kubernetes.executor.limit.cores=8
+          - spark.kubernetes.executor.limit.cores=2
           - '--conf'
-          - spark.driver.memory=4G
+          - spark.driver.memory=500M
           - '--conf'
-          - spark.executor.memory=12G
+          - spark.executor.memory=1500M
+          - '--conf'
+          - >-
+            spark.kubernetes.executor.secrets.kafka-pem=/etc/secrets/kafka/production
           - '--jars'
           - >-
             local:///usr/local/baskerville/data/jars/hadoop-aws-2.7.1.jar,local:///usr/local/baskerville/data/jars/aws-java-sdk-1.7.4.jar,local:///usr/local/baskerville/data/jars/spark-iforest-2.4.0.99.jar,local:///usr/local/baskerville/data/jars/postgresql-42.2.4.jar,local:///usr/local/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,local:///usr/local/baskerville/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar
@@ -55,11 +57,9 @@ spec:
           - >-
             spark.kubernetes.container.image={{inputs.parameters.baskerville_image}}
           - /usr/local/baskerville/src/baskerville/main.py
-          - training
+          - predicting
           - '-c'
           - '{{inputs.parameters.config}}'
-          - '-cb'
-          - '{{inputs.parameters.config-branch}}'
         env:
           - name: MY_POD_NAME
             valueFrom:
@@ -109,6 +109,9 @@ spec:
           - name: ssh-secrets
             mountPath: /usr/local/baskerville/ssh
         imagePullPolicy: Always
+      retryStrategy:
+        limit: 3
+        retryPolicy: Always
   entrypoint: spark-submit
   arguments:
     parameters:

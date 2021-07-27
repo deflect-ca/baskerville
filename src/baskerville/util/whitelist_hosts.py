@@ -19,5 +19,4 @@ class WhitelistHosts(object):
         if data:
             hosts = list(set(data['white_list_hosts']))
 
-        self.logger.info(f'Whitelist hosts = {hosts}')
         return hosts

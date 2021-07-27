@@ -1,25 +1,18 @@
 metadata:
-  name: postprocessing
+  name: training
   namespace: default
-  selfLink: >-
-    /apis/argoproj.io/v1alpha1/namespaces/default/workflowtemplates/postprocessing
-  uid: 3e886157-b580-4571-bb7c-b95a2a4e7cc9
-  resourceVersion: '18668236'
-  generation: 25
-  creationTimestamp: '2021-03-15T15:59:15Z'
-  labels:
-    workflows.argoproj.io/creator: system-serviceaccount-argo-argo-server
+  selfLink: /apis/argoproj.io/v1alpha1/namespaces/default/workflowtemplates/training
+  uid: 40946c6a-e3fe-4024-a58b-12baec8e7a9d
+  resourceVersion: '23526709'
+  generation: 5
+  creationTimestamp: '2021-04-26T19:42:37Z'
   managedFields:
     - manager: argo
       operation: Update
       apiVersion: argoproj.io/v1alpha1
-      time: '2021-04-09T17:44:10Z'
+      time: '2021-04-26T19:42:37Z'
       fieldsType: FieldsV1
       fieldsV1:
-        'f:metadata':
-          'f:labels':
-            .: {}
-            'f:workflows.argoproj.io/creator': {}
         'f:spec':
           .: {}
           'f:arguments':
@@ -35,6 +28,7 @@ spec:
         parameters:
           - name: baskerville_image
           - name: config
+          - name: config-branch
       outputs: {}
       metadata: {}
       container:
@@ -55,27 +49,19 @@ spec:
           - '--conf'
           - spark.executor.instances=3
           - '--name'
-          - postprocessing
+          - preprocessing
           - '--conf'
           - spark.kubernetes.pyspark.pythonVersion=3
           - '--conf'
           - spark.kubernetes.memoryOverheadFactor=0.5
           - '--conf'
-          - spark.memory.fraction=0.1
-          - '--conf'
-          - spark.kubernetes.driver.request.cores=1
-          - '--conf'
-          - spark.kubernetes.driver.limit.cores=1
+          - spark.memory.fraction=0.2
           - '--conf'
           - spark.kubernetes.executor.request.cores=2
           - '--conf'
           - spark.kubernetes.executor.limit.cores=2
           - '--conf'
-          - spark.driver.memory=5G
-          - '--conf'
-          - spark.rpc.message.maxSize=512
-          - '--conf'
-          - spark.executor.memory=2G
+          - spark.executor.memory=6G
           - '--jars'
           - >-
             local:///usr/local/baskerville/data/jars/hadoop-aws-2.7.1.jar,local:///usr/local/baskerville/data/jars/aws-java-sdk-1.7.4.jar,local:///usr/local/baskerville/data/jars/spark-iforest-2.4.0.99.jar,local:///usr/local/baskerville/data/jars/postgresql-42.2.4.jar,local:///usr/local/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,local:///usr/local/baskerville/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar
@@ -83,9 +69,11 @@ spec:
           - >-
             spark.kubernetes.container.image={{inputs.parameters.baskerville_image}}
           - /usr/local/baskerville/src/baskerville/main.py
-          - postprocessing
+          - training
           - '-c'
           - '{{inputs.parameters.config}}'
+          - '-cb'
+          - '{{inputs.parameters.config-branch}}'
         env:
           - name: MY_POD_NAME
             valueFrom:
@@ -115,6 +103,21 @@ spec:
               secretKeyRef:
                 name: baskerville-secrets
                 key: redis_password
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_host
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_user
+          - name: KAFKA_HOST
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: kafka_host
         resources: {}
         volumeMounts:
           - name: ssh-secrets

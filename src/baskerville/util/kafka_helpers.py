@@ -15,7 +15,10 @@ def send_partition_to_kafka(connection, client_connections):
             client_producers = {}
             if cc_to_client and client_connections.value:
                 for k, v in client_connections.value.items():
-                    client_producers[k] = KafkaProducer(**v)
+                    try:
+                        client_producers[k] = KafkaProducer(**v)
+                    except Exception:
+                        pass
 
             for row in rows:
                 row = row.asDict()
@@ -33,8 +36,8 @@ def send_partition_to_kafka(connection, client_connections):
                         client_producer.send(client_topic, message)
 
             producer.flush()
-            for _, client_producers in client_producers.items():
-                client_producers.flush()
+            for _, client_producer in client_producers.items():
+                client_producer.flush()
 
         except Exception:
             import traceback

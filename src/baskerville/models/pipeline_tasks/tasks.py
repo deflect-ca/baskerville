@@ -15,6 +15,8 @@ import threading
 import traceback
 
 import pyspark
+from kafka.errors import TopicAlreadyExistsError
+
 from baskerville.db.dashboard_models import FeedbackContext
 from pyspark.sql import functions as F, types as T
 from pyspark.sql.types import StringType, StructField, StructType, DoubleType
@@ -84,8 +86,22 @@ class GetDataKafka(Task):
         }
         self.consume_topic = self.config.kafka.data_topic
 
+    def create_topic(self, topic):
+        from kafka.admin import KafkaAdminClient, NewTopic
+        try:
+            admin_client = KafkaAdminClient(**self.config.kafka.connection)
+            admin_client.create_topics(
+                new_topics=[NewTopic(name=topic,num_partitions=1, replication_factor=1)],
+            )
+        except TopicAlreadyExistsError:
+            pass
+
     def initialize(self):
         super(GetDataKafka, self).initialize()
+
+        # create topic if not exists
+        self.create_topic(self.consume_topic)
+
         self.ssc = StreamingContext(
             self.spark.sparkContext, self.config.engine.time_bucket
         )
@@ -642,9 +658,12 @@ class GenerateFeatures(MLTask):
         urls = list(set(urls))
 
         domains = []
+        url_prefixes = []
         for url in urls:
             if url.find('/') < 0:
                 domains.append(url)
+            else:
+                url_prefixes.append(url)
 
         # filter out only the exact domain match
         self.df = self.df.filter(~F.col('target_original').isin(domains))
@@ -654,8 +673,8 @@ class GenerateFeatures(MLTask):
 
         @F.udf(returnType=T.BooleanType())
         def filter_urls(url):
-            for url_prefix in urls:
-                if url.startswith(url_prefix):
+            for url_prefix in url_prefixes:
+                if url and url.startswith(url_prefix):
                     return False
             return True
 

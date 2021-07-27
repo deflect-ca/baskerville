@@ -1,0 +1,23 @@
+image:
+  tag: "7.3.4"
+
+admin:
+  user: "admin"
+  existingSecret: "baskerville-secrets"
+  existingSecretPasswordKey: "postgres_password"
+
+nodeSelector:
+  nodepool: "postgres"
+
+imageRenderer:
+  nodeSelector:
+    nodepool: "postgres"
+
+dashboardsProvider:
+  enabled: true
+
+service:
+  type: LoadBalancer
+
+datasources:
+  secretName: datasource-secret
