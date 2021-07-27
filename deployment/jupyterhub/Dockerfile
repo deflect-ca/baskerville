@@ -25,7 +25,7 @@ RUN rm requirements.txt && \
 
 RUN pip install .
 WORKDIR /usr/local
-RUN git clone --single-branch --branch develop https://github.com/equalitie/baskerville.git
+RUN git clone --single-branch --branch k8s_doc https://github.com/equalitie/baskerville.git
 WORKDIR /usr/local/baskerville
 RUN pip install -e .
 RUN mkdir -p src/baskerville/logs

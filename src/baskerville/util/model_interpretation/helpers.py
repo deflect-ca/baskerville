@@ -115,15 +115,16 @@ class Tree:
 
 def get_spark_session_with_iforest():
     import os
-    from psutil import virtual_memory
+    # from psutil import virtual_memory
 
-    mem = virtual_memory()
+    # mem = virtual_memory()
     conf = SparkConf()
     iforest_jar = os.path.join(
         get_default_data_path(), 'jars', 'spark-iforest-2.4.0.99.jar'
     )
     # half of total memory - todo: should be configurable, use yaml or so
-    memory = f'{int(round((mem.total / 2) / 1024 / 1024 / 1024, 0))}G'
+    # memory = f'{int(round((mem.total / 2) / 1024 / 1024 / 1024, 0))}G'
+    memory = f'{int(round((10000000 / 2) / 1024 / 1024 / 1024, 0))}G'
     print(memory)
     conf.set('spark.jars', iforest_jar)
     conf.set('spark.driver.memory', memory)
