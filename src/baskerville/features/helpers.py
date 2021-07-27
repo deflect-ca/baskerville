@@ -7,7 +7,7 @@
 
 import pickle
 from collections import namedtuple
-import numpy as np
+# import numpy as np
 
 
 def update_mean(v_old, v_cur, n_old, n_cur):
@@ -34,12 +34,12 @@ def update_rate(total_old, total_cur, minutes_total_cur):
     return total_cur
 
 
-def update_maximum(v_old, v_cur):
-    return np.maximum(v_old, v_cur)
-
-
-def update_minimum(v_old, v_cur):
-    return np.minimum(v_old, v_cur)
+# def update_maximum(v_old, v_cur):
+#     return np.maximum(v_old, v_cur)
+#
+#
+# def update_minimum(v_old, v_cur):
+#     return np.minimum(v_old, v_cur)
 
 
 def update_ratio(numerator_old, denom_old, numerator_cur, denom_cur):

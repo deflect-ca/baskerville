@@ -15,7 +15,6 @@ from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from tzwhere import tzwhere
-import numpy as np
 
 
 def remove_www(host):
@@ -61,31 +60,33 @@ def compute_geotime(lat, lon, t, feature_default):
 
 
 def predict_dict(scaler, classifier, model_features, dict_features):
-    """
-    Scale the feature values and use the model to predict
-    :param dict[str, float] dict_features: the feature dictionary
-    :return: 0 if normal, 1 if abnormal, -1 if something went wrong
-    """
-    import numpy as np
-    import pickle
-    import json
-
-    if isinstance(dict_features, str):
-        dict_features = json.loads(dict_features)
-
-    x_test = extract_features_in_order(dict_features, model_features)
-    scaler = pickle.loads(scaler)
-    clf = pickle.loads(classifier)
-    try:
-        x_scaled = scaler.transform(x_test)
-        y = clf.decision_function(x_scaled)
-        prediction = np.sign(y)[0]
-        r = np.float32(np.absolute(y)[0])
-        return float(prediction), float(r)
-    except ValueError:
-        # traceback.print_exc()
-        print('Cannot predict:', x_test)
-        return 0, 0
+    # commented out to remove np dependency
+    return 0, 0
+    # """
+    # Scale the feature values and use the model to predict
+    # :param dict[str, float] dict_features: the feature dictionary
+    # :return: 0 if normal, 1 if abnormal, -1 if something went wrong
+    # """
+    # import numpy as np
+    # import pickle
+    # import json
+    #
+    # if isinstance(dict_features, str):
+    #     dict_features = json.loads(dict_features)
+    #
+    # x_test = extract_features_in_order(dict_features, model_features)
+    # scaler = pickle.loads(scaler)
+    # clf = pickle.loads(classifier)
+    # try:
+    #     x_scaled = scaler.transform(x_test)
+    #     y = clf.decision_function(x_scaled)
+    #     prediction = np.sign(y)[0]
+    #     r = np.float32(np.absolute(y)[0])
+    #     return float(prediction), float(r)
+    # except ValueError:
+    #     # traceback.print_exc()
+    #     print('Cannot predict:', x_test)
+    #     return 0, 0
 
 
 def delete_by(past_to_current_ids, db_conf):
