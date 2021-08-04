@@ -71,6 +71,8 @@ EXPOSE 4040 4041 8080 8888
 #
 USER root
 
+RUN apt-get install python3-setuptools
+
 WORKDIR /usr/local
 RUN git clone --single-branch --branch categorical_features https://github.com/equalitie/spark-iforest.git
 WORKDIR /usr/local/spark-iforest/python
