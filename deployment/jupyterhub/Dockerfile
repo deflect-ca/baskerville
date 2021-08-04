@@ -16,9 +16,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	libpng-dev \
 	libfreetype6-dev \
 	pkg-config \
-	python3 \
-	python3-dev \
-	python3-distutils \
+	python3.7 \
+	python3.7-dev \
+	python3.7-distutils \
 	software-properties-common \
 	sudo \
 	tar \
@@ -28,7 +28,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
 # Get the latest pip3
-RUN wget -q https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && rm -f get-pip.py
+RUN wget -q https://bootstrap.pypa.io/get-pip.py && python3.7 get-pip.py && rm -f get-pip.py
 
 # Install python3 infrastructure
 COPY requirements.txt .
@@ -59,8 +59,8 @@ RUN echo "c.TerminalInteractiveShell.editing_mode = 'vi'" >> ~/.ipython/profile_
 
 # Required spark configuration for local user access
 ENV SPARK_HOME=/usr/local/spark
-ENV PYSPARK_PYTHON=python3
-ENV PYSPARK_DRIVER_PYTHON=python3
+ENV PYSPARK_PYTHON=python3.7
+ENV PYSPARK_DRIVER_PYTHON=python3.7
 ENV PYTHONPATH=/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/spark/bin
