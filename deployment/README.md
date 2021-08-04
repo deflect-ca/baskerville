@@ -169,6 +169,13 @@ Create four argo workflow templates from each file in `deployment/argo'.
 * save the template
 
 ## Postgres
+```commandline
+helm install postgres -f deployment/postgres/values-postgres.yaml bitnami/postgresql
+
+```
+
+
+
 * deploy timescale db:
 ```
 kubectl apply -f deployment/postgres/postgres.yaml

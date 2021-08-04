@@ -1,0 +1,19 @@
+hub:
+  adminUser: admin
+  password: ""
+  nodeSelector:
+    nodepool: workers
+
+singleuser:
+  image:
+    repository: equalitie/baskerville
+    tag: notebook
+    pullPolicy: Always
+
+  extraEnvVars:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASS: ""
+      POSTGRES_HOST: "135.125.84.54"
+      S3_ACCESS: "c490f17bdb784fa08f4d11836ee18e48"
+      S3_SECRET: ""
+      S3_ENDPOINT: "s3.gra.cloud.ovh.net"
