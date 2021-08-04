@@ -71,12 +71,10 @@ EXPOSE 4040 4041 8080 8888
 #
 USER root
 
-RUN pip install -U pip setuptools
-
 WORKDIR /usr/local
 RUN git clone --single-branch --branch categorical_features https://github.com/equalitie/spark-iforest.git
 WORKDIR /usr/local/spark-iforest/python
-RUN python3 setup.py sdist
+RUN python setup.py sdist
 RUN pip install dist/pyspark-iforest-2.4.0.99.tar.gz
 WORKDIR /usr/local
 RUN git clone https://github.com/equalitie/esretriever.git
