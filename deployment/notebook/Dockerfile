@@ -74,7 +74,7 @@ USER root
 WORKDIR /usr/local
 RUN git clone --single-branch --branch categorical_features https://github.com/equalitie/spark-iforest.git
 WORKDIR /usr/local/spark-iforest/python
-RUN python setup.py sdist
+RUN python3.7 setup.py sdist
 RUN pip install dist/pyspark-iforest-2.4.0.99.tar.gz
 WORKDIR /usr/local
 RUN git clone https://github.com/equalitie/esretriever.git
@@ -96,7 +96,6 @@ RUN pip install -e .
 RUN mkdir -p src/baskerville/logs
 
 ENV BASKERVILLE_ROOT=/usr/local/baskerville
-# ENV PYSPARK_PYTHON=python3.7
 
 COPY ./conf /usr/local/baskerville/conf
 

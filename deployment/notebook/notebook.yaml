@@ -28,6 +28,34 @@ spec:
         resources:
           limits:
             memory: 2Gi
+        env:
+          - name: POSTGRES_PASS
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: postgres_password
+          - name: POSTGRES_USER
+            value: "postgres"
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: postgres_host
+          - name: S3_ACCESS
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: s3_access
+          - name: S3_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: s3_secret
+          - name: S3_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: s3_endpoint
       volumes:
         - name: notebook-pv
           persistentVolumeClaim:

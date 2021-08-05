@@ -15,7 +15,7 @@ from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from tzwhere import tzwhere
-
+import numpy as np
 
 def remove_www(host):
     if host[:4] == 'www.':

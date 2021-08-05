@@ -121,26 +121,11 @@ kubectl create secret generic ssh-secrets --from-file=id_rsa=./ssh/id_rsa  --fro
 ```
 
 ## Baskerville secrets
-* create `baskerville_secrets.yaml
-*
-```
-apiVersion: v1
-kind: Secret
-metadata:
-  name: baskerville-secrets
-type: Opaque
-stringData:
-  s3_access: "your_s3_access"
-  s3_secret: "your_s3_secret"
-  redis_password: "your_redis_password"
-  postgres_host: ""
-  postgres_user: "postgres"
-  kafka_host: "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
-  postgres_password: "your_postgres_password"
+* edit `baskerville_secrets.yaml with your credentials and passwords
 ```
 * create secret
 ```
-k apply -f baskerville_secrets.yaml
+k apply -f deployment/baskerville_secrets.yaml
 ```
 
 ## Spark binding
@@ -169,14 +154,7 @@ Create four argo workflow templates from each file in `deployment/argo'.
 * save the template
 
 ## Postgres
-```commandline
-helm install postgres -f deployment/postgres/values-postgres.yaml bitnami/postgresql
-
-```
-
-
-
-* deploy timescale db:
+* deploy postgres pod:
 ```
 kubectl apply -f deployment/postgres/postgres.yaml
 ```
@@ -210,21 +188,71 @@ kubectl create configmap dashboard-trafficlight --from-file=deployment/grafana/d
 helm install grafana -f deployment/grafana/values-grafana.yaml bitnami/grafana
 ```
 
-## Jupyter Hub
-
-* edit your password and node selector in `deployment/jupyter/values-jupyter.yaml`
-
-* deploy Jupyter Hub
+## Baskerville images
+* Spark image (https://levelup.gitconnected.com/spark-on-kubernetes-3d822969f85b)
 ```commandline
-helm install jupyter -f deployment/jupyterhub/values-jupyterhub.yaml bitnami/jupyterhub
+wget https://archive.apache.org/dist/spark/spark-2.4.6/spark-2.4.6-bin-hadoop2.7.tgz
+mkdir spark
+mv spark-2.4.6-bin-hadoop2.7.tgz spark
+tar -xvzf spark-2.4.6-bin-hadoop2.7.tgz
+vi ~/.profile
+export SPARK_HOME=/root/spark/spark-2.4.6-bin-hadoop2.7
+alias spark-shell=”$SPARK_HOME/bin/spark-shell”
+
+$SPARK_HOME/bin/docker-image-tool.sh -r baskerville -t spark2.4.6 -p $SPARK_HOME/kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
+
+docker tag baskerville/spark-py:v2.4.6 equalitie/baskerville:spark246
 ```
-
-  
-kubectl port-forward service/jupyter-jupyterhub-proxy-public 8080:80
-
+* build Baskerville image
+```commandline
+docker build -t equalitie/baskerville:worker dockerfiles/worker/
+```
+* build the latest Baskervilli image
+```commandline
+docker build -t equalitie/baskerville:latest .
+docker push equalitie/baskerville:latest
+```
 ## Run Baskerville
 * Add a Kafka output to your logstash instance. You should use the external kafka connection url you created. 
 See an example in [Baskerville Client repository](https://github.com/equalitie/baskerville_client)
 * Launch `Preprocessing`, `Predicting`, `Postprocessing` workflows.
 * Launch `Training' workflow to retrain the model.
 
+## Jupyter Notebook
+* create `spark` namespace `kubectl create namespace spark`
+* create service account:
+```commandline
+kubectl create serviceaccount spark -n spark
+```
+* create role binding
+```commandline
+kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=spark:spark --namespace=spark
+```
+* build notebook image
+```commandline
+docker build /deployment/notebook -t equalitie/baskerville:notebook
+```
+
+* edit `/deployment/notebook/spark_secrets.yaml with your credentials and passwords
+
+* create spark secrets
+```
+k apply -f spark_secrets.yaml 
+```
+* deploy notebook PVC
+```commandline
+kubectl apply -f /deployment/notebook/notebook-pvc.yaml
+```
+* deploy notebook
+```commandline
+kubectl apply -f /deployment/notebook/notebook.yaml
+```
+
+* create notebook port forwarding
+```commandline
+kubectl port-forward -n spark deployment.apps/notebook-deployment 8888:8888
+```
+
+* open `localhost:8888' and enter password 'jupyter'. 
+
+* upload the notebooks from `/notebooks`
