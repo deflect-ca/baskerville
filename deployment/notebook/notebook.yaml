@@ -18,6 +18,7 @@ spec:
       serviceAccountName: spark
       containers:
       - name: notebook
+        imagePullPolicy: Always
         image: equalitie/baskerville:notebook
         ports:
           - containerPort: 8888
@@ -56,6 +57,7 @@ spec:
               secretKeyRef:
                 name: spark-secrets
                 key: s3_endpoint
+
       volumes:
         - name: notebook-pv
           persistentVolumeClaim:

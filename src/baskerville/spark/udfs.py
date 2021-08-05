@@ -317,5 +317,4 @@ udf_update_features = F.udf(
 )
 udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())
 udf_to_dense_vector = F.udf(lambda l: Vectors.dense(l), VectorUDT())
-#udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())
-udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(features + arr), VectorUDT())
+udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())
