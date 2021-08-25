@@ -19,6 +19,7 @@ def set_up_training_pipeline(config: BaskervilleConfig):
             from_date=data_params.get('from_date'),
             to_date=data_params.get('to_date'),
             training_days=data_params.get('training_days'),
+            sampling_percentage=data_params.get('sampling_percentage', 10.0),
             steps=[
                 Train(config),
             ]),

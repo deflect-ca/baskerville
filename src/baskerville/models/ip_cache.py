@@ -106,11 +106,9 @@ class IPCache(metaclass=SingletonThreadSafe):
                 return False
             self.cache_passed[ip] = self.cache_pending[ip]
             del self.cache_pending[ip]
-            self.logger.info(f'IP {ip} passed challenge. Total IP in cache_passed: {len(self.cache_passed)}')
 
             with open(self.full_path_passed_challenge, 'wb') as f:
                 pickle.dump(self.cache_passed, f)
-            self.logger.info(f'IP cache passed: {len(self.cache_passed)}, 1 added')
         return True
 
     def ip_banned(self, ip):

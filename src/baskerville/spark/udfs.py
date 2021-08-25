@@ -17,9 +17,12 @@ from pyspark.sql import types as T
 from tzwhere import tzwhere
 import numpy as np
 
+
 def remove_www(host):
     if host[:4] == 'www.':
-        return host[4:]
+        host = host[4:]
+    host = host.split(':')[0]
+    host = host.lower()
     return host
 
 

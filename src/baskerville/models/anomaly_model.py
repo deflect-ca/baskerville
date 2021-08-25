@@ -205,13 +205,13 @@ class AnomalyModel(ModelInterface):
         return os.path.join(path, 'params.json')
 
     def _get_iforest_path(self, path):
-        return os.path.join(path, 'iforest')
+        return os.path.join(path, 'iforest/')
 
     def _get_scaler_path(self, path):
-        return os.path.join(path, 'scaler')
+        return os.path.join(path, 'scaler/')
 
     def _get_index_path(self, path, feature):
-        return os.path.join(path, 'indexes', feature)
+        return os.path.join(path, 'indexes/', feature)
 
     def save(self, path, spark_session=None, training_config=None):
         file_manager = FileManager(path, spark_session)

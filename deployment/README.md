@@ -86,6 +86,20 @@ kubectl exec -it kafka-0 -- cat /opt/bitnami/kafka/config/server.properties | gr
 kubectl exec -it kafka-1 -- cat /opt/bitnami/kafka/config/server.properties | grep advertised.listeners
 kubectl exec -it kafka-2 -- cat /opt/bitnami/kafka/config/server.properties | grep advertised.listeners
 ```
+## Kafka ACL(Access Control List)
+ACL enables to control external user access to Kafka topics. An external user should have access only to the `features` topic in Clearinghouse Kafka.
+* Uncomment ACL from 'deployment/kafka/values-kafka.yaml'
+```yaml
+extraEnvVars:
+ - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
+   value: "kafka.security.authorizer.AclAuthorizer"
+```
+* Enable ACL
+```commandline
+helm upgrade --namespace default kafka bitnami/kafka -f ./deployment/kafka/values-kafka.yaml
+
+```
+
 
 ## Redis
 
@@ -250,8 +264,8 @@ kubectl apply -f /deployment/notebook/notebook.yaml
 
 * create notebook port forwarding
 ```commandline
-kubectl port-forward -n spark deployment.apps/notebook-deployment 8888:8888
-```
+`kubectl port-forward -n spark deployment.apps/notebook-deployment 8888:8888
+````
 
 * open `localhost:8888' and enter password 'jupyter'. 
 

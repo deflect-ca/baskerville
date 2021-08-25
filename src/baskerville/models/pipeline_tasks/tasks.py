@@ -435,7 +435,8 @@ class GetDataPostgres(Task):
             columns_to_keep=('ip', 'target', 'stop', 'features',),
             from_date=None,
             to_date=None,
-            training_days=None
+            training_days=None,
+            sampling_percentage=10.0
     ):
         super().__init__(config, steps)
         self.columns_to_keep = columns_to_keep
@@ -449,6 +450,7 @@ class GetDataPostgres(Task):
             'driver': self.config.spark.db_driver,
         }
         self.db_url = get_jdbc_url(self.config.database)
+        self.sampling_percentage = sampling_percentage
 
     def get_bounds(self, from_date, to_date=None, field='stop'):
         """
@@ -505,6 +507,12 @@ class GetDataPostgres(Task):
             f'from request_sets where id >= {bounds.min_id}  ' \
             f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
             f'and stop <=\'{to_date}\') as request_sets'
+
+        # q = f'(select id, {",".join(self.columns_to_keep)} ' \
+        #     f'from request_sets where id >= {bounds.min_id}  ' \
+        #     f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
+        #     f'and stop <=\'{to_date}\' ' \
+        #     f'TABLESAMPLE SYSTEM ({self.sampling_percentage}) ) as request_sets '
 
         return self.spark.read.jdbc(
             url=self.db_url,
@@ -1489,6 +1497,7 @@ class Train(Task):
         :return: None
         """
         model_path = get_model_path(self.engine_conf.storage_path, self.model.__class__.__name__)
+        self.logger.debug(f'Saving new model to: {model_path}')
         self.model.save(path=model_path, spark_session=self.spark)
         self.logger.debug(f'The new model has been saved to: {model_path}')
 

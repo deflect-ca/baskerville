@@ -1,26 +1,6 @@
 metadata:
   name: training
   namespace: default
-  selfLink: /apis/argoproj.io/v1alpha1/namespaces/default/workflowtemplates/training
-  uid: 40946c6a-e3fe-4024-a58b-12baec8e7a9d
-  resourceVersion: '23526709'
-  generation: 5
-  creationTimestamp: '2021-04-26T19:42:37Z'
-  managedFields:
-    - manager: argo
-      operation: Update
-      apiVersion: argoproj.io/v1alpha1
-      time: '2021-04-26T19:42:37Z'
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:spec':
-          .: {}
-          'f:arguments':
-            .: {}
-            'f:parameters': {}
-          'f:entrypoint': {}
-          'f:templates': {}
-          'f:volumes': {}
 spec:
   templates:
     - name: spark-submit
@@ -49,7 +29,7 @@ spec:
           - '--conf'
           - spark.executor.instances=3
           - '--name'
-          - preprocessing
+          - training
           - '--conf'
           - spark.kubernetes.pyspark.pythonVersion=3
           - '--conf'

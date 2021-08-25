@@ -6,6 +6,10 @@ autoCreateTopicsEnable: True
 nodeSelector:
   nodepool: workers
 
+#extraEnvVars:
+# - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
+#   value: "kafka.security.authorizer.AclAuthorizer"
+
 externalAccess:
   enabled: True
   service:
