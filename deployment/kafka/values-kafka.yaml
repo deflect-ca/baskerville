@@ -1,0 +1,38 @@
+replicaCount: 3
+logRetentionMinutes: 6
+logRetentionCheckIntervalMs: 60000
+autoCreateTopicsEnable: True
+
+nodeSelector:
+  nodepool: workers
+
+extraEnvVars:
+ - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
+   value: "kafka.security.authorizer.AclAuthorizer"
+ - name: KAFKA_CFG_SUPER_USERS
+   value: "User:CN=admin,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown;User:CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown"
+ - name: KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND
+   value: "true"
+
+externalAccess:
+  enabled: True
+  service:
+    type: NodePort
+    nodePorts: [30001, 30002, 30003]
+
+persistence:
+  enabled: False
+
+zookeeper:
+  auth:
+    enabled: False
+  persistence:
+    enabled: False
+
+auth:
+  tls:
+    endpointIdentificationAlgorithm: ""
+  clientProtocol: mtls
+  interBrokerProtocol: plaintext
+  jksSecret: kafka-jks
+  jksPassword: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"

@@ -1,0 +1,2929 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 7,
+  "iteration": 1625593749292,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {
+        "anomalies": "yellow",
+        "anomaly": "semi-dark-red",
+        "attack": "dark-red",
+        "baskerville_prediction_count{instance=\"23.239.118.130:8998\",job=\"baskerville_exporter\",kind=\"anomaly\",target=\"www.btselem.org\"}": "dark-red",
+        "baskerville_prediction_count{instance=\"23.239.118.130:8998\",job=\"baskerville_exporter\",kind=\"regular\",target=\"www.btselem.org\"}": "dark-green",
+        "low_rate_attack": "light-red",
+        "regular": "dark-green"
+      },
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "PostgreSQL",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "fill": 10,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 20,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 14,
+      "interval": "10s",
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": 100,
+        "total": false,
+        "values": false
+      },
+      "lines": false,
+      "linewidth": 1,
+      "nullPointMode": "null as zero",
+      "options": {
+        "alertThreshold": false
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.0",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "repeat": null,
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroup(stop, '2m'), count(distinct ip) as anomaly\nFROM request_sets WHERE $__timeFilter(stop) and target = '$Host' \nand prediction = 1 and challenged = 0\ngroup by 1 order by 1",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "recall"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "models",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroup(stop, '2m'), count(distinct ip) as attack\nFROM request_sets WHERE $__timeFilter(stop) and target = '$Host' \nand challenged = 1 --and (low_rate_attack = 0 or low_rate_attack isnull)\ngroup by 1 order by 1",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "recall"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "models",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroup(stop, '2m'), count(distinct ip) as regular\nFROM request_sets WHERE $__timeFilter(stop) and target = '$Host' \nand prediction = 0 and challenged = 0\ngroup by 1 order by 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "recall"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "models",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroup(stop, '2m'), count(distinct ip) as low_rate_attack\nFROM request_sets WHERE $__timeFilter(stop) and target = '$Host' \nand low_rate_attack = 1 and challenged = 1\ngroup by 1 order by 1",
+          "refId": "D",
+          "select": [
+            [
+              {
+                "params": [
+                  "recall"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "models",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "IPs",
+      "tooltip": {
+        "shared": true,
+        "sort": 1,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "id": 0,
+              "op": "=",
+              "text": "N/A",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "max": 100,
+          "min": 0,
+          "nullValueMode": "connected",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "semi-dark-green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 0,
+        "y": 5
+      },
+      "id": 27,
+      "links": [],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [
+            {
+              "params": [
+                "$__interval",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT count(distinct ip)\nFROM request_sets WHERE $__timeFilter(stop) and target = '$Host' \nand prediction = 0 and challenged = 0\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "attack_prediction"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "count"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "attack_prediction"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "request_sets",
+          "timeColumn": "stop",
+          "timeColumnType": "timestamptz",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "int4",
+              "name": "",
+              "params": [
+                "prediction",
+                "=",
+                "1"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Regular",
+      "type": "stat"
+    },
+    {
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-red",
+                "value": null
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 4,
+        "y": 5
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [
+            {
+              "params": [
+                "$__interval",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT count(distinct ip)\nFROM request_sets WHERE \n$__timeFilter(stop) \nand target = '$Host' \nand prediction = 1 and challenged = 0",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "attack_prediction"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "count"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "attack_prediction"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "request_sets",
+          "timeColumn": "stop",
+          "timeColumnType": "timestamptz",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "int4",
+              "name": "",
+              "params": [
+                "prediction",
+                "=",
+                "1"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Anomaly",
+      "type": "stat"
+    },
+    {
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 8,
+        "y": 5
+      },
+      "id": 25,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [
+            {
+              "params": [
+                "$__interval",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT count(distinct ip)\nFROM request_sets WHERE $__timeFilter(stop) and target = '$Host' \nand challenged = 1 and low_rate_attack = 0\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "attack_prediction"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "count"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "attack_prediction"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "request_sets",
+          "timeColumn": "stop",
+          "timeColumnType": "timestamptz",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "int4",
+              "name": "",
+              "params": [
+                "prediction",
+                "=",
+                "1"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Challenge",
+      "type": "stat"
+    },
+    {
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-red",
+                "value": null
+              },
+              {
+                "color": "light-red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 12,
+        "y": 5
+      },
+      "id": 28,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [
+            {
+              "params": [
+                "$__interval",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT count(distinct ip)\nFROM request_sets WHERE $__timeFilter(stop) and target = '$Host' \nand low_rate_attack = 1 and challenged = 1\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "attack_prediction"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "count"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "attack_prediction"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "request_sets",
+          "timeColumn": "stop",
+          "timeColumnType": "timestamptz",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "int4",
+              "name": "",
+              "params": [
+                "prediction",
+                "=",
+                "1"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Low Rate Challenge",
+      "type": "stat"
+    },
+    {
+      "datasource": "PostgreSQL",
+      "description": "The total number of passed challenge IPs",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "locale"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 16,
+        "y": 5
+      },
+      "id": 31,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT count(distinct ip)\nFROM request_sets WHERE $__timeFilter(stop) and target = '$Host' \nand challenged = 1 and challenge_passed = 1 ",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "recall"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "models",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Passed Challenge",
+      "type": "stat"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 26,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "kavkaz-uzel",
+          "value": "kavkaz-uzel"
+        },
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Host",
+        "multi": false,
+        "name": "Host",
+        "options": [
+          {
+            "selected": false,
+            "text": "aletihadpress",
+            "value": "aletihadpress"
+          },
+          {
+            "selected": false,
+            "text": "shadyplus",
+            "value": "shadyplus"
+          },
+          {
+            "selected": false,
+            "text": "splendits",
+            "value": "splendits"
+          },
+          {
+            "selected": false,
+            "text": "observatorioni",
+            "value": "observatorioni"
+          },
+          {
+            "selected": false,
+            "text": "vanguardiasv",
+            "value": "vanguardiasv"
+          },
+          {
+            "selected": false,
+            "text": "report",
+            "value": "report"
+          },
+          {
+            "selected": false,
+            "text": "hawarnews",
+            "value": "hawarnews"
+          },
+          {
+            "selected": false,
+            "text": "laorejaroja",
+            "value": "laorejaroja"
+          },
+          {
+            "selected": false,
+            "text": "nordis",
+            "value": "nordis"
+          },
+          {
+            "selected": false,
+            "text": "nkd",
+            "value": "nkd"
+          },
+          {
+            "selected": false,
+            "text": "360stepeni",
+            "value": "360stepeni"
+          },
+          {
+            "selected": false,
+            "text": "3ayin",
+            "value": "3ayin"
+          },
+          {
+            "selected": false,
+            "text": "7al",
+            "value": "7al"
+          },
+          {
+            "selected": false,
+            "text": "abortionfinder",
+            "value": "abortionfinder"
+          },
+          {
+            "selected": false,
+            "text": "abortionfunds",
+            "value": "abortionfunds"
+          },
+          {
+            "selected": false,
+            "text": "academicfreedomsby",
+            "value": "academicfreedomsby"
+          },
+          {
+            "selected": false,
+            "text": "acc.tni.org",
+            "value": "acc.tni.org"
+          },
+          {
+            "selected": false,
+            "text": "accessaccountability",
+            "value": "accessaccountability"
+          },
+          {
+            "selected": false,
+            "text": "actforfreedomnow",
+            "value": "actforfreedomnow"
+          },
+          {
+            "selected": false,
+            "text": "actwithus",
+            "value": "actwithus"
+          },
+          {
+            "selected": false,
+            "text": "afondoedomex",
+            "value": "afondoedomex"
+          },
+          {
+            "selected": false,
+            "text": "altaghyeer",
+            "value": "altaghyeer"
+          },
+          {
+            "selected": false,
+            "text": "altareeq",
+            "value": "altareeq"
+          },
+          {
+            "selected": false,
+            "text": "aman.zone",
+            "value": "aman.zone"
+          },
+          {
+            "selected": false,
+            "text": "amnestyshop",
+            "value": "amnestyshop"
+          },
+          {
+            "selected": false,
+            "text": "analytics",
+            "value": "analytics"
+          },
+          {
+            "selected": false,
+            "text": "angpangako",
+            "value": "angpangako"
+          },
+          {
+            "selected": false,
+            "text": "antifa",
+            "value": "antifa"
+          },
+          {
+            "selected": false,
+            "text": "arsod",
+            "value": "arsod"
+          },
+          {
+            "selected": false,
+            "text": "aseansogiecaucus",
+            "value": "aseansogiecaucus"
+          },
+          {
+            "selected": false,
+            "text": "atlantaantifa",
+            "value": "atlantaantifa"
+          },
+          {
+            "selected": false,
+            "text": "aurdip",
+            "value": "aurdip"
+          },
+          {
+            "selected": false,
+            "text": "auz8anj1",
+            "value": "auz8anj1"
+          },
+          {
+            "selected": false,
+            "text": "avishanx",
+            "value": "avishanx"
+          },
+          {
+            "selected": false,
+            "text": "baharpix",
+            "value": "baharpix"
+          },
+          {
+            "selected": false,
+            "text": "balcanicaucaso",
+            "value": "balcanicaucaso"
+          },
+          {
+            "selected": false,
+            "text": "balochcampaign",
+            "value": "balochcampaign"
+          },
+          {
+            "selected": false,
+            "text": "bankwatch",
+            "value": "bankwatch"
+          },
+          {
+            "selected": false,
+            "text": "baotiengdan",
+            "value": "baotiengdan"
+          },
+          {
+            "selected": false,
+            "text": "bdsquebec",
+            "value": "bdsquebec"
+          },
+          {
+            "selected": false,
+            "text": "beauswan",
+            "value": "beauswan"
+          },
+          {
+            "selected": false,
+            "text": "bestonlinegamesqq288",
+            "value": "bestonlinegamesqq288"
+          },
+          {
+            "selected": false,
+            "text": "beyondactivismo",
+            "value": "beyondactivismo"
+          },
+          {
+            "selected": false,
+            "text": "bidoon",
+            "value": "bidoon"
+          },
+          {
+            "selected": false,
+            "text": "blackfutureslab",
+            "value": "blackfutureslab"
+          },
+          {
+            "selected": false,
+            "text": "bolya",
+            "value": "bolya"
+          },
+          {
+            "selected": false,
+            "text": "book.xxs8.com:80",
+            "value": "book.xxs8.com:80"
+          },
+          {
+            "selected": false,
+            "text": "books",
+            "value": "books"
+          },
+          {
+            "selected": false,
+            "text": "boveda",
+            "value": "boveda"
+          },
+          {
+            "selected": false,
+            "text": "bowlathon",
+            "value": "bowlathon"
+          },
+          {
+            "selected": false,
+            "text": "bpdwatch",
+            "value": "bpdwatch"
+          },
+          {
+            "selected": false,
+            "text": "btselem",
+            "value": "btselem"
+          },
+          {
+            "selected": false,
+            "text": "burmacampaign",
+            "value": "burmacampaign"
+          },
+          {
+            "selected": false,
+            "text": "buzoter",
+            "value": "buzoter"
+          },
+          {
+            "selected": false,
+            "text": "bvbv.org.cn.smex.org",
+            "value": "bvbv.org.cn.smex.org"
+          },
+          {
+            "selected": false,
+            "text": "cadenademando",
+            "value": "cadenademando"
+          },
+          {
+            "selected": false,
+            "text": "caldh",
+            "value": "caldh"
+          },
+          {
+            "selected": false,
+            "text": "cartochaco",
+            "value": "cartochaco"
+          },
+          {
+            "selected": false,
+            "text": "cci",
+            "value": "cci"
+          },
+          {
+            "selected": false,
+            "text": "ccij",
+            "value": "ccij"
+          },
+          {
+            "selected": false,
+            "text": "cda.gov.co",
+            "value": "cda.gov.co"
+          },
+          {
+            "selected": false,
+            "text": "censorship",
+            "value": "censorship"
+          },
+          {
+            "selected": false,
+            "text": "center-action",
+            "value": "center-action"
+          },
+          {
+            "selected": false,
+            "text": "centre1",
+            "value": "centre1"
+          },
+          {
+            "selected": false,
+            "text": "cercavamolapace",
+            "value": "cercavamolapace"
+          },
+          {
+            "selected": false,
+            "text": "changecopyright",
+            "value": "changecopyright"
+          },
+          {
+            "selected": false,
+            "text": "charlotteuprising",
+            "value": "charlotteuprising"
+          },
+          {
+            "selected": false,
+            "text": "chenpoo",
+            "value": "chenpoo"
+          },
+          {
+            "selected": false,
+            "text": "cherkasy24",
+            "value": "cherkasy24"
+          },
+          {
+            "selected": false,
+            "text": "childrenontheedge",
+            "value": "childrenontheedge"
+          },
+          {
+            "selected": false,
+            "text": "chroniquepalestine",
+            "value": "chroniquepalestine"
+          },
+          {
+            "selected": false,
+            "text": "cmiguate",
+            "value": "cmiguate"
+          },
+          {
+            "selected": false,
+            "text": "cn.vot.org",
+            "value": "cn.vot.org"
+          },
+          {
+            "selected": false,
+            "text": "conaie",
+            "value": "conaie"
+          },
+          {
+            "selected": false,
+            "text": "confeniae",
+            "value": "confeniae"
+          },
+          {
+            "selected": false,
+            "text": "congresocienciasambientalesrcfa",
+            "value": "congresocienciasambientalesrcfa"
+          },
+          {
+            "selected": false,
+            "text": "conquer-and-divide",
+            "value": "conquer-and-divide"
+          },
+          {
+            "selected": false,
+            "text": "contracorriente",
+            "value": "contracorriente"
+          },
+          {
+            "selected": false,
+            "text": "contraloriadecordoba",
+            "value": "contraloriadecordoba"
+          },
+          {
+            "selected": false,
+            "text": "contratacionespublicas",
+            "value": "contratacionespublicas"
+          },
+          {
+            "selected": false,
+            "text": "contrepoints",
+            "value": "contrepoints"
+          },
+          {
+            "selected": false,
+            "text": "crimean-process",
+            "value": "crimean-process"
+          },
+          {
+            "selected": false,
+            "text": "criterio",
+            "value": "criterio"
+          },
+          {
+            "selected": false,
+            "text": "culturesofresistance",
+            "value": "culturesofresistance"
+          },
+          {
+            "selected": false,
+            "text": "culturesofresistancefilms",
+            "value": "culturesofresistancefilms"
+          },
+          {
+            "selected": false,
+            "text": "curul43",
+            "value": "curul43"
+          },
+          {
+            "selected": false,
+            "text": "cvu",
+            "value": "cvu"
+          },
+          {
+            "selected": false,
+            "text": "d235549cojqgau",
+            "value": "d235549cojqgau"
+          },
+          {
+            "selected": false,
+            "text": "d3clylu4rhwpu5",
+            "value": "d3clylu4rhwpu5"
+          },
+          {
+            "selected": false,
+            "text": "darfur24",
+            "value": "darfur24"
+          },
+          {
+            "selected": false,
+            "text": "dash.mmdc.ru",
+            "value": "dash.mmdc.ru"
+          },
+          {
+            "selected": false,
+            "text": "dashadmin",
+            "value": "dashadmin"
+          },
+          {
+            "selected": false,
+            "text": "dashboard",
+            "value": "dashboard"
+          },
+          {
+            "selected": false,
+            "text": "datosprotegidos",
+            "value": "datosprotegidos"
+          },
+          {
+            "selected": false,
+            "text": "dbev.site.smex.org",
+            "value": "dbev.site.smex.org"
+          },
+          {
+            "selected": false,
+            "text": "dbom.site.smex.org",
+            "value": "dbom.site.smex.org"
+          },
+          {
+            "selected": false,
+            "text": "dedmorozprotiv",
+            "value": "dedmorozprotiv"
+          },
+          {
+            "selected": false,
+            "text": "defakto.support",
+            "value": "defakto.support"
+          },
+          {
+            "selected": true,
+            "text": "deflect",
+            "value": "deflect"
+          },
+          {
+            "selected": false,
+            "text": "deflect.network",
+            "value": "deflect.network"
+          },
+          {
+            "selected": false,
+            "text": "designaction",
+            "value": "designaction"
+          },
+          {
+            "selected": false,
+            "text": "develop",
+            "value": "develop"
+          },
+          {
+            "selected": false,
+            "text": "dgzxzdh",
+            "value": "dgzxzdh"
+          },
+          {
+            "selected": false,
+            "text": "diegocupolo",
+            "value": "diegocupolo"
+          },
+          {
+            "selected": false,
+            "text": "digari",
+            "value": "digari"
+          },
+          {
+            "selected": false,
+            "text": "digsec",
+            "value": "digsec"
+          },
+          {
+            "selected": false,
+            "text": "dmgburmese",
+            "value": "dmgburmese"
+          },
+          {
+            "selected": false,
+            "text": "dojensgara",
+            "value": "dojensgara"
+          },
+          {
+            "selected": false,
+            "text": "dominemoslatecnologia",
+            "value": "dominemoslatecnologia"
+          },
+          {
+            "selected": false,
+            "text": "donate.indigo.kg",
+            "value": "donate.indigo.kg"
+          },
+          {
+            "selected": false,
+            "text": "downtoearth-indonesia",
+            "value": "downtoearth-indonesia"
+          },
+          {
+            "selected": false,
+            "text": "dss380",
+            "value": "dss380"
+          },
+          {
+            "selected": false,
+            "text": "dukq.site.smex.org",
+            "value": "dukq.site.smex.org"
+          },
+          {
+            "selected": false,
+            "text": "ecuadortoday",
+            "value": "ecuadortoday"
+          },
+          {
+            "selected": false,
+            "text": "einnews",
+            "value": "einnews"
+          },
+          {
+            "selected": false,
+            "text": "ekuatorial",
+            "value": "ekuatorial"
+          },
+          {
+            "selected": false,
+            "text": "elreporte",
+            "value": "elreporte"
+          },
+          {
+            "selected": false,
+            "text": "eltuz",
+            "value": "eltuz"
+          },
+          {
+            "selected": false,
+            "text": "emafund",
+            "value": "emafund"
+          },
+          {
+            "selected": false,
+            "text": "empoerteuch",
+            "value": "empoerteuch"
+          },
+          {
+            "selected": false,
+            "text": "enjambre",
+            "value": "enjambre"
+          },
+          {
+            "selected": false,
+            "text": "ens.org.co",
+            "value": "ens.org.co"
+          },
+          {
+            "selected": false,
+            "text": "eqpress.equalit.ie",
+            "value": "eqpress.equalit.ie"
+          },
+          {
+            "selected": false,
+            "text": "equalit",
+            "value": "equalit"
+          },
+          {
+            "selected": false,
+            "text": "equalrights-centrasia",
+            "value": "equalrights-centrasia"
+          },
+          {
+            "selected": false,
+            "text": "escueladeseguridaddigital",
+            "value": "escueladeseguridaddigital"
+          },
+          {
+            "selected": false,
+            "text": "eslinde",
+            "value": "eslinde"
+          },
+          {
+            "selected": false,
+            "text": "ethicalshop",
+            "value": "ethicalshop"
+          },
+          {
+            "selected": false,
+            "text": "extinctionrebellion",
+            "value": "extinctionrebellion"
+          },
+          {
+            "selected": false,
+            "text": "facetz",
+            "value": "facetz"
+          },
+          {
+            "selected": false,
+            "text": "farmal",
+            "value": "farmal"
+          },
+          {
+            "selected": false,
+            "text": "fastwebserver",
+            "value": "fastwebserver"
+          },
+          {
+            "selected": false,
+            "text": "feminisminindia",
+            "value": "feminisminindia"
+          },
+          {
+            "selected": false,
+            "text": "fergana",
+            "value": "fergana"
+          },
+          {
+            "selected": false,
+            "text": "fergananews",
+            "value": "fergananews"
+          },
+          {
+            "selected": false,
+            "text": "findyourb",
+            "value": "findyourb"
+          },
+          {
+            "selected": false,
+            "text": "firstvoicesindigenousradio",
+            "value": "firstvoicesindigenousradio"
+          },
+          {
+            "selected": false,
+            "text": "foazuay",
+            "value": "foazuay"
+          },
+          {
+            "selected": false,
+            "text": "focusaleppo",
+            "value": "focusaleppo"
+          },
+          {
+            "selected": false,
+            "text": "forestpeoples",
+            "value": "forestpeoples"
+          },
+          {
+            "selected": false,
+            "text": "forrights",
+            "value": "forrights"
+          },
+          {
+            "selected": false,
+            "text": "forstamt-dingenskirchen",
+            "value": "forstamt-dingenskirchen"
+          },
+          {
+            "selected": false,
+            "text": "freedomlounge",
+            "value": "freedomlounge"
+          },
+          {
+            "selected": false,
+            "text": "freedomonlinecoalition",
+            "value": "freedomonlinecoalition"
+          },
+          {
+            "selected": false,
+            "text": "freerunet",
+            "value": "freerunet"
+          },
+          {
+            "selected": false,
+            "text": "freethemnow",
+            "value": "freethemnow"
+          },
+          {
+            "selected": false,
+            "text": "fundabortion",
+            "value": "fundabortion"
+          },
+          {
+            "selected": false,
+            "text": "fundabortionnow",
+            "value": "fundabortionnow"
+          },
+          {
+            "selected": false,
+            "text": "fundacionsantamaria",
+            "value": "fundacionsantamaria"
+          },
+          {
+            "selected": false,
+            "text": "fundathon",
+            "value": "fundathon"
+          },
+          {
+            "selected": false,
+            "text": "fundraising",
+            "value": "fundraising"
+          },
+          {
+            "selected": false,
+            "text": "futureoceans",
+            "value": "futureoceans"
+          },
+          {
+            "selected": false,
+            "text": "gaytest",
+            "value": "gaytest"
+          },
+          {
+            "selected": false,
+            "text": "gbsurvivors",
+            "value": "gbsurvivors"
+          },
+          {
+            "selected": false,
+            "text": "gdwellbing",
+            "value": "gdwellbing"
+          },
+          {
+            "selected": false,
+            "text": "genderdings",
+            "value": "genderdings"
+          },
+          {
+            "selected": false,
+            "text": "genderit",
+            "value": "genderit"
+          },
+          {
+            "selected": false,
+            "text": "generationjustice",
+            "value": "generationjustice"
+          },
+          {
+            "selected": false,
+            "text": "ggjalliance",
+            "value": "ggjalliance"
+          },
+          {
+            "selected": false,
+            "text": "globalbersih",
+            "value": "globalbersih"
+          },
+          {
+            "selected": false,
+            "text": "gobernanzadeinternet",
+            "value": "gobernanzadeinternet"
+          },
+          {
+            "selected": false,
+            "text": "gobiernoabiertomx",
+            "value": "gobiernoabiertomx"
+          },
+          {
+            "selected": false,
+            "text": "gp-digital",
+            "value": "gp-digital"
+          },
+          {
+            "selected": false,
+            "text": "greenhost",
+            "value": "greenhost"
+          },
+          {
+            "selected": false,
+            "text": "gubernia",
+            "value": "gubernia"
+          },
+          {
+            "selected": false,
+            "text": "gzlixue1688",
+            "value": "gzlixue1688"
+          },
+          {
+            "selected": false,
+            "text": "hackedalert",
+            "value": "hackedalert"
+          },
+          {
+            "selected": false,
+            "text": "haliangjidian",
+            "value": "haliangjidian"
+          },
+          {
+            "selected": false,
+            "text": "hamdamapp",
+            "value": "hamdamapp"
+          },
+          {
+            "selected": false,
+            "text": "hawarnews",
+            "value": "hawarnews"
+          },
+          {
+            "selected": false,
+            "text": "help.mmdc.ru",
+            "value": "help.mmdc.ru"
+          },
+          {
+            "selected": false,
+            "text": "helpdesk",
+            "value": "helpdesk"
+          },
+          {
+            "selected": false,
+            "text": "hetzner20",
+            "value": "hetzner20"
+          },
+          {
+            "selected": false,
+            "text": "hodnews",
+            "value": "hodnews"
+          },
+          {
+            "selected": false,
+            "text": "hphcolombia",
+            "value": "hphcolombia"
+          },
+          {
+            "selected": false,
+            "text": "hrcspb",
+            "value": "hrcspb"
+          },
+          {
+            "selected": false,
+            "text": "httpheader",
+            "value": "httpheader"
+          },
+          {
+            "selected": false,
+            "text": "huridocs",
+            "value": "huridocs"
+          },
+          {
+            "selected": false,
+            "text": "hurisa",
+            "value": "hurisa"
+          },
+          {
+            "selected": false,
+            "text": "iccpg",
+            "value": "iccpg"
+          },
+          {
+            "selected": false,
+            "text": "ide.parents.physk.network",
+            "value": "ide.parents.physk.network"
+          },
+          {
+            "selected": false,
+            "text": "idefend",
+            "value": "idefend"
+          },
+          {
+            "selected": false,
+            "text": "ifweweresyrian",
+            "value": "ifweweresyrian"
+          },
+          {
+            "selected": false,
+            "text": "ihadanabortion",
+            "value": "ihadanabortion"
+          },
+          {
+            "selected": false,
+            "text": "ijvcanada",
+            "value": "ijvcanada"
+          },
+          {
+            "selected": false,
+            "text": "imap.smex.org",
+            "value": "imap.smex.org"
+          },
+          {
+            "selected": false,
+            "text": "imemc",
+            "value": "imemc"
+          },
+          {
+            "selected": false,
+            "text": "impactiran",
+            "value": "impactiran"
+          },
+          {
+            "selected": false,
+            "text": "inbox7",
+            "value": "inbox7"
+          },
+          {
+            "selected": false,
+            "text": "indigo",
+            "value": "indigo"
+          },
+          {
+            "selected": false,
+            "text": "indymedia",
+            "value": "indymedia"
+          },
+          {
+            "selected": false,
+            "text": "infoactivismo",
+            "value": "infoactivismo"
+          },
+          {
+            "selected": false,
+            "text": "infocongo",
+            "value": "infocongo"
+          },
+          {
+            "selected": false,
+            "text": "infopacific",
+            "value": "infopacific"
+          },
+          {
+            "selected": false,
+            "text": "informaterompeelmiedo",
+            "value": "informaterompeelmiedo"
+          },
+          {
+            "selected": false,
+            "text": "informator",
+            "value": "informator"
+          },
+          {
+            "selected": false,
+            "text": "inkyfada",
+            "value": "inkyfada"
+          },
+          {
+            "selected": false,
+            "text": "inredh",
+            "value": "inredh"
+          },
+          {
+            "selected": false,
+            "text": "ip-145-239-7",
+            "value": "ip-145-239-7"
+          },
+          {
+            "selected": false,
+            "text": "ip-176-31-125",
+            "value": "ip-176-31-125"
+          },
+          {
+            "selected": false,
+            "text": "ip-46-105-96",
+            "value": "ip-46-105-96"
+          },
+          {
+            "selected": false,
+            "text": "ip-51-77-116",
+            "value": "ip-51-77-116"
+          },
+          {
+            "selected": false,
+            "text": "ip-94-23-30",
+            "value": "ip-94-23-30"
+          },
+          {
+            "selected": false,
+            "text": "ipdb-bot",
+            "value": "ipdb-bot"
+          },
+          {
+            "selected": false,
+            "text": "ippogroup",
+            "value": "ippogroup"
+          },
+          {
+            "selected": false,
+            "text": "irancybercrime",
+            "value": "irancybercrime"
+          },
+          {
+            "selected": false,
+            "text": "irrp",
+            "value": "irrp"
+          },
+          {
+            "selected": false,
+            "text": "janinewarner",
+            "value": "janinewarner"
+          },
+          {
+            "selected": false,
+            "text": "jfp.org.ua",
+            "value": "jfp.org.ua"
+          },
+          {
+            "selected": false,
+            "text": "jillianfriedmanlaw",
+            "value": "jillianfriedmanlaw"
+          },
+          {
+            "selected": false,
+            "text": "jisr",
+            "value": "jisr"
+          },
+          {
+            "selected": false,
+            "text": "jorgeluissierra",
+            "value": "jorgeluissierra"
+          },
+          {
+            "selected": false,
+            "text": "jorgeviejo",
+            "value": "jorgeviejo"
+          },
+          {
+            "selected": false,
+            "text": "joshuaprovoste",
+            "value": "joshuaprovoste"
+          },
+          {
+            "selected": false,
+            "text": "journalistsforrights",
+            "value": "journalistsforrights"
+          },
+          {
+            "selected": false,
+            "text": "juvenilejusticecentre",
+            "value": "juvenilejusticecentre"
+          },
+          {
+            "selected": false,
+            "text": "jvpdc",
+            "value": "jvpdc"
+          },
+          {
+            "selected": false,
+            "text": "kactus",
+            "value": "kactus"
+          },
+          {
+            "selected": false,
+            "text": "kalemon",
+            "value": "kalemon"
+          },
+          {
+            "selected": false,
+            "text": "kavkaz-uzel",
+            "value": "kavkaz-uzel"
+          },
+          {
+            "selected": false,
+            "text": "kboo",
+            "value": "kboo"
+          },
+          {
+            "selected": false,
+            "text": "kevorkaghazarian",
+            "value": "kevorkaghazarian"
+          },
+          {
+            "selected": false,
+            "text": "khosq",
+            "value": "khosq"
+          },
+          {
+            "selected": false,
+            "text": "klimaprotest",
+            "value": "klimaprotest"
+          },
+          {
+            "selected": false,
+            "text": "kompetentia",
+            "value": "kompetentia"
+          },
+          {
+            "selected": false,
+            "text": "kotsubynske",
+            "value": "kotsubynske"
+          },
+          {
+            "selected": false,
+            "text": "ladobe",
+            "value": "ladobe"
+          },
+          {
+            "selected": false,
+            "text": "lahistoria",
+            "value": "lahistoria"
+          },
+          {
+            "selected": false,
+            "text": "larepublica",
+            "value": "larepublica"
+          },
+          {
+            "selected": false,
+            "text": "lasaqf",
+            "value": "lasaqf"
+          },
+          {
+            "selected": false,
+            "text": "learning",
+            "value": "learning"
+          },
+          {
+            "selected": false,
+            "text": "level-up",
+            "value": "level-up"
+          },
+          {
+            "selected": false,
+            "text": "lgbt-hiv",
+            "value": "lgbt-hiv"
+          },
+          {
+            "selected": false,
+            "text": "lgbtru",
+            "value": "lgbtru"
+          },
+          {
+            "selected": false,
+            "text": "ligacontraelsilencio",
+            "value": "ligacontraelsilencio"
+          },
+          {
+            "selected": false,
+            "text": "linkswende",
+            "value": "linkswende"
+          },
+          {
+            "selected": false,
+            "text": "localhost",
+            "value": "localhost"
+          },
+          {
+            "selected": false,
+            "text": "lostbaku",
+            "value": "lostbaku"
+          },
+          {
+            "selected": false,
+            "text": "luchadoras",
+            "value": "luchadoras"
+          },
+          {
+            "selected": false,
+            "text": "m4bl",
+            "value": "m4bl"
+          },
+          {
+            "selected": false,
+            "text": "macholand",
+            "value": "macholand"
+          },
+          {
+            "selected": false,
+            "text": "majlismonitor",
+            "value": "majlismonitor"
+          },
+          {
+            "selected": false,
+            "text": "malina",
+            "value": "malina"
+          },
+          {
+            "selected": false,
+            "text": "manandlaw",
+            "value": "manandlaw"
+          },
+          {
+            "selected": false,
+            "text": "mangoba",
+            "value": "mangoba"
+          },
+          {
+            "selected": false,
+            "text": "marsadak",
+            "value": "marsadak"
+          },
+          {
+            "selected": false,
+            "text": "marxismuss",
+            "value": "marxismuss"
+          },
+          {
+            "selected": false,
+            "text": "mayfirst",
+            "value": "mayfirst"
+          },
+          {
+            "selected": false,
+            "text": "mazaya-women",
+            "value": "mazaya-women"
+          },
+          {
+            "selected": false,
+            "text": "mekongeye",
+            "value": "mekongeye"
+          },
+          {
+            "selected": false,
+            "text": "memorandum-online",
+            "value": "memorandum-online"
+          },
+          {
+            "selected": false,
+            "text": "menschliche-asylpolitik",
+            "value": "menschliche-asylpolitik"
+          },
+          {
+            "selected": false,
+            "text": "mmdc",
+            "value": "mmdc"
+          },
+          {
+            "selected": false,
+            "text": "mobile",
+            "value": "mobile"
+          },
+          {
+            "selected": false,
+            "text": "monitor.prod.deflect.ca",
+            "value": "monitor.prod.deflect.ca"
+          },
+          {
+            "selected": false,
+            "text": "msftncsi",
+            "value": "msftncsi"
+          },
+          {
+            "selected": false,
+            "text": "mtvburmaaction",
+            "value": "mtvburmaaction"
+          },
+          {
+            "selected": false,
+            "text": "mutabar",
+            "value": "mutabar"
+          },
+          {
+            "selected": false,
+            "text": "nama",
+            "value": "nama"
+          },
+          {
+            "selected": false,
+            "text": "namnam",
+            "value": "namnam"
+          },
+          {
+            "selected": false,
+            "text": "neonmona",
+            "value": "neonmona"
+          },
+          {
+            "selected": false,
+            "text": "newsyrian",
+            "value": "newsyrian"
+          },
+          {
+            "selected": false,
+            "text": "newwebsite",
+            "value": "newwebsite"
+          },
+          {
+            "selected": false,
+            "text": "nextcloud",
+            "value": "nextcloud"
+          },
+          {
+            "selected": false,
+            "text": "nielo",
+            "value": "nielo"
+          },
+          {
+            "selected": false,
+            "text": "nnaf",
+            "value": "nnaf"
+          },
+          {
+            "selected": false,
+            "text": "north-shore",
+            "value": "north-shore"
+          },
+          {
+            "selected": false,
+            "text": "northkensingtonlibrary",
+            "value": "northkensingtonlibrary"
+          },
+          {
+            "selected": false,
+            "text": "nrrdo",
+            "value": "nrrdo"
+          },
+          {
+            "selected": false,
+            "text": "nrrdoradio",
+            "value": "nrrdoradio"
+          },
+          {
+            "selected": false,
+            "text": "ntenegro-199516o",
+            "value": "ntenegro-199516o"
+          },
+          {
+            "selected": false,
+            "text": "nubareports",
+            "value": "nubareports"
+          },
+          {
+            "selected": false,
+            "text": "nucnet",
+            "value": "nucnet"
+          },
+          {
+            "selected": false,
+            "text": "nujp",
+            "value": "nujp"
+          },
+          {
+            "selected": false,
+            "text": "nuntiare",
+            "value": "nuntiare"
+          },
+          {
+            "selected": false,
+            "text": "nyaaf",
+            "value": "nyaaf"
+          },
+          {
+            "selected": false,
+            "text": "oasdeflect",
+            "value": "oasdeflect"
+          },
+          {
+            "selected": false,
+            "text": "occupationfreedc",
+            "value": "occupationfreedc"
+          },
+          {
+            "selected": false,
+            "text": "online",
+            "value": "online"
+          },
+          {
+            "selected": false,
+            "text": "onlineoffline",
+            "value": "onlineoffline"
+          },
+          {
+            "selected": false,
+            "text": "open-archive",
+            "value": "open-archive"
+          },
+          {
+            "selected": false,
+            "text": "openearth",
+            "value": "openearth"
+          },
+          {
+            "selected": false,
+            "text": "opennet",
+            "value": "opennet"
+          },
+          {
+            "selected": false,
+            "text": "openrunet",
+            "value": "openrunet"
+          },
+          {
+            "selected": false,
+            "text": "opera-de-marseille",
+            "value": "opera-de-marseille"
+          },
+          {
+            "selected": false,
+            "text": "opera-marseille",
+            "value": "opera-marseille"
+          },
+          {
+            "selected": false,
+            "text": "opera-municipal-de-marseille",
+            "value": "opera-municipal-de-marseille"
+          },
+          {
+            "selected": false,
+            "text": "opera-municipal-marseille",
+            "value": "opera-municipal-marseille"
+          },
+          {
+            "selected": false,
+            "text": "operademarseille",
+            "value": "operademarseille"
+          },
+          {
+            "selected": false,
+            "text": "operamarseille",
+            "value": "operamarseille"
+          },
+          {
+            "selected": false,
+            "text": "operamunicipaldemarseille",
+            "value": "operamunicipaldemarseille"
+          },
+          {
+            "selected": false,
+            "text": "operamunicipalmarseille",
+            "value": "operamunicipalmarseille"
+          },
+          {
+            "selected": false,
+            "text": "oporacv",
+            "value": "oporacv"
+          },
+          {
+            "selected": false,
+            "text": "orgsafe",
+            "value": "orgsafe"
+          },
+          {
+            "selected": false,
+            "text": "pagina3",
+            "value": "pagina3"
+          },
+          {
+            "selected": false,
+            "text": "palarchive",
+            "value": "palarchive"
+          },
+          {
+            "selected": false,
+            "text": "palestinechronicle",
+            "value": "palestinechronicle"
+          },
+          {
+            "selected": false,
+            "text": "paljourneys",
+            "value": "paljourneys"
+          },
+          {
+            "selected": false,
+            "text": "palliativespb",
+            "value": "palliativespb"
+          },
+          {
+            "selected": false,
+            "text": "palmuseum",
+            "value": "palmuseum"
+          },
+          {
+            "selected": false,
+            "text": "papuansbehindbars",
+            "value": "papuansbehindbars"
+          },
+          {
+            "selected": false,
+            "text": "parniplus",
+            "value": "parniplus"
+          },
+          {
+            "selected": false,
+            "text": "passwords",
+            "value": "passwords"
+          },
+          {
+            "selected": false,
+            "text": "pen-international",
+            "value": "pen-international"
+          },
+          {
+            "selected": false,
+            "text": "periodistasdeapie",
+            "value": "periodistasdeapie"
+          },
+          {
+            "selected": false,
+            "text": "philippinehumanrights",
+            "value": "philippinehumanrights"
+          },
+          {
+            "selected": false,
+            "text": "piedepagina",
+            "value": "piedepagina"
+          },
+          {
+            "selected": false,
+            "text": "points-of-view",
+            "value": "points-of-view"
+          },
+          {
+            "selected": false,
+            "text": "poneytelecom",
+            "value": "poneytelecom"
+          },
+          {
+            "selected": false,
+            "text": "pooshema",
+            "value": "pooshema"
+          },
+          {
+            "selected": false,
+            "text": "pop3.smex.org",
+            "value": "pop3.smex.org"
+          },
+          {
+            "selected": false,
+            "text": "povorkaponosa",
+            "value": "povorkaponosa"
+          },
+          {
+            "selected": false,
+            "text": "prep.love",
+            "value": "prep.love"
+          },
+          {
+            "selected": false,
+            "text": "press",
+            "value": "press"
+          },
+          {
+            "selected": false,
+            "text": "preziso",
+            "value": "preziso"
+          },
+          {
+            "selected": false,
+            "text": "programaacua",
+            "value": "programaacua"
+          },
+          {
+            "selected": false,
+            "text": "progres",
+            "value": "progres"
+          },
+          {
+            "selected": false,
+            "text": "protege",
+            "value": "protege"
+          },
+          {
+            "selected": false,
+            "text": "pryrodni",
+            "value": "pryrodni"
+          },
+          {
+            "selected": false,
+            "text": "qurium",
+            "value": "qurium"
+          },
+          {
+            "selected": false,
+            "text": "radiozones",
+            "value": "radiozones"
+          },
+          {
+            "selected": false,
+            "text": "raichali",
+            "value": "raichali"
+          },
+          {
+            "selected": false,
+            "text": "rap23",
+            "value": "rap23"
+          },
+          {
+            "selected": false,
+            "text": "rappr-rppsn",
+            "value": "rappr-rppsn"
+          },
+          {
+            "selected": false,
+            "text": "rcmediafreedom",
+            "value": "rcmediafreedom"
+          },
+          {
+            "selected": false,
+            "text": "rds.org.co",
+            "value": "rds.org.co"
+          },
+          {
+            "selected": false,
+            "text": "rds.org.co:443",
+            "value": "rds.org.co:443"
+          },
+          {
+            "selected": false,
+            "text": "redesquintopoder",
+            "value": "redesquintopoder"
+          },
+          {
+            "selected": false,
+            "text": "rohingya",
+            "value": "rohingya"
+          },
+          {
+            "selected": false,
+            "text": "rohingyakhobor",
+            "value": "rohingyakhobor"
+          },
+          {
+            "selected": false,
+            "text": "rojava",
+            "value": "rojava"
+          },
+          {
+            "selected": false,
+            "text": "royafm",
+            "value": "royafm"
+          },
+          {
+            "selected": false,
+            "text": "ruidocdmx",
+            "value": "ruidocdmx"
+          },
+          {
+            "selected": false,
+            "text": "sabzbashim",
+            "value": "sabzbashim"
+          },
+          {
+            "selected": false,
+            "text": "scoop",
+            "value": "scoop"
+          },
+          {
+            "selected": false,
+            "text": "scoopcons",
+            "value": "scoopcons"
+          },
+          {
+            "selected": false,
+            "text": "secrethistory",
+            "value": "secrethistory"
+          },
+          {
+            "selected": false,
+            "text": "securedservers",
+            "value": "securedservers"
+          },
+          {
+            "selected": false,
+            "text": "segudigital",
+            "value": "segudigital"
+          },
+          {
+            "selected": false,
+            "text": "seguridaddigital",
+            "value": "seguridaddigital"
+          },
+          {
+            "selected": false,
+            "text": "semillas",
+            "value": "semillas"
+          },
+          {
+            "selected": false,
+            "text": "sentiido",
+            "value": "sentiido"
+          },
+          {
+            "selected": false,
+            "text": "seremoslasultimas",
+            "value": "seremoslasultimas"
+          },
+          {
+            "selected": false,
+            "text": "server-hosting",
+            "value": "server-hosting"
+          },
+          {
+            "selected": false,
+            "text": "slobodenpecat",
+            "value": "slobodenpecat"
+          },
+          {
+            "selected": false,
+            "text": "smex",
+            "value": "smex"
+          },
+          {
+            "selected": false,
+            "text": "sobytiya",
+            "value": "sobytiya"
+          },
+          {
+            "selected": false,
+            "text": "soyou24.prod.deflect.ca",
+            "value": "soyou24.prod.deflect.ca"
+          },
+          {
+            "selected": false,
+            "text": "spartak",
+            "value": "spartak"
+          },
+          {
+            "selected": false,
+            "text": "squat",
+            "value": "squat"
+          },
+          {
+            "selected": false,
+            "text": "stagedash",
+            "value": "stagedash"
+          },
+          {
+            "selected": false,
+            "text": "stagedashadmin",
+            "value": "stagedashadmin"
+          },
+          {
+            "selected": false,
+            "text": "staging",
+            "value": "staging"
+          },
+          {
+            "selected": false,
+            "text": "stopblackface",
+            "value": "stopblackface"
+          },
+          {
+            "selected": false,
+            "text": "stopthewall",
+            "value": "stopthewall"
+          },
+          {
+            "selected": false,
+            "text": "subdomain2",
+            "value": "subdomain2"
+          },
+          {
+            "selected": false,
+            "text": "sudouk",
+            "value": "sudouk"
+          },
+          {
+            "selected": false,
+            "text": "summit2018",
+            "value": "summit2018"
+          },
+          {
+            "selected": false,
+            "text": "supremainjusticia",
+            "value": "supremainjusticia"
+          },
+          {
+            "selected": false,
+            "text": "t-action-team",
+            "value": "t-action-team"
+          },
+          {
+            "selected": false,
+            "text": "tapol",
+            "value": "tapol"
+          },
+          {
+            "selected": false,
+            "text": "tasinhorjun",
+            "value": "tasinhorjun"
+          },
+          {
+            "selected": false,
+            "text": "tchrd",
+            "value": "tchrd"
+          },
+          {
+            "selected": false,
+            "text": "technology",
+            "value": "technology"
+          },
+          {
+            "selected": false,
+            "text": "telegram",
+            "value": "telegram"
+          },
+          {
+            "selected": false,
+            "text": "teprotejo",
+            "value": "teprotejo"
+          },
+          {
+            "selected": false,
+            "text": "test.irrp.org.ua",
+            "value": "test.irrp.org.ua"
+          },
+          {
+            "selected": false,
+            "text": "testnewsite2",
+            "value": "testnewsite2"
+          },
+          {
+            "selected": false,
+            "text": "thamhoaformosa",
+            "value": "thamhoaformosa"
+          },
+          {
+            "selected": false,
+            "text": "the-tower",
+            "value": "the-tower"
+          },
+          {
+            "selected": false,
+            "text": "theinvisiblewalls",
+            "value": "theinvisiblewalls"
+          },
+          {
+            "selected": false,
+            "text": "thelinknewspaper",
+            "value": "thelinknewspaper"
+          },
+          {
+            "selected": false,
+            "text": "tibet",
+            "value": "tibet"
+          },
+          {
+            "selected": false,
+            "text": "tibettimes",
+            "value": "tibettimes"
+          },
+          {
+            "selected": false,
+            "text": "timep",
+            "value": "timep"
+          },
+          {
+            "selected": false,
+            "text": "tjwg",
+            "value": "tjwg"
+          },
+          {
+            "selected": false,
+            "text": "tni.org",
+            "value": "tni.org"
+          },
+          {
+            "selected": false,
+            "text": "tni.org:443",
+            "value": "tni.org:443"
+          },
+          {
+            "selected": false,
+            "text": "transparency-everywhere",
+            "value": "transparency-everywhere"
+          },
+          {
+            "selected": false,
+            "text": "tuperiodico",
+            "value": "tuperiodico"
+          },
+          {
+            "selected": false,
+            "text": "typo",
+            "value": "typo"
+          },
+          {
+            "selected": false,
+            "text": "uzmetronom",
+            "value": "uzmetronom"
+          },
+          {
+            "selected": false,
+            "text": "value-brand",
+            "value": "value-brand"
+          },
+          {
+            "selected": false,
+            "text": "valuebrand",
+            "value": "valuebrand"
+          },
+          {
+            "selected": false,
+            "text": "veeble20",
+            "value": "veeble20"
+          },
+          {
+            "selected": false,
+            "text": "venlyct2a",
+            "value": "venlyct2a"
+          },
+          {
+            "selected": false,
+            "text": "verafiles",
+            "value": "verafiles"
+          },
+          {
+            "selected": false,
+            "text": "vh1burmaaction",
+            "value": "vh1burmaaction"
+          },
+          {
+            "selected": false,
+            "text": "villanabebidaazucarada",
+            "value": "villanabebidaazucarada"
+          },
+          {
+            "selected": false,
+            "text": "vitaliev",
+            "value": "vitaliev"
+          },
+          {
+            "selected": false,
+            "text": "vot.org",
+            "value": "vot.org"
+          },
+          {
+            "selected": false,
+            "text": "vot.org:80",
+            "value": "vot.org:80"
+          },
+          {
+            "selected": false,
+            "text": "wambra",
+            "value": "wambra"
+          },
+          {
+            "selected": false,
+            "text": "watchteam",
+            "value": "watchteam"
+          },
+          {
+            "selected": false,
+            "text": "weihekj",
+            "value": "weihekj"
+          },
+          {
+            "selected": false,
+            "text": "wetestify",
+            "value": "wetestify"
+          },
+          {
+            "selected": false,
+            "text": "whatisaggregate",
+            "value": "whatisaggregate"
+          },
+          {
+            "selected": false,
+            "text": "wiki-arch",
+            "value": "wiki-arch"
+          },
+          {
+            "selected": false,
+            "text": "worldstream",
+            "value": "worldstream"
+          },
+          {
+            "selected": false,
+            "text": "wozazimbabwe",
+            "value": "wozazimbabwe"
+          },
+          {
+            "selected": false,
+            "text": "wxsongxin",
+            "value": "wxsongxin"
+          },
+          {
+            "selected": false,
+            "text": "xinruijinshu",
+            "value": "xinruijinshu"
+          },
+          {
+            "selected": false,
+            "text": "xinzhekeji",
+            "value": "xinzhekeji"
+          },
+          {
+            "selected": false,
+            "text": "xrqc",
+            "value": "xrqc"
+          },
+          {
+            "selected": false,
+            "text": "yanshengdz",
+            "value": "yanshengdz"
+          },
+          {
+            "selected": false,
+            "text": "yementimesradio",
+            "value": "yementimesradio"
+          },
+          {
+            "selected": false,
+            "text": "yenfon",
+            "value": "yenfon"
+          },
+          {
+            "selected": false,
+            "text": "yenijurnalist",
+            "value": "yenijurnalist"
+          },
+          {
+            "selected": false,
+            "text": "yjtzg",
+            "value": "yjtzg"
+          },
+          {
+            "selected": false,
+            "text": "yjzzk",
+            "value": "yjzzk"
+          },
+          {
+            "selected": false,
+            "text": "ykcdx",
+            "value": "ykcdx"
+          },
+          {
+            "selected": false,
+            "text": "zabeba",
+            "value": "zabeba"
+          },
+          {
+            "selected": false,
+            "text": "zaitonmag",
+            "value": "zaitonmag"
+          },
+          {
+            "selected": false,
+            "text": "zambianwatchdog",
+            "value": "zambianwatchdog"
+          },
+          {
+            "selected": false,
+            "text": "zambiawatchdog",
+            "value": "zambiawatchdog"
+          },
+          {
+            "selected": false,
+            "text": "zennolab",
+            "value": "zennolab"
+          }
+        ],
+        "query": "aletihadpress,shadyplus,splendits,observatorioni,vanguardiasv,report,hawarnews,laorejaroja,nordis,nkd,360stepeni,3ayin,7al,abortionfinder,abortionfunds,academicfreedomsby,acc.tni.org,accessaccountability,actforfreedomnow,actwithus,afondoedomex,altaghyeer,altareeq,aman.zone,amnestyshop,analytics,angpangako,antifa,arsod,aseansogiecaucus,atlantaantifa,aurdip,auz8anj1,avishanx,baharpix,balcanicaucaso,balochcampaign,bankwatch,baotiengdan,bdsquebec,beauswan,bestonlinegamesqq288,beyondactivismo,bidoon,blackfutureslab,bolya,book.xxs8.com:80,books,boveda,bowlathon,bpdwatch,btselem,burmacampaign,buzoter,bvbv.org.cn.smex.org,cadenademando,caldh,cartochaco,cci,ccij,cda.gov.co,censorship,center-action,centre1,cercavamolapace,changecopyright,charlotteuprising,chenpoo,cherkasy24,childrenontheedge,chroniquepalestine,cmiguate,cn.vot.org,conaie,confeniae,congresocienciasambientalesrcfa,conquer-and-divide,contracorriente,contraloriadecordoba,contratacionespublicas,contrepoints,crimean-process,criterio,culturesofresistance,culturesofresistancefilms,curul43,cvu,d235549cojqgau,d3clylu4rhwpu5,darfur24,dash.mmdc.ru,dashadmin,dashboard,datosprotegidos,dbev.site.smex.org,dbom.site.smex.org,dedmorozprotiv,defakto.support,deflect,deflect.network,designaction,develop,dgzxzdh,diegocupolo,digari,digsec,dmgburmese,dojensgara,dominemoslatecnologia,donate.indigo.kg,downtoearth-indonesia,dss380,dukq.site.smex.org,ecuadortoday,einnews,ekuatorial,elreporte,eltuz,emafund,empoerteuch,enjambre,ens.org.co,eqpress.equalit.ie,equalit,equalrights-centrasia,escueladeseguridaddigital,eslinde,ethicalshop,extinctionrebellion,facetz,farmal,fastwebserver,feminisminindia,fergana,fergananews,findyourb,firstvoicesindigenousradio,foazuay,focusaleppo,forestpeoples,forrights,forstamt-dingenskirchen,freedomlounge,freedomonlinecoalition,freerunet,freethemnow,fundabortion,fundabortionnow,fundacionsantamaria,fundathon,fundraising,futureoceans,gaytest,gbsurvivors,gdwellbing,genderdings,genderit,generationjustice,ggjalliance,globalbersih,gobernanzadeinternet,gobiernoabiertomx,gp-digital,greenhost,gubernia,gzlixue1688,hackedalert,haliangjidian,hamdamapp,hawarnews,help.mmdc.ru,helpdesk,hetzner20,hodnews,hphcolombia,hrcspb,httpheader,huridocs,hurisa,iccpg,ide.parents.physk.network,idefend,ifweweresyrian,ihadanabortion,ijvcanada,imap.smex.org,imemc,impactiran,inbox7,indigo,indymedia,infoactivismo,infocongo,infopacific,informaterompeelmiedo,informator,inkyfada,inredh,ip-145-239-7,ip-176-31-125,ip-46-105-96,ip-51-77-116,ip-94-23-30,ipdb-bot,ippogroup,irancybercrime,irrp,janinewarner,jfp.org.ua,jillianfriedmanlaw,jisr,jorgeluissierra,jorgeviejo,joshuaprovoste,journalistsforrights,juvenilejusticecentre,jvpdc,kactus,kalemon,kavkaz-uzel,kboo,kevorkaghazarian,khosq,klimaprotest,kompetentia,kotsubynske,ladobe,lahistoria,larepublica,lasaqf,learning,level-up,lgbt-hiv,lgbtru,ligacontraelsilencio,linkswende,localhost,lostbaku,luchadoras,m4bl,macholand,majlismonitor,malina,manandlaw,mangoba,marsadak,marxismuss,mayfirst,mazaya-women,mekongeye,memorandum-online,menschliche-asylpolitik,mmdc,mobile,monitor.prod.deflect.ca,msftncsi,mtvburmaaction,mutabar,nama,namnam,neonmona,newsyrian,newwebsite,nextcloud,nielo,nnaf,north-shore,northkensingtonlibrary,nrrdo,nrrdoradio,ntenegro-199516o,nubareports,nucnet,nujp,nuntiare,nyaaf,oasdeflect,occupationfreedc,online,onlineoffline,open-archive,openearth,opennet,openrunet,opera-de-marseille,opera-marseille,opera-municipal-de-marseille,opera-municipal-marseille,operademarseille,operamarseille,operamunicipaldemarseille,operamunicipalmarseille,oporacv,orgsafe,pagina3,palarchive,palestinechronicle,paljourneys,palliativespb,palmuseum,papuansbehindbars,parniplus,passwords,pen-international,periodistasdeapie,philippinehumanrights,piedepagina,points-of-view,poneytelecom,pooshema,pop3.smex.org,povorkaponosa,prep.love,press,preziso,programaacua,progres,protege,pryrodni,qurium,radiozones,raichali,rap23,rappr-rppsn,rcmediafreedom,rds.org.co,rds.org.co:443,redesquintopoder,rohingya,rohingyakhobor,rojava,royafm,ruidocdmx,sabzbashim,scoop,scoopcons,secrethistory,securedservers,segudigital,seguridaddigital,semillas,sentiido,seremoslasultimas,server-hosting,slobodenpecat,smex,sobytiya,soyou24.prod.deflect.ca,spartak,squat,stagedash,stagedashadmin,staging,stopblackface,stopthewall,subdomain2,sudouk,summit2018,supremainjusticia,t-action-team,tapol,tasinhorjun,tchrd,technology,telegram,teprotejo,test.irrp.org.ua,testnewsite2,thamhoaformosa,the-tower,theinvisiblewalls,thelinknewspaper,tibet,tibettimes,timep,tjwg,tni.org,tni.org:443,transparency-everywhere,tuperiodico,typo,uzmetronom,value-brand,valuebrand,veeble20,venlyct2a,verafiles,vh1burmaaction,villanabebidaazucarada,vitaliev,vot.org,vot.org:80,wambra,watchteam,weihekj,wetestify,whatisaggregate,wiki-arch,worldstream,wozazimbabwe,wxsongxin,xinruijinshu,xinzhekeji,xrqc,yanshengdz,yementimesradio,yenfon,yenijurnalist,yjtzg,yjzzk,ykcdx,zabeba,zaitonmag,zambianwatchdog,zambiawatchdog,zennolab",
+        "queryValue": "deflect",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "Traffic Light",
+  "uid": "IZ1PaFHGz",
+  "version": 4
+}

@@ -1,33 +1,6 @@
 metadata:
   name: postprocessing
   namespace: default
-  selfLink: >-
-    /apis/argoproj.io/v1alpha1/namespaces/default/workflowtemplates/postprocessing
-  uid: 3e886157-b580-4571-bb7c-b95a2a4e7cc9
-  resourceVersion: '18668236'
-  generation: 25
-  creationTimestamp: '2021-03-15T15:59:15Z'
-  labels:
-    workflows.argoproj.io/creator: system-serviceaccount-argo-argo-server
-  managedFields:
-    - manager: argo
-      operation: Update
-      apiVersion: argoproj.io/v1alpha1
-      time: '2021-04-09T17:44:10Z'
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:metadata':
-          'f:labels':
-            .: {}
-            'f:workflows.argoproj.io/creator': {}
-        'f:spec':
-          .: {}
-          'f:arguments':
-            .: {}
-            'f:parameters': {}
-          'f:entrypoint': {}
-          'f:templates': {}
-          'f:volumes': {}
 spec:
   templates:
     - name: spark-submit
@@ -115,11 +88,29 @@ spec:
               secretKeyRef:
                 name: baskerville-secrets
                 key: redis_password
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_host
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_user
+          - name: KAFKA_HOST
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: kafka_host
         resources: {}
         volumeMounts:
           - name: ssh-secrets
             mountPath: /usr/local/baskerville/ssh
         imagePullPolicy: Always
+      retryStrategy:
+        limit: 3
+        retryPolicy: Always
   entrypoint: spark-submit
   arguments:
     parameters:

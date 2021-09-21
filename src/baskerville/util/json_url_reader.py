@@ -21,7 +21,7 @@ class JsonUrlReader(object):
 
     def read_json_from_url(self, url):
         try:
-            html = urlopen(url).read()
+            html = urlopen(url, timeout=5).read()
         except HTTPError as e:
             if self.logger:
                 self.logger.error(f'HTTP Error {e.code} while parsing url {url}')

@@ -747,7 +747,7 @@ class KafkaConfig(Config):
     feedback_topic = 'feedback'
     feedback_response_topic = ''
     predictions_topic = 'predictions'
-    predictions_topic_client = None
+    predictions_topic_client = 'predictions'
     register_topic = 'register'
     auto_offset_reset = 'largest'
     banjax_command_topic = 'banjax_command_topic'

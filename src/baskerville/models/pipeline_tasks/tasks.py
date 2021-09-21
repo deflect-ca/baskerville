@@ -15,6 +15,8 @@ import threading
 import traceback
 
 import pyspark
+from kafka.errors import TopicAlreadyExistsError
+
 from baskerville.db.dashboard_models import FeedbackContext
 from pyspark.sql import functions as F, types as T
 from pyspark.sql.types import StringType, StructField, StructType, DoubleType
@@ -84,8 +86,22 @@ class GetDataKafka(Task):
         }
         self.consume_topic = self.config.kafka.data_topic
 
+    def create_topic(self, topic):
+        from kafka.admin import KafkaAdminClient, NewTopic
+        try:
+            admin_client = KafkaAdminClient(**self.config.kafka.connection)
+            admin_client.create_topics(
+                new_topics=[NewTopic(name=topic,num_partitions=1, replication_factor=1)],
+            )
+        except TopicAlreadyExistsError:
+            pass
+
     def initialize(self):
         super(GetDataKafka, self).initialize()
+
+        # create topic if not exists
+        self.create_topic(self.consume_topic)
+
         self.ssc = StreamingContext(
             self.spark.sparkContext, self.config.engine.time_bucket
         )
@@ -419,7 +435,8 @@ class GetDataPostgres(Task):
             columns_to_keep=('ip', 'target', 'stop', 'features',),
             from_date=None,
             to_date=None,
-            training_days=None
+            training_days=None,
+            sampling_percentage=10.0
     ):
         super().__init__(config, steps)
         self.columns_to_keep = columns_to_keep
@@ -433,6 +450,7 @@ class GetDataPostgres(Task):
             'driver': self.config.spark.db_driver,
         }
         self.db_url = get_jdbc_url(self.config.database)
+        self.sampling_percentage = sampling_percentage
 
     def get_bounds(self, from_date, to_date=None, field='stop'):
         """
@@ -489,6 +507,12 @@ class GetDataPostgres(Task):
             f'from request_sets where id >= {bounds.min_id}  ' \
             f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
             f'and stop <=\'{to_date}\') as request_sets'
+
+        # q = f'(select id, {",".join(self.columns_to_keep)} ' \
+        #     f'from request_sets where id >= {bounds.min_id}  ' \
+        #     f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
+        #     f'and stop <=\'{to_date}\' ' \
+        #     f'TABLESAMPLE SYSTEM ({self.sampling_percentage}) ) as request_sets '
 
         return self.spark.read.jdbc(
             url=self.db_url,
@@ -642,9 +666,12 @@ class GenerateFeatures(MLTask):
         urls = list(set(urls))
 
         domains = []
+        url_prefixes = []
         for url in urls:
             if url.find('/') < 0:
                 domains.append(url)
+            else:
+                url_prefixes.append(url)
 
         # filter out only the exact domain match
         self.df = self.df.filter(~F.col('target_original').isin(domains))
@@ -654,8 +681,8 @@ class GenerateFeatures(MLTask):
 
         @F.udf(returnType=T.BooleanType())
         def filter_urls(url):
-            for url_prefix in urls:
-                if url.startswith(url_prefix):
+            for url_prefix in url_prefixes:
+                if url and url.startswith(url_prefix):
                     return False
             return True
 
@@ -1470,6 +1497,7 @@ class Train(Task):
         :return: None
         """
         model_path = get_model_path(self.engine_conf.storage_path, self.model.__class__.__name__)
+        self.logger.debug(f'Saving new model to: {model_path}')
         self.model.save(path=model_path, spark_session=self.spark)
         self.logger.debug(f'The new model has been saved to: {model_path}')
 

@@ -1,0 +1,15 @@
+global:
+  redis:
+    password: your_redis_password
+
+master:
+  nodeSelector:
+    nodepool: workers
+  persistence:
+    enabled: false
+
+replica:
+  nodeSelector:
+    nodepool: workers
+  persistence:
+    enabled: false

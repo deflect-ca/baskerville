@@ -536,10 +536,36 @@ Most of the features are `updateable`, wich means, they **take the past into con
 
 ![Baskerville's Request Set Cache](data/img/request_set_cache.png?raw=true "Baskerville's Request Set Cache")
 
+## Building Baskerville image
+* build spark image https://levelup.gitconnected.com/spark-on-kubernetes-3d822969f85b
+```commandline
+wget https://archive.apache.org/dist/spark/spark-2.4.6/spark-2.4.6-bin-hadoop2.7.tgz
+mkdir spark
+mv spark-2.4.6-bin-hadoop2.7.tgz spark
+tar -xvzf spark-2.4.6-bin-hadoop2.7.tgz
+export SPARK_HOME=/root/spark/spark-2.4.6-bin-hadoop2.7
+alias spark-shell=”$SPARK_HOME/bin/spark-shell”
+
+$SPARK_HOME/bin/docker-image-tool.sh -r baskerville -t spark2.4.6 -p $SPARK_HOME/kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
+docker tag baskerville/spark-py:v2.4.6 equalitie/baskerville:spark246
+```
+
+* build Baskerville worker image
+```commandline
+docker build -t equalitie/baskerville:worker dockerfiles/worker/
+```
+
+* build the latest Baskerville image with your local changes
+```commandline
+docker build -t equalitie/baskerville:latest .
+docker push equalitie/baskerville:latest
+```
+
 ## Related Projects
 - ES Retriever: https://github.com/equalitie/esretriever: A spark wrapper to retrieve data from ElastiSearch
 - Deflect Analysis Ecosystem: https://github.com/equalitie/deflect-analysis-ecosystem:
     Docker files for all the components baskerville might need.
+- Baskerville client: https://github.com/equalitie/baskerville_client
 
 ## TODO
 - Implement full suite of unit and entity tests.

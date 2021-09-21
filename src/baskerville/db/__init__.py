@@ -158,7 +158,7 @@ def set_up_db(conf, create=True, partition=True):
                         isolation_level='AUTOCOMMIT',
                         **conf.get('db_conn_args', {})
                 ).connect() as connection:
-                    connection.execute(f'CREATE DATABASE {conf.get("name")}')
+                    connection.execute(f'CREATE DATABASE {conf.get("name")} if not exists')
                     connection.execute(
                         'CREATE CAST (VARCHAR AS JSON) '
                         'WITHOUT FUNCTION AS IMPLICIT'
