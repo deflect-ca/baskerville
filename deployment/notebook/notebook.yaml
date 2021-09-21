@@ -26,9 +26,9 @@ spec:
           - mountPath: /root/data
             name: notebook-pv
         workingDir: /root
-        resources:
-          limits:
-            memory: 2Gi
+#        resources:
+#          limits:
+#            memory: 4Gi
         env:
           - name: POSTGRES_PASS
             valueFrom:

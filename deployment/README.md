@@ -244,7 +244,7 @@ kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount
 ```
 * build notebook image
 ```commandline
-docker build /deployment/notebook -t equalitie/baskerville:notebook
+docker build ./deployment/notebook -t equalitie/baskerville:notebook
 ```
 
 * edit `/deployment/notebook/spark_secrets.yaml with your credentials and passwords
@@ -255,16 +255,16 @@ k apply -f spark_secrets.yaml
 ```
 * deploy notebook PVC
 ```commandline
-kubectl apply -f /deployment/notebook/notebook-pvc.yaml
+kubectl apply -f ./deployment/notebook/notebook-pvc.yaml
 ```
 * deploy notebook
 ```commandline
-kubectl apply -f /deployment/notebook/notebook.yaml
+kubectl apply -f ./deployment/notebook/notebook.yaml
 ```
 
 * create notebook port forwarding
 ```commandline
-`kubectl port-forward -n spark deployment.apps/notebook-deployment 8888:8888
+kubectl port-forward -n spark deployment.apps/notebook-deployment 8888:8888
 ````
 
 * open `localhost:8888' and enter password 'jupyter'. 

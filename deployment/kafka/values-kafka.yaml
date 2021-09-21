@@ -6,9 +6,13 @@ autoCreateTopicsEnable: True
 nodeSelector:
   nodepool: workers
 
-#extraEnvVars:
-# - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
-#   value: "kafka.security.authorizer.AclAuthorizer"
+extraEnvVars:
+ - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
+   value: "kafka.security.authorizer.AclAuthorizer"
+ - name: KAFKA_CFG_SUPER_USERS
+   value: "User:CN=admin,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown;User:CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown"
+ - name: KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND
+   value: "true"
 
 externalAccess:
   enabled: True
