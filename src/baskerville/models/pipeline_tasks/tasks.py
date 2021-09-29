@@ -1686,7 +1686,6 @@ class AttackDetection(Task):
 
     def finish_up(self):
         if self.banjax_thread:
-            self.banjax_thread.kill()
             self.banjax_thread.join()
 
         super().finish_up()
@@ -1804,6 +1803,9 @@ class AttackDetection(Task):
             F.when(self.lra_condition, 1.0).otherwise(0.0)
         )
 
+    def detect_incident(self):
+        pass
+
     def detect_attack(self):
         self.logger.info('Attack detecting...')
 
@@ -1846,6 +1848,8 @@ class AttackDetection(Task):
         if not df_has_rows(df_attack):
             self.updated_df_with_attacks(df_attack)
             self.logger.info('No attacks detected...')
+
+        self.detect_incident()
         self.df = super().run()
         return self.df
 
