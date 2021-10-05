@@ -227,6 +227,9 @@ class Attack(Base, SerializableMixin):
     notes = Column(TEXT)
     progress_report = Column(TEXT)
     analysis_notebook = Column(TEXT)
+    dashboard_url = Column(TEXT)
+    anomaly_traffic_portion = Column(Float)
+    detected_traffic = Column(Float)
 
     request_sets = relationship(
         'RequestSet', secondary='requestset_attack_link',

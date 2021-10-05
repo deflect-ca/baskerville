@@ -4,6 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 import threading
+import time
 
 from baskerville.db import set_up_db
 from baskerville.db.models import Attack
@@ -21,11 +22,16 @@ class IncidentDetector:
                  time_horizon_in_seconds=600,
                  check_interval_in_seconds=60,
                  stat_refresh_period_in_minutes=60,
-                 stat_window_in_hours=6,
+                 stat_window_in_hours=12,
                  min_traffic=3,
                  sigma_score=1,
                  sigma_traffic=1,
-                 logger=None):
+                 dashboard_url_prefix=None,
+                 dashboard_minutes_before=60,
+                 dashboard_minutes_after=120,
+                 logger=None,
+                 mail_sender=None,
+                 emails=None):
         super().__init__()
         self.kill = threading.Event()
         self.check_interval_in_seconds = check_interval_in_seconds
@@ -36,6 +42,8 @@ class IncidentDetector:
         self.min_traffic = min_traffic
         self.db_config = db_config
         self.logger = logger
+        self.mail_sender = mail_sender
+        self.emails = emails
         self.thread = None
         self.last_timestamp = None
         self.average_window_in_hours = stat_window_in_hours
@@ -44,6 +52,9 @@ class IncidentDetector:
                                        logger=logger)
         self.candidates = None
         self.incidents = None
+        self.dashboard_url_prefix = dashboard_url_prefix
+        self.dashboard_minutes_before = dashboard_minutes_before
+        self.dashboard_minutes_after = dashboard_minutes_after
 
     def _run(self):
         while True:
@@ -63,6 +74,15 @@ class IncidentDetector:
         if self.thread is None:
             return
         self.kill.set()
+
+    def _get_dashboard_url(self, start, target):
+        ts_from = start - datetime.timedelta(minutes=self.dashboard_minutes_before)
+        ts_to = start + datetime.timedelta(minutes=self.dashboard_minutes_after)
+
+        ts_from = int(time.mktime(ts_from.timetuple()))
+        ts_to = int(time.mktime(ts_to.timetuple()))
+
+        return f'{self.dashboard_url_prefix}from={ts_from}000&to={ts_to}000&var-Host={target}'
 
     def _read_sample(self):
         try:
@@ -124,24 +144,39 @@ class IncidentDetector:
         try:
             session, engine = set_up_db(self.db_config.__dict__)
             for index, row in new_incidents.iterrows():
+                start = row['start'].strftime('%Y-%m-%d %H:%M:%SZ')
                 attack = Attack()
-                attack.start = row['start'].strftime('%Y-%m-%d %H:%M:%SZ')
+                attack.start = start
                 attack.target = row['target']
+                attack.detected_traffic = row['traffic']
+                attack.anomaly_traffic_portion = row['challenged_portion']
+                dashboard_url = self._get_dashboard_url(row['start'], row['target'])
+                attack.dashboard_url = dashboard_url
                 session.add(attack)
                 session.commit()
                 new_incidents.at[index, 'id'] = attack.id
 
                 target = row['target']
-                self.logger.info(f'New incident, target={target}, id={attack.id}')
+                self.logger.info(f'New incident, target={target}, id={attack.id}, url="{dashboard_url}"')
+                if self.mail_sender and self.emails:
+                    self.mail_sender.send(self.emails,
+                                          f'Incident {attack.id}, target = {target}',
+                                          f'Baskerville detected a new incident:\n\n'
+                                          f'ID = {attack.id}\n'
+                                          f'Targeted host = {target}\n'
+                                          f'Timestamp = {start}\n\n'
+                                          f'Anomaly traffic portion = {attack.anomaly_traffic_portion:.2f}\n'
+                                          f'Unique IPs (1st batch) = {attack.detected_traffic:.0f}\n'
+                                          f'Dashboard URL : {dashboard_url}'
+                                          )
 
             session.close()
             engine.dispose()
 
         except Exception as e:
-            print(str(e))
             if self.logger:
                 self.logger.error(str(e))
-            return
+                return
 
         if self.incidents is None:
             self.incidents = new_incidents
@@ -164,7 +199,8 @@ class IncidentDetector:
         try:
             session, engine = set_up_db(self.db_config.__dict__)
             for index, row in stopped_incidents.iterrows():
-                session.query(Attack).filter(Attack.id == row['id']).update({'stop': row['stop'].strftime('%Y-%m-%d %H:%M:%SZ')})
+                session.query(Attack).filter(Attack.id == row['id']).update(
+                    {'stop': row['stop'].strftime('%Y-%m-%d %H:%M:%SZ')})
                 target = row['target']
                 attack_id = row['id']
                 self.logger.info(f'Incident finished, target={target}, id = {attack_id}')
