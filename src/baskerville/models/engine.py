@@ -224,7 +224,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
 
-        self.pipeline.run()
+        self.pipeline._run()
 
     def finish_up(self):
         import sys

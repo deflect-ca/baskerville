@@ -99,7 +99,7 @@ class Task(object, metaclass=abc.ABCMeta):
         self.remaining_steps = list(self.step_to_action.keys())
         for descr, task in self.step_to_action.items():
             self.logger.info('Starting step {}'.format(descr))
-            self.df = task.set_df(self.df).run()
+            self.df = task.set_df(self.df)._run()
             self.logger.info('Completed step {}'.format(descr))
             self.remaining_steps.remove(descr)
         return self.df
