@@ -11,7 +11,6 @@ from baskerville.db.models import Attack
 from baskerville.util.db_reader import DBReader
 import datetime
 import pandas as pd
-import numpy as np
 
 
 class IncidentDetector:
@@ -21,11 +20,13 @@ class IncidentDetector:
                  time_bucket_in_seconds=120,
                  time_horizon_in_seconds=600,
                  check_interval_in_seconds=60,
-                 stat_refresh_period_in_minutes=60,
-                 stat_window_in_hours=12,
+                 stat_refresh_period_in_minutes=30,
+                 stat_window_in_hours=1,
                  min_traffic=3,
-                 sigma_score=1,
-                 sigma_traffic=1,
+                 min_traffic_incident=50,
+                 min_challenged_portion_incident=0.4,
+                 sigma_score=2.5,
+                 sigma_traffic=2.5,
                  dashboard_url_prefix=None,
                  dashboard_minutes_before=60,
                  dashboard_minutes_after=120,
@@ -40,6 +41,8 @@ class IncidentDetector:
         self.sigma_score = sigma_score
         self.sigma_traffic = sigma_traffic
         self.min_traffic = min_traffic
+        self.min_traffic_incident = min_traffic_incident
+        self.min_challenged_portion_incident = min_challenged_portion_incident
         self.db_config = db_config
         self.logger = logger
         self.mail_sender = mail_sender
@@ -74,6 +77,7 @@ class IncidentDetector:
         if self.thread is None:
             return
         self.kill.set()
+        self.thread.join()
 
     def _get_dashboard_url(self, start, target):
         ts_from = start - datetime.timedelta(minutes=self.dashboard_minutes_before)
@@ -133,6 +137,7 @@ class IncidentDetector:
             new_incidents = new_incidents[new_incidents['_merge'] == 'left_only']
             new_incidents = new_incidents.drop('_merge', 1)
 
+        new_incidents = new_incidents[new_incidents['traffic'] > self.min_traffic_incident]
         if new_incidents.empty:
             return
 
@@ -157,7 +162,12 @@ class IncidentDetector:
                 new_incidents.at[index, 'id'] = attack.id
 
                 target = row['target']
-                self.logger.info(f'New incident, target={target}, id={attack.id}, url="{dashboard_url}"')
+                self.logger.info(f'New incident, target={target}, id={attack.id}, '
+                                 f'traffic={row["traffic"]:.0f} ({row["avg_traffic"]:.0f}) '
+                                 f'anomaly_portion={row["challenged_portion"]:.2f} '
+                                 f'({row["avg_challenged_portion"]:.2f}) '
+                                 f'url="{dashboard_url}" '
+                                 )
                 if self.mail_sender and self.emails:
                     self.mail_sender.send(self.emails,
                                           f'Incident {attack.id}, target = {target}',
@@ -256,7 +266,8 @@ class IncidentDetector:
 
         condition = (batch['challenged_portion'] > (batch['avg_challenged_portion'] +
                                                     self.sigma_score * batch['stddev_challenged_portion'])) & \
-                    (batch['traffic'] > (batch['avg_traffic'] + self.sigma_traffic * batch['stddev_traffic']))
+                    (batch['traffic'] > (batch['avg_traffic'] + self.sigma_traffic * batch['stddev_traffic'])) & \
+                    (batch['challenged_portion'] > self.min_challenged_portion_incident)
 
         anomalies = batch[condition]
         regulars = batch[~condition]
