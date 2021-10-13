@@ -24,7 +24,7 @@ class IncidentDetector:
                  stat_window_in_hours=1,
                  min_traffic=3,
                  min_traffic_incident=50,
-                 min_challenged_portion_incident=0.4,
+                 min_challenged_portion_incident=0.5,
                  sigma_score=2.5,
                  sigma_traffic=2.5,
                  dashboard_url_prefix=None,
@@ -60,6 +60,8 @@ class IncidentDetector:
         self.dashboard_minutes_after = dashboard_minutes_after
 
     def _run(self):
+        if self.logger:
+            self.logger.info('Starting incident detector...')
         while True:
             self._detect()
             is_killed = self.kill.wait(self.check_interval_in_seconds)

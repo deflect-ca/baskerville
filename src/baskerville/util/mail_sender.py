@@ -29,7 +29,7 @@ class MailSender(object):
         try:
             # Send the message via our own SMTP server, but don't include the
             # envelope header.
-            smtp = smtplib.SMTP()
+            smtp = smtplib.SMTP(self.server)  # keep it here as well. It's a python 3.7 bug
             smtp.connect(self.server, self.port)
             smtp.ehlo()
             smtp.starttls()

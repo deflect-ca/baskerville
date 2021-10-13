@@ -1663,8 +1663,8 @@ class AttackDetection(Task):
         self.features_schema = get_features_schema(self.config.engine.all_features)
         if config.incident_detector is not None:
             self.incident_detector = IncidentDetector(
-                config.database,
-                mail_sender=MailSender(**config.mail) if config.mailer is not None else None,
+                db_config=config.database,
+                mail_sender=MailSender(**config.mail) if config.mail else None,
                 logger=self.logger,
                 **config.incident_detector
             )
@@ -1693,7 +1693,9 @@ class AttackDetection(Task):
             self.register_banjax_metrics()
         self.banjax_thread = threading.Thread(target=self.report_consumer.run)
         self.banjax_thread.start()
-        self.incident_detector.start()
+
+        if self.incident_detector is not None:
+            self.incident_detector.start()
 
     def finish_up(self):
         if self.banjax_thread:
@@ -1768,7 +1770,6 @@ class AttackDetection(Task):
 
     def detect_attack(self):
         self.logger.info('Attack detecting...')
-
         self.detect_low_rate_attack()
         # return df_attack
         return self.df
@@ -1792,6 +1793,10 @@ class AttackDetection(Task):
         )
         self.classify_anomalies()
         df_attack = self.detect_attack()
+
+        # 'attack_prediction' column is not set anymore in this task
+        self.df = self.df.withColumn('attack_prediction', F.lit(0))
+
         if not df_has_rows(df_attack):
             self.updated_df_with_attacks(df_attack)
             self.logger.info('No attacks detected...')

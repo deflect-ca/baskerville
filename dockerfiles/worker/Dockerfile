@@ -8,7 +8,7 @@ FROM equalitie/baskerville:spark246
 
 USER ${spark_uid}
 
-RUN apt-get update && \
+RUN apt-get update --allow-releaseinfo-change && \
     apt-get upgrade -y && \
     apt-get install -y git
 
@@ -37,3 +37,4 @@ RUN mkdir -p src/baskerville/logs
 ENV BASKERVILLE_ROOT=/usr/local/baskerville
 ENV HADOOP_USER_NAME=hdfs
 ENV PYSPARK_PYTHON=python3.7
+ENV PYSPARK_DRIVER_PYTHON=python3.7
