@@ -91,8 +91,9 @@ class IncidentDetector:
         return f'{self.dashboard_url_prefix}from={ts_from}000&to={ts_to}000&var-Host={target}'
 
     def _read_sample(self):
+        session, engine = set_up_db(self.db_config.__dict__)
+
         try:
-            session, engine = set_up_db(self.db_config.__dict__)
             stop = (datetime.datetime.utcnow() - 2 * datetime.timedelta(
                 seconds=self.time_horizon_in_seconds)).strftime("%Y-%m-%d %H:%M:%S %z")
             query = f'SELECT floor(extract(epoch from stop)/{self.time_bucket_in_seconds})*' \
@@ -109,9 +110,6 @@ class IncidentDetector:
                     ' group by 1, 2 order by 1'
 
             data = pd.read_sql(query, engine)
-            session.close()
-            engine.dispose()
-
             if data.empty:
                 return None
 
@@ -127,6 +125,9 @@ class IncidentDetector:
             if self.logger:
                 self.logger.error(str(e))
             return None
+        finally:
+            session.close()
+            engine.dispose()
 
     def _start_incidents(self, anomalies):
         if anomalies is None:
@@ -148,8 +149,9 @@ class IncidentDetector:
         new_incidents['start'] = pd.to_datetime(new_incidents['time'], unit='s', utc=True)
         new_incidents = new_incidents.drop('time', 1)
 
+        session, engine = set_up_db(self.db_config.__dict__)
+
         try:
-            session, engine = set_up_db(self.db_config.__dict__)
             for index, row in new_incidents.iterrows():
                 start = row['start'].strftime('%Y-%m-%d %H:%M:%SZ')
                 attack = Attack()
@@ -182,13 +184,13 @@ class IncidentDetector:
                                           f'Dashboard URL : {dashboard_url}'
                                           )
 
-            session.close()
-            engine.dispose()
-
         except Exception as e:
             if self.logger:
                 self.logger.error(str(e))
-                return
+            return
+        finally:
+            session.close()
+            engine.dispose()
 
         if self.incidents is None:
             self.incidents = new_incidents
@@ -208,8 +210,8 @@ class IncidentDetector:
         stopped_incidents = stopped_incidents.drop('time', 1)
 
         # update stop timestamp in the database
+        session, engine = set_up_db(self.db_config.__dict__)
         try:
-            session, engine = set_up_db(self.db_config.__dict__)
             for index, row in stopped_incidents.iterrows():
                 session.query(Attack).filter(Attack.id == row['id']).update(
                     {'stop': row['stop'].strftime('%Y-%m-%d %H:%M:%SZ')})
@@ -218,14 +220,16 @@ class IncidentDetector:
                 self.logger.info(f'Incident finished, target={target}, id = {attack_id}')
 
             session.commit()
-            session.close()
-            engine.dispose()
 
         except Exception as e:
             print(str(e))
             if self.logger:
                 self.logger.error(str(e))
             return
+
+        finally:
+            session.close()
+            engine.dispose()
 
         # remove stopped incidents
         self.incidents = pd.merge(self.incidents,

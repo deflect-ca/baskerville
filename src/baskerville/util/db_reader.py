@@ -29,9 +29,13 @@ class DBReader(object):
     def read_from_database(self):
         try:
             session, engine = set_up_db(self.db_config.__dict__)
+        except Exception as e:
+            if self.logger:
+                self.logger.error(str(e))
+            return None
+        data = None
+        try:
             data = pd.read_sql(self.query, engine)
-            session.close()
-            engine.dispose()
             with self.lock:
                 self.fresh_data = data
 
@@ -39,7 +43,9 @@ class DBReader(object):
             print(str(e))
             if self.logger:
                 self.logger.error(str(e))
-            return None
+        finally:
+            session.close()
+            engine.dispose()
 
         return data
 
