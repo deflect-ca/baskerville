@@ -993,7 +993,7 @@ class GenerateFeatures(MLTask):
                 '_',
                 F.col('id_client'),
                 F.col('uuid_request_set'),
-                F.col('start').cast('long').cast('string'))
+                F.col('stop').cast('long').cast('string'))
         )
         # todo: monotonically_increasing_id guarantees uniqueness within
         #  the current batch, this will cause conflicts with caching - use
@@ -1392,9 +1392,11 @@ class MergeWithSensitiveData(Task):
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
         else:
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
             self.logger.warning(
-                'No df after merging with redis: initial count=', count
+                f'No df after merging with redis: df.count={count}, df_sensitive.count={self.df_sensitive.count()}'
             )
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
 
         self.df = super().run()
         return self.df

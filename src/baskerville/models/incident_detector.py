@@ -3,8 +3,11 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
+import logging
 import threading
 import time
+
+from sqlalchemy.sql.functions import sysdate
 
 from baskerville.db import set_up_db
 from baskerville.db.models import Attack
@@ -44,7 +47,13 @@ class IncidentDetector:
         self.min_traffic_incident = min_traffic_incident
         self.min_challenged_portion_incident = min_challenged_portion_incident
         self.db_config = db_config
-        self.logger = logger
+
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger('baskerville')
+            self.logger.addHandler(logging.StreamHandler(sysdate.stdout))
+
         self.mail_sender = mail_sender
         self.emails = emails
         self.thread = None
@@ -60,8 +69,7 @@ class IncidentDetector:
         self.dashboard_minutes_after = dashboard_minutes_after
 
     def _run(self):
-        if self.logger:
-            self.logger.info('Starting incident detector...')
+        self.logger.info('Starting incident detector...')
         while True:
             self._detect()
             is_killed = self.kill.wait(self.check_interval_in_seconds)
@@ -121,9 +129,7 @@ class IncidentDetector:
             return data
 
         except Exception as e:
-            print(str(e))
-            if self.logger:
-                self.logger.error(str(e))
+            self.logger.error(str(e))
             return None
         finally:
             session.close()
@@ -185,8 +191,7 @@ class IncidentDetector:
                                           )
 
         except Exception as e:
-            if self.logger:
-                self.logger.error(str(e))
+            self.logger.error(str(e))
             return
         finally:
             session.close()
@@ -222,9 +227,7 @@ class IncidentDetector:
             session.commit()
 
         except Exception as e:
-            print(str(e))
-            if self.logger:
-                self.logger.error(str(e))
+            self.logger.error(str(e))
             return
 
         finally:

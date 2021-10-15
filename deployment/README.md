@@ -244,7 +244,7 @@ kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount
 ```
 * build notebook image
 ```commandline
-docker build ./deployment/notebook -t equalitie/baskerville:notebook
+docker build . -t equalitie/baskerville:notebook -f ./deployment/notebook/local/Dockerfile
 ```
 
 * edit `/deployment/notebook/spark_secrets.yaml with your credentials and passwords
@@ -260,6 +260,12 @@ kubectl apply -f ./deployment/notebook/notebook-pvc.yaml
 * deploy notebook
 ```commandline
 kubectl apply -f ./deployment/notebook/notebook.yaml
+```
+
+* if you made apply your local changes to an image, you can build it with
+```commandline
+docker build ./deployment/notebook/local -t equalitie/baskerville:notebook 
+docker push equalitie/baskerville:notebook
 ```
 
 * create notebook port forwarding
