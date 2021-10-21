@@ -11,7 +11,7 @@ from pyspark import SparkConf, StorageLevel
 from pyspark.sql import SparkSession
 
 
-def get_or_create_spark_session(spark_conf):
+def get_or_create_spark_session(spark_conf) -> SparkSession:
     """
     Returns a configured spark session
     :param SparkConfig spark_conf: the spark configuration
@@ -27,7 +27,8 @@ def get_or_create_spark_session(spark_conf):
     if spark_conf.redis_host:
         conf.set('spark.redis.host', spark_conf.redis_host)
         conf.set('spark.redis.port', spark_conf.redis_port)
-        conf.set('spark.redis.auth', spark_conf.redis_password)
+        if spark_conf.redis_password:
+            conf.set('spark.redis.auth', spark_conf.redis_password)
 
     # todo: https://stackoverflow.com/questions/
     #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
@@ -187,8 +188,9 @@ def get_or_create_spark_session(spark_conf):
     if spark_conf.spark_kubernetes_executor_memoryOverhead:
         conf.set('spark.kubernetes.executor.memoryOverhead', spark_conf.spark_kubernetes_executor_memoryOverhead)
 
-    conf.set('spark.kubernetes.driver.pod.name', os.environ['MY_POD_NAME'])
-    conf.set('spark.driver.host', os.environ['MY_POD_IP'])
+    # todo: the following settings can be confusing in local or other mode.
+    conf.set('spark.kubernetes.driver.pod.name', os.environ.get('MY_POD_NAME'))
+    conf.set('spark.driver.host', os.environ.get('MY_POD_IP', 'localhost'))
     conf.set('spark.driver.port', 20020)
 
     spark = SparkSession.builder \

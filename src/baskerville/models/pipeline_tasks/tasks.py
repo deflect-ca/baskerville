@@ -1860,13 +1860,9 @@ class Challenge(Task):
         self.attack_filter = None
         self.producer = None
         self.udf_send_to_kafka = None
-        self.ip_cache = IPCache(config, self.logger)
-        self.origin_ips = OriginIPs(
-            url=config.engine.url_origin_ips,
-            url2=config.engine.url_origin_ips2,
-            logger=self.logger,
-            refresh_period_in_seconds=config.engine.origin_ips_refresh_period_in_seconds
-        )
+        self.ip_cache = None
+        self.origin_ips = None
+
 
     def initialize(self):
         # global IP_ACC
@@ -1874,16 +1870,25 @@ class Challenge(Task):
         # IP_ACC = self.spark.sparkContext.accumulator(defaultdict(int),
         #                                              DictAccumulatorParam(
         #                                                  defaultdict(int)))
-        self.attack_filter = self.get_attack_filter()
-        self.producer = KafkaProducer(
-            bootstrap_servers=self.config.kafka.bootstrap_servers)
-        if self.config.engine.white_list_hosts:
-            self.df_white_list_hosts = self.spark.createDataFrame(
-                [
-                    [host] for host in
-                    set(self.config.engine.white_list_hosts)
-                ], ['target']) \
-                .withColumn('white_list_host', F.lit(1))
+        print('>>>>>>>>>>>> CHALLENGE', self.config.engine.challenge)
+        if self.config.engine.challenge:
+            self.ip_cache = IPCache(self.config, self.logger)
+            self.origin_ips = OriginIPs(
+                url=self.config.engine.url_origin_ips,
+                url2=self.config.engine.url_origin_ips2,
+                logger=self.logger,
+                refresh_period_in_seconds=self.config.engine.origin_ips_refresh_period_in_seconds
+            )
+            self.attack_filter = self.get_attack_filter()
+            self.producer = KafkaProducer(
+                bootstrap_servers=self.config.kafka.bootstrap_servers)
+            if self.config.engine.white_list_hosts:
+                self.df_white_list_hosts = self.spark.createDataFrame(
+                    [
+                        [host] for host in
+                        set(self.config.engine.white_list_hosts)
+                    ], ['target']) \
+                    .withColumn('white_list_host', F.lit(1))
 
         def send_to_kafka(
                 kafka_servers, topic, rows, cmd_name='challenge_host',
@@ -2084,9 +2089,151 @@ class Challenge(Task):
     def run(self):
         if df_has_rows(self.df):
             self.df = self.df.withColumn('challenged', F.lit(0))
-            self.filter_out_load_test()
-            self.send_challenge()
+            if self.config.engine.challenge:
+                if df_has_rows(self.df):
+                    self.filter_out_load_test()
+                    self.send_challenge()
+            else:
+                self.logger.info('Challenge flag is set to False.')
         else:
-            self.logger.info('Nothing to be challenged...')
+            self.logger.info('No rows to be challenged...')
+
         self.df = super().run()
         return self.df
+
+
+class GetDataES(Task):
+    """
+    Reads json files.
+    """
+
+    def __init__(self, config, steps=(),
+                 group_by_cols=('client_request_host', 'client_ip'), ):
+        super().__init__(config, steps)
+        self.log_paths = self.config.engine.raw_log.paths
+        self.group_by_cols = group_by_cols
+        self.batch_i = 1
+        self.batch_n = len(self.log_paths)
+        self.current_log_path = None
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            start=self.batch_start,
+            stop=self.batch_stop,
+            target_site=self.hosts,
+            conf=self.engine_conf,
+            comment=f'batch runtime {self.batch_i} of {self.batch_n}'
+        )
+
+    def get_data(self):
+        from pyspark.sql import functions as F
+
+        filter_condition = (F.col('@timestamp') >= self.runtime.start) & \
+                           (F.col('@timestamp') < self.runtime.stop)
+
+        if self.hosts is not None:
+            host_filter = (F.col('client_request_host')
+                           == self.manual_conf.hosts[0])
+            if len(self.manual_conf.hosts) > 1:
+                for h in self.manual_conf.hosts[1:]:
+                    host_filter = host_filter | (
+                        F.col('client_request_host') == h
+                    )
+            filter_condition = filter_condition & host_filter
+
+        self.logs_df = self.es_storage.get(
+            self.runtime.start,
+            self.runtime.stop,
+            filter_condition=filter_condition,
+            extra_config={
+                'es.mapping.include': ','.join(
+                    self.group_by_cols + self.feature_manager.active_columns
+                )
+            },
+            columns_to_keep=list(
+                self.group_by_cols + self.feature_manager.active_columns
+            )
+        ).select(
+            *self.group_by_cols, *self.feature_manager.active_columns
+        ).persist(self.spark_conf.storage_level)
+
+        self.logger.info('Will be retrieving {} rows'.format(
+            self.logs_df.count()
+        )
+        )
+
+        if self.save_logs_dir:
+            log_name = f'/{self.runtime.start.strftime("%Y-%m-%d-%H%M%S")}' \
+                       f'_' + \
+                       f'{self.runtime.stop.strftime("%Y-%m-%d-%H%M%S")}'
+            if self.runtime.target:
+                log_name += f'_{"_".join(self.runtime.target)}' \
+                    if isinstance(self.runtime.target, list) \
+                    else f'_{self.runtime.target}'
+            self.save_logs(self.logs_df, self.save_logs_dir + log_name)
+
+    def set_up_es(self):
+
+        from es_retriever.es.storage import EsStorage
+        from es_retriever.config import Config
+
+        self.es_config = Config(
+            es_url=self.els_conf.host,
+            es_user=self.els_conf.user,
+            es_pass=self.els_conf.password,
+            es_base_index=self.els_conf.base_index,
+            es_index_type=self.els_conf.index_type,
+        )
+        # todo: fix this in es-retriever: fix setup to include jars
+        conf = self.es_config.spark_conf.copy()
+        conf['spark.jars'] = self.spark_conf.jars
+        self.es_config.spark_conf = conf
+        self.es_storage = EsStorage(self.es_config, init_session=False)
+        self.es_storage.spark_conf = conf
+        self.es_storage.session_getter = self.es_session_getter
+        self.es_storage.session_getter()
+
+    def es_session_getter(self):
+        from pyspark.sql import SparkSession
+        from pyspark import SparkConf
+
+        conf = SparkConf()
+        conf.set('spark.logConf', 'true')
+        conf.set('spark.jars', self.spark_conf.jars)
+        conf.set('spark.driver.memory', '6G')
+        conf.set(
+            'spark.sql.session.timeZone', self.spark_conf.session_timezone
+        )
+        conf.set('spark.sql.shuffle.partitions',
+                 self.spark_conf.shuffle_partitions)
+
+        spark = SparkSession.builder \
+            .config(conf=conf) \
+            .appName('Baskerville Spark') \
+            .getOrCreate()
+
+        if self.spark_conf.log_level:
+            spark.sparkContext.setLogLevel(self.spark_conf.log_level)
+
+        spark.conf.set('spark.jars', self.spark_conf.jars)
+
+        for k, v in self.es_config.es_read_conf.items():
+            spark.conf.set(k, v)
+        spark.conf.set("es.port", "9200")
+        return spark
+
+    def save_logs(self, spark_df, save_logs_path):
+        spark_df.coalesce(1).write.mode('overwrite').format('json').save(
+            save_logs_path)
+
+    def run(self):
+        for log in self.log_paths:
+            self.logger.info(f'Processing {log}...')
+            self.current_log_path = log
+            # todo: this creates a runtime for every
+            self.create_runtime()
+            self.get_data()
+            self.process_data()
+            self.reset()
+
+            self.batch_i += 1

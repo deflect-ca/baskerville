@@ -7,6 +7,8 @@
 
 from __future__ import print_function
 import pickle
+import traceback
+
 from baskerville.util.crypto import encrypt, decrypt
 import os
 from baskerville.db import set_up_db
@@ -61,6 +63,7 @@ class BaskervilleDBTools(object):
 
             return runtime
         except Exception:
+            traceback.print_exc()
             self.session.rollback()
             raise
 
