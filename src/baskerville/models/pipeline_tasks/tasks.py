@@ -1308,7 +1308,7 @@ class CacheSensitiveData(Task):
                 'ttl', self.ttl
             ).option(
                 'key.column', 'uuid_request_set'
-            ).save()
+            )._save()
         self.df = super().run()
         return self.df
 
@@ -1502,7 +1502,7 @@ class Train(Task):
         """
         model_path = get_model_path(self.engine_conf.storage_path, self.model.__class__.__name__)
         self.logger.debug(f'Saving new model to: {model_path}')
-        self.model.save(path=model_path, spark_session=self.spark)
+        self.model._save(path=model_path, spark_session=self.spark)
         self.logger.debug(f'The new model has been saved to: {model_path}')
 
         db_model = Model()
@@ -1565,7 +1565,7 @@ class SaveFeaturesTileDb(MLTask):
             'uri', f'{get_default_data_path()}/tiledbstorage'
         ).option(
             'schema.dim.0.name', 'uuid_request_set'
-        ).save()
+        )._save()
 
     def run(self):
         self.logger.debug('Saving features...')
@@ -1614,7 +1614,7 @@ class SaveFeaturesHbase(MLTask):
             *self.feature_manager.active_feature_names
         ).write.options(
             catalog=self.catalog
-        ).format("org.apache.spark.sql.execution.datasources.hbase").save()
+        ).format("org.apache.spark.sql.execution.datasources.hbase")._save()
 
     def run(self):
         self.save()
@@ -1640,7 +1640,7 @@ class SaveFeaturesHive(MLTask):
             'uri', f'{get_default_data_path()}/tiledbstorage'
         ).option(
             'schema.dim.0.name', 'uuid_request_set'
-        ).save()
+        )._save()
 
     def run(self):
         self.logger.debug('Saving features...')

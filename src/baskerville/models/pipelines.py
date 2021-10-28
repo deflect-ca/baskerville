@@ -175,7 +175,7 @@ class ElasticsearchPipeline(SparkPipelineBase):
         return spark
 
     def save_logs(self, spark_df, save_logs_path):
-        spark_df.coalesce(1).write.mode('overwrite').format('json').save(
+        spark_df.coalesce(1).write.mode('overwrite').format('json')._save(
             save_logs_path)
 
 

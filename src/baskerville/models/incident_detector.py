@@ -241,6 +241,7 @@ class IncidentDetector:
         self.incidents = self.incidents.drop('_merge', 1)
 
     def _detect(self):
+        self.logger.info('Checking for new incidents...')
         stop = (datetime.datetime.utcnow() - datetime.timedelta(
             hours=self.average_window_in_hours)).strftime("%Y-%m-%d %H:%M:%S %z")
 

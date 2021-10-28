@@ -122,7 +122,7 @@ def save_df_to_table(
         rewriteBatchedStatements=True,
         reWriteBatchedInserts=True,
         useServerPrepStmts=False,
-    ).mode(mode).save()
+    ).mode(mode)._save()
 
 
 def load_df_from_table(

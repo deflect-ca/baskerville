@@ -157,7 +157,7 @@ class RequestSetSparkCache(Singleton):
         """
         self.__cache.write.mode('overwrite').partitionBy(
             *self.group_by_fields
-        ).format(self.format_).save(self.persistent_cache_file)
+        ).format(self.format_)._save(self.persistent_cache_file)
 
     def load(self, update_date=None, hosts=None, extra_filters=None):
         """
@@ -416,7 +416,7 @@ class RequestSetSparkCache(Singleton):
                 'overwrite'
             ).format(
                 self.format_
-            ).save(self.next_persistent_cache_file)
+            )._save(self.next_persistent_cache_file)
         else:
             spark = self.session_getter()
             self.storage_df = spark.createDataFrame(

@@ -52,7 +52,7 @@ class TestTask(SQLTestCaseLatestSpark):
 
         for step in mock_steps:
             step.set_df.assert_called_once()
-            step.set_df.return_value._run.assert_called_once()
+            step.set_df.return_value.run.assert_called_once()
 
         self.assertTrue(len(self.task.remaining_steps) == 0)
 
