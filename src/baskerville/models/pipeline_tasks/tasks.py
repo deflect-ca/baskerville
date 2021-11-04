@@ -43,11 +43,11 @@ from baskerville.spark.schemas import features_schema, \
     get_feedback_context_schema, get_features_schema
 from kafka import KafkaProducer
 from dateutil.tz import tzutc
+from pyaml_env import parse_config
 
 # broadcasts
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import instantiate_from_str, get_model_path, \
-    parse_config
+from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
 from baskerville.util.mail_sender import MailSender

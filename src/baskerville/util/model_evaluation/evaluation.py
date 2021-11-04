@@ -7,6 +7,7 @@ from pyspark.ml.evaluation import BinaryClassificationEvaluator, ParamMap, \
 from pyspark.ml.tuning import ParamGridBuilder, CrossValidator, \
     CrossValidatorModel
 from pyspark.sql import functions as F
+from pyaml_env import parse_config
 
 from baskerville.db.models import RequestSet
 from baskerville.models.anomaly_model import AnomalyModel
@@ -14,7 +15,6 @@ from baskerville.models.config import BaskervilleConfig
 from baskerville.spark import get_or_create_spark_session
 from baskerville.spark.helpers import load_df_from_table
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import parse_config
 
 
 # # https://stackoverflow.com/questions/52847408/pyspark-extract-roc-curve

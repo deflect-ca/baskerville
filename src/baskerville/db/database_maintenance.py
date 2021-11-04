@@ -10,10 +10,11 @@ import traceback
 from datetime import datetime, timedelta
 
 import isoweek
+from pyaml_env import parse_config
 from baskerville.db import get_temporal_partitions, set_up_db
 from baskerville.db.data_archive import get_archive_script
 from baskerville.models.config import DatabaseConfig
-from baskerville.util.helpers import parse_config, get_logger, get_days_in_year
+from baskerville.util.helpers import get_logger, get_days_in_year
 from sqlalchemy.exc import SQLAlchemyError
 
 

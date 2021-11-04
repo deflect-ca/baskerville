@@ -10,7 +10,8 @@ import unittest
 from datetime import datetime
 
 import pyspark
-from baskerville.util.helpers import parse_config, periods_overlap, \
+from pyaml_env import parse_config
+from baskerville.util.helpers import periods_overlap, \
     instantiate_from_str, class_from_str
 
 

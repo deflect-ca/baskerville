@@ -18,6 +18,7 @@ from datetime import timedelta, datetime
 
 from dateutil.tz import tzutc
 from prometheus_client import start_http_server
+from pyaml_env import parse_config
 
 from baskerville import src_dir
 from baskerville.db import set_up_db
@@ -26,8 +27,7 @@ from baskerville.models.config import DatabaseConfig
 from baskerville.models.engine import BaskervilleAnalyticsEngine
 from baskerville.simulation.real_timeish_simulation import simulation
 from baskerville.util.git_helpers import git_clone
-from baskerville.util.helpers import get_logger, parse_config, \
-    get_default_data_path
+from baskerville.util.helpers import get_logger
 
 
 PROCESS_LIST = []

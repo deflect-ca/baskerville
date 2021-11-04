@@ -10,7 +10,7 @@ import types
 from baskerville.db import set_up_db
 from baskerville.models.config import KafkaConfig
 from baskerville.models.ip_cache import IPCache
-from baskerville.util.helpers import parse_config
+from pyaml_env import parse_config
 import argparse
 import os
 from baskerville import src_dir
