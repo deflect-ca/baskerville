@@ -49,6 +49,7 @@ RUN wget -q -O spark.tgz http://mirrors.myaegean.gr/apache/spark/spark-${SPARK_V
 # Clean up
 RUN rm -rf /root/* && chmod 755 /root
 
+RUN pip install jupyter
 RUN jupyter notebook --generate-config
 RUN sed -i -E 's,^#\s*c.NotebookApp.terminado_settings.*,c.NotebookApp.terminado_settings = {"shell_command" : ["\/bin\/bash"]},g' ~/.jupyter/jupyter_notebook_config.py
 

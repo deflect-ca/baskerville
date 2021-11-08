@@ -271,12 +271,9 @@ class EngineConfig(Config):
     load_test = False
     trigger_challenge = True
     anomaly_threshold = 0.45
-    attack_threshold = 0.0
-    minimum_number_attackers = 50
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
-    sliding_window = 0
     low_rate_attack_period = [600, 3600]
     low_rate_attack_total_request = [400, 2000]
     ip_cache_passed_challenge_ttl = 60 * 60 * 24  # 24h

@@ -28,6 +28,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model, Attack
 from baskerville.models.banjax_report_consumer import BanjaxReportConsumer
+from baskerville.models.incident_detector import IncidentDetector
 from baskerville.models.ip_cache import IPCache
 from baskerville.models.metrics.registry import metrics_registry
 from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
@@ -49,6 +50,7 @@ from baskerville.util.helpers import instantiate_from_str, get_model_path, \
     parse_config
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
+from baskerville.util.mail_sender import MailSender
 from baskerville.util.whitelist_ips import WhitelistIPs
 from baskerville.util.whitelist_hosts import WhitelistHosts
 from baskerville.util.whitelist_urls import WhitelistURLs
@@ -91,7 +93,7 @@ class GetDataKafka(Task):
         try:
             admin_client = KafkaAdminClient(**self.config.kafka.connection)
             admin_client.create_topics(
-                new_topics=[NewTopic(name=topic,num_partitions=1, replication_factor=1)],
+                new_topics=[NewTopic(name=topic, num_partitions=1, replication_factor=1)],
             )
         except TopicAlreadyExistsError:
             pass
@@ -991,7 +993,7 @@ class GenerateFeatures(MLTask):
                 '_',
                 F.col('id_client'),
                 F.col('uuid_request_set'),
-                F.col('start').cast('long').cast('string'))
+                F.col('stop').cast('long').cast('string'))
         )
         # todo: monotonically_increasing_id guarantees uniqueness within
         #  the current batch, this will cause conflicts with caching - use
@@ -1390,9 +1392,11 @@ class MergeWithSensitiveData(Task):
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
         else:
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
             self.logger.warning(
-                'No df after merging with redis: initial count=', count
+                f'No df after merging with redis: df.count={count}, df_sensitive.count={self.df_sensitive.count()}'
             )
+            self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
 
         self.df = super().run()
         return self.df
@@ -1412,7 +1416,7 @@ class SendToKafka(Task):
         super().__init__(config, steps)
         self.columns = columns
         self.topic = topic
-        self.cc_to_client=cc_to_client
+        self.cc_to_client = cc_to_client
         self.client_topic = client_topic
 
         if send_to_clearing_house:
@@ -1425,6 +1429,8 @@ class SendToKafka(Task):
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
 
+        self.logger.info(self.client_connections)
+        
         send_to_kafka(
             spark=self.spark,
             df=self.df,
@@ -1652,7 +1658,6 @@ class AttackDetection(Task):
 
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
-        self.df_chunks = []
         self.report_consumer = None
         self.banjax_thread = None
         self.register_metrics = config.engine.register_banjax_metrics
@@ -1660,6 +1665,15 @@ class AttackDetection(Task):
         self.time_filter = None
         self.lra_condition = None
         self.features_schema = get_features_schema(self.config.engine.all_features)
+        if config.incident_detector is not None:
+            self.incident_detector = IncidentDetector(
+                db_config=config.database,
+                mail_sender=MailSender(**config.mail) if config.mail else None,
+                logger=self.logger,
+                **config.incident_detector
+            )
+        else:
+            self.incident_detector = None
 
     def initialize(self):
         lr_attack_period = self.config.engine.low_rate_attack_period
@@ -1684,9 +1698,11 @@ class AttackDetection(Task):
         self.banjax_thread = threading.Thread(target=self.report_consumer.run)
         self.banjax_thread.start()
 
+        if self.incident_detector is not None:
+            self.incident_detector.start()
+
     def finish_up(self):
         if self.banjax_thread:
-            self.banjax_thread.kill()
             self.banjax_thread.join()
 
         super().finish_up()
@@ -1737,54 +1753,6 @@ class AttackDetection(Task):
                    F.lit(1.0)).otherwise(F.lit(0.))
         )
 
-    def update_sliding_window(self):
-        if self.config.engine.sliding_window == 0:
-            return
-
-        self.logger.info('Updating sliding window...')
-        df_increment = self.df.select('target', 'stop', 'prediction') \
-            .withColumn('stop', F.to_timestamp(F.col('stop'), "yyyy-MM-dd HH:mm:ss"))
-
-        increment_stop = df_increment.groupby().agg(F.max('stop')).collect()[0].asDict()['max(stop)']
-        self.logger.info(f'max_ts= {increment_stop}')
-
-        df_increment = self.df.select('target', 'stop', 'prediction'). \
-            withColumn('stop', F.to_timestamp(F.col('stop'), 'yyyy-MM-dd HH:mm:ss')).groupBy('target').agg(
-            F.count('prediction').alias('total'),
-            F.max('stop').alias('ts'),
-            F.sum(F.when(F.col('prediction') == 0, F.lit(1)).otherwise(F.lit(0))).alias('regular'),
-            F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
-        )  # ppp.persist(self.config.spark.storage_level)
-
-        if increment_stop:
-            while len(self.df_chunks) > 0 and self.df_chunks[0][1] < increment_stop - datetime.timedelta(
-                    seconds=self.config.engine.sliding_window):
-                self.logger.info(f'Removing sliding window tail at {self.df_chunks[0][1]}')
-                del self.df_chunks[0]
-
-            self.df_chunks.append((df_increment, increment_stop))
-        self.logger.info(f'Number of sliding window chunks {len(self.df_chunks)}...')
-
-    def get_attack_score(self):
-        self.logger.info('Attack scoring...')
-        if self.config.engine.sliding_window == 0:
-            df_attack = self.df.select('target', 'stop', 'prediction').groupBy('target').agg(
-                F.count('prediction').alias('total'),
-                F.sum(F.when(F.col('prediction') > 0, F.lit(1)).otherwise(F.lit(0))).alias('anomaly')
-            )
-            return df_attack.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float'))
-
-        chunks = [c[0] for c in self.df_chunks]
-        df = reduce(DataFrame.unionAll, chunks).groupBy('target').agg(
-            F.sum('total').alias('total'),
-            F.sum('regular').alias('regular'),
-            F.sum('anomaly').alias('anomaly'),
-        )
-
-        df = df.withColumn('attack_score', F.col('anomaly').cast('float') / F.col('total').cast('float')) \
-            # ppp.persist(self.config.spark.storage_level)
-        return df
-
     def detect_low_rate_attack(self):
         self.logger.info('Low rate attack detecting...')
         if get_dtype_for_col(self.df, 'features') == 'string':
@@ -1806,20 +1774,6 @@ class AttackDetection(Task):
 
     def detect_attack(self):
         self.logger.info('Attack detecting...')
-
-        self.update_sliding_window()
-        df_attack = self.get_attack_score()
-        self.logger.info('Attack thresholding...')
-        df_attack = df_attack.withColumn('attack_prediction', F.when(
-            (F.col('attack_score') > self.config.engine.attack_threshold) &
-            (F.col('total') > self.config.engine.minimum_number_attackers),
-            F.lit(1)).otherwise(F.lit(0)))
-        # todo is this right? don't we need to join on ip too??
-        self.df = self.df.join(
-            df_attack.select(
-                ['target', 'attack_prediction']
-            ), on='target', how='left')
-
         self.detect_low_rate_attack()
         # return df_attack
         return self.df
@@ -1843,9 +1797,14 @@ class AttackDetection(Task):
         )
         self.classify_anomalies()
         df_attack = self.detect_attack()
+
+        # 'attack_prediction' column is not set anymore in this task
+        self.df = self.df.withColumn('attack_prediction', F.lit(0))
+
         if not df_has_rows(df_attack):
             self.updated_df_with_attacks(df_attack)
             self.logger.info('No attacks detected...')
+
         self.df = super().run()
         return self.df
 
@@ -1934,7 +1893,7 @@ class Challenge(Task):
 
             if len(hosts):
                 df_white_list_hosts = self.spark.createDataFrame(
-                        [[host] for host in set(hosts)], ['target']).withColumn('white_list_host', F.lit(1))
+                    [[host] for host in set(hosts)], ['target']).withColumn('white_list_host', F.lit(1))
                 df_ips = df_ips.join(
                     df_white_list_hosts, on='target', how='left'
                 ).persist()

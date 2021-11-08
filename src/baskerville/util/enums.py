@@ -54,6 +54,7 @@ class RunType(BaseStrEnum):
     client_rawlog = 'client_rawlog'
     feedback = 'feedback'
     retrain = 'retrain'
+    labeling = 'labeling'
 
 
 class Step(BaseStrEnum):

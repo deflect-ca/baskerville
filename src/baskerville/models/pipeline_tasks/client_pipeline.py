@@ -3,8 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
-
+from baskerville.models.pipeline_tasks.label_task import LabelTask
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GetDataKafka, \
@@ -101,4 +100,10 @@ def set_up_postprocessing_pipeline(config: BaskervilleConfig):
 
     main_task = Task(config, tasks)
     main_task.name = 'Postprocessing Pipeline'
+    return main_task
+
+
+def set_up_labeling_pipeline(config: BaskervilleConfig):
+    main_task = LabelTask(config)
+    main_task.name = 'Labeling Pipeline'
     return main_task

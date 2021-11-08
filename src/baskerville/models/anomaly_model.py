@@ -27,6 +27,7 @@ class AnomalyModel(ModelInterface):
                  num_trees=100, max_samples=1.0, max_features=1.0, max_depth=10,
                  contamination=0.1, bootstrap=False, approximate_quantile_relative_error=0.,
                  seed=777,
+                 scaling=True,
                  scaler_with_mean=False, scaler_with_std=True,
                  storage_level='OFF_HEAP'):
         super().__init__()
@@ -55,6 +56,7 @@ class AnomalyModel(ModelInterface):
         self.prefix_feature = 'cf_'
         self.prefix_index = 'cf_index_'
         self.is_prepared = False
+        self.scaling = scaling
 
     def _create_regular_features_vector(self, df):
         if not isinstance(self.features, dict):
@@ -130,17 +132,21 @@ class AnomalyModel(ModelInterface):
         self.logger.info('Creating regular features...')
         df = self._create_regular_features_vector(df)
 
-        self.logger.info('Scaling...')
-        scaler = StandardScaler()
-        scaler.setInputCol(self.features_vector)
-        scaler.setOutputCol(self.features_vector_scaled)
-        scaler.setWithMean(self.scaler_with_mean)
-        scaler.setWithStd(self.scaler_with_std)
-        self.scaler_model = scaler.fit(df)
-        df = self.scaler_model.transform(df).persist(
-            StorageLevelFactory.get_storage_level(self.storage_level)
-        )
-        df = df.drop(self.features_vector)
+        if self.scaling:
+            self.logger.info('Scaling...')
+            scaler = StandardScaler()
+            scaler.setInputCol(self.features_vector)
+            scaler.setOutputCol(self.features_vector_scaled)
+            scaler.setWithMean(self.scaler_with_mean)
+            scaler.setWithStd(self.scaler_with_std)
+            self.scaler_model = scaler.fit(df)
+            df = self.scaler_model.transform(df)
+            df = df.drop(self.features_vector)
+        else:
+            self.scaler_model = None
+            df = df.withColumnRenamed(self.features_vector, self.features_vector_scaled)
+
+        df = df.persist(StorageLevelFactory.get_storage_level(self.storage_level))
 
         self.logger.info('Creating feature columns...')
         df = self._create_feature_columns(df)
@@ -176,9 +182,13 @@ class AnomalyModel(ModelInterface):
         self.logger.info('Creating regular features...')
         df = self._create_regular_features_vector(df).persist()
 
-        self.logger.info('Scaling...')
-        df = self.scaler_model.transform(df).cache()
-        df = df.drop(self.features_vector)
+        if self.scaling:
+            self.logger.info('Scaling...')
+            df = self.scaler_model.transform(df).cache()
+            df = df.drop(self.features_vector)
+        else:
+            df = df.withColumnRenamed(self.features_vector, self.features_vector_scaled)
+
         self.logger.info('Adding categorical features...')
         df = self._create_feature_columns(df).persist()
         df = self._add_categorical_features(df, self.features_vector_scaled)
@@ -219,18 +229,20 @@ class AnomalyModel(ModelInterface):
         if training_config:
             file_manager.save_to_file(training_config, self._get_training_config_path(), format='json')
         self.iforest_model.write().overwrite().save(self._get_iforest_path(path))
-        self.scaler_model.write().overwrite().save(self._get_scaler_path(path))
+        if self.scaling:
+            self.scaler_model.write().overwrite().save(self._get_scaler_path(path))
 
         for feature, index in self.indexes.items():
             index.write().overwrite().save(self._get_index_path(path, feature))
 
     def load(self, path, spark_session=None):
-        self.iforest_model = IForestModel.load(self._get_iforest_path(path))
-        self.scaler_model = StandardScalerModel.load(self._get_scaler_path(path))
-
         file_manager = FileManager(path, spark_session)
         params = file_manager.load_from_file(self._get_params_path(path), format='json')
         self.set_params(**params)
+
+        self.iforest_model = IForestModel.load(self._get_iforest_path(path))
+        if self.scaling:
+            self.scaler_model = StandardScalerModel.load(self._get_scaler_path(path))
 
         self.indexes = {}
         for feature in self.categorical_string_features():
