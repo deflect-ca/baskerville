@@ -1430,16 +1430,20 @@ class SendToKafka(Task):
             self,
             config: BaskervilleConfig,
             columns,
-            topic=None,
+            topic,
+            cmd='prediction_center',
             cc_to_client=False,
             client_topic=None,
+            client_only=True,
             send_to_clearing_house=False,
             steps: list = (),
     ):
         super().__init__(config, steps)
         self.columns = columns
         self.topic = topic
+        self.cmd = cmd
         self.cc_to_client = cc_to_client
+        self.client_only = client_only
         self.client_topic = client_topic
 
         if send_to_clearing_house:
@@ -1771,7 +1775,8 @@ class AttackDetection(Task):
         self.df = self.df.withColumn(
             'prediction',
             F.when(F.col('score') > self.config.engine.anomaly_threshold,
-                   F.lit(1.0)).otherwise(F.lit(0.))
+                   F.lit(LabelEnum.malicious.value)
+                   ).otherwise(F.lit(LabelEnum.benign.value))
         )
 
     def detect_low_rate_attack(self):
@@ -1834,7 +1839,7 @@ class Challenge(Task):
     def __init__(
             self,
             config: BaskervilleConfig, steps=(),
-            attack_cols=('prediction', 'low_rate_attack')
+            attack_cols=('prediction', 'attack_prediction', 'low_rate_attack')
     ):
         super().__init__(config, steps)
         self.attack_cols = attack_cols

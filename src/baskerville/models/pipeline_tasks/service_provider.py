@@ -35,6 +35,8 @@ class ServiceProvider(Borg):
         self.config = config
         self.start_time = datetime.datetime.utcnow()
         self.runtime = None
+        self.user = None
+        self.org = None
         self.request_set_cache = None
         self.spark = None
         self.tools = None
@@ -90,22 +92,22 @@ class ServiceProvider(Borg):
 
     def create_runtime(self):
         from baskerville.db.dashboard_models import User, Organization
-        org = self.tools.session.query(Organization).filter_by(
+        self.org = self.tools.session.query(Organization).filter_by(
             uuid=self.config.user_details.organization_uuid
         ).first()
-        if not org:
+        if not self.org:
             raise ValueError(f'No such organization.')
 
-        user = self.tools.session.query(User).filter_by(
+        self.user = self.tools.session.query(User).filter_by(
             username=self.config.user_details.username).filter_by(
-            id_organization=org.id
+            id_organization=self.org.id
         ).first()
-        if not user:
+        if not self.user:
             raise ValueError(f'No such user.')
         self.runtime = self.tools.create_runtime(
             start=self.start_time,
             conf=self.config.engine,
-            id_user=user.id
+            id_user=self.user.id
         )
         self.logger.info(f'Created runtime {self.runtime.id}')
 

@@ -23,11 +23,12 @@ from pyaml_env import parse_config
 from baskerville import src_dir
 from baskerville.db import set_up_db
 from baskerville.db.models import Model
+from baskerville.models.anomaly_model_sklearn import AnomalyModelSklearn
 from baskerville.models.config import DatabaseConfig
 from baskerville.models.engine import BaskervilleAnalyticsEngine
 from baskerville.simulation.real_timeish_simulation import simulation
 from baskerville.util.git_helpers import git_clone
-from baskerville.util.helpers import get_logger
+from baskerville.util.helpers import get_logger, get_default_data_path
 
 
 PROCESS_LIST = []
@@ -59,14 +60,14 @@ def run_simulation(conf, spark=None):
     simulation_process = Process(
         name='SimulationThread',
         target=simulation,
-        args=[
+        args=(
             engine_conf.simulation.log_file,
             timedelta(seconds=engine_conf.time_bucket),
-        ],
+        ),
         kwargs={
             'topic_name': kafka_conf['consume_topic'],
             'sleep': engine_conf.simulation.sleep,
-            'kafka_url': kafka_conf.connection['bootstrap_servers']['bootstrap_servers'],
+            'kafka_url': kafka_conf.connection['bootstrap_servers'],
             'zookeeper_url': kafka_conf.zookeeper,
             'verbose': engine_conf.simulation.verbose,
             'spark': spark,
@@ -74,6 +75,33 @@ def run_simulation(conf, spark=None):
     )
     PROCESS_LIST.append(simulation_process)
     print('Set up Simulation...')
+
+
+def add_model_to_database(database_config):
+    """
+    Load the test model and save it in the database
+    :param dict[str, T] database_config:
+    :return:
+    """
+    global logger
+    path = os.path.join(get_default_data_path(), 'samples', 'models', 'AnomalyModel')
+    logger.info(f'Loading test model from: {path}')
+    model = AnomalyModelSklearn()
+    model.load(path=path)
+
+    db_cfg = DatabaseConfig(database_config).validate()
+    session, _ = set_up_db(db_cfg.__dict__, partition=False)
+
+    db_model = Model()
+    db_model.algorithm = 'baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn'
+    db_model.created_at = datetime.now(tz=tzutc())
+    db_model.parameters = json.dumps(model.get_params())
+    db_model.classifier = bytearray(path.encode('utf8'))
+
+    # save to db
+    session.add(db_model)
+    session.commit()
+    session.close()
 
 
 def main():
@@ -155,7 +183,12 @@ def main():
             raise RuntimeError('Cannot start exporter without metrics config')
         port = baskerville_engine.config.engine.metrics.port
         start_http_server(port)
-        logger.info(f'Starting Baskerville Exporter at http://localhost:{port}')
+        logger.info(f'Starting Baskerville Exporter at '
+                    f'http://localhost:{port}')
+
+    # populate with test data if specified
+    if args.test_model:
+        add_model_to_database(conf['database'])
 
     for p in PROCESS_LIST[::-1]:
         print(f"{p.name} starting...")
