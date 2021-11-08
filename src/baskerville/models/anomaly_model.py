@@ -27,7 +27,7 @@ class AnomalyModel(ModelInterface):
                  num_trees=100, max_samples=1.0, max_features=1.0, max_depth=10,
                  contamination=0.1, bootstrap=False, approximate_quantile_relative_error=0.,
                  seed=777,
-                 scaling=False,
+                 scaling=True,
                  scaler_with_mean=False, scaler_with_std=True,
                  storage_level='OFF_HEAP'):
         super().__init__()
@@ -132,8 +132,8 @@ class AnomalyModel(ModelInterface):
         self.logger.info('Creating regular features...')
         df = self._create_regular_features_vector(df)
 
-        self.logger.info('Scaling...')
         if self.scaling:
+            self.logger.info('Scaling...')
             scaler = StandardScaler()
             scaler.setInputCol(self.features_vector)
             scaler.setOutputCol(self.features_vector_scaled)
@@ -141,11 +141,11 @@ class AnomalyModel(ModelInterface):
             scaler.setWithStd(self.scaler_with_std)
             self.scaler_model = scaler.fit(df)
             df = self.scaler_model.transform(df)
+            df = df.drop(self.features_vector)
         else:
             self.scaler_model = None
-            df = df.withColumn(self.features_vector_scaled, self.features_vector)
+            df = df.withColumnRenamed(self.features_vector, self.features_vector_scaled)
 
-        df = df.drop(self.features_vector)
         df = df.persist(StorageLevelFactory.get_storage_level(self.storage_level))
 
         self.logger.info('Creating feature columns...')
@@ -182,13 +182,13 @@ class AnomalyModel(ModelInterface):
         self.logger.info('Creating regular features...')
         df = self._create_regular_features_vector(df).persist()
 
-        self.logger.info('Scaling...')
         if self.scaling:
+            self.logger.info('Scaling...')
             df = self.scaler_model.transform(df).cache()
+            df = df.drop(self.features_vector)
         else:
-            df  = df.withColumn(self.features_vector_scaled, self.features_vector)
+            df = df.withColumnRenamed(self.features_vector, self.features_vector_scaled)
 
-        df = df.drop(self.features_vector)
         self.logger.info('Adding categorical features...')
         df = self._create_feature_columns(df).persist()
         df = self._add_categorical_features(df, self.features_vector_scaled)
@@ -228,12 +228,12 @@ class AnomalyModel(ModelInterface):
         file_manager.save_to_file(self.get_params(), self._get_params_path(path), format='json')
         if training_config:
             file_manager.save_to_file(training_config, self._get_training_config_path(), format='json')
-        self.iforest_model.write().overwrite()._save(self._get_iforest_path(path))
+        self.iforest_model.write().overwrite().save(self._get_iforest_path(path))
         if self.scaling:
-            self.scaler_model.write().overwrite()._save(self._get_scaler_path(path))
+            self.scaler_model.write().overwrite().save(self._get_scaler_path(path))
 
         for feature, index in self.indexes.items():
-            index.write().overwrite()._save(self._get_index_path(path, feature))
+            index.write().overwrite().save(self._get_index_path(path, feature))
 
     def load(self, path, spark_session=None):
         file_manager = FileManager(path, spark_session)

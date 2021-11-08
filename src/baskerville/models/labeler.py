@@ -242,6 +242,7 @@ class Labeler(object):
             engine.dispose()
 
     def _label(self):
+        self.logger.info('Querying  unlabeled incidents...')
         try:
             session, engine = set_up_db(self.db_config.__dict__)
         except Exception as e:
@@ -260,6 +261,7 @@ class Labeler(object):
             engine.dispose()
 
     def _save(self):
+        self.logger.info('Querying unsaved incidents...')
         try:
             session, engine = set_up_db(self.db_config.__dict__)
         except Exception as e:

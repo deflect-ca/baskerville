@@ -93,7 +93,7 @@ class GetDataKafka(Task):
         try:
             admin_client = KafkaAdminClient(**self.config.kafka.connection)
             admin_client.create_topics(
-                new_topics=[NewTopic(name=topic,num_partitions=1, replication_factor=1)],
+                new_topics=[NewTopic(name=topic, num_partitions=1, replication_factor=1)],
             )
         except TopicAlreadyExistsError:
             pass
@@ -1308,7 +1308,7 @@ class CacheSensitiveData(Task):
                 'ttl', self.ttl
             ).option(
                 'key.column', 'uuid_request_set'
-            )._save()
+            ).save()
         self.df = super().run()
         return self.df
 
@@ -1416,7 +1416,7 @@ class SendToKafka(Task):
         super().__init__(config, steps)
         self.columns = columns
         self.topic = topic
-        self.cc_to_client=cc_to_client
+        self.cc_to_client = cc_to_client
         self.client_topic = client_topic
 
         if send_to_clearing_house:
@@ -1429,6 +1429,8 @@ class SendToKafka(Task):
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
 
+        self.logger.info(self.client_connections)
+        
         send_to_kafka(
             spark=self.spark,
             df=self.df,
@@ -1502,7 +1504,7 @@ class Train(Task):
         """
         model_path = get_model_path(self.engine_conf.storage_path, self.model.__class__.__name__)
         self.logger.debug(f'Saving new model to: {model_path}')
-        self.model._save(path=model_path, spark_session=self.spark)
+        self.model.save(path=model_path, spark_session=self.spark)
         self.logger.debug(f'The new model has been saved to: {model_path}')
 
         db_model = Model()
@@ -1565,7 +1567,7 @@ class SaveFeaturesTileDb(MLTask):
             'uri', f'{get_default_data_path()}/tiledbstorage'
         ).option(
             'schema.dim.0.name', 'uuid_request_set'
-        )._save()
+        ).save()
 
     def run(self):
         self.logger.debug('Saving features...')
@@ -1614,7 +1616,7 @@ class SaveFeaturesHbase(MLTask):
             *self.feature_manager.active_feature_names
         ).write.options(
             catalog=self.catalog
-        ).format("org.apache.spark.sql.execution.datasources.hbase")._save()
+        ).format("org.apache.spark.sql.execution.datasources.hbase").save()
 
     def run(self):
         self.save()
@@ -1640,7 +1642,7 @@ class SaveFeaturesHive(MLTask):
             'uri', f'{get_default_data_path()}/tiledbstorage'
         ).option(
             'schema.dim.0.name', 'uuid_request_set'
-        )._save()
+        ).save()
 
     def run(self):
         self.logger.debug('Saving features...')
@@ -1891,7 +1893,7 @@ class Challenge(Task):
 
             if len(hosts):
                 df_white_list_hosts = self.spark.createDataFrame(
-                        [[host] for host in set(hosts)], ['target']).withColumn('white_list_host', F.lit(1))
+                    [[host] for host in set(hosts)], ['target']).withColumn('white_list_host', F.lit(1))
                 df_ips = df_ips.join(
                     df_white_list_hosts, on='target', how='left'
                 ).persist()

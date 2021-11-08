@@ -872,7 +872,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         format = df.write.format
         options = format.return_value.options
         mode = options.return_value.mode
-        save = mode.return_value._save
+        save = mode.return_value.save
         persist.return_value = df
         self.spark_pipeline.save_df_to_table(
             df, test_table, json_cols=json_cols, mode=mode_param
@@ -914,7 +914,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         format = after_col_to_json.write.format
         options = format.return_value.options
         mode = options.return_value.mode
-        save = mode.return_value._save
+        save = mode.return_value.save
 
         self.spark_pipeline.save_df_to_table(
             df,
@@ -950,7 +950,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         format = df.write.format
         options = format.return_value.options
         mode = options.return_value.mode
-        save = mode.return_value._save
+        save = mode.return_value.save
         persist.return_value = df
 
         self.spark_pipeline.save_df_to_table(
