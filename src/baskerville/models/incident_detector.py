@@ -22,7 +22,7 @@ class IncidentDetector:
                  db_config,
                  time_bucket_in_seconds=120,
                  time_horizon_in_seconds=600,
-                 check_interval_in_seconds=60,
+                 check_interval_in_seconds=120,
                  stat_refresh_period_in_minutes=30,
                  stat_window_in_hours=1,
                  min_traffic=3,
