@@ -14,7 +14,6 @@ from dateutil.tz import tzutc
 from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-from tzwhere import tzwhere
 import numpy as np
 
 
@@ -52,6 +51,7 @@ def compute_geotime(lat, lon, t, feature_default):
         # todo: how do latitude/longitude appear in raw ats record?
         feature_value = feature_default
     else:
+        from tzwhere import tzwhere
         tz = tzwhere.tzwhere()
         timezone_str = tz.tzNameAt(lat, lon)
         t = t.astimezone(pytz.timezone(timezone_str))
