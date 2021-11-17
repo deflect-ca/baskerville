@@ -120,8 +120,9 @@ def send_to_kafka(spark,
                     client_producers[id_client].send(client_topic, message)
 
         producer.flush()
-        for _, client_producers in client_producers.items():
-            client_producers.flush()
+        if client_producers:
+            for _, client_producer in client_producers.items():
+                client_producer.flush()
 
 
 def read_from_kafka_from_the_beginning(bootstrap_servers, topic, schema, spark):

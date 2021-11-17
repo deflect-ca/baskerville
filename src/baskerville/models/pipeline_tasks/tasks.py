@@ -668,27 +668,50 @@ class GenerateFeatures(MLTask):
         urls = list(set(urls))
 
         domains = []
-        url_prefixes = []
+        prefixes = []
+        matches = []
+        stars = []
         for url in urls:
             if url.find('/') < 0:
                 domains.append(url)
             else:
-                url_prefixes.append(url)
+                star_pos = url.find('*')
+                if url.find('*') < 0:
+                    matches.append(url)
+                else:
+                    if star_pos == len(url) - 1:
+                        prefixes.append(url[:-1])
+                    else:
+                        stars.append((url[:star_pos], url[star_pos+1:]))
 
         # filter out only the exact domain match
-        self.df = self.df.filter(~F.col('target_original').isin(domains))
+        if len(domains) > 0:
+            self.df = self.df.filter(~F.col('target_original').isin(domains))
 
         # concatenate the full path URL
         self.df = self.df.withColumn('url', F.concat(F.col('target_original'), F.col('client_url')))
 
+        # filter out the url match
+        if len(matches) > 0:
+            self.df = self.df.filter(~F.col('url').isin(matches))
+
+        # filter out the url prefix
         @F.udf(returnType=T.BooleanType())
-        def filter_urls(url):
-            for url_prefix in url_prefixes:
+        def filter_prefixes(url):
+            for url_prefix in prefixes:
                 if url and url.startswith(url_prefix):
                     return False
             return True
+        self.df = self.df.filter(filter_prefixes('url'))
 
-        self.df = self.df.filter(filter_urls('url'))
+        # filter out the stars
+        @F.udf(returnType=T.BooleanType())
+        def filter_stars(url):
+            for star in stars:
+                if url and url.startswith(star[0]) and url.endswith(star[1]):
+                    return False
+            return True
+        self.df = self.df.filter(filter_stars('url'))
 
     def normalize_host_names(self):
         """
@@ -1429,8 +1452,6 @@ class SendToKafka(Task):
     def run(self):
         self.logger.info(f'Sending to kafka topic \'{self.topic}\'...')
 
-        self.logger.info(self.client_connections)
-        
         send_to_kafka(
             spark=self.spark,
             df=self.df,
