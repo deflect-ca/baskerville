@@ -3,6 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
+import traceback
 import uuid
 
 from baskerville.db.data_partitioning import get_temporal_partitions
@@ -184,7 +185,7 @@ def set_up_db(conf, create=True, partition=True):
         if not database_exists(engine.url):
             create_database(engine.url)
 
-    Session = scoped_session(sessionmaker(bind=engine))
+    Session = scoped_session(sessionmaker(bind=engine))()
     Base.metadata.create_all(bind=engine)
     # session = Session()
 
