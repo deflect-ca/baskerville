@@ -28,7 +28,7 @@ class BaskervilleDBTools(object):
         bothound_tools instance and will be used to save data back to the db
         """
 
-        self.session, self.engine = set_up_db(self.conf.__dict__)
+        self.session, self.engine = set_up_db(self.conf.__dict__, create=True)
 
     def create_runtime(
             self,

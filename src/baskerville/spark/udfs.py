@@ -14,7 +14,6 @@ from dateutil.tz import tzutc
 from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-from tzwhere import tzwhere
 import numpy as np
 
 
@@ -52,6 +51,7 @@ def compute_geotime(lat, lon, t, feature_default):
         # todo: how do latitude/longitude appear in raw ats record?
         feature_value = feature_default
     else:
+        from tzwhere import tzwhere
         tz = tzwhere.tzwhere()
         timezone_str = tz.tzNameAt(lat, lon)
         t = t.astimezone(pytz.timezone(timezone_str))
@@ -321,3 +321,4 @@ udf_update_features = F.udf(
 udf_bulk_update_request_sets = F.udf(bulk_update_request_sets, T.BooleanType())
 udf_to_dense_vector = F.udf(lambda l: Vectors.dense(l), VectorUDT())
 udf_add_to_dense_vector = F.udf(lambda features, arr: Vectors.dense(np.append(features, [v for v in arr])), VectorUDT())
+udf_send_to_kafka = F.udf(send_to_kafka, T.BooleanType())

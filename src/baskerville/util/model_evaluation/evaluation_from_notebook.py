@@ -7,10 +7,10 @@ from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 from pyspark.mllib.evaluation import BinaryClassificationMetrics
-from baskerville.db import get_jdbc_url
+from pyaml_env import parse_config
 
+from baskerville.db import get_jdbc_url
 from baskerville.db.models import Attack
-from baskerville.util.helpers import parse_config
 from baskerville.models.config import BaskervilleConfig
 from baskerville.util.baskerville_tools import BaskervilleDBTools
 from baskerville.models.anomaly_model import AnomalyModel

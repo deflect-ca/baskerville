@@ -3,6 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
+import traceback
 import uuid
 
 from baskerville.db.data_partitioning import get_temporal_partitions
@@ -158,13 +159,16 @@ def set_up_db(conf, create=True, partition=True):
                         isolation_level='AUTOCOMMIT',
                         **conf.get('db_conn_args', {})
                 ).connect() as connection:
-                    connection.execute(f'CREATE DATABASE {conf.get("name")} if not exists')
+                    connection.execute(f'CREATE DATABASE {conf.get("name")}')
                     connection.execute(
                         'CREATE CAST (VARCHAR AS JSON) '
                         'WITHOUT FUNCTION AS IMPLICIT'
                     )
-            except ProgrammingError:
-                pass
+            except ProgrammingError as e:
+                if 'already exists' in str(e):
+                    pass
+                else:
+                    raise e
 
         engine = create_engine(
             get_db_connection_str(conf),
@@ -184,13 +188,12 @@ def set_up_db(conf, create=True, partition=True):
         if not database_exists(engine.url):
             create_database(engine.url)
 
-    Session = scoped_session(sessionmaker(bind=engine))
+    session = scoped_session(sessionmaker(bind=engine))()
     Base.metadata.create_all(bind=engine)
-    # session = Session()
 
-    if Session.query(Organization).count() == 0 and \
-            Session.query(User).count() == 0 and \
-            Session.query(UserCategory).count() == 0:
+    if session.query(Organization).count() == 0 and \
+            session.query(User).count() == 0 and \
+            session.query(UserCategory).count() == 0:
         try:
             organization = Organization()
             organization.uuid = 'test'
@@ -204,14 +207,12 @@ def set_up_db(conf, create=True, partition=True):
             user.category = category
             user.email = 'email'
             user.name = 'default_user'
-            Session.add(organization)
-            Session.add(user)
-            Session.commit()
+            session.add(organization)
+            session.add(user)
+            session.commit()
         except Exception as err:
-            Session.rollback()
+            session.rollback()
             raise err
-
-
 
     # create data partition
     maintenance_conf = conf.get('maintenance')
@@ -220,7 +221,7 @@ def set_up_db(conf, create=True, partition=True):
             and maintenance_conf['data_partition'] \
             and create \
             and partition:
-        Session.execute(text(get_temporal_partitions(maintenance_conf)))
+        session.execute(text(get_temporal_partitions(maintenance_conf)))
         print('Partitioning done...')
 
-    return Session, engine
+    return session, engine

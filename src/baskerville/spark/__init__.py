@@ -30,6 +30,14 @@ def get_or_create_spark_session(spark_conf):
         if spark_conf.redis_password:
             conf.set('spark.redis.auth', spark_conf.redis_password)
 
+    if spark_conf.spark_executor_instances:
+        conf.set('spark.executor.instances',
+                 spark_conf.spark_executor_instances)
+        # conf.set('spark.streaming.dynamicAllocation.minExecutors', spark_conf.spark_executor_instances)
+    if spark_conf.spark_executor_cores:
+        conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
+    if spark_conf.spark_executor_memory:
+        conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     # todo: https://stackoverflow.com/questions/
     #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
     # https://medium.com/@pmatpadi/spark-streaming-dynamic-scaling-and-backpressure-in-action-6ebdbc782a69
@@ -119,7 +127,8 @@ def get_or_create_spark_session(spark_conf):
     if spark_conf.spark_executor_cores:
         conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_instances:
-        conf.set('spark.executor.instances', spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances',
+                 spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_memory:
         conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     if spark_conf.serializer:
@@ -188,8 +197,8 @@ def get_or_create_spark_session(spark_conf):
         if spark_conf.spark_kubernetes_executor_memoryOverhead:
             conf.set('spark.kubernetes.executor.memoryOverhead', spark_conf.spark_kubernetes_executor_memoryOverhead)
 
-        conf.set('spark.kubernetes.driver.pod.name', os.environ['MY_POD_NAME'])
-        conf.set('spark.driver.host', os.environ['MY_POD_IP'])
+        conf.set('spark.kubernetes.driver.pod.name', os.environ.get('MY_POD_NAME'))
+        conf.set('spark.driver.host', os.environ.get('MY_POD_IP', 'localhost'))
         conf.set('spark.driver.port', 20020)
 
     spark = SparkSession.builder \

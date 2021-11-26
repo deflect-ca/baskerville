@@ -32,9 +32,11 @@ def set_up_feedback_pipeline(config: BaskervilleConfig):
                 ),
                 SendToKafka(
                     config,
-                    columns=('uuid_organization', 'id_context', 'success'),
-                    topic=None,
-                    client_topic='feedback',
+                    ('uuid_organization', 'id_context', 'success'),
+                    'feedback',
+                    cmd='feedback_center',
+                    cc_to_client=True,
+                    client_only=True
                 )
             ]),
     ]

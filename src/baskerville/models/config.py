@@ -876,7 +876,6 @@ class SparkConfig(Config):
             except ValueError:
                 self.add_error(ConfigError(
                     'Spark shuffle_partitions should be an integer',
-                    'Spark shuffle_partitions should be an integer',
                     ['shuffle_partitions'],
                 ))
 

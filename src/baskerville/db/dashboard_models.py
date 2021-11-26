@@ -88,6 +88,9 @@ class FeedbackContext(Base, SerializableMixin):
     __tablename__ = 'feedback_contexts'
     id = Column(BigInteger, primary_key=True, autoincrement=True, unique=True)
     uuid_organization = Column(String(300), nullable=False)
+    # id_user should be used only on the user module side,
+    # it is not communicated back and forth with the clearinghouse
+    id_user = Column(BigInteger(), ForeignKey('users.id'), nullable=True)
     reason = Column(Enum(FeedbackContextTypeEnum))
     reason_descr = Column(TEXT())
     start = Column(DateTime(timezone=True))
