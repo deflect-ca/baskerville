@@ -9,5 +9,5 @@ FROM equalitie/baskerville:worker
 COPY ./src /usr/local/baskerville/src
 COPY ./data/jars /usr/local/baskerville/data/jars
 
-# COPY ./requirements.txt /usr/local/baskerville
-# RUN pip3 install -e .
+COPY ./requirements.txt /usr/local/baskerville
+RUN pip3 install -e .

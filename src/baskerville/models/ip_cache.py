@@ -67,11 +67,11 @@ class IPCache(metaclass=SingletonThreadSafe):
             if len(self.cache_pending) > 0.98 * self.cache_pending.maxsize:
                 self.logger.warning('IP cache pending challenge is 98% full. ')
             result = []
-            for ip in ips:
+            for ip, target, low_rate_attack in ips:
                 if ip not in self.cache_passed and ip not in self.cache_pending:
-                    result.append(ip)
+                    result.append((ip, target, low_rate_attack))
 
-            for ip in result:
+            for ip, _, _ in result:
                 self.cache_pending[ip] = {
                     'fails': 0
                 }
