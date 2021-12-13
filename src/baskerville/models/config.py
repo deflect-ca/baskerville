@@ -538,6 +538,7 @@ class ElasticConfig(Config):
     host = ''
     base_index = ''
     index_type = ''
+    port = 443
 
     def __init__(self, config):
         super(ElasticConfig, self).__init__(config)

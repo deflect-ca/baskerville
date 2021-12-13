@@ -45,6 +45,7 @@ from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
 # broadcasts
+from baskerville.util.elastic_writer import ElasticWriter
 from baskerville.util.enums import LabelEnum
 from baskerville.util.helpers import instantiate_from_str, get_model_path, \
     parse_config
@@ -1847,6 +1848,10 @@ class Challenge(Task):
             logger=self.logger,
             refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
         )
+        self.elastic_writer = ElasticWriter(host=config.elastic.host,
+                                            port=config.elastic.port,
+                                            user=config.elastic.user,
+                                            password=config.elastic.password)
 
     def initialize(self):
         # global IP_ACC
@@ -1921,7 +1926,7 @@ class Challenge(Task):
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
 
             if df_has_rows(df_ips):
-                ips = [r['ip'] for r in df_ips.collect()]
+                ips = [(r['ip'], r['target'], r['low_rate_attack']) for r in df_ips.collect()]
                 ips = self.ip_cache.update(ips)
                 num_records = len(ips)
                 if num_records > 0:
@@ -1930,7 +1935,7 @@ class Challenge(Task):
                     # )
                     self.df = self.df.withColumn(
                         'challenged',
-                        F.when(F.col('ip').isin([f'{ip}' for ip in ips]), 1).otherwise(0)
+                        F.when(F.col('ip').isin([f'{ip}' for ip, _, _ in ips]), 1).otherwise(0)
                     )
                     # self.df = self.df.join(challenged_ips, on='ip', how='left')
                     # self.df = self.df.fillna({'challenged': 0})
@@ -1939,14 +1944,17 @@ class Challenge(Task):
                         f'Sending {num_records} IP challenge commands to '
                         f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
                     null_ips = False
-                    for ip in ips:
-                        if ip:
-                            message = json.dumps(
-                                {'name': 'challenge_ip', 'value': ip}
-                            ).encode('utf-8')
-                            self.producer.send(self.config.kafka.banjax_command_topic, message)
-                        else:
-                            null_ips = True
+                    with self.elastic_writer as elastic_writer:
+                        for ip, target, low_rate_attack in ips:
+                            if ip:
+                                message = json.dumps(
+                                    {'name': 'challenge_ip', 'value': ip}
+                                ).encode('utf-8')
+                                self.producer.send(self.config.kafka.banjax_command_topic, message)
+                                elastic_writer.write_challenge(ip, host=target,
+                                                               reason='low_rate' if low_rate_attack else 'anomaly')
+                            else:
+                                null_ips = True
                     if null_ips:
                         self.logger.info('Null ips')
                         self.logger.info(f'{ips}')
@@ -2032,7 +2040,7 @@ class Challenge(Task):
         #     self.logger.debug('No challenge flag is set, moving on...')
 
     def get_attack_df(self):
-        return self.df.select('ip', 'target').where(self.attack_filter).cache()
+        return self.df.select('ip', 'target', 'low_rate_attack').where(self.attack_filter).cache()
 
     def filter_out_load_test(self):
         if self.config.engine.load_test:
