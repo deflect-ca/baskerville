@@ -10,6 +10,7 @@ import types
 from baskerville.db import set_up_db
 from baskerville.models.config import KafkaConfig
 from baskerville.models.ip_cache import IPCache
+from baskerville.util.elastic_writer import ElasticWriter
 from baskerville.util.helpers import parse_config
 import argparse
 import os
@@ -45,6 +46,11 @@ class BanjaxReportConsumer(object):
         self.logger = logger
         self.ip_cache = IPCache(config, self.logger)
         self.session, self.engine = set_up_db(config.database.__dict__)
+
+        self.elastic_writer = ElasticWriter(host=config.elastic.host,
+                                            port=config.elastic.port,
+                                            user=config.elastic.user,
+                                            password=config.elastic.password)
 
         # XXX i think the metrics registry swizzling code is passing
         # an extra argument here mistakenly?.?.
@@ -100,7 +106,7 @@ class BanjaxReportConsumer(object):
 
     def get_time_filter(self):
         return (datetime.datetime.utcnow() - datetime.timedelta(
-            minutes=self.config.engine.banjax_sql_update_filter_minutes)).strftime("%Y-%m-%d %H:%M:%S %z")
+            minutes=self.config.engine.banjax_sql_update_filter_minutes)).strftime("%Y-%m-%d %H:%M:%S.000Z")
 
     def consume_ip_failed_challenge_message(self, message):
         ip = message['value_ip']
@@ -129,12 +135,18 @@ class BanjaxReportConsumer(object):
 
     def consume_ip_passed_challenge_message(self, message):
         ip = message['value_ip']
+        host = message['value_site']
         processed = self.ip_cache.ip_passed_challenge(ip)
         if not processed:
             return message
+
         try:
+            with self.elastic_writer as writer:
+                writer.write_challenge_passed(ip, host)
+
             sql = f'update request_sets set challenge_passed = 1 where ' \
-                  f'stop > \'{self.get_time_filter()}\' and challenged = 1 and ip = \'{ip}\''
+                  f'stop > \'{self.get_time_filter()}\' ' \
+                  f'and challenged = 1 and ip = \'{ip}\''
             self.session.execute(sql)
             self.session.commit()
 
