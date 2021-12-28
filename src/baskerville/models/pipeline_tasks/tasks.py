@@ -1848,10 +1848,13 @@ class Challenge(Task):
             logger=self.logger,
             refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
         )
-        self.elastic_writer = ElasticWriter(host=config.elastic.host,
-                                            port=config.elastic.port,
-                                            user=config.elastic.user,
-                                            password=config.elastic.password)
+        if config.elastic:
+            self.elastic_writer = ElasticWriter(host=config.elastic.host,
+                                                port=config.elastic.port,
+                                                user=config.elastic.user,
+                                                password=config.elastic.password)
+        else:
+            self.elastic_writer = None
 
     def initialize(self):
         # global IP_ACC
@@ -1944,17 +1947,22 @@ class Challenge(Task):
                         f'Sending {num_records} IP challenge commands to '
                         f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
                     null_ips = False
-                    with self.elastic_writer as elastic_writer:
-                        for ip, target, low_rate_attack in ips:
-                            if ip:
-                                message = json.dumps(
-                                    {'name': 'challenge_ip', 'value': ip}
-                                ).encode('utf-8')
-                                self.producer.send(self.config.kafka.banjax_command_topic, message)
-                                elastic_writer.write_challenge(ip, host=target,
-                                                               reason='low_rate' if low_rate_attack else 'anomaly')
-                            else:
-                                null_ips = True
+                    for ip, _, _ in ips:
+                        if ip:
+                            message = json.dumps(
+                                {'name': 'challenge_ip', 'value': ip}
+                            ).encode('utf-8')
+                            self.producer.send(self.config.kafka.banjax_command_topic, message)
+                        else:
+                            null_ips = True
+
+                    if self.elastic_writer:
+                        with self.elastic_writer as elastic_writer:
+                            for ip, target, low_rate_attack in ips:
+                                if ip:
+                                    elastic_writer.write_challenge(ip, host=target,
+                                                                   reason='low_rate' if low_rate_attack else 'anomaly')
+
                     if null_ips:
                         self.logger.info('Null ips')
                         self.logger.info(f'{ips}')
