@@ -47,10 +47,13 @@ class BanjaxReportConsumer(object):
         self.ip_cache = IPCache(config, self.logger)
         self.session, self.engine = set_up_db(config.database.__dict__)
 
-        self.elastic_writer = ElasticWriter(host=config.elastic.host,
-                                            port=config.elastic.port,
-                                            user=config.elastic.user,
-                                            password=config.elastic.password)
+        if config.elastic:
+            self.elastic_writer = ElasticWriter(host=config.elastic.host,
+                                                port=config.elastic.port,
+                                                user=config.elastic.user,
+                                                password=config.elastic.password)
+        else:
+            self.elastic_writer = None
 
         # XXX i think the metrics registry swizzling code is passing
         # an extra argument here mistakenly?.?.
@@ -141,8 +144,9 @@ class BanjaxReportConsumer(object):
             return message
 
         try:
-            with self.elastic_writer as writer:
-                writer.write_challenge_passed(ip, host)
+            if self.elastic_writer:
+                with self.elastic_writer as writer:
+                    writer.write_challenge_passed(ip, host)
 
             sql = f'update request_sets set challenge_passed = 1 where ' \
                   f'stop > \'{self.get_time_filter()}\' ' \
