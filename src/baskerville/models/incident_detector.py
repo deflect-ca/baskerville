@@ -67,6 +67,7 @@ class IncidentDetector:
         self.dashboard_url_prefix = dashboard_url_prefix
         self.dashboard_minutes_before = dashboard_minutes_before
         self.dashboard_minutes_after = dashboard_minutes_after
+        self.lock = threading.Lock()
 
     def _run(self):
         self.logger.info('Starting incident detector...')
@@ -135,11 +136,18 @@ class IncidentDetector:
             session.close()
             engine.dispose()
 
+    def get_hosts_with_incidents(self):
+        with self.lock:
+            if self.incidents is None or self.incidents.empty:
+                return []
+
+            return self.incidents['target'].tolist()
+
     def _start_incidents(self, anomalies):
-        if anomalies is None:
+        if anomalies is None or anomalies.empty:
             return
 
-        if self.incidents is None:
+        if self.incidents is None or self.incidents.empty:
             new_incidents = anomalies
         else:
             new_incidents = pd.merge(anomalies, self.incidents[['target']], how='outer', indicator=True)
@@ -197,14 +205,14 @@ class IncidentDetector:
             session.close()
             engine.dispose()
 
-        if self.incidents is None:
+        if self.incidents is None or self.incidents.empty:
             self.incidents = new_incidents
             return
 
         self.incidents = pd.concat([self.incidents, new_incidents])
 
     def _stop_incidents(self, regulars):
-        if self.incidents is None:
+        if self.incidents is None or self.incidents.empty:
             return
 
         stopped_incidents = pd.merge(self.incidents, regulars[['target', 'time']], how='inner', on='target')
@@ -282,5 +290,6 @@ class IncidentDetector:
         anomalies = batch[condition]
         regulars = batch[~condition]
 
-        self._stop_incidents(regulars)
-        self._start_incidents(anomalies)
+        with self.lock:
+            self._stop_incidents(regulars)
+            self._start_incidents(anomalies)
