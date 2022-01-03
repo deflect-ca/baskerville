@@ -683,7 +683,7 @@ class GenerateFeatures(MLTask):
                     if star_pos == len(url) - 1:
                         prefixes.append(url[:-1])
                     else:
-                        stars.append((url[:star_pos], url[star_pos+1:]))
+                        stars.append((url[:star_pos], url[star_pos + 1:]))
 
         # filter out only the exact domain match
         if len(domains) > 0:
@@ -703,6 +703,7 @@ class GenerateFeatures(MLTask):
                 if url and url.startswith(url_prefix):
                     return False
             return True
+
         self.df = self.df.filter(filter_prefixes('url'))
 
         # filter out the stars
@@ -712,6 +713,7 @@ class GenerateFeatures(MLTask):
                 if url and url.startswith(star[0]) and url.endswith(star[1]):
                     return False
             return True
+
         self.df = self.df.filter(filter_stars('url'))
 
     def normalize_host_names(self):
@@ -1769,11 +1771,19 @@ class AttackDetection(Task):
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
+        hosts = self.incident_detector.get_hosts_with_incidents()
+
+        self.df = self.df.withColumn('threshold',
+                                     F.when(F.col('target').isin(hosts),
+                                            self.config.engine.anomaly_threshold_during_incident).otherwise(
+                                         self.config.engine.anomaly_threshold))
+
         self.df = self.df.withColumn(
             'prediction',
-            F.when(F.col('score') > self.config.engine.anomaly_threshold,
-                   F.lit(1.0)).otherwise(F.lit(0.))
-        )
+            F.when(F.col('score') > F.col('threshold'), F.lit(1.0)).otherwise(F.lit(0.)))
+
+        self.df = self.df.drop('threshold')
+
 
     def detect_low_rate_attack(self):
         self.logger.info('Low rate attack detecting...')

@@ -271,6 +271,7 @@ class EngineConfig(Config):
     load_test = False
     trigger_challenge = True
     anomaly_threshold = 0.45
+    anomaly_threshold_during_incident = 0.35
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
