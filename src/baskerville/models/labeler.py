@@ -200,7 +200,7 @@ class Labeler(object):
 
     def _save_df_to_s3(self, df, attack_id):
         self.logger.info('writing to parquet...')
-        df.write.parquet(os.path.join(self.s3_path, f'{attack_id}'))
+        df.repartition(1000).write.parquet(os.path.join(self.s3_path, f'{attack_id}'))
 
     def _save_attack(self, attack):
         self.logger.info(f'Saving attack {attack.id} to s3...')
@@ -208,7 +208,7 @@ class Labeler(object):
         attack_ips = self.spark.createDataFrame(data=[[a] for a in attack_ips],
                                                 schema=StructType([StructField("ip_attacker", StringType())]))
 
-        query = f'(select ip, target, created_at, features, stop from request_sets where ' \
+        query = f'(select * from request_sets where ' \
                 f'target = \'{attack.target}\' and ' \
                 f'stop > \'{attack.start.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp) as attack1 '
         df = self._load_request_sets(query)
@@ -242,7 +242,6 @@ class Labeler(object):
             engine.dispose()
 
     def _label(self):
-        self.logger.info('Querying  unlabeled incidents...')
         try:
             session, engine = set_up_db(self.db_config.__dict__)
         except Exception as e:
@@ -261,7 +260,6 @@ class Labeler(object):
             engine.dispose()
 
     def _save(self):
-        self.logger.info('Querying unsaved incidents...')
         try:
             session, engine = set_up_db(self.db_config.__dict__)
         except Exception as e:
