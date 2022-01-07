@@ -308,17 +308,29 @@ helm install grafana -f deployment/grafana/values-grafana.yaml bitnami/grafana
 ## Baskerville images
 * Spark image (https://levelup.gitconnected.com/spark-on-kubernetes-3d822969f85b)
 ```commandline
-wget https://archive.apache.org/dist/spark/spark-2.4.6/spark-2.4.6-bin-hadoop2.7.tgz
+wget https://archive.apache.org/dist/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
 mkdir spark
-mv spark-2.4.6-bin-hadoop2.7.tgz spark
-tar -xvzf spark-2.4.6-bin-hadoop2.7.tgz
+mv spark-2.4.7-bin-hadoop2.7.tgz spark
+cd spark
+tar -xvzf spark-2.4.7-bin-hadoop2.7.tgz
 vi ~/.profile
-export SPARK_HOME=/root/spark/spark-2.4.6-bin-hadoop2.7
+export SPARK_HOME=/root/spark/spark-2.4.7-bin-hadoop2.7
 alias spark-shell=”$SPARK_HOME/bin/spark-shell”
+cd $SPARK_HOME
+```
+modify line #23 in file 'kubernetes/dockerfiles/spark/bindings/python/Dockerfile'
+```commandline
+RUN apt install -y python3 python3-pip
+RUN pip3 install --upgrade pip setuptools && \
+    # You may install with python3 packages by using pip3.6
+    # Removed the .cache to save space
+    rm -r /root/.cache && rm -rf /var/cache/apt/*
+```
 
-$SPARK_HOME/bin/docker-image-tool.sh -r baskerville -t spark2.4.6 -p $SPARK_HOME/kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
+```commandline
+$SPARK_HOME/bin/docker-image-tool.sh -r baskerville -t spark2.4.7 -p $SPARK_HOME/kubernetes/dockerfiles/spark/bindings/python/Dockerfile build
 
-docker tag baskerville/spark-py:v2.4.6 equalitie/baskerville:spark246
+docker tag baskerville/spark-py:spark2.4.7 equalitie/baskerville:spark247
 ```
 * build Baskerville image
 ```commandline

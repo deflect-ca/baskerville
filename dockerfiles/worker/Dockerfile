@@ -4,7 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-FROM equalitie/baskerville:spark246
+FROM equalitie/baskerville:spark247
 
 USER ${spark_uid}
 
@@ -23,9 +23,12 @@ RUN git clone https://github.com/equalitie/esretriever.git
 
 WORKDIR esretriever
 RUN rm requirements.txt && \
-    echo 'pyspark==2.4.6' >> requirements.txt && \
+    echo 'pyspark==2.4.7' >> requirements.txt && \
     echo 'python-dateutil==2.7.3' >> requirements.txt && \
     echo 'requests==2.20.0' >> requirements.txt
+
+RUN apt-get update -y
+RUN apt-get install -y libpq-dev
 
 RUN pip3 install .
 WORKDIR /usr/local
