@@ -1,5 +1,5 @@
 jinja2==2.10
-# numpy==1.14.3
+numpy==1.14.3
 PyYAML==3.12
 cryptography==2.2.2
 python-geoip==1.2
@@ -7,7 +7,7 @@ python-geoip-geolite2==2015.303
 certifi==2018.4.16
 ua-parser==0.8.0
 # bokeh==0.12.16
-# pandas==0.23.0
+pandas==0.23.0
 pycountry==18.2.23
 seaborn==0.8.1
 alembic==1.0.8
