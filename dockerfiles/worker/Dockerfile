@@ -28,12 +28,16 @@ RUN rm requirements.txt && \
     echo 'requests==2.20.0' >> requirements.txt
 
 RUN apt-get update -y
-RUN apt-get install -y libpq-dev
+RUN pip install numpy
+RUN pip install pandas
 
 RUN pip3 install .
 WORKDIR /usr/local
 RUN git clone --single-branch --branch spark247 https://github.com/equalitie/baskerville.git
 WORKDIR /usr/local/baskerville
+
+RUN apt-get -y install python3-scipy
+
 RUN pip3 install -e .
 RUN mkdir -p src/baskerville/logs
 
