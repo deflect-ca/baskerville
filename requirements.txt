@@ -14,7 +14,7 @@ alembic==1.0.8
 enum34==1.1.6
 tzwhere==3.0.3
 pytz==2014.10
-sqlalchemy = 1.4.29
+sqlalchemy==1.4.29
 sqlalchemy_utils==0.38.2
 pyspark==2.4.7
 # psutil==5.4.6
