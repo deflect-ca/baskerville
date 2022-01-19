@@ -151,20 +151,23 @@ def set_up_db(conf, create=True, partition=True):
     """
     if conf.get('type') == 'postgres':
         if create:
-            try:
-                # with contextlib.suppress(ProgrammingError) as e:
-                with create_engine(
-                        get_db_connection_str(conf, default_db=True),
-                        isolation_level='AUTOCOMMIT',
-                        **conf.get('db_conn_args', {})
-                ).connect() as connection:
-                    connection.execute(f'CREATE DATABASE {conf.get("name")} if not exists')
-                    connection.execute(
-                        'CREATE CAST (VARCHAR AS JSON) '
-                        'WITHOUT FUNCTION AS IMPLICIT'
-                    )
-            except ProgrammingError:
-                pass
+            # try:
+            # with contextlib.suppress(ProgrammingError) as e:
+            with create_engine(
+                    get_db_connection_str(conf, default_db=True),
+                    isolation_level='AUTOCOMMIT',
+                    **conf.get('db_conn_args', {})
+            ).connect() as connection:
+                from sqlalchemy_utils import database_exists, create_database
+                if not database_exists(get_db_connection_str(conf, default_db=False)):
+                    create_database(get_db_connection_str(conf, default_db=False))
+                    #connection.execute(f'CREATE DATABASE {conf.get("name")} if not exists')
+                    # connection.execute(
+                    #     'CREATE CAST (VARCHAR AS JSON) '
+                    #     'WITHOUT FUNCTION AS IMPLICIT'
+                    # )
+            # except ProgrammingError:
+            #     pass
 
         engine = create_engine(
             get_db_connection_str(conf),
