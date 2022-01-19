@@ -1771,7 +1771,7 @@ class AttackDetection(Task):
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
-        hosts = self.incident_detector.get_hosts_with_incidents()
+        hosts = self.incident_detector.get_hosts_with_incidents() if self.incident_detector else []
 
         self.df = self.df.withColumn('threshold',
                                      F.when(F.col('target').isin(hosts),
@@ -1784,8 +1784,11 @@ class AttackDetection(Task):
 
         self.df = self.df.drop('threshold')
 
-
     def detect_low_rate_attack(self):
+        if not self.config.engine.low_rate_attack_enabled:
+            self.df = self.df.withColumn('low_rate_attack', 0.0)
+            return
+
         self.logger.info('Low rate attack detecting...')
         if get_dtype_for_col(self.df, 'features') == 'string':
             self.df = self.df.withColumn(

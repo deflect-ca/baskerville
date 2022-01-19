@@ -200,7 +200,7 @@ class Labeler(object):
 
     def _save_df_to_s3(self, df, attack_id):
         self.logger.info('writing to parquet...')
-        df.repartition(1000).write.parquet(os.path.join(self.s3_path, f'{attack_id}'))
+        df.repartition(10).write.parquet(os.path.join(self.s3_path, f'{attack_id}'))
 
     def _save_attack(self, attack):
         self.logger.info(f'Saving attack {attack.id} to s3...')
