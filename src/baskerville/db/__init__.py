@@ -3,11 +3,8 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
+import uuid
 
-
-import traceback
-
-import sqlalchemy
 from baskerville.db.data_partitioning import get_temporal_partitions
 
 from sqlalchemy import create_engine, text
@@ -16,7 +13,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy_utils import database_exists, create_database
 
+from baskerville.util.enums import UserCategoryEnum
+from passlib.apps import custom_app_context as pwd_context
+
 Base = declarative_base()
+
+from baskerville.db.dashboard_models import Organization, User, UserCategory
 
 defaults = {
     'mysql': 'master',
@@ -149,20 +151,23 @@ def set_up_db(conf, create=True, partition=True):
     """
     if conf.get('type') == 'postgres':
         if create:
-            try:
-                # with contextlib.suppress(ProgrammingError) as e:
-                with create_engine(
-                        get_db_connection_str(conf, default_db=True),
-                        isolation_level='AUTOCOMMIT',
-                        **conf.get('db_conn_args', {})
-                ).connect() as connection:
-                    connection.execute(f'CREATE DATABASE {conf.get("name")}')
-                    connection.execute(
-                        'CREATE CAST (VARCHAR AS JSON) '
-                        'WITHOUT FUNCTION AS IMPLICIT'
-                    )
-            except ProgrammingError:
-                pass
+            # try:
+            # with contextlib.suppress(ProgrammingError) as e:
+            with create_engine(
+                    get_db_connection_str(conf, default_db=True),
+                    isolation_level='AUTOCOMMIT',
+                    **conf.get('db_conn_args', {})
+            ).connect() as connection:
+                from sqlalchemy_utils import database_exists, create_database
+                if not database_exists(get_db_connection_str(conf, default_db=False)):
+                    create_database(get_db_connection_str(conf, default_db=False))
+                    #connection.execute(f'CREATE DATABASE {conf.get("name")} if not exists')
+                    # connection.execute(
+                    #     'CREATE CAST (VARCHAR AS JSON) '
+                    #     'WITHOUT FUNCTION AS IMPLICIT'
+                    # )
+            # except ProgrammingError:
+            #     pass
 
         engine = create_engine(
             get_db_connection_str(conf),
@@ -185,6 +190,31 @@ def set_up_db(conf, create=True, partition=True):
     Session = scoped_session(sessionmaker(bind=engine))
     Base.metadata.create_all(bind=engine)
     # session = Session()
+
+    if Session.query(Organization).count() == 0 and \
+            Session.query(User).count() == 0 and \
+            Session.query(UserCategory).count() == 0:
+        try:
+            organization = Organization()
+            organization.uuid = 'test'
+            organization.name = 'test_org'
+            category = UserCategory()
+            category.category = UserCategoryEnum.user
+            user = User()
+            user.username = 'admin'
+            user.password_hash = pwd_context.encrypt('pass')
+            user.organization = organization
+            user.category = category
+            user.email = 'email'
+            user.name = 'default_user'
+            Session.add(organization)
+            Session.add(user)
+            Session.commit()
+        except Exception as err:
+            Session.rollback()
+            raise err
+
+
 
     # create data partition
     maintenance_conf = conf.get('maintenance')

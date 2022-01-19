@@ -46,8 +46,6 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from collections import defaultdict
-
 from baskerville.models.base import BaskervilleBase
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_factory import PipelineFactory
@@ -131,7 +129,9 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
 
         # time cache
         if self.pipeline.request_set_cache and \
-                self.config.engine.metrics.performance.get('request_set_cache'):
+                self.config.engine.metrics.performance.get(
+                    'request_set_cache'
+                ):
             for f_name in self.config.engine.metrics.performance[
                 'request_set_cache'
             ]:
@@ -396,7 +396,9 @@ Sets up the pipeline and runs it.
 
         # time cache
         if self.pipeline.request_set_cache and \
-                self.config.engine.metrics.performance.get('request_set_cache'):
+                self.config.engine.metrics.performance.get(
+                    'request_set_cache'
+                ):
             for f_name in self.config.engine.metrics.performance[
                 'request_set_cache'
             ]:

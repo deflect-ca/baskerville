@@ -405,8 +405,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.spark_pipeline.add_post_groupby_columns()
 
         self.assertTrue('id_runtime' in self.spark_pipeline.logs_df.columns)
-        self.assertTrue('ip' in self.spark_pipeline.logs_df.columns)
-        self.assertTrue('target' in self.spark_pipeline.logs_df.columns)
+        self.assertTrue('client_ip' in self.spark_pipeline.logs_df.columns)
+        self.assertTrue('client_request_host' in self.spark_pipeline.logs_df.columns)
 
         columns = self.spark_pipeline.logs_df.columns
 
@@ -497,8 +497,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.spark_pipeline.add_post_groupby_columns()
 
         self.assertTrue('id_runtime' in self.spark_pipeline.logs_df.columns)
-        self.assertTrue('ip' in self.spark_pipeline.logs_df.columns)
-        self.assertTrue('target' in self.spark_pipeline.logs_df.columns)
+        self.assertTrue('client_ip' in self.spark_pipeline.logs_df.columns)
+        self.assertTrue('client_request_host' in self.spark_pipeline.logs_df.columns)
 
         columns = self.spark_pipeline.logs_df.columns
 
@@ -522,24 +522,18 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             {
                 'client_request_host': 'testhost',
                 'client_ip': '1',
-                'ip': '1',
                 'id_runtime': -1,
-                'target': 'testhost',
                 '@timestamp': datetime(2018, 1, 1, 10, 30, 10),
             }, {
                 'client_request_host': 'testhost',
                 'client_ip': '1',
-                'ip': '1',
                 'id_runtime': -1,
-                'target': 'testhost',
                 '@timestamp': datetime(2018, 1, 1, 12, 30, 10),
             },
             {
                 'client_request_host': 'other testhost',
                 'client_ip': '1',
-                'ip': '1',
                 'id_runtime': -1,
-                'target': 'testhost',
                 '@timestamp': datetime(2018, 1, 1, 12, 30, 10),
             }
         ]
@@ -547,7 +541,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.spark_pipeline.logs_df = df
 
         mock_feature = mock.MagicMock()
-        mock_feature.group_by_aggs = {'1': F.collect_set(F.col('client_ip'))}
+        mock_feature.group_by_aggs = {'1': F.collect_set(F.col('ip'))}
         mock_feature.columns = []
 
         self.spark_pipeline.feature_manager.get_active_features = mock.MagicMock()
@@ -564,7 +558,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         db_tools.get_ml_model_from_db.return_value = model_index
 
         self.spark_pipeline.initialize()
-
         self.spark_pipeline.group_by()
         grouped_df = df.groupBy('client_request_host', 'client_ip').agg(
             F.min(F.col('@timestamp')).alias('first_request'),
@@ -572,6 +565,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             F.count(F.col('@timestamp')).alias('num_requests'),
             F.collect_set(F.col('client_ip')).alias('1')
         )
+        grouped_df = grouped_df.withColumnRenamed('client_ip', 'ip'). \
+            withColumnRenamed('client_request_host', 'target')
 
         self.assertEqual(self.spark_pipeline.logs_df.count(), 2)
         self.assertTrue('1' in self.spark_pipeline.logs_df.columns)
@@ -587,24 +582,18 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             {
                 'client_request_host': 'testhost',
                 'client_ip': '1',
-                'ip': '1',
                 'id_incident': -1,
-                'target': 'testhost',
                 '@timestamp': datetime(2018, 1, 1, 10, 30, 10),
             }, {
                 'client_request_host': 'testhost',
                 'client_ip': '1',
-                'ip': '1',
                 'id_incident': -1,
-                'target': 'testhost',
                 '@timestamp': datetime(2018, 1, 1, 12, 30, 10),
             },
             {
                 'client_request_host': 'other testhost',
                 'client_ip': '1',
-                'ip': '1',
                 'id_incident': -1,
-                'target': 'testhost',
                 '@timestamp': datetime(2018, 1, 1, 12, 30, 10),
             }
         ]
@@ -631,6 +620,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             F.max(F.col('@timestamp')).alias('last_request'),
             F.count(F.col('@timestamp')).alias('num_requests'),
         )
+        grouped_df = grouped_df.withColumnRenamed('client_ip', 'ip'). \
+            withColumnRenamed('client_request_host', 'target')
 
         self.assertEqual(self.spark_pipeline.logs_df.count(), 2)
         self.assertTrue('num_requests' in self.spark_pipeline.logs_df.columns)
@@ -712,16 +703,20 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'client_request_host': 'testhost',
                 'client_ip': '1',
                 'ip': '1',
-                'id_request_set': -1,
+                'uuid_request_set': -1,
                 'id_attribute': '',
                 'id_runtime': -1,
                 'request_set_prediction': -1,
                 'prediction': -1,
+                'attack_prediction': 0,
+                'low_rate_attack': 0,
+                'challenged': 0,
                 'num_requests': 10,
                 'label': -1,
                 'request_set_length': 2,
                 'subset_count': 2,
                 'target': 'testhost',
+                'target_original': 'testhost.com',
                 'start': datetime(2018, 1, 1, 10, 30, 10),
                 'stop': datetime(2018, 1, 1, 12, 45, 10),
                 'last_request': datetime(2018, 1, 1, 12, 45, 10),
@@ -737,16 +732,20 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'client_request_host': 'other testhost',
                 'client_ip': '1',
                 'ip': '1',
-                'id_request_set': None,
+                'uuid_request_set': None,
                 'id_attribute': '',
                 'id_runtime': -1,
                 'request_set_prediction': -1,
                 'prediction': -1,
+                'attack_prediction': 0,
+                'low_rate_attack': 0,
+                'challenged': 0,
                 'score': 0.0,
                 'num_requests': 2,
                 'request_set_length': 1,
                 'subset_count': 1,
                 'target': 'other testhost',
+                'target_original': 'testhost.com',
                 'label': -1,
                 'start': datetime(2018, 1, 1, 12, 30, 10),
                 'stop': datetime(2018, 1, 1, 12, 40, 10),
@@ -777,12 +776,9 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         request_sets_df = df.select(
             RequestSet.columns
         ).withColumnRenamed(
-            'id_request_set', 'id'
-        ).withColumnRenamed(
             'request_set_prediction', 'prediction'
-        )
+        ).withColumn('created_at', F.col('stop'))
         # postgres doesn't want the id in the insert
-        request_sets_df = request_sets_df.drop('id')
 
         # # dfs are no longer accessible
         # columns = [c for c in request_sets_df.columns if c != 'features']

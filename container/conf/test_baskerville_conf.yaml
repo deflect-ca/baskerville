@@ -23,6 +23,8 @@ elastic:
     index_type: 'web_access'
 
 engine:
+  client_mode: False      # used in isac mode: whether the pipeline will run in client mode
+  id_client: 'some_id'    # used in isac mode: the unique client id - assigned by baskerville team
   storage_path: !ENV '${BASKERVILLE_ROOT}/data'
   model_id: -1             # optional: -1 load the latest
   datetime_format: '%Y-%m-%d %H:%M:%S'
@@ -83,7 +85,9 @@ engine:
 kafka:
   bootstrap_servers: !ENV '${KAFKA_HOST}'
   zookeeper: !ENV '${ZOOKEEPER_HOST}'
-  consume_topic: 'deflect.logs'
+  logs_topic: 'incoming.logs'             # which should baskerville consume
+  features_topic: 'features'              # used in isac mode: where to send the feature vectors
+  predictions_topic: 'predictions'        # used in isac mode: where to send/ listen for predictions
   consume_group: 'baskerville'
 
 spark:

@@ -23,19 +23,39 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.logConf', 'true')
     conf.set('spark.jars', spark_conf.jars)
     conf.set('spark.master', spark_conf.master)
-    conf.set("spark.hadoop.dfs.client.use.datanode.hostname", True)
+    conf.set("spark.hadoop.dfs.client.use.datanode.hostname", 'true')
+    if spark_conf.redis_host:
+        conf.set('spark.redis.host', spark_conf.redis_host)
+        conf.set('spark.redis.port', spark_conf.redis_port)
+        if spark_conf.redis_password:
+            conf.set('spark.redis.auth', spark_conf.redis_password)
 
-    if spark_conf.spark_executor_instances:
-        conf.set('spark.executor.instances',
-                 spark_conf.spark_executor_instances)
-        # conf.set('spark.streaming.dynamicAllocation.minExecutors', spark_conf.spark_executor_instances)
-    if spark_conf.spark_executor_cores:
-        conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
-    if spark_conf.spark_executor_memory:
-        conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     # todo: https://stackoverflow.com/questions/
     #  49672181/spark-streaming-dynamic-allocation-do-not-remove-executors-in-middle-of-window
     # https://medium.com/@pmatpadi/spark-streaming-dynamic-scaling-and-backpressure-in-action-6ebdbc782a69
+
+    # security
+    # https://spark.apache.org/docs/latest/security.html
+    # note that: The same secret is shared by all Spark applications and
+    # daemons in that case, which limits the security of these deployments,
+    # especially on multi-tenant clusters.
+    if spark_conf.auth_secret:
+        conf.set('spark.authenticate', 'true')
+        conf.set('spark.authenticate.secret', spark_conf.auth_secret)
+
+    if spark_conf.ssl_enabled:
+        conf.set('spark.ssl.enabled', 'true')
+        conf.set('spark.network.crypto.saslFallback', 'false')
+        conf.set('spark.network.crypto.enabled', 'true')
+        conf.set('spark.ssl.trustStore', spark_conf.ssl_truststore)
+        conf.set('spark.ssl.trustStorePassword', spark_conf.ssl_truststore_password)
+        conf.set('spark.ssl.keyStore', spark_conf.ssl_keystore)
+        conf.set('spark.ssl.keyStorePassword', spark_conf.ssl_keystore_password)
+        conf.set('spark.ssl.keyPassword', spark_conf.ssl_keypassword)
+
+        conf.set('spark.ssl.ui.enabled', spark_conf.ssl_ui_enabled)
+        conf.set('spark.ssl.standalone.enabled', spark_conf.ssl_standalone_enabled)
+        conf.set('spark.ssl.historyServer.enabled', spark_conf.ssl_history_server_enabled)
 
     # conf.set('spark.streaming.dynamicAllocation.enabled', 'true')
     conf.set('spark.streaming.unpersist', 'true')
@@ -52,7 +72,7 @@ def get_or_create_spark_session(spark_conf):
     # conf.set('spark.python.worker.memory', '1g')
     conf.set('spark.executor.logs.rolling.strategy', 'time')
     conf.set('spark.executor.logs.rolling.time.interval', 'daily')
-    # conf.set('spark.python.worker.reuse', 'true')
+    conf.set('spark.python.worker.reuse', 'true')
     conf.set('spark.ui.port', '4042')
     # conf.set('spark.python.profile', 'true')
     conf.set('spark.rdd.compress', 'true')
@@ -82,7 +102,7 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.hadoop.parquet.enable.summary-metadata', 'false')
     conf.set('spark.sql.parquet.mergeSchema', 'false')
     conf.set('spark.sql.parquet.filterPushdown', 'true')
-    conf.set(' spark.sql.hive.metastorePartitionPruning', 'true')
+    conf.set('spark.sql.hive.metastorePartitionPruning', 'true')
 
     # https://spark.apache.org/docs/latest/monitoring.html
     # To view the web UI after the app has terminated
@@ -92,11 +112,14 @@ def get_or_create_spark_session(spark_conf):
     conf.set('spark.ui.dagGraph.retainedRootRDDs', 100000)
     if not os.path.exists('/tmp/spark-events'):
         os.makedirs('/tmp/spark-events')
+        conf.set('spark.eventLog.dir', '/tmp/spark-events')
+
+    if spark_conf.spark_driver_cores:
+        conf.set('spark.driver.cores', spark_conf.spark_driver_cores)
     if spark_conf.spark_executor_cores:
         conf.set('spark.executor.cores', spark_conf.spark_executor_cores)
     if spark_conf.spark_executor_instances:
-        conf.set('spark.executor.instances',
-                 spark_conf.spark_executor_instances)
+        conf.set('spark.executor.instances', spark_conf.spark_executor_instances)
     if spark_conf.spark_executor_memory:
         conf.set('spark.executor.memory', spark_conf.spark_executor_memory)
     if spark_conf.serializer:
@@ -139,12 +162,50 @@ def get_or_create_spark_session(spark_conf):
         'spark.sql.session.timeZone', spark_conf.session_timezone
     )
     conf.set('spark.sql.shuffle.partitions', spark_conf.shuffle_partitions)
-    conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+    # conf.set('spark.sql.autoBroadcastJoinThreshold', 1024*1024*100)  # 100MB
+    # https://issues.apache.org/jira/browse/SPARK-25998
+    conf.set('spark.sql.autoBroadcastJoinThreshold', -1)  # disable
+
+    # conf.set('spark.kubernetes.memoryOverheadFactor', '0.5')
+    if spark_conf.kubernetes:
+        if spark_conf.spark_kubernetes_driver_request_cores:
+            conf.set('spark.kubernetes.driver.request.cores', spark_conf.spark_kubernetes_driver_request_cores)
+        if spark_conf.spark_kubernetes_driver_limit_cores:
+            conf.set('spark.kubernetes.driver.limit.cores', spark_conf.spark_kubernetes_driver_limit_cores)
+
+        if spark_conf.spark_kubernetes_executor_request_cores:
+            conf.set('spark.kubernetes.executor.request.cores', spark_conf.spark_kubernetes_executor_request_cores)
+        if spark_conf.spark_kubernetes_executor_limit_cores:
+            conf.set('spark.kubernetes.executor.limit.cores', spark_conf.spark_kubernetes_executor_limit_cores)
+
+        if spark_conf.spark_kubernetes_driver_memory:
+            conf.set('spark.kubernetes.driver.memory', spark_conf.spark_kubernetes_driver_memory)
+        if spark_conf.spark_kubernetes_driver_memoryOverhead:
+            conf.set('spark.kubernetes.driver.memoryOverhead', spark_conf.spark_kubernetes_driver_memoryOverhead)
+
+        if spark_conf.spark_kubernetes_executor_memory:
+            conf.set('spark.kubernetes.executor.memory', spark_conf.spark_kubernetes_executor_memory)
+        if spark_conf.spark_kubernetes_executor_memoryOverhead:
+            conf.set('spark.kubernetes.executor.memoryOverhead', spark_conf.spark_kubernetes_executor_memoryOverhead)
+
+        conf.set('spark.kubernetes.driver.pod.name', os.environ['MY_POD_NAME'])
+        conf.set('spark.driver.host', os.environ['MY_POD_IP'])
+        conf.set('spark.driver.port', 20020)
 
     spark = SparkSession.builder \
         .config(conf=conf) \
         .appName(spark_conf.app_name) \
         .getOrCreate()
+
+    if spark_conf.s3_endpoint:
+        hadoop_config = spark._jsc.hadoopConfiguration()
+        hadoop_config.set('fs.s3n.impl', 'org.apache.hadoop.fs.s3native.NativeS3FileSystem')
+        hadoop_config.set('fs.s3a.impl', 'org.apache.hadoop.fs.s3a.S3AFileSystem')
+        hadoop_config.set('fs.s3a.aws.credentials.provider', 'org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider')
+        hadoop_config.set('com.amazonaws.services.s3.enableV4', 'true')
+        hadoop_config.set('fs.s3a.endpoint', spark_conf.s3_endpoint)
+        hadoop_config.set('fs.s3a.access.key', spark_conf.s3_access_key)
+        hadoop_config.set('fs.s3a.secret.key', spark_conf.s3_secret_key)
 
     if spark_conf.log_level:
         spark.sparkContext.setLogLevel(spark_conf.log_level)

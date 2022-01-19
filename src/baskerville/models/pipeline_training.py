@@ -9,6 +9,7 @@ import os
 from collections import OrderedDict
 import json
 import pyspark
+from pyspark.sql.types import StructField, StringType
 
 from baskerville.models.config import EngineConfig, DatabaseConfig, SparkConfig
 from baskerville.spark import get_or_create_spark_session
@@ -86,8 +87,24 @@ class TrainingPipeline(PipelineBase):
         """
         self.spark = get_or_create_spark_session(self.spark_conf)
         self.model = instantiate_from_str(self.training_conf.model)
-        self.model.set_params(**self.engine_conf.training.model_parameters)
+        params = self.engine_conf.training.model_parameters
 
+        # convert a list of features to the dictionary supported by the model:
+        # {
+        #     'feature1': {'categorical': False},
+        #     'feature2': {'categorical': True, 'string': True}
+        # }
+        model_features = {}
+        for feature in params['features']:
+            features_class = self.engine_conf.all_features[feature]
+            model_features[feature] = {
+                'categorical': features_class.is_categorical(),
+                'string': features_class.spark_type() == StringType()
+            }
+        params['features'] = model_features
+
+        self.model.set_params(**params)
+        self.model.set_logger(self.logger)
         conf = self.db_conf
         conf.maintenance = None
         self.db_tools = BaskervilleDBTools(conf)
@@ -102,20 +119,32 @@ class TrainingPipeline(PipelineBase):
         transformations to get the features as a list \
         :return:
         """
-        self.data = self.load().persist(self.spark_conf.storage_level)
+        self.data = self.load()
+        # ppp.persist(self.spark_conf.storage_level)
 
-        # since features are stored as json, we need to expand them to create
-        # vectors
-        json_schema = self.spark.read.json(
-            self.data.limit(1).rdd.map(lambda row: row.features)
-        ).schema
+        if self.training_conf.max_samples_per_host:
+            counts = self.data.groupby('target').count()
+            counts = counts.withColumn('fraction', self.training_conf.max_samples_per_host / F.col('count'))
+            fractions = dict(counts.select('target', 'fraction').collect())
+            for key, value in fractions.items():
+                if value > 1.0:
+                    fractions[key] = 1.0
+            self.data = self.data.sampleBy('target', fractions, 777)
+
+        schema = self.spark.read.json(self.data.limit(1).rdd.map(lambda row: row.features)).schema
+        for feature in self.model.features:
+            if feature in schema.fieldNames():
+                continue
+            feature_class = self.engine_conf.all_features[feature]
+            schema.add(StructField(
+                name=feature,
+                dataType=feature_class.spark_type(),
+                nullable=True))
+
         self.data = self.data.withColumn(
             'features',
-            F.from_json('features', json_schema)
+            F.from_json('features', schema)
         )
-
-        # get the active feature names and transform the features to list
-        self.active_features = json_schema.fieldNames()
 
         self.training_row_n = self.data.count()
         self.logger.debug(f'Loaded #{self.training_row_n} of request sets...')
@@ -129,8 +158,6 @@ class TrainingPipeline(PipelineBase):
         # )
         :return: None
         """
-        if not self.model.features:
-            self.model.features = self.active_features
         self.model.train(self.data)
         self.data.unpersist()
 
@@ -156,6 +183,7 @@ class TrainingPipeline(PipelineBase):
         model_path = get_model_path(
             self.engine_conf.storage_path, self.model.__class__.__name__)
         self.model.save(path=model_path, spark_session=self.spark)
+        self.logger.debug(f'The new model has been saved to: {model_path}')
 
         db_model = Model()
         db_model.created_at = datetime.datetime.now(tz=tzutc())
@@ -200,33 +228,34 @@ class TrainingPipeline(PipelineBase):
         to_date = data_params.get('to_date')
         training_days = data_params.get('training_days')
 
-        if training_days:
-            to_date = datetime.datetime.utcnow()
-            from_date = str(to_date - datetime.timedelta(
-                days=training_days
-            ))
-            to_date = str(to_date)
-        if not training_days and (not from_date or not to_date):
-            raise ValueError(
-                'Please specify either from-to dates or training days'
-            )
+        if not from_date or not to_date:
+            if training_days:
+                to_date = datetime.datetime.utcnow()
+                from_date = str(to_date - datetime.timedelta(
+                    days=training_days
+                ))
+                to_date = str(to_date)
+            else:
+                raise ValueError(
+                    'Please specify either from-to dates or training days'
+                )
 
-        bounds = self.get_bounds(from_date, to_date).collect()[0]
+        bounds = self.get_bounds(from_date, to_date, field='created_at').collect()[0]
         self.logger.debug(
             f'Fetching {bounds.rows} rows. '
             f'min: {bounds.min_id} max: {bounds.max_id}'
         )
         q = f'(select id, {",".join(self.columns_to_keep)} ' \
             f'from request_sets where id >= {bounds.min_id}  ' \
-            f'and id <= {bounds.max_id} and stop >= \'{from_date}\' ' \
-            f'and stop <=\'{to_date}\') as request_sets'
+            f'and id <= {bounds.max_id} and created_at >= \'{from_date}\' ' \
+            f'and created_at <=\'{to_date}\') as request_sets'
 
         return self.spark.read.jdbc(
             url=self.db_url,
             table=q,
             numPartitions=int(self.spark.conf.get(
                 'spark.sql.shuffle.partitions'
-            )) or os.cpu_count()*2,
+            )) or os.cpu_count() * 2,
             column='id',
             lowerBound=bounds.min_id,
             upperBound=bounds.max_id + 1,

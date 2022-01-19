@@ -18,8 +18,15 @@ from tzwhere import tzwhere
 import numpy as np
 
 
-def normalize_host_name(host):
+def remove_www(host):
+    if host[:4] == 'www.':
+        host = host[4:]
+    host = host.split(':')[0]
+    host = host.lower()
+    return host
 
+
+def normalize_host_name(host):
     if host[:4] == 'www.':
         host = host[4:]
     h_split = host.replace(':', '.').split('.')
@@ -56,31 +63,33 @@ def compute_geotime(lat, lon, t, feature_default):
 
 
 def predict_dict(scaler, classifier, model_features, dict_features):
-    """
-    Scale the feature values and use the model to predict
-    :param dict[str, float] dict_features: the feature dictionary
-    :return: 0 if normal, 1 if abnormal, -1 if something went wrong
-    """
-    import numpy as np
-    import pickle
-    import json
-
-    if isinstance(dict_features, str):
-        dict_features = json.loads(dict_features)
-
-    x_test = extract_features_in_order(dict_features, model_features)
-    scaler = pickle.loads(scaler)
-    clf = pickle.loads(classifier)
-    try:
-        x_scaled = scaler.transform(x_test)
-        y = clf.decision_function(x_scaled)
-        prediction = np.sign(y)[0]
-        r = np.float32(np.absolute(y)[0])
-        return float(prediction), float(r)
-    except ValueError:
-        # traceback.print_exc()
-        print('Cannot predict:', x_test)
-        return 0, 0
+    # commented out to remove np dependency
+    return 0, 0
+    # """
+    # Scale the feature values and use the model to predict
+    # :param dict[str, float] dict_features: the feature dictionary
+    # :return: 0 if normal, 1 if abnormal, -1 if something went wrong
+    # """
+    # import numpy as np
+    # import pickle
+    # import json
+    #
+    # if isinstance(dict_features, str):
+    #     dict_features = json.loads(dict_features)
+    #
+    # x_test = extract_features_in_order(dict_features, model_features)
+    # scaler = pickle.loads(scaler)
+    # clf = pickle.loads(classifier)
+    # try:
+    #     x_scaled = scaler.transform(x_test)
+    #     y = clf.decision_function(x_scaled)
+    #     prediction = np.sign(y)[0]
+    #     r = np.float32(np.absolute(y)[0])
+    #     return float(prediction), float(r)
+    # except ValueError:
+    #     # traceback.print_exc()
+    #     print('Cannot predict:', x_test)
+    #     return 0, 0
 
 
 def delete_by(past_to_current_ids, db_conf):
@@ -244,12 +253,63 @@ def cross_reference_misp(ip, db_conf):
     return label, id_attribute
 
 
+def get_msg(row, cmd_name):
+    """
+    Constructs kafka message depending on cmd_name
+    """
+    import json
+    if 'challenge_' in cmd_name:
+        return json.dumps(
+            {'name': cmd_name, 'value': row}
+        ).encode('utf-8')
+    elif cmd_name == 'prediction_center' or 'feedback_center':
+        return json.dumps(row.asDict()).encode('utf-8')
+
+
+def send_to_kafka(
+        kafka_servers,
+        topic,
+        rows,
+        cmd_name='challenge_host',
+        id_client=None,
+        client_only=False,
+):
+    """
+    Creates a kafka producer and sends the rows one by one,
+    along with the specified command (challenge_[host, ip])
+    :returns: False if something went wrong, true otherwise
+    """
+    try:
+        from kafka import KafkaProducer
+        producer = KafkaProducer(
+            bootstrap_servers=kafka_servers,
+        )
+        for row in rows:
+            message = get_msg(row, cmd_name)
+            if not client_only:
+                producer.send(topic, get_msg(row, cmd_name))
+            if id_client:
+                producer.send(f'{topic}.{id_client}', message)
+        producer.flush()
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        return False
+    return True
+
+
+def get_msg_from_columns(row, columns):
+    import json
+    return json.dumps(dict((k, row[k]) for k in columns)).encode('utf-8')
+
+
 prediction_schema = T.StructType([
     T.StructField("prediction", T.FloatType(), False),
     T.StructField("r", T.FloatType(), False)
 ])
 
 udf_normalize_host_name = F.udf(normalize_host_name, T.StringType())
+udf_remove_www = F.udf(remove_www, T.StringType())
 udf_predict_dict = F.udf(predict_dict, prediction_schema)
 udf_compute_geotime = F.udf(compute_geotime, T.FloatType())
 udf_delete_by = F.udf(delete_by, T.BooleanType())

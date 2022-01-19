@@ -10,6 +10,7 @@
 import argparse
 import atexit
 import json
+import requests
 import os
 import time
 
@@ -21,10 +22,10 @@ from prometheus_client import start_http_server
 from baskerville import src_dir
 from baskerville.db import set_up_db
 from baskerville.db.models import Model
-from baskerville.models.anomaly_model_sklearn import AnomalyModelSklearn
 from baskerville.models.config import DatabaseConfig
 from baskerville.models.engine import BaskervilleAnalyticsEngine
 from baskerville.simulation.real_timeish_simulation import simulation
+from baskerville.util.git_helpers import git_clone
 from baskerville.util.helpers import get_logger, parse_config, \
     get_default_data_path
 
@@ -65,7 +66,7 @@ def run_simulation(conf, spark=None):
         kwargs={
             'topic_name': kafka_conf['consume_topic'],
             'sleep': engine_conf.simulation.sleep,
-            'kafka_url': kafka_conf.bootstrap_servers,
+            'kafka_url': kafka_conf.connection['bootstrap_servers']['bootstrap_servers'],
             'zookeeper_url': kafka_conf.zookeeper,
             'verbose': engine_conf.simulation.verbose,
             'spark': spark,
@@ -73,33 +74,6 @@ def run_simulation(conf, spark=None):
     )
     PROCESS_LIST.append(simulation_process)
     print('Set up Simulation...')
-
-
-def add_model_to_database(database_config):
-    """
-    Load the test model and save it in the database
-    :param dict[str, T] database_config:
-    :return:
-    """
-    global logger
-    path = os.path.join(get_default_data_path(), 'samples', 'models', 'AnomalyModel')
-    logger.info(f'Loading test model from: {path}')
-    model = AnomalyModelSklearn()
-    model.load(path=path)
-
-    db_cfg = DatabaseConfig(database_config).validate()
-    session, _ = set_up_db(db_cfg.__dict__, partition=False)
-
-    db_model = Model()
-    db_model.algorithm = 'baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn'
-    db_model.created_at = datetime.now(tz=tzutc())
-    db_model.parameters = json.dumps(model.get_params())
-    db_model.classifier = bytearray(path.encode('utf8'))
-
-    # save to db
-    session.add(db_model)
-    session.commit()
-    session.close()
 
 
 def main():
@@ -115,7 +89,7 @@ def main():
         help="Pipeline to use: es, rawlog, or kafka",
     )
     parser.add_argument(
-        "-s", "--simulate", dest="simulate",  action="store_true",
+        "-s", "--simulate", dest="simulate", action="store_true",
         help="Simulate real-time run using kafka",
     )
     parser.add_argument(
@@ -139,14 +113,20 @@ def main():
     )
 
     parser.add_argument(
-        "-t", "--testmodel", dest="test_model",
-        help="Add a test model in the models table",
-        default=False,
-        action="store_true"
+        "-cb", "--conf-branch", action="store", dest="conf_branch",
+        default=None,
+        help="Path to config file"
     )
 
     args = parser.parse_args()
-    conf = parse_config(path=args.conf_file)
+    if args.conf_file.startswith('https://raw'):
+        response = requests.get(args.conf_file)
+        conf = parse_config(path=None, data=response.content.decode("utf-8"))
+    elif args.conf_file.startswith('git@'):
+        path = git_clone(args.conf_file, branch=args.conf_branch)
+        conf = parse_config(path=os.path.join(path, f'{args.pipeline}.yaml'))
+    else:
+        conf = parse_config(path=args.conf_file)
 
     baskerville_engine = BaskervilleAnalyticsEngine(
         args.pipeline, conf, register_metrics=args.start_exporter
@@ -156,6 +136,8 @@ def main():
         logging_level=baskerville_engine.config.engine.log_level,
         output_file=baskerville_engine.config.engine.logpath
     )
+
+    logger.info(f'Postgres password={baskerville_engine.config.database.password}')
 
     # start simulation if specified
     if args.simulate:
@@ -170,15 +152,10 @@ def main():
     # start baskerville prometheus exporter if specified
     if args.start_exporter:
         if not baskerville_engine.config.engine.metrics:
-            raise RuntimeError(f'Cannot start exporter without metrics config')
+            raise RuntimeError('Cannot start exporter without metrics config')
         port = baskerville_engine.config.engine.metrics.port
         start_http_server(port)
-        logger.info(f'Starting Baskerville Exporter at '
-                    f'http://localhost:{port}')
-
-    # populate with test data if specified
-    if args.test_model:
-        add_model_to_database(conf['database'])
+        logger.info(f'Starting Baskerville Exporter at http://localhost:{port}')
 
     for p in PROCESS_LIST[::-1]:
         print(f"{p.name} starting...")

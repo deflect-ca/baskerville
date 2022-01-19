@@ -1,0 +1,4 @@
+FROM equalitie/baskerville:notebook
+
+COPY ./src /usr/local/baskerville/src
+COPY ./data/jars /usr/local/baskerville/data/jars

@@ -12,9 +12,11 @@ import os
 
 from baskerville.models.base import PipelineBase
 from baskerville.models.feature_manager import FeatureManager
-from baskerville.spark.helpers import save_df_to_table, reset_spark_storage, set_unknown_prediction
-from baskerville.spark.schemas import get_cache_schema
-from baskerville.util.helpers import TimeBucket, FOLDER_CACHE, instantiate_from_str
+from baskerville.spark.helpers import save_df_to_table, reset_spark_storage, \
+    set_unknown_prediction
+from baskerville.spark.schemas import rs_cache_schema
+from baskerville.util.helpers import TimeBucket, FOLDER_CACHE, \
+    instantiate_from_str, load_model_from_path
 from pyspark.sql import types as T, DataFrame
 
 from baskerville.spark import get_or_create_spark_session
@@ -53,7 +55,6 @@ class SparkPipelineBase(PipelineBase):
         self.request_set_cache = None
         self.spark = None
         self.tools = None
-        self.metrics_registry = None
         self.spark_conf = spark_conf
         self.data_parser = self.engine_conf.data_config.parser
         self.group_by_cols = list(set(group_by_cols))
@@ -178,6 +179,12 @@ class SparkPipelineBase(PipelineBase):
             self.model = instantiate_from_str(self.model_index.algorithm)
             self.model.load(bytes.decode(
                 self.model_index.classifier, 'utf8'), self.spark)
+            self.model.set_logger(self.logger)
+        elif self.engine_conf.model_path:
+            self.model = load_model_from_path(
+                self.engine_conf.model_path, self.spark
+            )
+            self.model.set_logger(self.logger)
         else:
             self.model = None
 
@@ -322,9 +329,9 @@ class SparkPipelineBase(PipelineBase):
         :return:
         """
         df = self.logs_df.select(
-            F.col('client_request_host').alias('target'),
-            F.col('client_ip').alias('ip'),
-        ).distinct().alias('a').persist(self.spark_conf.storage_level)
+            F.col('target'),
+            F.col('ip'),
+        ).distinct().alias('a')  # ppp.persist(self.spark_conf.storage_level)
 
         self.request_set_cache.filter_by(df)
 
@@ -345,7 +352,8 @@ class SparkPipelineBase(PipelineBase):
 
     def process_data(self):
         """
-        Splits the data into time bucket length windows and executes all the steps
+        Splits the data into time bucket length windows and executes all the
+        steps
         :return:
         """
         if self.logs_df.count() == 0:
@@ -385,9 +393,10 @@ class SparkPipelineBase(PipelineBase):
                 (F.col('timestamp') >= current_window_start) &
                 (F.col('timestamp') < current_end)
             )
-            window_df = df.where(filter_).persist(
-                self.spark_conf.storage_level
-            )
+            window_df = df.where(filter_)
+            #  ppp.persist(
+            #  self.spark_conf.storage_level
+            # )
             if not window_df.rdd.isEmpty():
                 print(f'# Request sets = {window_df.count()}')
                 yield window_df
@@ -427,10 +436,10 @@ class SparkPipelineBase(PipelineBase):
         """
 
         self.handle_missing_columns()
+        self.normalize_host_names()
         self.rename_columns()
         self.filter_columns()
         self.handle_missing_values()
-        self.normalize_host_names()
         self.add_calc_columns()
 
     def group_by(self):
@@ -438,8 +447,12 @@ class SparkPipelineBase(PipelineBase):
         Group the logs df by the given group-by columns (normally IP, host).
         :return: None
         """
+        self.logs_df = self.logs_df.withColumn('ip', F.col('client_ip'))
+        self.logs_df = self.logs_df.withColumn(
+            'target', F.col('client_request_host')
+        )
         self.logs_df = self.logs_df.groupBy(
-            *self.group_by_cols
+            'ip', 'target'
         ).agg(
             *self.group_by_aggs.values()
         )
@@ -483,8 +496,12 @@ class SparkPipelineBase(PipelineBase):
             .count()\
             .groupBy('target')\
             .pivot('prediction').agg(F.first('count'))\
-            .withColumn('challenge', challenge_decision_udf(F.col('0'), F.col('1'), F.lit(challenge_threshold)))\
-            .select(['target', 'challenge'])
+            .withColumn(
+            'challenge',
+            challenge_decision_udf(
+                F.col('0'), F.col('1'), F.lit(challenge_threshold)
+            )
+        ).select(['target', 'challenge'])
         return []
 
     def send_challenges(self, challenges):
@@ -501,7 +518,8 @@ class SparkPipelineBase(PipelineBase):
         # if not self.engine_conf.trigger_challenge:
         #     return
         #
-        # challenges = self.get_challenges(self.logs_df, self.engine_conf.challenge_threshold)
+        # challenges = self.get_challenges(self.logs_df,
+        # self.engine_conf.challenge_threshold)
         # if len(challenges):
         #     self.send_challenges(challenges)
         #     self.save_challenges_to_db(challenges)
@@ -525,10 +543,15 @@ class SparkPipelineBase(PipelineBase):
 
         # save request_sets
         self.logger.debug('Saving request_sets')
+
+        self.logs_df = self.logs_df.withColumn('created_at', F.col('stop'))
+
         self.save_df_to_table(
-            self.logs_df.select(request_set_columns),
+            self.logs_df.select(request_set_columns+['created_at']),
             RequestSet.__tablename__
         )
+        self.logs_df = self.logs_df.drop('created_at')
+
         self.refresh_cache()
 
     def refresh_cache(self):
@@ -617,7 +640,7 @@ class SparkPipelineBase(PipelineBase):
                 )  # todo: & (F.col("id_runtime") == self.runtime.id)?
             )
         else:
-            self.request_set_cache.load_empty(get_cache_schema())
+            self.request_set_cache.load_empty(rs_cache_schema)
 
         self.logger.info(f'In cache: {self.request_set_cache.count()}')
 
@@ -642,8 +665,12 @@ class SparkPipelineBase(PipelineBase):
         columns should be renamed to something else, e.g. `geo_ip_lat`
         :return:
         """
+        cols = self.logs_df.columns
         for k, v in self.feature_manager.column_renamings:
-            self.logs_df = self.logs_df.withColumnRenamed(k, v)
+            if k in cols:
+                self.logs_df = self.logs_df.withColumnRenamed(k, v)
+            else:
+                self.logs_df = self.logs_df.withColumn(v, F.col(k))
 
     def filter_columns(self):
         """
@@ -660,9 +687,6 @@ class SparkPipelineBase(PipelineBase):
         if where is not None:
             self.logs_df = self.logs_df.where(where)
 
-        # todo: metric for dropped logs
-        print(f'{self.logs_df.count()}')
-
     def handle_missing_values(self):
         self.logs_df = self.data_parser.fill_missing_values(self.logs_df)
 
@@ -675,6 +699,7 @@ class SparkPipelineBase(PipelineBase):
         """
         from baskerville.spark.udfs import udf_normalize_host_name
 
+        self.logs_df = self.logs_df.fillna({'client_request_host': ''})
         self.logs_df = self.logs_df.withColumn(
             'client_request_host',
             udf_normalize_host_name(
@@ -748,11 +773,6 @@ class SparkPipelineBase(PipelineBase):
 
         :return: None
         """
-        # todo: shouldn't this be a renaming?
-        self.logs_df = self.logs_df.withColumn('ip', F.col('client_ip'))
-        self.logs_df = self.logs_df.withColumn(
-            'target', F.col('client_request_host')
-        )
         self.add_cache_columns()
 
         for k, v in self.get_post_group_by_calculations().items():

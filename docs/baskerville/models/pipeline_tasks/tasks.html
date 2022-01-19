@@ -1,0 +1,5311 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, minimum-scale=1" name="viewport"/>
+  <meta content="pdoc 0.7.2" name="generator"/>
+  <title>
+   baskerville.models.pipeline_tasks.tasks API documentation
+  </title>
+  <meta content="" name="description"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet"/>
+  <style>
+   .flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}
+  </style>
+  <style media="screen and (min-width: 700px)">
+   @media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}
+  </style>
+  <style media="print">
+   @media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}
+  </style>
+ </head>
+ <body>
+  <main>
+   <article id="content">
+    <header>
+     <h1 class="title">
+      Module
+      <code>
+       baskerville.models.pipeline_tasks.tasks
+      </code>
+     </h1>
+    </header>
+    <section id="section-intro">
+     <details class="source">
+      <summary>
+       <span>
+        Expand source code
+       </span>
+      </summary>
+      <pre><code class="python"># Copyright (c) 2020, eQualit.ie inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+
+import datetime
+import itertools
+import json
+import os
+import traceback
+
+import pyspark
+from pyspark.sql import functions as F, types as T
+from pyspark.streaming import StreamingContext
+
+from baskerville.db.models import RequestSet
+from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask
+from baskerville.models.config import BaskervilleConfig
+from baskerville.spark.helpers import map_to_array, load_test, \
+    save_df_to_table, columns_to_dict, get_window
+from baskerville.spark.schemas import client_prediction_schema, \
+    client_prediction_input_schema
+
+# broadcasts
+TOPIC_BC = None
+KAFKA_URL_BC = None
+CLIENT_MODE_BC = None
+OUTPUT_COLS_BC = None
+
+
+class GetDataKafka(Task):
+    """
+    Retrieves data from Kafka in batches of time_bucket seconds.
+    For every batch, the configured steps are executed.
+    """
+
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+            group_by_cols=('client_request_host', 'client_ip')
+    ):
+        super().__init__(config, steps)
+        self.ssc = None
+        self.kafka_stream = None
+        self.group_by_cols = group_by_cols
+        self.data_parser = self.config.engine.data_config.parser
+        self.kafka_params = {
+            'metadata.broker.list': self.config.kafka.bootstrap_servers,
+            'auto.offset.reset': 'largest',
+            'group.id': self.config.kafka.consume_group,
+            'auto.create.topics.enable': 'true'
+        }
+        self.consume_topic = self.config.kafka.logs_topic
+
+    def initialize(self):
+        super(GetDataKafka, self).initialize()
+        self.ssc = StreamingContext(
+            self.spark.sparkContext, self.config.engine.time_bucket
+        )
+        from pyspark.streaming.kafka import KafkaUtils
+        self.kafka_stream = KafkaUtils.createDirectStream(
+            self.ssc,
+            [self.consume_topic],
+            kafkaParams=self.kafka_params,
+        )
+
+    def get_data(self):
+        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+            self.data_parser.schema
+        ).repartition(
+            *self.group_by_cols
+        ).persist(
+            self.config.spark.storage_level
+        )
+
+        self.df = load_test(
+            self.df,
+            self.config.engine.load_test,
+            self.config.spark.storage_level
+        )
+
+    def run(self):
+        self.create_runtime()
+
+        def process_subsets(time, rdd):
+            self.logger.info('Data until {}'.format(time))
+            if not rdd.isEmpty():
+                try:
+                    # set dataframe to process later on
+                    # todo: handle edge cases
+                    # todo: what happens if we have a missing column here?
+                    # todo: does the time this takes to complete affects the
+                    # kafka messages consumption?
+                    self.df = rdd
+                    self.get_data()
+                    self.remaining_steps = list(self.step_to_action.keys())
+
+                    super(GetDataKafka, self).run()
+
+                    items_to_unpersist = self.spark.sparkContext._jsc. \
+                        getPersistentRDDs().items()
+                    self.logger.debug(
+                        f'_jsc.getPersistentRDDs().items():'
+                        f'{len(items_to_unpersist)}')
+                    rdd.unpersist()
+                    del rdd
+                except Exception as e:
+                    traceback.print_exc()
+                    self.logger.error(e)
+                finally:
+                    self.reset()
+            else:
+                self.logger.info('Empty RDD...')
+
+        self.kafka_stream.foreachRDD(process_subsets)
+
+        self.ssc.start()
+        self.ssc.awaitTermination()
+        return self.df
+
+
+class GetFeatures(GetDataKafka):
+    """
+    Listens to the prediction input topic on the ISAC side
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.consume_topic = self.config.kafka.features_topic
+
+    def get_data(self):
+        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+            client_prediction_schema  # todo: dataparser.schema
+        ).persist(
+            self.config.spark.storage_level
+        )
+        json_schema = self.spark.read.json(
+            self.df.limit(1).rdd.map(lambda row: row.features)
+        ).schema
+        self.df = self.df.withColumn(
+            'features',
+            F.from_json('features', json_schema)
+        )
+
+
+class GetPredictions(GetDataKafka):
+    """
+    Listens to the prediction input topic on the client side
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.consume_topic = self.config.kafka.predictions_topic
+
+    def get_data(self):
+        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+            client_prediction_input_schema  # todo: dataparser.schema
+        ).persist(
+            self.config.spark.storage_level
+        )
+        self.df.show()
+        # json_schema = self.spark.read.json(
+        #     self.df.limit(1).rdd.map(lambda row: row.features)
+        # ).schema
+        # self.df = self.df.withColumn(
+        #     'features',
+        #     F.from_json('features', json_schema)
+        # )
+
+
+class GetDataKafkaStreaming(Task):
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.stream_df = None
+        self.kafka_params = {
+            'kafka.bootstrap.servers': self.config.bootstrap_servers,
+            'metadata.broker.list': self.config.kafka.bootstrap_servers,
+            'auto.offset.reset': 'largest',
+            'group.id': self.config.kafka.consume_group,
+            'auto.create.topics.enable': 'true',
+            'partition.assignment.strategy': 'range'
+        }
+
+    def initialize(self):
+        super(GetDataKafkaStreaming, self).initialize()
+        self.stream_df = self.spark \
+            .readStream \
+            .format("kafka") \
+            .option(
+                "kafka.bootstrap.servers",
+                self.config.kafka.bootstrap_servers
+            ).option(
+                "subscribe", self.config.kafka.predictions_topic
+            ).option(
+                "startingOffsets", "earliest"
+            )
+
+    def get_data(self):
+        self.stream_df = self.stream_df.load().selectExpr(
+            "CAST(key AS STRING)", "CAST(value AS STRING)"
+        )
+
+    def run(self):
+        self.create_runtime()
+        self.get_data()
+        self.df = self.stream_df.select(
+            F.from_json(
+                F.col("value").cast("string"),
+                client_prediction_schema
+            )
+        )
+
+        def process_row(row):
+            print(row)
+            # self.df = row
+            # self.df = super(GetDataKafkaStreaming, self).run()
+
+        self.df.writeStream.format(
+            'console'
+        ).foreach(
+            process_row
+        ).start().awaitTermination()
+
+        return self.df
+
+
+class GetDataLog(Task):
+    """
+    Reads json files.
+    """
+
+    def __init__(self, config, steps=(),
+                 group_by_cols=('client_request_host', 'client_ip'), ):
+        super().__init__(config, steps)
+        self.log_paths = self.config.engine.raw_log.paths
+        self.group_by_cols = group_by_cols
+        self.batch_i = 1
+        self.batch_n = len(self.log_paths)
+        self.current_log_path = None
+
+    def initialize(self):
+        super().initialize()
+        for step in self.steps:
+            step.initialize()
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            file_name=self.current_log_path,
+            conf=self.config.engine,
+            comment=f'batch runtime {self.batch_i} of {self.batch_n}'
+        )
+        self.logger.info('Created runtime {}'.format(self.runtime.id))
+
+    def get_data(self):
+        """
+        Gets the dataframe according to the configuration
+        :return: None
+        """
+
+        self.df = self.spark.read.json(
+            self.current_log_path
+        ).persist(
+            self.config.spark.storage_level)
+
+        self.logger.info('Got dataframe of #{} records'.format(
+            self.df.count())
+        )
+        self.df = load_test(
+            self.df,
+            self.config.engine.load_test,
+            self.config.spark.storage_level
+        )
+
+    def process_data(self):
+        """
+        Splits the data into time bucket length windows and executes all
+        the steps
+        :return:
+        """
+        if self.df.count() == 0:
+            self.logger.info('No data in to process.')
+        else:
+            for window_df in get_window(
+                    self.df, self.time_bucket, self.config.spark.storage_level
+            ):
+                self.df = window_df.repartition(
+                    *self.group_by_cols
+                ).persist(self.config.spark.storage_level)
+                self.remaining_steps = list(self.step_to_action.keys())
+                self.df = super().run()
+                self.reset()
+
+    def run(self):
+        for log in self.log_paths:
+            self.logger.info(f'Processing {log}...')
+            self.current_log_path = log
+
+            self.create_runtime()
+            self.get_data()
+            self.process_data()
+            self.reset()
+
+            self.batch_i += 1
+
+
+class GetDataPostgres(Task):
+    """
+    Reads data from RequestSet's table in Postgres - used for training
+    """
+
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+            columns_to_keep=('ip', 'target', 'created_at', 'features',)
+    ):
+        super().__init__(config, steps)
+        self.columns_to_keep = columns_to_keep
+        self.n_rows = -1
+        self.conn_properties = {
+            'user': self.config.database.user,
+            'password': self.config.database.password,
+            'driver': self.config.database.db_driver,
+        }
+
+    def get_data(self):
+        """
+        Load the data from the database into a dataframe and do the necessary
+        transformations to get the features as a list \
+        :return:
+        """
+        self.df = self.load().persist(self.config.spark.storage_level)
+
+        # since features are stored as json, we need to expand them to create
+        # vectors
+        json_schema = self.spark.read.json(
+            self.df.limit(1).rdd.map(lambda row: row.features)
+        ).schema
+        self.df = self.df.withColumn(
+            'features',
+            F.from_json('features', json_schema)
+        )
+
+        # get the active feature names and transform the features to list
+        self.active_features = json_schema.fieldNames()
+        data = map_to_array(
+            self.df,
+            'features',
+            'features',
+            self.active_features
+        ).persist(self.spark_conf.storage_level)
+        self.df.unpersist()
+        self.df = data
+        self.n_rows = self.df.count()
+        self.logger.debug(f'Loaded #{self.n_rows} of request sets...')
+        return self.df
+
+    def get_bounds(self, from_date, to_date=None, field='created_at'):
+        """
+        Get the lower and upper limit
+        :param str from_date: lower date bound
+        :param str to_date: upper date bound
+        :param str field: date field
+        :return:
+        """
+        where = f'{field}&gt;=\'{from_date}\' '
+        if to_date:
+            where += f'AND {field}&lt;=\'{to_date}\' '
+        q = f"(select min(id) as min_id, " \
+            f"max(id) as max_id, " \
+            f"count(id) as rows " \
+            f"from request_sets " \
+            f"where {where}) as bounds"
+        return self.spark.read.jdbc(
+            url=self.db_url,
+            table=q,
+            properties=self.conn_properties
+        )
+
+    def load(self, extra_filters=None) -&gt; pyspark.sql.DataFrame:
+        """
+        Loads the request_sets already in the database
+        :return:
+        :rtype: pyspark.sql.Dataframe
+        """
+        data_params = self.config.engine.training.data_parameters
+        from_date = data_params.get('from_date')
+        to_date = data_params.get('to_date')
+        training_days = data_params.get('training_days')
+
+        if training_days:
+            to_date = datetime.datetime.utcnow()
+            from_date = str(to_date - datetime.timedelta(
+                days=training_days
+            ))
+            to_date = str(to_date)
+        if not training_days and (not from_date or not to_date):
+            raise ValueError(
+                'Please specify either from-to dates or training days'
+            )
+
+        bounds = self.get_bounds(from_date, to_date).collect()[0]
+        self.logger.debug(
+            f'Fetching {bounds.rows} rows. '
+            f'min: {bounds.min_id} max: {bounds.max_id}'
+        )
+        if not bounds.min_id:
+            raise RuntimeError(
+                'No data to train. Please, check your training configuration'
+            )
+        q = f'(select id, {",".join(self.columns_to_keep)} ' \
+            f'from request_sets where id &gt;= {bounds.min_id}  ' \
+            f'and id &lt;= {bounds.max_id} and created_at &gt;= \'{from_date}\' ' \
+            f'and created_at &lt;=\'{to_date}\') as request_sets'
+
+        if not extra_filters:
+            return self.spark.read.jdbc(
+                url=self.db_url,
+                table=q,
+                numPartitions=int(self.spark.conf.get(
+                    'spark.sql.shuffle.partitions'
+                )) or os.cpu_count() * 2,
+                column='id',
+                lowerBound=bounds.min_id,
+                upperBound=bounds.max_id + 1,
+                properties=self.conn_properties
+            )
+        raise NotImplementedError('No implementation for "extra_filters"')
+
+    def run(self):
+        self.df = self.get_data()
+        self.df = super().run()
+        return self.df
+
+
+class GenerateFeatures(MLTask):
+    def __init__(
+            self,
+            config,
+            steps=(),
+    ):
+        super().__init__(config, steps)
+        self.data_parser = self.config.engine.data_config.parser
+        self.group_by_cols = list(set(
+            self.config.engine.data_config.group_by_cols
+        ))
+        self.group_by_aggs = None
+        self.post_group_by_aggs = None
+        self.columns_to_filter_by = None
+        self.drop_if_missing_filter = None
+        self.cols_to_drop = None
+
+    def initialize(self):
+        MLTask.initialize(self)
+        self.drop_if_missing_filter = self.data_parser.drop_if_missing_filter()
+
+        # gather calculations
+        self.group_by_aggs = self.get_group_by_aggs()
+        self.columns_to_filter_by = self.get_columns_to_filter_by()
+        self.cols_to_drop = set(
+            self.feature_manager.active_feature_names +
+            self.feature_manager.active_columns +
+            list(self.group_by_aggs.keys()) +
+            self.feature_manager.update_feature_cols
+        ).difference(RequestSet.columns)
+
+    def handle_missing_columns(self):
+        """
+        Check for missing columns and if any use the data parser to add them
+        and fill them with defaults, if specified in the schema.
+        :return:
+        """
+        missing = self.data_parser.check_for_missing_columns(self.df)
+        if missing:
+            self.df = self.data_parser.add_missing_columns(
+                self.df, missing
+            )
+
+    def rename_columns(self):
+        """
+        Some column names may cause issues with spark, e.g. `geo.ip.lat`, so
+        the features that use those can declare in `columns_renamed` that those
+        columns should be renamed to something else, e.g. `geo_ip_lat`
+        :return:
+        """
+        for k, v in self.feature_manager.column_renamings:
+            self.df = self.df.withColumnRenamed(k, v)
+
+    def filter_columns(self):
+        """
+        Logs df may have columns that are not necessary for the analysis,
+        filter them out to reduce the memory footprint.
+        The absolutely essential columns are the group by columns and the
+        timestamp column, or else the rest of the process will fail.
+        And of course the columns the features need, the active columns.
+        :return:None
+        """
+
+        where = self.drop_if_missing_filter
+        self.df = self.df.select(*self.columns_to_filter_by)
+        if where is not None:
+            self.df = self.df.where(where)
+
+        # todo: metric for dropped logs
+        print(f'{self.df.count()}')
+
+    def handle_missing_values(self):
+        self.df = self.data_parser.fill_missing_values(self.df)
+
+    def normalize_host_names(self):
+        """
+        From www.somedomain.tld keep somedomain
+        # todo: improve this and remove udf
+        # todo: keep original target in a separate field in db
+        :return:
+        """
+        from baskerville.spark.udfs import udf_normalize_host_name
+
+        self.df = self.df.withColumn(
+            'client_request_host',
+            udf_normalize_host_name(
+                F.col('client_request_host').cast(T.StringType())
+            )
+        )
+
+    def add_calc_columns(self):
+        """
+        Each feature needs different calculations in order to be able to
+        compute the feature value. Go through the features and apply the
+        calculations. Each calculation can occur only once, calculations
+        with the same name will be ignored.
+        :return:
+        """
+
+        self.df = self.df.withColumn(
+            '@timestamp', F.col('@timestamp').cast('timestamp')
+        )
+
+        for k, v in self.feature_manager.pre_group_by_calculations.items():
+            self.df = self.df.withColumn(
+                k, v
+            )
+
+        for f in self.feature_manager.active_features:
+            self.df = f.misc_compute(self.df)
+
+    def group_by(self):
+        """
+        Group the logs df by the given group-by columns (normally IP, host).
+        :return: None
+        """
+        self.df = self.df.groupBy(
+            *self.group_by_cols
+        ).agg(
+            *self.group_by_aggs.values()
+        )
+
+    def get_post_group_by_calculations(self):
+        """
+        Gathers the columns and computations to be performed after the grouping
+        of the data (df)
+        Basic post group by columns:
+        - `id_runtime`
+        - `time_bucket`
+        - `start`
+        - `stop`
+        - `subset_count`
+
+        if there is an ML Model defined:
+        - `model_version`
+        - `classifier`
+        - `scaler`
+        - `model_features`
+
+        Each feature can also define post group by calculations using the
+        post_group_by_calcs dict.
+
+        :return: A dictionary with the name of the result columns as keys and
+        their respective computations as values
+        :rtype: dict[string, pyspark.Column]
+        """
+        if self.post_group_by_aggs:
+            return self.post_group_by_aggs
+
+        post_group_by_columns = {
+            'id_runtime': F.lit(self.runtime.id),
+            'time_bucket': F.lit(self.time_bucket.sec),
+            'start': F.when(
+                F.col('first_ever_request').isNotNull(),
+                F.col('first_ever_request')
+            ).otherwise(F.col('first_request')),
+            'stop': F.col('last_request'),
+            'subset_count': F.when(
+                F.col('old_subset_count').isNotNull(),
+                F.col('old_subset_count')
+            ).otherwise(F.lit(0))
+        }
+
+        if self.model:
+            post_group_by_columns['model_version'] = F.lit(
+                self.model_index.id
+            )
+
+        # todo: what if a feature defines a column name that already exists?
+        # e.g. like `subset_count`
+        post_group_by_columns.update(
+            self.feature_manager.post_group_by_calculations
+        )
+
+        return post_group_by_columns
+
+    def add_post_groupby_columns(self):
+        """
+        Add extra columns after the grouping of the logs to facilitate the
+        feature extraction, prediction, and save processes
+        Extra columns:
+        * general:
+        ----------
+        - ip
+        - target
+        - id_runtime
+        - time_bucket
+        - start
+        - subset_count
+
+        * cache columns:
+        ----------------
+        - 'id',
+        - 'first_ever_request',
+        - 'old_subset_count',
+        - 'old_features',
+        - 'old_num_requests'
+
+        * model related:
+        ----------------
+        - model_version
+        - classifier
+        - scaler
+        - model_features
+
+        :return: None
+        """
+        # todo: shouldn't this be a renaming?
+        self.df = self.df.withColumn('ip', F.col('client_ip'))
+        self.df = self.df.withColumn(
+            'target', F.col('client_request_host')
+        )
+        self.df = self.service_provider.add_cache_columns(self.df)
+
+        for k, v in self.get_post_group_by_calculations().items():
+            self.df = self.df.withColumn(k, v)
+
+        self.df = self.df.drop('old_subset_count')
+
+    def feature_extraction(self):
+        """
+        For each feature compute the feature value and add it as a column in
+        the dataframe
+        :return: None
+        """
+
+        for feature in self.feature_manager.active_features:
+            self.df = feature.compute(self.df)
+
+        self.logger.info(
+            f'Number of logs after feature extraction {self.df.count()}'
+        )
+        # self.df = self.df.cache()
+
+    def remove_feature_columns(self):
+        self.df = self.df.drop(
+            *self.feature_manager.active_feature_names
+        )
+
+    def feature_update(self):
+        """
+        Update current batch's features with past features - if any - using
+        the request set cache.
+        :return:
+        """
+        # convert current features to dict since the already saved request_sets
+        # have the features as json
+        columns_to_gather = [
+            f.feature_name for f in self.feature_manager.active_features
+        ]
+        self.df = columns_to_dict(self.df, 'features', columns_to_gather)
+        self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
+        self.df.persist(self.config.spark.storage_level)
+
+        for f in self.feature_manager.updateable_active_features:
+            self.df = f.update(self.df).cache()
+
+        self.df = self.df.withColumn('features', F.create_map(
+            *list(
+                itertools.chain(
+                    *[
+                        (F.lit(f.feature_name),
+                         F.col(f.updated_feature_col_name))
+                        for f in
+                        self.feature_manager.updateable_active_features
+                    ]
+                )
+            )
+        ))
+        self.df = map_to_array(
+            self.df,
+            'features',
+            'vectorized_features',
+            self.feature_manager.active_feature_names
+        )
+        self.remove_feature_columns()
+        self.df = self.df.drop('old_features')
+
+        self.df = self.df.withColumn(
+            'subset_count',
+            F.col('subset_count') + F.lit(1)
+        )
+
+        self.df = self.df.withColumn(
+            'num_requests',
+            F.when(
+                F.col('old_num_requests') &gt; 0,
+                F.col('old_num_requests') + F.col('num_requests')
+            ).otherwise(F.col('num_requests'))
+        )
+        self.df = self.df.drop('old_num_requests')
+        diff = (F.unix_timestamp('last_request', format="YYYY-MM-DD %H:%M:%S")
+                - F.unix_timestamp(
+                    'start', format="YYYY-MM-DD %H:%M:%S")
+                ).cast('float')
+        self.df = self.df.withColumn('total_seconds', diff)
+        self.df = self.df.drop(*self.cols_to_drop)
+
+    def feature_calculation(self):
+        """
+        Add calculation cols, extract features, and update.
+        :return:
+        """
+        self.add_post_groupby_columns()
+        self.feature_extraction()
+        self.feature_update()
+
+    def get_columns_to_filter_by(self):
+        """
+        Gathers all the columns that need to be present in the dataframe
+        for the processing to complete.
+        group_by_cols: the columns to group data on
+        active_columns: the columns that the active features have declared as
+        necessary
+        timestamp_column: the time column - all logs need to have a time column
+        :return: a set of the column names that need to be present in the
+        dataframe
+        :rtype: set[str]
+        """
+        cols = self.group_by_cols + self.feature_manager.active_columns
+        cols.append(self.config.engine.data_config.timestamp_column)
+        return set(cols)
+
+    def get_group_by_aggs(self):
+        """
+        Gathers all the group by arguments:
+        basic_aggs:
+            - first_request
+            - last_request
+            - num_requests
+        column_aggs: the columns the features need for computation are gathered
+         as lists
+        feature_aggs: the columns the features need for computation
+        Priority: basic_aggs &gt; feature_aggs &gt; column_aggs
+        The basic aggs have a priority over the feature and column aggs.
+        The feature aggs have a priority over the column aggs (if a feature
+        has explicitly asked for a computation for a specific column it relies
+        upon, then the computation will be stored instead of the column
+        aggregation as list)
+
+        :return: a dictionary with the name of the group by aggregation columns
+        as keys and the respective Column aggregation as values
+        :rtype: dict[string, pyspark.Column]
+        """
+        basic_aggs = {
+            'first_request': F.min(F.col('@timestamp')).alias('first_request'),
+            'last_request': F.max(F.col('@timestamp')).alias('last_request'),
+            'num_requests': F.count(F.col('@timestamp')).alias('num_requests')
+        }
+
+        column_aggs = {
+            c: F.collect_list(F.col(c)).alias(c)
+            for c in self.feature_manager.active_columns
+        }
+
+        feature_aggs = self.feature_manager.get_feature_group_by_aggs()
+
+        basic_aggs.update(
+            {k: v for k, v in feature_aggs.items() if k not in basic_aggs}
+        )
+        basic_aggs.update(
+            {k: v for k, v in column_aggs.items() if k not in basic_aggs}
+        )
+
+        return basic_aggs
+
+    def add_ids(self):
+        self.df = self.df.withColumn(
+            'id_client', F.lit(self.config.engine.id_client)
+        ).withColumn(
+            'id_group', F.monotonically_increasing_id()
+        ).withColumn(
+            'id_group',
+            F.concat_ws(
+                '_',
+                F.col('id_client'),
+                F.col('id_group'),
+                F.col('start').cast('long').cast('string'))
+        )
+        # todo: monotonically_increasing_id guarantees uniqueness within
+        #  the current batch, this will cause conflicts with caching - use
+        # e.g. the timestamp too to avoid this
+
+    def run(self):
+        self.handle_missing_columns()
+        self.rename_columns()
+        self.filter_columns()
+        self.handle_missing_values()
+        self.normalize_host_names()
+        self.add_calc_columns()
+        self.group_by()
+        self.feature_calculation()
+        self.add_ids()
+
+        return super().run()
+
+
+class Predict(MLTask):
+    """
+    Adds prediction and score columns, given a features column
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps=()):
+        super().__init__(config, steps)
+        self._can_predict = False
+        self._is_initialized = False
+
+    def predict(self):
+        self.df = self.model.predict(self.df).drop(
+            'features_values', 'features_values_scaled'
+        )
+
+    def run(self):
+        self.predict()
+        self.df = super(Predict, self).run()
+        return self.df
+
+
+class SaveDfInPostgres(Task):
+    def __init__(
+            self,
+            config,
+            steps=(),
+            table_name=RequestSet.__tablename__,
+            json_cols=('features',),
+            mode='append'
+    ):
+        super().__init__(config, steps)
+        self.table_name = table_name
+        self.json_cols = json_cols
+        self.mode = mode
+
+    def run(self):
+        self.config.database.conn_str = self.db_url
+        save_df_to_table(
+            self.df,
+            self.table_name,
+            self.config.database.__dict__,
+            json_cols=self.json_cols,
+            storage_level=self.config.spark.storage_level,
+            mode=self.mode,
+            db_driver=self.config.spark.db_driver
+        )
+        self.df = super().run()
+        return self.df
+
+
+class Save(SaveDfInPostgres):
+    """
+    Saves dataframe in Postgres (current backend)
+    """
+
+    def run(self):
+        request_set_columns = RequestSet.columns[:]
+        not_common = {
+            'prediction', 'model_version', 'label', 'id_attribute',
+            'updated_at'
+        }.difference(self.df.columns)
+
+        for c in not_common:
+            request_set_columns.remove(c)
+
+        if self.config.engine.client_mode:
+            request_set_columns.remove('score')
+
+        if len(self.df.columns) &lt; len(request_set_columns):
+            # log and let it blow up; we need to know that we cannot save
+            self.logger.error(
+                'The input df columns are different than '
+                'the actual table columns'
+            )
+
+        # filter the logs df with the request_set columns
+        self.df = self.df.select(request_set_columns)
+        # save request_sets
+        self.logger.debug('Saving request_sets')
+        self.df = super().run()
+        self.service_provider.refresh_cache(self.df)
+        return self.df
+
+
+class CacheData(Task):
+    def __init__(
+            self,
+            config,
+            steps=(),
+            table_name=RequestSet.__tablename__,
+    ):
+        super().__init__(config, steps)
+        self.table_name = table_name
+        self.ttl = self.config.engine.ttl
+
+    def run(self):
+        self.df.write.format(
+            'org.apache.spark.sql.redis'
+        ).mode(
+            'append'
+        ).option(
+            'table', self.table_name
+        ).option(
+            'ttl', self.ttl
+        ).option(
+            'key.column', 'id_group'
+        ).save()
+        self.df = super().run()
+        return self.df
+
+
+class MergeWithCachedData(Task):
+    def __init__(
+            self,
+            config,
+            steps=(),
+            table_name=RequestSet.__tablename__,
+    ):
+        super().__init__(config, steps)
+        self.redis_df = None
+        self.table_name = table_name
+
+    def run(self):
+        self.redis_df = self.spark.read.format(
+            'org.apache.spark.sql.redis'
+        ).option(
+            'table', self.table_name
+        ).option(
+            'key.column', 'id_group'
+        ).load().alias('redis_df')
+
+        self.df = self.df.drop('features').alias('df')
+        self.df = self.redis_df.join(
+            self.df, on=['id_client', 'id_group']
+        ).drop('df.id_client', 'df.id_group')
+
+        self.df = super().run()
+        return self.df
+
+
+class SendFeatures(Task):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+            output_columns=(
+                'id_client', 'id_group', 'features', 'prediction', 'score'
+            ),
+            output_topic='',
+            client_mode=False
+    ):
+        super().__init__(config, steps)
+        self.streaming_df = None
+        self.output_columns = output_columns
+        self.output_topic = output_topic or \
+            self.config.kafka.predictions_topic
+        self.client_mode = client_mode
+
+    def initialize(self):
+        global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
+        super(SendFeatures, self).initialize()
+        TOPIC_BC = self.spark.sparkContext.broadcast(
+            self.output_topic
+        )
+        KAFKA_URL_BC = self.spark.sparkContext.broadcast(
+            self.config.kafka.bootstrap_servers
+        )
+        CLIENT_MODE_BC = self.spark.sparkContext.broadcast(
+            self.client_mode
+        )
+
+        OUTPUT_COLS_BC = self.spark.sparkContext.broadcast(
+            self.output_columns
+        )
+
+    def run(self):
+        global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
+
+        def send_to_kafka(*args):
+            from confluent_kafka import Producer
+            producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
+            topic = TOPIC_BC.value
+            if not CLIENT_MODE_BC.value:
+                topic = f'{args[0]}.{topic}'  # id_client.topic
+
+            # needs python 3.8:
+            # {f'{i=}'.split('=')[0]: i for i in args}
+            data = dict(zip(OUTPUT_COLS_BC.value, args))
+            try:
+                producer.produce(
+                    topic,
+                    json.dumps(data).encode('utf-8')
+                )
+                producer.poll(2)
+                return topic
+            except Exception:
+                traceback.print_exc()
+                return 'ERROR'
+
+        self.df = self.df.withColumn(
+            'sent',
+            F.udf(send_to_kafka, T.StringType())(
+                *self.output_columns
+            )
+        )
+        self.df.show(10, False)
+        # does no work, possible jar conflict
+        # self.df = self.df.select(
+        #         F.col('id_client').alias('key'),
+        #         F.to_json(
+        #             F.struct([self.df[x] for x in self.df.columns])
+        #         ).alias('value')
+        #     ) \
+        #     .write \
+        #     .format('kafka') \
+        #     .option('kafka.bootstrap.servers',
+        #     self.config.kafka.bootstrap_servers) \
+        #     .option('topic', self.config.kafka.prediction_reply_topic) \
+        #     .save()
+        return self.df
+
+
+class Train(Task):
+    pass
+
+
+class Evaluate(Task):
+    pass
+
+
+class ModelUpdate(MLTask):
+    pass</code></pre>
+     </details>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+    </section>
+    <section>
+     <h2 class="section-title" id="header-classes">
+      Classes
+     </h2>
+     <dl>
+      <dt id="baskerville.models.pipeline_tasks.tasks.CacheData">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          CacheData
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=(), table_name='request_sets')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class CacheData(Task):
+    def __init__(
+            self,
+            config,
+            steps=(),
+            table_name=RequestSet.__tablename__,
+    ):
+        super().__init__(config, steps)
+        self.table_name = table_name
+        self.ttl = self.config.engine.ttl
+
+    def run(self):
+        self.df.write.format(
+            'org.apache.spark.sql.redis'
+        ).mode(
+            'append'
+        ).option(
+            'table', self.table_name
+        ).option(
+            'ttl', self.ttl
+        ).option(
+            'key.column', 'id_group'
+        ).save()
+        self.df = super().run()
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.Evaluate">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Evaluate
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class Evaluate(Task):
+    pass</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          GenerateFeatures
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         A task that uses AnomalyModel, Model and FeatureManager
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class GenerateFeatures(MLTask):
+    def __init__(
+            self,
+            config,
+            steps=(),
+    ):
+        super().__init__(config, steps)
+        self.data_parser = self.config.engine.data_config.parser
+        self.group_by_cols = list(set(
+            self.config.engine.data_config.group_by_cols
+        ))
+        self.group_by_aggs = None
+        self.post_group_by_aggs = None
+        self.columns_to_filter_by = None
+        self.drop_if_missing_filter = None
+        self.cols_to_drop = None
+
+    def initialize(self):
+        MLTask.initialize(self)
+        self.drop_if_missing_filter = self.data_parser.drop_if_missing_filter()
+
+        # gather calculations
+        self.group_by_aggs = self.get_group_by_aggs()
+        self.columns_to_filter_by = self.get_columns_to_filter_by()
+        self.cols_to_drop = set(
+            self.feature_manager.active_feature_names +
+            self.feature_manager.active_columns +
+            list(self.group_by_aggs.keys()) +
+            self.feature_manager.update_feature_cols
+        ).difference(RequestSet.columns)
+
+    def handle_missing_columns(self):
+        """
+        Check for missing columns and if any use the data parser to add them
+        and fill them with defaults, if specified in the schema.
+        :return:
+        """
+        missing = self.data_parser.check_for_missing_columns(self.df)
+        if missing:
+            self.df = self.data_parser.add_missing_columns(
+                self.df, missing
+            )
+
+    def rename_columns(self):
+        """
+        Some column names may cause issues with spark, e.g. `geo.ip.lat`, so
+        the features that use those can declare in `columns_renamed` that those
+        columns should be renamed to something else, e.g. `geo_ip_lat`
+        :return:
+        """
+        for k, v in self.feature_manager.column_renamings:
+            self.df = self.df.withColumnRenamed(k, v)
+
+    def filter_columns(self):
+        """
+        Logs df may have columns that are not necessary for the analysis,
+        filter them out to reduce the memory footprint.
+        The absolutely essential columns are the group by columns and the
+        timestamp column, or else the rest of the process will fail.
+        And of course the columns the features need, the active columns.
+        :return:None
+        """
+
+        where = self.drop_if_missing_filter
+        self.df = self.df.select(*self.columns_to_filter_by)
+        if where is not None:
+            self.df = self.df.where(where)
+
+        # todo: metric for dropped logs
+        print(f'{self.df.count()}')
+
+    def handle_missing_values(self):
+        self.df = self.data_parser.fill_missing_values(self.df)
+
+    def normalize_host_names(self):
+        """
+        From www.somedomain.tld keep somedomain
+        # todo: improve this and remove udf
+        # todo: keep original target in a separate field in db
+        :return:
+        """
+        from baskerville.spark.udfs import udf_normalize_host_name
+
+        self.df = self.df.withColumn(
+            'client_request_host',
+            udf_normalize_host_name(
+                F.col('client_request_host').cast(T.StringType())
+            )
+        )
+
+    def add_calc_columns(self):
+        """
+        Each feature needs different calculations in order to be able to
+        compute the feature value. Go through the features and apply the
+        calculations. Each calculation can occur only once, calculations
+        with the same name will be ignored.
+        :return:
+        """
+
+        self.df = self.df.withColumn(
+            '@timestamp', F.col('@timestamp').cast('timestamp')
+        )
+
+        for k, v in self.feature_manager.pre_group_by_calculations.items():
+            self.df = self.df.withColumn(
+                k, v
+            )
+
+        for f in self.feature_manager.active_features:
+            self.df = f.misc_compute(self.df)
+
+    def group_by(self):
+        """
+        Group the logs df by the given group-by columns (normally IP, host).
+        :return: None
+        """
+        self.df = self.df.groupBy(
+            *self.group_by_cols
+        ).agg(
+            *self.group_by_aggs.values()
+        )
+
+    def get_post_group_by_calculations(self):
+        """
+        Gathers the columns and computations to be performed after the grouping
+        of the data (df)
+        Basic post group by columns:
+        - `id_runtime`
+        - `time_bucket`
+        - `start`
+        - `stop`
+        - `subset_count`
+
+        if there is an ML Model defined:
+        - `model_version`
+        - `classifier`
+        - `scaler`
+        - `model_features`
+
+        Each feature can also define post group by calculations using the
+        post_group_by_calcs dict.
+
+        :return: A dictionary with the name of the result columns as keys and
+        their respective computations as values
+        :rtype: dict[string, pyspark.Column]
+        """
+        if self.post_group_by_aggs:
+            return self.post_group_by_aggs
+
+        post_group_by_columns = {
+            'id_runtime': F.lit(self.runtime.id),
+            'time_bucket': F.lit(self.time_bucket.sec),
+            'start': F.when(
+                F.col('first_ever_request').isNotNull(),
+                F.col('first_ever_request')
+            ).otherwise(F.col('first_request')),
+            'stop': F.col('last_request'),
+            'subset_count': F.when(
+                F.col('old_subset_count').isNotNull(),
+                F.col('old_subset_count')
+            ).otherwise(F.lit(0))
+        }
+
+        if self.model:
+            post_group_by_columns['model_version'] = F.lit(
+                self.model_index.id
+            )
+
+        # todo: what if a feature defines a column name that already exists?
+        # e.g. like `subset_count`
+        post_group_by_columns.update(
+            self.feature_manager.post_group_by_calculations
+        )
+
+        return post_group_by_columns
+
+    def add_post_groupby_columns(self):
+        """
+        Add extra columns after the grouping of the logs to facilitate the
+        feature extraction, prediction, and save processes
+        Extra columns:
+        * general:
+        ----------
+        - ip
+        - target
+        - id_runtime
+        - time_bucket
+        - start
+        - subset_count
+
+        * cache columns:
+        ----------------
+        - 'id',
+        - 'first_ever_request',
+        - 'old_subset_count',
+        - 'old_features',
+        - 'old_num_requests'
+
+        * model related:
+        ----------------
+        - model_version
+        - classifier
+        - scaler
+        - model_features
+
+        :return: None
+        """
+        # todo: shouldn't this be a renaming?
+        self.df = self.df.withColumn('ip', F.col('client_ip'))
+        self.df = self.df.withColumn(
+            'target', F.col('client_request_host')
+        )
+        self.df = self.service_provider.add_cache_columns(self.df)
+
+        for k, v in self.get_post_group_by_calculations().items():
+            self.df = self.df.withColumn(k, v)
+
+        self.df = self.df.drop('old_subset_count')
+
+    def feature_extraction(self):
+        """
+        For each feature compute the feature value and add it as a column in
+        the dataframe
+        :return: None
+        """
+
+        for feature in self.feature_manager.active_features:
+            self.df = feature.compute(self.df)
+
+        self.logger.info(
+            f'Number of logs after feature extraction {self.df.count()}'
+        )
+        # self.df = self.df.cache()
+
+    def remove_feature_columns(self):
+        self.df = self.df.drop(
+            *self.feature_manager.active_feature_names
+        )
+
+    def feature_update(self):
+        """
+        Update current batch's features with past features - if any - using
+        the request set cache.
+        :return:
+        """
+        # convert current features to dict since the already saved request_sets
+        # have the features as json
+        columns_to_gather = [
+            f.feature_name for f in self.feature_manager.active_features
+        ]
+        self.df = columns_to_dict(self.df, 'features', columns_to_gather)
+        self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
+        self.df.persist(self.config.spark.storage_level)
+
+        for f in self.feature_manager.updateable_active_features:
+            self.df = f.update(self.df).cache()
+
+        self.df = self.df.withColumn('features', F.create_map(
+            *list(
+                itertools.chain(
+                    *[
+                        (F.lit(f.feature_name),
+                         F.col(f.updated_feature_col_name))
+                        for f in
+                        self.feature_manager.updateable_active_features
+                    ]
+                )
+            )
+        ))
+        self.df = map_to_array(
+            self.df,
+            'features',
+            'vectorized_features',
+            self.feature_manager.active_feature_names
+        )
+        self.remove_feature_columns()
+        self.df = self.df.drop('old_features')
+
+        self.df = self.df.withColumn(
+            'subset_count',
+            F.col('subset_count') + F.lit(1)
+        )
+
+        self.df = self.df.withColumn(
+            'num_requests',
+            F.when(
+                F.col('old_num_requests') &gt; 0,
+                F.col('old_num_requests') + F.col('num_requests')
+            ).otherwise(F.col('num_requests'))
+        )
+        self.df = self.df.drop('old_num_requests')
+        diff = (F.unix_timestamp('last_request', format="YYYY-MM-DD %H:%M:%S")
+                - F.unix_timestamp(
+                    'start', format="YYYY-MM-DD %H:%M:%S")
+                ).cast('float')
+        self.df = self.df.withColumn('total_seconds', diff)
+        self.df = self.df.drop(*self.cols_to_drop)
+
+    def feature_calculation(self):
+        """
+        Add calculation cols, extract features, and update.
+        :return:
+        """
+        self.add_post_groupby_columns()
+        self.feature_extraction()
+        self.feature_update()
+
+    def get_columns_to_filter_by(self):
+        """
+        Gathers all the columns that need to be present in the dataframe
+        for the processing to complete.
+        group_by_cols: the columns to group data on
+        active_columns: the columns that the active features have declared as
+        necessary
+        timestamp_column: the time column - all logs need to have a time column
+        :return: a set of the column names that need to be present in the
+        dataframe
+        :rtype: set[str]
+        """
+        cols = self.group_by_cols + self.feature_manager.active_columns
+        cols.append(self.config.engine.data_config.timestamp_column)
+        return set(cols)
+
+    def get_group_by_aggs(self):
+        """
+        Gathers all the group by arguments:
+        basic_aggs:
+            - first_request
+            - last_request
+            - num_requests
+        column_aggs: the columns the features need for computation are gathered
+         as lists
+        feature_aggs: the columns the features need for computation
+        Priority: basic_aggs &gt; feature_aggs &gt; column_aggs
+        The basic aggs have a priority over the feature and column aggs.
+        The feature aggs have a priority over the column aggs (if a feature
+        has explicitly asked for a computation for a specific column it relies
+        upon, then the computation will be stored instead of the column
+        aggregation as list)
+
+        :return: a dictionary with the name of the group by aggregation columns
+        as keys and the respective Column aggregation as values
+        :rtype: dict[string, pyspark.Column]
+        """
+        basic_aggs = {
+            'first_request': F.min(F.col('@timestamp')).alias('first_request'),
+            'last_request': F.max(F.col('@timestamp')).alias('last_request'),
+            'num_requests': F.count(F.col('@timestamp')).alias('num_requests')
+        }
+
+        column_aggs = {
+            c: F.collect_list(F.col(c)).alias(c)
+            for c in self.feature_manager.active_columns
+        }
+
+        feature_aggs = self.feature_manager.get_feature_group_by_aggs()
+
+        basic_aggs.update(
+            {k: v for k, v in feature_aggs.items() if k not in basic_aggs}
+        )
+        basic_aggs.update(
+            {k: v for k, v in column_aggs.items() if k not in basic_aggs}
+        )
+
+        return basic_aggs
+
+    def add_ids(self):
+        self.df = self.df.withColumn(
+            'id_client', F.lit(self.config.engine.id_client)
+        ).withColumn(
+            'id_group', F.monotonically_increasing_id()
+        ).withColumn(
+            'id_group',
+            F.concat_ws(
+                '_',
+                F.col('id_client'),
+                F.col('id_group'),
+                F.col('start').cast('long').cast('string'))
+        )
+        # todo: monotonically_increasing_id guarantees uniqueness within
+        #  the current batch, this will cause conflicts with caching - use
+        # e.g. the timestamp too to avoid this
+
+    def run(self):
+        self.handle_missing_columns()
+        self.rename_columns()
+        self.filter_columns()
+        self.handle_missing_values()
+        self.normalize_host_names()
+        self.add_calc_columns()
+        self.group_by()
+        self.feature_calculation()
+        self.add_ids()
+
+        return super().run()</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.MLTask" title="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+          MLTask
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.CacheTask" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask">
+          CacheTask
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_calc_columns">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            add_calc_columns
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Each feature needs different calculations in order to be able to
+compute the feature value. Go through the features and apply the
+calculations. Each calculation can occur only once, calculations
+with the same name will be ignored.
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def add_calc_columns(self):
+    """
+    Each feature needs different calculations in order to be able to
+    compute the feature value. Go through the features and apply the
+    calculations. Each calculation can occur only once, calculations
+    with the same name will be ignored.
+    :return:
+    """
+
+    self.df = self.df.withColumn(
+        '@timestamp', F.col('@timestamp').cast('timestamp')
+    )
+
+    for k, v in self.feature_manager.pre_group_by_calculations.items():
+        self.df = self.df.withColumn(
+            k, v
+        )
+
+    for f in self.feature_manager.active_features:
+        self.df = f.misc_compute(self.df)</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_ids">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            add_ids
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def add_ids(self):
+    self.df = self.df.withColumn(
+        'id_client', F.lit(self.config.engine.id_client)
+    ).withColumn(
+        'id_group', F.monotonically_increasing_id()
+    ).withColumn(
+        'id_group',
+        F.concat_ws(
+            '_',
+            F.col('id_client'),
+            F.col('id_group'),
+            F.col('start').cast('long').cast('string'))
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_post_groupby_columns">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            add_post_groupby_columns
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Add extra columns after the grouping of the logs to facilitate the
+feature extraction, prediction, and save processes
+Extra columns:
+* general:
+          </p>
+          <hr/>
+          <ul>
+           <li>
+            ip
+           </li>
+           <li>
+            target
+           </li>
+           <li>
+            id_runtime
+           </li>
+           <li>
+            time_bucket
+           </li>
+           <li>
+            start
+           </li>
+           <li>
+            subset_count
+           </li>
+          </ul>
+          <h2 id="cache-columns">
+           * cache columns:
+          </h2>
+          <ul>
+           <li>
+            'id',
+           </li>
+           <li>
+            'first_ever_request',
+           </li>
+           <li>
+            'old_subset_count',
+           </li>
+           <li>
+            'old_features',
+           </li>
+           <li>
+            'old_num_requests'
+           </li>
+          </ul>
+          <h2 id="model-related">
+           * model related:
+          </h2>
+          <ul>
+           <li>
+            model_version
+           </li>
+           <li>
+            classifier
+           </li>
+           <li>
+            scaler
+           </li>
+           <li>
+            model_features
+           </li>
+          </ul>
+          <p>
+           :return: None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def add_post_groupby_columns(self):
+    """
+    Add extra columns after the grouping of the logs to facilitate the
+    feature extraction, prediction, and save processes
+    Extra columns:
+    * general:
+    ----------
+    - ip
+    - target
+    - id_runtime
+    - time_bucket
+    - start
+    - subset_count
+
+    * cache columns:
+    ----------------
+    - 'id',
+    - 'first_ever_request',
+    - 'old_subset_count',
+    - 'old_features',
+    - 'old_num_requests'
+
+    * model related:
+    ----------------
+    - model_version
+    - classifier
+    - scaler
+    - model_features
+
+    :return: None
+    """
+    # todo: shouldn't this be a renaming?
+    self.df = self.df.withColumn('ip', F.col('client_ip'))
+    self.df = self.df.withColumn(
+        'target', F.col('client_request_host')
+    )
+    self.df = self.service_provider.add_cache_columns(self.df)
+
+    for k, v in self.get_post_group_by_calculations().items():
+        self.df = self.df.withColumn(k, v)
+
+    self.df = self.df.drop('old_subset_count')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_calculation">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            feature_calculation
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Add calculation cols, extract features, and update.
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def feature_calculation(self):
+    """
+    Add calculation cols, extract features, and update.
+    :return:
+    """
+    self.add_post_groupby_columns()
+    self.feature_extraction()
+    self.feature_update()</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_extraction">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            feature_extraction
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           For each feature compute the feature value and add it as a column in
+the dataframe
+:return: None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def feature_extraction(self):
+    """
+    For each feature compute the feature value and add it as a column in
+    the dataframe
+    :return: None
+    """
+
+    for feature in self.feature_manager.active_features:
+        self.df = feature.compute(self.df)
+
+    self.logger.info(
+        f'Number of logs after feature extraction {self.df.count()}'
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_update">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            feature_update
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Update current batch's features with past features - if any - using
+the request set cache.
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def feature_update(self):
+    """
+    Update current batch's features with past features - if any - using
+    the request set cache.
+    :return:
+    """
+    # convert current features to dict since the already saved request_sets
+    # have the features as json
+    columns_to_gather = [
+        f.feature_name for f in self.feature_manager.active_features
+    ]
+    self.df = columns_to_dict(self.df, 'features', columns_to_gather)
+    self.df = columns_to_dict(self.df, 'old_features', columns_to_gather)
+    self.df.persist(self.config.spark.storage_level)
+
+    for f in self.feature_manager.updateable_active_features:
+        self.df = f.update(self.df).cache()
+
+    self.df = self.df.withColumn('features', F.create_map(
+        *list(
+            itertools.chain(
+                *[
+                    (F.lit(f.feature_name),
+                     F.col(f.updated_feature_col_name))
+                    for f in
+                    self.feature_manager.updateable_active_features
+                ]
+            )
+        )
+    ))
+    self.df = map_to_array(
+        self.df,
+        'features',
+        'vectorized_features',
+        self.feature_manager.active_feature_names
+    )
+    self.remove_feature_columns()
+    self.df = self.df.drop('old_features')
+
+    self.df = self.df.withColumn(
+        'subset_count',
+        F.col('subset_count') + F.lit(1)
+    )
+
+    self.df = self.df.withColumn(
+        'num_requests',
+        F.when(
+            F.col('old_num_requests') &gt; 0,
+            F.col('old_num_requests') + F.col('num_requests')
+        ).otherwise(F.col('num_requests'))
+    )
+    self.df = self.df.drop('old_num_requests')
+    diff = (F.unix_timestamp('last_request', format="YYYY-MM-DD %H:%M:%S")
+            - F.unix_timestamp(
+                'start', format="YYYY-MM-DD %H:%M:%S")
+            ).cast('float')
+    self.df = self.df.withColumn('total_seconds', diff)
+    self.df = self.df.drop(*self.cols_to_drop)</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.filter_columns">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            filter_columns
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Logs df may have columns that are not necessary for the analysis,
+filter them out to reduce the memory footprint.
+The absolutely essential columns are the group by columns and the
+timestamp column, or else the rest of the process will fail.
+And of course the columns the features need, the active columns.
+:return:None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def filter_columns(self):
+    """
+    Logs df may have columns that are not necessary for the analysis,
+    filter them out to reduce the memory footprint.
+    The absolutely essential columns are the group by columns and the
+    timestamp column, or else the rest of the process will fail.
+    And of course the columns the features need, the active columns.
+    :return:None
+    """
+
+    where = self.drop_if_missing_filter
+    self.df = self.df.select(*self.columns_to_filter_by)
+    if where is not None:
+        self.df = self.df.where(where)
+
+    # todo: metric for dropped logs
+    print(f'{self.df.count()}')</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_columns_to_filter_by">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_columns_to_filter_by
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Gathers all the columns that need to be present in the dataframe
+for the processing to complete.
+group_by_cols: the columns to group data on
+active_columns: the columns that the active features have declared as
+necessary
+timestamp_column: the time column - all logs need to have a time column
+:return: a set of the column names that need to be present in the
+dataframe
+:rtype: set[str]
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_columns_to_filter_by(self):
+    """
+    Gathers all the columns that need to be present in the dataframe
+    for the processing to complete.
+    group_by_cols: the columns to group data on
+    active_columns: the columns that the active features have declared as
+    necessary
+    timestamp_column: the time column - all logs need to have a time column
+    :return: a set of the column names that need to be present in the
+    dataframe
+    :rtype: set[str]
+    """
+    cols = self.group_by_cols + self.feature_manager.active_columns
+    cols.append(self.config.engine.data_config.timestamp_column)
+    return set(cols)</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_group_by_aggs">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_group_by_aggs
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Gathers all the group by arguments:
+basic_aggs:
+- first_request
+- last_request
+- num_requests
+column_aggs: the columns the features need for computation are gathered
+as lists
+feature_aggs: the columns the features need for computation
+Priority: basic_aggs &gt; feature_aggs &gt; column_aggs
+The basic aggs have a priority over the feature and column aggs.
+The feature aggs have a priority over the column aggs (if a feature
+has explicitly asked for a computation for a specific column it relies
+upon, then the computation will be stored instead of the column
+aggregation as list)
+          </p>
+          <p>
+           :return: a dictionary with the name of the group by aggregation columns
+as keys and the respective Column aggregation as values
+:rtype: dict[string, pyspark.Column]
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_group_by_aggs(self):
+    """
+    Gathers all the group by arguments:
+    basic_aggs:
+        - first_request
+        - last_request
+        - num_requests
+    column_aggs: the columns the features need for computation are gathered
+     as lists
+    feature_aggs: the columns the features need for computation
+    Priority: basic_aggs &gt; feature_aggs &gt; column_aggs
+    The basic aggs have a priority over the feature and column aggs.
+    The feature aggs have a priority over the column aggs (if a feature
+    has explicitly asked for a computation for a specific column it relies
+    upon, then the computation will be stored instead of the column
+    aggregation as list)
+
+    :return: a dictionary with the name of the group by aggregation columns
+    as keys and the respective Column aggregation as values
+    :rtype: dict[string, pyspark.Column]
+    """
+    basic_aggs = {
+        'first_request': F.min(F.col('@timestamp')).alias('first_request'),
+        'last_request': F.max(F.col('@timestamp')).alias('last_request'),
+        'num_requests': F.count(F.col('@timestamp')).alias('num_requests')
+    }
+
+    column_aggs = {
+        c: F.collect_list(F.col(c)).alias(c)
+        for c in self.feature_manager.active_columns
+    }
+
+    feature_aggs = self.feature_manager.get_feature_group_by_aggs()
+
+    basic_aggs.update(
+        {k: v for k, v in feature_aggs.items() if k not in basic_aggs}
+    )
+    basic_aggs.update(
+        {k: v for k, v in column_aggs.items() if k not in basic_aggs}
+    )
+
+    return basic_aggs</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_post_group_by_calculations">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_post_group_by_calculations
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Gathers the columns and computations to be performed after the grouping
+of the data (df)
+Basic post group by columns:
+-
+           <code>
+            id_runtime
+           </code>
+           -
+           <code>
+            time_bucket
+           </code>
+           -
+           <code>
+            start
+           </code>
+           -
+           <code>
+            stop
+           </code>
+           -
+           <code>
+            subset_count
+           </code>
+          </p>
+          <p>
+           if there is an ML Model defined:
+-
+           <code>
+            model_version
+           </code>
+           -
+           <code>
+            classifier
+           </code>
+           -
+           <code>
+            scaler
+           </code>
+           -
+           <code>
+            model_features
+           </code>
+          </p>
+          <p>
+           Each feature can also define post group by calculations using the
+post_group_by_calcs dict.
+          </p>
+          <p>
+           :return: A dictionary with the name of the result columns as keys and
+their respective computations as values
+:rtype: dict[string, pyspark.Column]
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_post_group_by_calculations(self):
+    """
+    Gathers the columns and computations to be performed after the grouping
+    of the data (df)
+    Basic post group by columns:
+    - `id_runtime`
+    - `time_bucket`
+    - `start`
+    - `stop`
+    - `subset_count`
+
+    if there is an ML Model defined:
+    - `model_version`
+    - `classifier`
+    - `scaler`
+    - `model_features`
+
+    Each feature can also define post group by calculations using the
+    post_group_by_calcs dict.
+
+    :return: A dictionary with the name of the result columns as keys and
+    their respective computations as values
+    :rtype: dict[string, pyspark.Column]
+    """
+    if self.post_group_by_aggs:
+        return self.post_group_by_aggs
+
+    post_group_by_columns = {
+        'id_runtime': F.lit(self.runtime.id),
+        'time_bucket': F.lit(self.time_bucket.sec),
+        'start': F.when(
+            F.col('first_ever_request').isNotNull(),
+            F.col('first_ever_request')
+        ).otherwise(F.col('first_request')),
+        'stop': F.col('last_request'),
+        'subset_count': F.when(
+            F.col('old_subset_count').isNotNull(),
+            F.col('old_subset_count')
+        ).otherwise(F.lit(0))
+    }
+
+    if self.model:
+        post_group_by_columns['model_version'] = F.lit(
+            self.model_index.id
+        )
+
+    # todo: what if a feature defines a column name that already exists?
+    # e.g. like `subset_count`
+    post_group_by_columns.update(
+        self.feature_manager.post_group_by_calculations
+    )
+
+    return post_group_by_columns</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.group_by">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            group_by
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Group the logs df by the given group-by columns (normally IP, host).
+:return: None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def group_by(self):
+    """
+    Group the logs df by the given group-by columns (normally IP, host).
+    :return: None
+    """
+    self.df = self.df.groupBy(
+        *self.group_by_cols
+    ).agg(
+        *self.group_by_aggs.values()
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.handle_missing_columns">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            handle_missing_columns
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Check for missing columns and if any use the data parser to add them
+and fill them with defaults, if specified in the schema.
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def handle_missing_columns(self):
+    """
+    Check for missing columns and if any use the data parser to add them
+    and fill them with defaults, if specified in the schema.
+    :return:
+    """
+    missing = self.data_parser.check_for_missing_columns(self.df)
+    if missing:
+        self.df = self.data_parser.add_missing_columns(
+            self.df, missing
+        )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.handle_missing_values">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            handle_missing_values
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def handle_missing_values(self):
+    self.df = self.data_parser.fill_missing_values(self.df)</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    MLTask.initialize(self)
+    self.drop_if_missing_filter = self.data_parser.drop_if_missing_filter()
+
+    # gather calculations
+    self.group_by_aggs = self.get_group_by_aggs()
+    self.columns_to_filter_by = self.get_columns_to_filter_by()
+    self.cols_to_drop = set(
+        self.feature_manager.active_feature_names +
+        self.feature_manager.active_columns +
+        list(self.group_by_aggs.keys()) +
+        self.feature_manager.update_feature_cols
+    ).difference(RequestSet.columns)</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.normalize_host_names">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            normalize_host_names
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           From www.somedomain.tld keep somedomain
+          </p>
+          <h1 id="todo-improve-this-and-remove-udf">
+           todo: improve this and remove udf
+          </h1>
+          <h1 id="todo-keep-original-target-in-a-separate-field-in-db">
+           todo: keep original target in a separate field in db
+          </h1>
+          <p>
+           :return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def normalize_host_names(self):
+    """
+    From www.somedomain.tld keep somedomain
+    # todo: improve this and remove udf
+    # todo: keep original target in a separate field in db
+    :return:
+    """
+    from baskerville.spark.udfs import udf_normalize_host_name
+
+    self.df = self.df.withColumn(
+        'client_request_host',
+        udf_normalize_host_name(
+            F.col('client_request_host').cast(T.StringType())
+        )
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.remove_feature_columns">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            remove_feature_columns
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def remove_feature_columns(self):
+    self.df = self.df.drop(
+        *self.feature_manager.active_feature_names
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.rename_columns">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            rename_columns
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Some column names may cause issues with spark, e.g.
+           <code>
+            geo.ip.lat
+           </code>
+           , so
+the features that use those can declare in
+           <code>
+            columns_renamed
+           </code>
+           that those
+columns should be renamed to something else, e.g.
+           <code>
+            geo_ip_lat
+           </code>
+           :return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def rename_columns(self):
+    """
+    Some column names may cause issues with spark, e.g. `geo.ip.lat`, so
+    the features that use those can declare in `columns_renamed` that those
+    columns should be renamed to something else, e.g. `geo_ip_lat`
+    :return:
+    """
+    for k, v in self.feature_manager.column_renamings:
+        self.df = self.df.withColumnRenamed(k, v)</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.MLTask" title="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+            MLTask
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.MLTask.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.GetDataKafka">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          GetDataKafka
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=(), group_by_cols=('client_request_host', 'client_ip'))
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Retrieves data from Kafka in batches of time_bucket seconds.
+For every batch, the configured steps are executed.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class GetDataKafka(Task):
+    """
+    Retrieves data from Kafka in batches of time_bucket seconds.
+    For every batch, the configured steps are executed.
+    """
+
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+            group_by_cols=('client_request_host', 'client_ip')
+    ):
+        super().__init__(config, steps)
+        self.ssc = None
+        self.kafka_stream = None
+        self.group_by_cols = group_by_cols
+        self.data_parser = self.config.engine.data_config.parser
+        self.kafka_params = {
+            'metadata.broker.list': self.config.kafka.bootstrap_servers,
+            'auto.offset.reset': 'largest',
+            'group.id': self.config.kafka.consume_group,
+            'auto.create.topics.enable': 'true'
+        }
+        self.consume_topic = self.config.kafka.logs_topic
+
+    def initialize(self):
+        super(GetDataKafka, self).initialize()
+        self.ssc = StreamingContext(
+            self.spark.sparkContext, self.config.engine.time_bucket
+        )
+        from pyspark.streaming.kafka import KafkaUtils
+        self.kafka_stream = KafkaUtils.createDirectStream(
+            self.ssc,
+            [self.consume_topic],
+            kafkaParams=self.kafka_params,
+        )
+
+    def get_data(self):
+        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+            self.data_parser.schema
+        ).repartition(
+            *self.group_by_cols
+        ).persist(
+            self.config.spark.storage_level
+        )
+
+        self.df = load_test(
+            self.df,
+            self.config.engine.load_test,
+            self.config.spark.storage_level
+        )
+
+    def run(self):
+        self.create_runtime()
+
+        def process_subsets(time, rdd):
+            self.logger.info('Data until {}'.format(time))
+            if not rdd.isEmpty():
+                try:
+                    # set dataframe to process later on
+                    # todo: handle edge cases
+                    # todo: what happens if we have a missing column here?
+                    # todo: does the time this takes to complete affects the
+                    # kafka messages consumption?
+                    self.df = rdd
+                    self.get_data()
+                    self.remaining_steps = list(self.step_to_action.keys())
+
+                    super(GetDataKafka, self).run()
+
+                    items_to_unpersist = self.spark.sparkContext._jsc. \
+                        getPersistentRDDs().items()
+                    self.logger.debug(
+                        f'_jsc.getPersistentRDDs().items():'
+                        f'{len(items_to_unpersist)}')
+                    rdd.unpersist()
+                    del rdd
+                except Exception as e:
+                    traceback.print_exc()
+                    self.logger.error(e)
+                finally:
+                    self.reset()
+            else:
+                self.logger.info('Empty RDD...')
+
+        self.kafka_stream.foreachRDD(process_subsets)
+
+        self.ssc.start()
+        self.ssc.awaitTermination()
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks.GetFeatures" title="baskerville.models.pipeline_tasks.tasks.GetFeatures">
+          GetFeatures
+         </a>
+        </li>
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks.GetPredictions" title="baskerville.models.pipeline_tasks.tasks.GetPredictions">
+          GetPredictions
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataKafka.get_data">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_data
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_data(self):
+    self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+        self.data_parser.schema
+    ).repartition(
+        *self.group_by_cols
+    ).persist(
+        self.config.spark.storage_level
+    )
+
+    self.df = load_test(
+        self.df,
+        self.config.engine.load_test,
+        self.config.spark.storage_level
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataKafka.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    super(GetDataKafka, self).initialize()
+    self.ssc = StreamingContext(
+        self.spark.sparkContext, self.config.engine.time_bucket
+    )
+    from pyspark.streaming.kafka import KafkaUtils
+    self.kafka_stream = KafkaUtils.createDirectStream(
+        self.ssc,
+        [self.consume_topic],
+        kafkaParams=self.kafka_params,
+    )</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          GetDataKafkaStreaming
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class GetDataKafkaStreaming(Task):
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.stream_df = None
+        self.kafka_params = {
+            'kafka.bootstrap.servers': self.config.bootstrap_servers,
+            'metadata.broker.list': self.config.kafka.bootstrap_servers,
+            'auto.offset.reset': 'largest',
+            'group.id': self.config.kafka.consume_group,
+            'auto.create.topics.enable': 'true',
+            'partition.assignment.strategy': 'range'
+        }
+
+    def initialize(self):
+        super(GetDataKafkaStreaming, self).initialize()
+        self.stream_df = self.spark \
+            .readStream \
+            .format("kafka") \
+            .option(
+                "kafka.bootstrap.servers",
+                self.config.kafka.bootstrap_servers
+            ).option(
+                "subscribe", self.config.kafka.predictions_topic
+            ).option(
+                "startingOffsets", "earliest"
+            )
+
+    def get_data(self):
+        self.stream_df = self.stream_df.load().selectExpr(
+            "CAST(key AS STRING)", "CAST(value AS STRING)"
+        )
+
+    def run(self):
+        self.create_runtime()
+        self.get_data()
+        self.df = self.stream_df.select(
+            F.from_json(
+                F.col("value").cast("string"),
+                client_prediction_schema
+            )
+        )
+
+        def process_row(row):
+            print(row)
+            # self.df = row
+            # self.df = super(GetDataKafkaStreaming, self).run()
+
+        self.df.writeStream.format(
+            'console'
+        ).foreach(
+            process_row
+        ).start().awaitTermination()
+
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming.get_data">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_data
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_data(self):
+    self.stream_df = self.stream_df.load().selectExpr(
+        "CAST(key AS STRING)", "CAST(value AS STRING)"
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    super(GetDataKafkaStreaming, self).initialize()
+    self.stream_df = self.spark \
+        .readStream \
+        .format("kafka") \
+        .option(
+            "kafka.bootstrap.servers",
+            self.config.kafka.bootstrap_servers
+        ).option(
+            "subscribe", self.config.kafka.predictions_topic
+        ).option(
+            "startingOffsets", "earliest"
+        )</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.GetDataLog">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          GetDataLog
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=(), group_by_cols=('client_request_host', 'client_ip'))
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Reads json files.
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class GetDataLog(Task):
+    """
+    Reads json files.
+    """
+
+    def __init__(self, config, steps=(),
+                 group_by_cols=('client_request_host', 'client_ip'), ):
+        super().__init__(config, steps)
+        self.log_paths = self.config.engine.raw_log.paths
+        self.group_by_cols = group_by_cols
+        self.batch_i = 1
+        self.batch_n = len(self.log_paths)
+        self.current_log_path = None
+
+    def initialize(self):
+        super().initialize()
+        for step in self.steps:
+            step.initialize()
+
+    def create_runtime(self):
+        self.runtime = self.tools.create_runtime(
+            file_name=self.current_log_path,
+            conf=self.config.engine,
+            comment=f'batch runtime {self.batch_i} of {self.batch_n}'
+        )
+        self.logger.info('Created runtime {}'.format(self.runtime.id))
+
+    def get_data(self):
+        """
+        Gets the dataframe according to the configuration
+        :return: None
+        """
+
+        self.df = self.spark.read.json(
+            self.current_log_path
+        ).persist(
+            self.config.spark.storage_level)
+
+        self.logger.info('Got dataframe of #{} records'.format(
+            self.df.count())
+        )
+        self.df = load_test(
+            self.df,
+            self.config.engine.load_test,
+            self.config.spark.storage_level
+        )
+
+    def process_data(self):
+        """
+        Splits the data into time bucket length windows and executes all
+        the steps
+        :return:
+        """
+        if self.df.count() == 0:
+            self.logger.info('No data in to process.')
+        else:
+            for window_df in get_window(
+                    self.df, self.time_bucket, self.config.spark.storage_level
+            ):
+                self.df = window_df.repartition(
+                    *self.group_by_cols
+                ).persist(self.config.spark.storage_level)
+                self.remaining_steps = list(self.step_to_action.keys())
+                self.df = super().run()
+                self.reset()
+
+    def run(self):
+        for log in self.log_paths:
+            self.logger.info(f'Processing {log}...')
+            self.current_log_path = log
+
+            self.create_runtime()
+            self.get_data()
+            self.process_data()
+            self.reset()
+
+            self.batch_i += 1</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataLog.create_runtime">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            create_runtime
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def create_runtime(self):
+    self.runtime = self.tools.create_runtime(
+        file_name=self.current_log_path,
+        conf=self.config.engine,
+        comment=f'batch runtime {self.batch_i} of {self.batch_n}'
+    )
+    self.logger.info('Created runtime {}'.format(self.runtime.id))</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataLog.get_data">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_data
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Gets the dataframe according to the configuration
+:return: None
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_data(self):
+    """
+    Gets the dataframe according to the configuration
+    :return: None
+    """
+
+    self.df = self.spark.read.json(
+        self.current_log_path
+    ).persist(
+        self.config.spark.storage_level)
+
+    self.logger.info('Got dataframe of #{} records'.format(
+        self.df.count())
+    )
+    self.df = load_test(
+        self.df,
+        self.config.engine.load_test,
+        self.config.spark.storage_level
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataLog.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    super().initialize()
+    for step in self.steps:
+        step.initialize()</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataLog.process_data">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            process_data
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Splits the data into time bucket length windows and executes all
+the steps
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def process_data(self):
+    """
+    Splits the data into time bucket length windows and executes all
+    the steps
+    :return:
+    """
+    if self.df.count() == 0:
+        self.logger.info('No data in to process.')
+    else:
+        for window_df in get_window(
+                self.df, self.time_bucket, self.config.spark.storage_level
+        ):
+            self.df = window_df.repartition(
+                *self.group_by_cols
+            ).persist(self.config.spark.storage_level)
+            self.remaining_steps = list(self.step_to_action.keys())
+            self.df = super().run()
+            self.reset()</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.GetDataPostgres">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          GetDataPostgres
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=(), columns_to_keep=('ip', 'target', 'created_at', 'features'))
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Reads data from RequestSet's table in Postgres - used for training
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class GetDataPostgres(Task):
+    """
+    Reads data from RequestSet's table in Postgres - used for training
+    """
+
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+            columns_to_keep=('ip', 'target', 'created_at', 'features',)
+    ):
+        super().__init__(config, steps)
+        self.columns_to_keep = columns_to_keep
+        self.n_rows = -1
+        self.conn_properties = {
+            'user': self.config.database.user,
+            'password': self.config.database.password,
+            'driver': self.config.database.db_driver,
+        }
+
+    def get_data(self):
+        """
+        Load the data from the database into a dataframe and do the necessary
+        transformations to get the features as a list \
+        :return:
+        """
+        self.df = self.load().persist(self.config.spark.storage_level)
+
+        # since features are stored as json, we need to expand them to create
+        # vectors
+        json_schema = self.spark.read.json(
+            self.df.limit(1).rdd.map(lambda row: row.features)
+        ).schema
+        self.df = self.df.withColumn(
+            'features',
+            F.from_json('features', json_schema)
+        )
+
+        # get the active feature names and transform the features to list
+        self.active_features = json_schema.fieldNames()
+        data = map_to_array(
+            self.df,
+            'features',
+            'features',
+            self.active_features
+        ).persist(self.spark_conf.storage_level)
+        self.df.unpersist()
+        self.df = data
+        self.n_rows = self.df.count()
+        self.logger.debug(f'Loaded #{self.n_rows} of request sets...')
+        return self.df
+
+    def get_bounds(self, from_date, to_date=None, field='created_at'):
+        """
+        Get the lower and upper limit
+        :param str from_date: lower date bound
+        :param str to_date: upper date bound
+        :param str field: date field
+        :return:
+        """
+        where = f'{field}&gt;=\'{from_date}\' '
+        if to_date:
+            where += f'AND {field}&lt;=\'{to_date}\' '
+        q = f"(select min(id) as min_id, " \
+            f"max(id) as max_id, " \
+            f"count(id) as rows " \
+            f"from request_sets " \
+            f"where {where}) as bounds"
+        return self.spark.read.jdbc(
+            url=self.db_url,
+            table=q,
+            properties=self.conn_properties
+        )
+
+    def load(self, extra_filters=None) -&gt; pyspark.sql.DataFrame:
+        """
+        Loads the request_sets already in the database
+        :return:
+        :rtype: pyspark.sql.Dataframe
+        """
+        data_params = self.config.engine.training.data_parameters
+        from_date = data_params.get('from_date')
+        to_date = data_params.get('to_date')
+        training_days = data_params.get('training_days')
+
+        if training_days:
+            to_date = datetime.datetime.utcnow()
+            from_date = str(to_date - datetime.timedelta(
+                days=training_days
+            ))
+            to_date = str(to_date)
+        if not training_days and (not from_date or not to_date):
+            raise ValueError(
+                'Please specify either from-to dates or training days'
+            )
+
+        bounds = self.get_bounds(from_date, to_date).collect()[0]
+        self.logger.debug(
+            f'Fetching {bounds.rows} rows. '
+            f'min: {bounds.min_id} max: {bounds.max_id}'
+        )
+        if not bounds.min_id:
+            raise RuntimeError(
+                'No data to train. Please, check your training configuration'
+            )
+        q = f'(select id, {",".join(self.columns_to_keep)} ' \
+            f'from request_sets where id &gt;= {bounds.min_id}  ' \
+            f'and id &lt;= {bounds.max_id} and created_at &gt;= \'{from_date}\' ' \
+            f'and created_at &lt;=\'{to_date}\') as request_sets'
+
+        if not extra_filters:
+            return self.spark.read.jdbc(
+                url=self.db_url,
+                table=q,
+                numPartitions=int(self.spark.conf.get(
+                    'spark.sql.shuffle.partitions'
+                )) or os.cpu_count() * 2,
+                column='id',
+                lowerBound=bounds.min_id,
+                upperBound=bounds.max_id + 1,
+                properties=self.conn_properties
+            )
+        raise NotImplementedError('No implementation for "extra_filters"')
+
+    def run(self):
+        self.df = self.get_data()
+        self.df = super().run()
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataPostgres.get_bounds">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_bounds
+           </span>
+          </span>
+          (
+          <span>
+           self, from_date, to_date=None, field='created_at')
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Get the lower and upper limit
+:param str from_date: lower date bound
+:param str to_date: upper date bound
+:param str field: date field
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_bounds(self, from_date, to_date=None, field='created_at'):
+    """
+    Get the lower and upper limit
+    :param str from_date: lower date bound
+    :param str to_date: upper date bound
+    :param str field: date field
+    :return:
+    """
+    where = f'{field}&gt;=\'{from_date}\' '
+    if to_date:
+        where += f'AND {field}&lt;=\'{to_date}\' '
+    q = f"(select min(id) as min_id, " \
+        f"max(id) as max_id, " \
+        f"count(id) as rows " \
+        f"from request_sets " \
+        f"where {where}) as bounds"
+    return self.spark.read.jdbc(
+        url=self.db_url,
+        table=q,
+        properties=self.conn_properties
+    )</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataPostgres.get_data">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_data
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Load the data from the database into a dataframe and do the necessary
+transformations to get the features as a list
+:return:
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_data(self):
+    """
+    Load the data from the database into a dataframe and do the necessary
+    transformations to get the features as a list \
+    :return:
+    """
+    self.df = self.load().persist(self.config.spark.storage_level)
+
+    # since features are stored as json, we need to expand them to create
+    # vectors
+    json_schema = self.spark.read.json(
+        self.df.limit(1).rdd.map(lambda row: row.features)
+    ).schema
+    self.df = self.df.withColumn(
+        'features',
+        F.from_json('features', json_schema)
+    )
+
+    # get the active feature names and transform the features to list
+    self.active_features = json_schema.fieldNames()
+    data = map_to_array(
+        self.df,
+        'features',
+        'features',
+        self.active_features
+    ).persist(self.spark_conf.storage_level)
+    self.df.unpersist()
+    self.df = data
+    self.n_rows = self.df.count()
+    self.logger.debug(f'Loaded #{self.n_rows} of request sets...')
+    return self.df</code></pre>
+         </details>
+        </dd>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetDataPostgres.load">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            load
+           </span>
+          </span>
+          (
+          <span>
+           self, extra_filters=None)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+          <p>
+           Loads the request_sets already in the database
+:return:
+:rtype: pyspark.sql.Dataframe
+          </p>
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def load(self, extra_filters=None) -&gt; pyspark.sql.DataFrame:
+    """
+    Loads the request_sets already in the database
+    :return:
+    :rtype: pyspark.sql.Dataframe
+    """
+    data_params = self.config.engine.training.data_parameters
+    from_date = data_params.get('from_date')
+    to_date = data_params.get('to_date')
+    training_days = data_params.get('training_days')
+
+    if training_days:
+        to_date = datetime.datetime.utcnow()
+        from_date = str(to_date - datetime.timedelta(
+            days=training_days
+        ))
+        to_date = str(to_date)
+    if not training_days and (not from_date or not to_date):
+        raise ValueError(
+            'Please specify either from-to dates or training days'
+        )
+
+    bounds = self.get_bounds(from_date, to_date).collect()[0]
+    self.logger.debug(
+        f'Fetching {bounds.rows} rows. '
+        f'min: {bounds.min_id} max: {bounds.max_id}'
+    )
+    if not bounds.min_id:
+        raise RuntimeError(
+            'No data to train. Please, check your training configuration'
+        )
+    q = f'(select id, {",".join(self.columns_to_keep)} ' \
+        f'from request_sets where id &gt;= {bounds.min_id}  ' \
+        f'and id &lt;= {bounds.max_id} and created_at &gt;= \'{from_date}\' ' \
+        f'and created_at &lt;=\'{to_date}\') as request_sets'
+
+    if not extra_filters:
+        return self.spark.read.jdbc(
+            url=self.db_url,
+            table=q,
+            numPartitions=int(self.spark.conf.get(
+                'spark.sql.shuffle.partitions'
+            )) or os.cpu_count() * 2,
+            column='id',
+            lowerBound=bounds.min_id,
+            upperBound=bounds.max_id + 1,
+            properties=self.conn_properties
+        )
+    raise NotImplementedError('No implementation for "extra_filters"')</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.GetFeatures">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          GetFeatures
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Listens to the prediction input topic on the ISAC side
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class GetFeatures(GetDataKafka):
+    """
+    Listens to the prediction input topic on the ISAC side
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.consume_topic = self.config.kafka.features_topic
+
+    def get_data(self):
+        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+            client_prediction_schema  # todo: dataparser.schema
+        ).persist(
+            self.config.spark.storage_level
+        )
+        json_schema = self.spark.read.json(
+            self.df.limit(1).rdd.map(lambda row: row.features)
+        ).schema
+        self.df = self.df.withColumn(
+            'features',
+            F.from_json('features', json_schema)
+        )</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafka" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka">
+          GetDataKafka
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetFeatures.get_data">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_data
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_data(self):
+    self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+        client_prediction_schema  # todo: dataparser.schema
+    ).persist(
+        self.config.spark.storage_level
+    )
+    json_schema = self.spark.read.json(
+        self.df.limit(1).rdd.map(lambda row: row.features)
+    ).schema
+    self.df = self.df.withColumn(
+        'features',
+        F.from_json('features', json_schema)
+    )</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafka" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka">
+            GetDataKafka
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.GetPredictions">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          GetPredictions
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Listens to the prediction input topic on the client side
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class GetPredictions(GetDataKafka):
+    """
+    Listens to the prediction input topic on the client side
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps: list = ()):
+        super().__init__(config, steps)
+        self.consume_topic = self.config.kafka.predictions_topic
+
+    def get_data(self):
+        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+            client_prediction_input_schema  # todo: dataparser.schema
+        ).persist(
+            self.config.spark.storage_level
+        )
+        self.df.show()</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafka" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka">
+          GetDataKafka
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.GetPredictions.get_data">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            get_data
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def get_data(self):
+    self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+        client_prediction_input_schema  # todo: dataparser.schema
+    ).persist(
+        self.config.spark.storage_level
+    )
+    self.df.show()</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafka" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka">
+            GetDataKafka
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.MergeWithCachedData">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          MergeWithCachedData
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=(), table_name='request_sets')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class MergeWithCachedData(Task):
+    def __init__(
+            self,
+            config,
+            steps=(),
+            table_name=RequestSet.__tablename__,
+    ):
+        super().__init__(config, steps)
+        self.redis_df = None
+        self.table_name = table_name
+
+    def run(self):
+        self.redis_df = self.spark.read.format(
+            'org.apache.spark.sql.redis'
+        ).option(
+            'table', self.table_name
+        ).option(
+            'key.column', 'id_group'
+        ).load().alias('redis_df')
+
+        self.df = self.df.drop('features').alias('df')
+        self.df = self.redis_df.join(
+            self.df, on=['id_client', 'id_group']
+        ).drop('df.id_client', 'df.id_group')
+
+        self.df = super().run()
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.ModelUpdate">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          ModelUpdate
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         A task that uses AnomalyModel, Model and FeatureManager
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class ModelUpdate(MLTask):
+    pass</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.MLTask" title="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+          MLTask
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.CacheTask" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask">
+          CacheTask
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.MLTask" title="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+            MLTask
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.MLTask.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.Predict">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Predict
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Adds prediction and score columns, given a features column
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class Predict(MLTask):
+    """
+    Adds prediction and score columns, given a features column
+    """
+
+    def __init__(self, config: BaskervilleConfig, steps=()):
+        super().__init__(config, steps)
+        self._can_predict = False
+        self._is_initialized = False
+
+    def predict(self):
+        self.df = self.model.predict(self.df).drop(
+            'features_values', 'features_values_scaled'
+        )
+
+    def run(self):
+        self.predict()
+        self.df = super(Predict, self).run()
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.MLTask" title="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+          MLTask
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.CacheTask" title="baskerville.models.pipeline_tasks.tasks_base.CacheTask">
+          CacheTask
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.Predict.predict">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            predict
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def predict(self):
+    self.df = self.model.predict(self.df).drop(
+        'features_values', 'features_values_scaled'
+    )</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.MLTask" title="baskerville.models.pipeline_tasks.tasks_base.MLTask">
+            MLTask
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.MLTask.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.Save">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Save
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=(), table_name='request_sets', json_cols=('features',), mode='append')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Saves dataframe in Postgres (current backend)
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class Save(SaveDfInPostgres):
+    """
+    Saves dataframe in Postgres (current backend)
+    """
+
+    def run(self):
+        request_set_columns = RequestSet.columns[:]
+        not_common = {
+            'prediction', 'model_version', 'label', 'id_attribute',
+            'updated_at'
+        }.difference(self.df.columns)
+
+        for c in not_common:
+            request_set_columns.remove(c)
+
+        if self.config.engine.client_mode:
+            request_set_columns.remove('score')
+
+        if len(self.df.columns) &lt; len(request_set_columns):
+            # log and let it blow up; we need to know that we cannot save
+            self.logger.error(
+                'The input df columns are different than '
+                'the actual table columns'
+            )
+
+        # filter the logs df with the request_set columns
+        self.df = self.df.select(request_set_columns)
+        # save request_sets
+        self.logger.debug('Saving request_sets')
+        self.df = super().run()
+        self.service_provider.refresh_cache(self.df)
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres" title="baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres">
+          SaveDfInPostgres
+         </a>
+        </li>
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="#baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres" title="baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres">
+            SaveDfInPostgres
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          SaveDfInPostgres
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=(), table_name='request_sets', json_cols=('features',), mode='append')
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class SaveDfInPostgres(Task):
+    def __init__(
+            self,
+            config,
+            steps=(),
+            table_name=RequestSet.__tablename__,
+            json_cols=('features',),
+            mode='append'
+    ):
+        super().__init__(config, steps)
+        self.table_name = table_name
+        self.json_cols = json_cols
+        self.mode = mode
+
+    def run(self):
+        self.config.database.conn_str = self.db_url
+        save_df_to_table(
+            self.df,
+            self.table_name,
+            self.config.database.__dict__,
+            json_cols=self.json_cols,
+            storage_level=self.config.spark.storage_level,
+            mode=self.mode,
+            db_driver=self.config.spark.db_driver
+        )
+        self.df = super().run()
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="#baskerville.models.pipeline_tasks.tasks.Save" title="baskerville.models.pipeline_tasks.tasks.Save">
+          Save
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.SendFeatures">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          SendFeatures
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=(), output_columns=('id_client', 'id_group', 'features', 'prediction', 'score'), output_topic='', client_mode=False)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class SendFeatures(Task):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            steps: list = (),
+            output_columns=(
+                'id_client', 'id_group', 'features', 'prediction', 'score'
+            ),
+            output_topic='',
+            client_mode=False
+    ):
+        super().__init__(config, steps)
+        self.streaming_df = None
+        self.output_columns = output_columns
+        self.output_topic = output_topic or \
+            self.config.kafka.predictions_topic
+        self.client_mode = client_mode
+
+    def initialize(self):
+        global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
+        super(SendFeatures, self).initialize()
+        TOPIC_BC = self.spark.sparkContext.broadcast(
+            self.output_topic
+        )
+        KAFKA_URL_BC = self.spark.sparkContext.broadcast(
+            self.config.kafka.bootstrap_servers
+        )
+        CLIENT_MODE_BC = self.spark.sparkContext.broadcast(
+            self.client_mode
+        )
+
+        OUTPUT_COLS_BC = self.spark.sparkContext.broadcast(
+            self.output_columns
+        )
+
+    def run(self):
+        global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
+
+        def send_to_kafka(*args):
+            from confluent_kafka import Producer
+            producer = Producer({'bootstrap.servers': KAFKA_URL_BC.value})
+            topic = TOPIC_BC.value
+            if not CLIENT_MODE_BC.value:
+                topic = f'{args[0]}.{topic}'  # id_client.topic
+
+            # needs python 3.8:
+            # {f'{i=}'.split('=')[0]: i for i in args}
+            data = dict(zip(OUTPUT_COLS_BC.value, args))
+            try:
+                producer.produce(
+                    topic,
+                    json.dumps(data).encode('utf-8')
+                )
+                producer.poll(2)
+                return topic
+            except Exception:
+                traceback.print_exc()
+                return 'ERROR'
+
+        self.df = self.df.withColumn(
+            'sent',
+            F.udf(send_to_kafka, T.StringType())(
+                *self.output_columns
+            )
+        )
+        self.df.show(10, False)
+        # does no work, possible jar conflict
+        # self.df = self.df.select(
+        #         F.col('id_client').alias('key'),
+        #         F.to_json(
+        #             F.struct([self.df[x] for x in self.df.columns])
+        #         ).alias('value')
+        #     ) \
+        #     .write \
+        #     .format('kafka') \
+        #     .option('kafka.bootstrap.servers',
+        #     self.config.kafka.bootstrap_servers) \
+        #     .option('topic', self.config.kafka.prediction_reply_topic) \
+        #     .save()
+        return self.df</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Methods
+       </h3>
+       <dl>
+        <dt id="baskerville.models.pipeline_tasks.tasks.SendFeatures.initialize">
+         <code class="name flex">
+          <span>
+           def
+           <span class="ident">
+            initialize
+           </span>
+          </span>
+          (
+          <span>
+           self)
+          </span>
+         </code>
+        </dt>
+        <dd>
+         <section class="desc">
+         </section>
+         <details class="source">
+          <summary>
+           <span>
+            Expand source code
+           </span>
+          </summary>
+          <pre><code class="python">def initialize(self):
+    global TOPIC_BC, KAFKA_URL_BC, CLIENT_MODE_BC, OUTPUT_COLS_BC
+    super(SendFeatures, self).initialize()
+    TOPIC_BC = self.spark.sparkContext.broadcast(
+        self.output_topic
+    )
+    KAFKA_URL_BC = self.spark.sparkContext.broadcast(
+        self.config.kafka.bootstrap_servers
+    )
+    CLIENT_MODE_BC = self.spark.sparkContext.broadcast(
+        self.client_mode
+    )
+
+    OUTPUT_COLS_BC = self.spark.sparkContext.broadcast(
+        self.output_columns
+    )</code></pre>
+         </details>
+        </dd>
+       </dl>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+      <dt id="baskerville.models.pipeline_tasks.tasks.Train">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Train
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         config, steps=())
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class Train(Task):
+    pass</code></pre>
+       </details>
+       <h3>
+        Ancestors
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+          Task
+         </a>
+        </li>
+       </ul>
+       <h3>
+        Inherited members
+       </h3>
+       <ul class="hlist">
+        <li>
+         <code>
+          <b>
+           <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task" title="baskerville.models.pipeline_tasks.tasks_base.Task">
+            Task
+           </a>
+          </b>
+         </code>
+         :
+         <ul class="hlist">
+          <li>
+           <code>
+            <a href="tasks_base.html#baskerville.models.pipeline_tasks.tasks_base.Task.run" title="baskerville.models.pipeline_tasks.tasks_base.Task.run">
+             run
+            </a>
+           </code>
+          </li>
+         </ul>
+        </li>
+       </ul>
+      </dd>
+     </dl>
+    </section>
+   </article>
+   <nav id="sidebar">
+    <h1>
+     Index
+    </h1>
+    <div class="toc">
+     <ul>
+     </ul>
+    </div>
+    <ul id="index">
+     <li>
+      <h3>
+       Super-module
+      </h3>
+      <ul>
+       <li>
+        <code>
+         <a href="index.html" title="baskerville.models.pipeline_tasks">
+          baskerville.models.pipeline_tasks
+         </a>
+        </code>
+       </li>
+      </ul>
+     </li>
+     <li>
+      <h3>
+       <a href="#header-classes">
+        Classes
+       </a>
+      </h3>
+      <ul>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.CacheData" title="baskerville.models.pipeline_tasks.tasks.CacheData">
+           CacheData
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.Evaluate" title="baskerville.models.pipeline_tasks.tasks.Evaluate">
+           Evaluate
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures">
+           GenerateFeatures
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_calc_columns" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_calc_columns">
+            add_calc_columns
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_ids" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_ids">
+            add_ids
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_post_groupby_columns" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.add_post_groupby_columns">
+            add_post_groupby_columns
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_calculation" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_calculation">
+            feature_calculation
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_extraction" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_extraction">
+            feature_extraction
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_update" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.feature_update">
+            feature_update
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.filter_columns" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.filter_columns">
+            filter_columns
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_columns_to_filter_by" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_columns_to_filter_by">
+            get_columns_to_filter_by
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_group_by_aggs" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_group_by_aggs">
+            get_group_by_aggs
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_post_group_by_calculations" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.get_post_group_by_calculations">
+            get_post_group_by_calculations
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.group_by" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.group_by">
+            group_by
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.handle_missing_columns" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.handle_missing_columns">
+            handle_missing_columns
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.handle_missing_values" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.handle_missing_values">
+            handle_missing_values
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.initialize" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.normalize_host_names" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.normalize_host_names">
+            normalize_host_names
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.remove_feature_columns" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.remove_feature_columns">
+            remove_feature_columns
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GenerateFeatures.rename_columns" title="baskerville.models.pipeline_tasks.tasks.GenerateFeatures.rename_columns">
+            rename_columns
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafka" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka">
+           GetDataKafka
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafka.get_data" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka.get_data">
+            get_data
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafka.initialize" title="baskerville.models.pipeline_tasks.tasks.GetDataKafka.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming" title="baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming">
+           GetDataKafkaStreaming
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming.get_data" title="baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming.get_data">
+            get_data
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming.initialize" title="baskerville.models.pipeline_tasks.tasks.GetDataKafkaStreaming.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.GetDataLog" title="baskerville.models.pipeline_tasks.tasks.GetDataLog">
+           GetDataLog
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataLog.create_runtime" title="baskerville.models.pipeline_tasks.tasks.GetDataLog.create_runtime">
+            create_runtime
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataLog.get_data" title="baskerville.models.pipeline_tasks.tasks.GetDataLog.get_data">
+            get_data
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataLog.initialize" title="baskerville.models.pipeline_tasks.tasks.GetDataLog.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataLog.process_data" title="baskerville.models.pipeline_tasks.tasks.GetDataLog.process_data">
+            process_data
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.GetDataPostgres" title="baskerville.models.pipeline_tasks.tasks.GetDataPostgres">
+           GetDataPostgres
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataPostgres.get_bounds" title="baskerville.models.pipeline_tasks.tasks.GetDataPostgres.get_bounds">
+            get_bounds
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataPostgres.get_data" title="baskerville.models.pipeline_tasks.tasks.GetDataPostgres.get_data">
+            get_data
+           </a>
+          </code>
+         </li>
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetDataPostgres.load" title="baskerville.models.pipeline_tasks.tasks.GetDataPostgres.load">
+            load
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.GetFeatures" title="baskerville.models.pipeline_tasks.tasks.GetFeatures">
+           GetFeatures
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetFeatures.get_data" title="baskerville.models.pipeline_tasks.tasks.GetFeatures.get_data">
+            get_data
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.GetPredictions" title="baskerville.models.pipeline_tasks.tasks.GetPredictions">
+           GetPredictions
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.GetPredictions.get_data" title="baskerville.models.pipeline_tasks.tasks.GetPredictions.get_data">
+            get_data
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.MergeWithCachedData" title="baskerville.models.pipeline_tasks.tasks.MergeWithCachedData">
+           MergeWithCachedData
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.ModelUpdate" title="baskerville.models.pipeline_tasks.tasks.ModelUpdate">
+           ModelUpdate
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.Predict" title="baskerville.models.pipeline_tasks.tasks.Predict">
+           Predict
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.Predict.predict" title="baskerville.models.pipeline_tasks.tasks.Predict.predict">
+            predict
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.Save" title="baskerville.models.pipeline_tasks.tasks.Save">
+           Save
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres" title="baskerville.models.pipeline_tasks.tasks.SaveDfInPostgres">
+           SaveDfInPostgres
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.SendFeatures" title="baskerville.models.pipeline_tasks.tasks.SendFeatures">
+           SendFeatures
+          </a>
+         </code>
+        </h4>
+        <ul class="">
+         <li>
+          <code>
+           <a href="#baskerville.models.pipeline_tasks.tasks.SendFeatures.initialize" title="baskerville.models.pipeline_tasks.tasks.SendFeatures.initialize">
+            initialize
+           </a>
+          </code>
+         </li>
+        </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.models.pipeline_tasks.tasks.Train" title="baskerville.models.pipeline_tasks.tasks.Train">
+           Train
+          </a>
+         </code>
+        </h4>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </nav>
+  </main>
+  <footer id="footer">
+   <p>
+    Generated by
+    <a href="https://pdoc3.github.io/pdoc">
+     <cite>
+      pdoc
+     </cite>
+     0.7.2
+    </a>
+    .
+   </p>
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    <img alt="Creative Commons Licence" src="https://i.creativecommons.org/l/by/4.0/80x15.png" style="border-width:0"/>
+   </a>
+   <br/>
+   This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a
+   <a href="http://creativecommons.org/licenses/by/4.0/" rel="license">
+    Creative Commons Attribution 4.0 International License
+   </a>
+   .
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad()
+  </script>
+ </body>
+</html>

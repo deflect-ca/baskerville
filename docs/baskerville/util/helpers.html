@@ -55,6 +55,8 @@ from functools import wraps
 
 import yaml
 
+from baskerville.util.enums import ModelEnum
+
 FOLDER_MODELS = 'models'
 FOLDER_CACHE = 'cache'
 
@@ -287,9 +289,8 @@ def periods_overlap(
     :rtype: bool
     """
     if allow_closed_interval:
-        # the not overlaping check does not take equality into account
-        return not (other_start &lt; start and other_end &lt; start) and \
-            not (other_start &gt; end and other_end &gt; end)
+        # the not overlapping check does not take equality into account
+        return not (other_start &lt; start and other_end &lt; start) and not (other_start &gt; end and other_end &gt; end)
     return not (other_start &lt; start and other_end &lt;= start) and not (other_start &gt;= end and other_end &gt; end)
 
 
@@ -358,8 +359,7 @@ class SerializableMixin(object):
                 basic_attrs = {c: getattr(self, c)
                                for c in cols
                                if c not in self._remove and
-                               not c.startswith('_') and not callable(
-                    getattr(self, c))}
+                               not c.startswith('_') and not callable(getattr(self, c))}
         else:
             basic_attrs = {c: getattr(self, c)
                            for c in cols
@@ -450,7 +450,39 @@ def get_model_path(storage_path, model_name='model'):
     """
     return os.path.join(storage_path,
                         FOLDER_MODELS,
-                        f'{model_name}__{get_timestamp()}')</code></pre>
+                        f'{model_name}__{get_timestamp()}')
+
+
+def load_model_from_path(model_path, spark=None):
+    """
+    Instantiate the proper model and load from the path.
+    :param model_path: the full path to the model.
+    :param spark: The spark context. Not required for local paths.
+    :return: The instance of the loaded model
+    """
+    name = os.path.basename(model_path).split('_')[0]
+    if name not in [e.name for e in ModelEnum]:
+        raise RuntimeError(
+            f'Model path {model_path} is invalid. Model name {name} is not in {[e.name for e in ModelEnum]}')
+    model = instantiate_from_str(ModelEnum[name].value)
+    model.load(model_path, spark)
+    return model
+
+
+class Singleton(object):
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '_instance'):
+            cls._instance = super(Singleton, cls).__new__(cls)
+        return cls._instance
+
+
+class Borg(object):
+    _shared_state = {}
+
+    def __new__(cls, *args, **kwargs):
+        obj = super(Borg, cls).__new__(cls)
+        obj.__dict__ = cls._shared_state
+        return obj</code></pre>
      </details>
     </section>
     <section>
@@ -1014,6 +1046,51 @@ the class
     return num_rows</code></pre>
        </details>
       </dd>
+      <dt id="baskerville.util.helpers.load_model_from_path">
+       <code class="name flex">
+        <span>
+         def
+         <span class="ident">
+          load_model_from_path
+         </span>
+        </span>
+        (
+        <span>
+         model_path, spark=None)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+        <p>
+         Instantiate the proper model and load from the path.
+:param model_path: the full path to the model.
+:param spark: The spark context. Not required for local paths.
+:return: The instance of the loaded model
+        </p>
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">def load_model_from_path(model_path, spark=None):
+    """
+    Instantiate the proper model and load from the path.
+    :param model_path: the full path to the model.
+    :param spark: The spark context. Not required for local paths.
+    :return: The instance of the loaded model
+    """
+    name = os.path.basename(model_path).split('_')[0]
+    if name not in [e.name for e in ModelEnum]:
+        raise RuntimeError(
+            f'Model path {model_path} is invalid. Model name {name} is not in {[e.name for e in ModelEnum]}')
+    model = instantiate_from_str(ModelEnum[name].value)
+    model.load(model_path, spark)
+    return model</code></pre>
+       </details>
+      </dd>
       <dt id="baskerville.util.helpers.parse_config">
        <code class="name flex">
         <span>
@@ -1265,9 +1342,8 @@ means that they overlap at that point.
     :rtype: bool
     """
     if allow_closed_interval:
-        # the not overlaping check does not take equality into account
-        return not (other_start &lt; start and other_end &lt; start) and \
-            not (other_start &gt; end and other_end &gt; end)
+        # the not overlapping check does not take equality into account
+        return not (other_start &lt; start and other_end &lt; start) and not (other_start &gt; end and other_end &gt; end)
     return not (other_start &lt; start and other_end &lt;= start) and not (other_start &gt;= end and other_end &gt; end)</code></pre>
        </details>
       </dd>
@@ -1347,6 +1423,50 @@ lines
       Classes
      </h2>
      <dl>
+      <dt id="baskerville.util.helpers.Borg">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Borg
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class Borg(object):
+    _shared_state = {}
+
+    def __new__(cls, *args, **kwargs):
+        obj = super(Borg, cls).__new__(cls)
+        obj.__dict__ = cls._shared_state
+        return obj</code></pre>
+       </details>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="../models/pipeline_tasks/service_provider.html#baskerville.models.pipeline_tasks.service_provider.ServiceProvider" title="baskerville.models.pipeline_tasks.service_provider.ServiceProvider">
+          ServiceProvider
+         </a>
+        </li>
+       </ul>
+      </dd>
       <dt id="baskerville.util.helpers.SerializableMixin">
        <code class="flex name class">
         <span>
@@ -1395,8 +1515,7 @@ lines
                 basic_attrs = {c: getattr(self, c)
                                for c in cols
                                if c not in self._remove and
-                               not c.startswith('_') and not callable(
-                    getattr(self, c))}
+                               not c.startswith('_') and not callable(getattr(self, c))}
         else:
             basic_attrs = {c: getattr(self, c)
                            for c in cols
@@ -1505,8 +1624,7 @@ lines
             basic_attrs = {c: getattr(self, c)
                            for c in cols
                            if c not in self._remove and
-                           not c.startswith('_') and not callable(
-                getattr(self, c))}
+                           not c.startswith('_') and not callable(getattr(self, c))}
     else:
         basic_attrs = {c: getattr(self, c)
                        for c in cols
@@ -1536,6 +1654,53 @@ lines
          </details>
         </dd>
        </dl>
+      </dd>
+      <dt id="baskerville.util.helpers.Singleton">
+       <code class="flex name class">
+        <span>
+         class
+         <span class="ident">
+          Singleton
+         </span>
+        </span>
+        <span>
+         (
+        </span>
+        <span>
+         *args, **kwargs)
+        </span>
+       </code>
+      </dt>
+      <dd>
+       <section class="desc">
+       </section>
+       <details class="source">
+        <summary>
+         <span>
+          Expand source code
+         </span>
+        </summary>
+        <pre><code class="python">class Singleton(object):
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '_instance'):
+            cls._instance = super(Singleton, cls).__new__(cls)
+        return cls._instance</code></pre>
+       </details>
+       <h3>
+        Subclasses
+       </h3>
+       <ul class="hlist">
+        <li>
+         <a href="../models/metrics/registry.html#baskerville.models.metrics.registry.MetricsRegistry" title="baskerville.models.metrics.registry.MetricsRegistry">
+          MetricsRegistry
+         </a>
+        </li>
+        <li>
+         <a href="../models/request_set_cache.html#baskerville.models.request_set_cache.RequestSetSparkCache" title="baskerville.models.request_set_cache.RequestSetSparkCache">
+          RequestSetSparkCache
+         </a>
+        </li>
+       </ul>
       </dd>
       <dt id="baskerville.util.helpers.TimeBucket">
        <code class="flex name class">
@@ -1758,6 +1923,13 @@ def td(self):
        </li>
        <li>
         <code>
+         <a href="#baskerville.util.helpers.load_model_from_path" title="baskerville.util.helpers.load_model_from_path">
+          load_model_from_path
+         </a>
+        </code>
+       </li>
+       <li>
+        <code>
          <a href="#baskerville.util.helpers.parse_config" title="baskerville.util.helpers.parse_config">
           parse_config
          </a>
@@ -1789,6 +1961,15 @@ def td(self):
        <li>
         <h4>
          <code>
+          <a href="#baskerville.util.helpers.Borg" title="baskerville.util.helpers.Borg">
+           Borg
+          </a>
+         </code>
+        </h4>
+       </li>
+       <li>
+        <h4>
+         <code>
           <a href="#baskerville.util.helpers.SerializableMixin" title="baskerville.util.helpers.SerializableMixin">
            SerializableMixin
           </a>
@@ -1803,6 +1984,15 @@ def td(self):
           </code>
          </li>
         </ul>
+       </li>
+       <li>
+        <h4>
+         <code>
+          <a href="#baskerville.util.helpers.Singleton" title="baskerville.util.helpers.Singleton">
+           Singleton
+          </a>
+         </code>
+        </h4>
        </li>
        <li>
         <h4>

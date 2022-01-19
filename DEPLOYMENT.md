@@ -201,7 +201,7 @@ Follow an [example...](https://unix.stackexchange.com/questions/332641/how-to-in
 ```
 wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz
 tar xvf Python-3.6.6.tgz
-cd Python-3.6.9
+cd Python-3.6.6
 ./configure --enable-optimizations --enable-shared --prefix=/usr/local LDFLAGS="-Wl,-rpath /usr/local/lib" --with-ensurepip=install
 make -j8
 sudo make altinstall
@@ -462,6 +462,11 @@ docker service create \
 	newnius/docker-proxy
 ``` 
 
+## Alternative single node Hadoop cluster for Server 1 
+* follow the [procedure](https://www.digitalvidya.com/blog/ubuntu/)
+* make sure "" in .profile are correct characters
+* export HADOOP_CONF_DIR=/etc/hadoop/conf + same in /etc/hadoop/hadoop-env.sh
+
 ## Common Spark requirements for Server 1 and 2
 * install [spark](https://www.programcreek.com/2018/11/install-spark-on-ubuntu-standalone-mode)
 ```
@@ -514,6 +519,7 @@ slave2
 ```
 spark-shell --master spark://server1_ip:7077
 ```
+* Confirm Spark UI is up at `http://server1_ip:8080/`
 
 ## Baskerville for Server 1 and Server 2
 * login as user spark
@@ -530,12 +536,111 @@ cd ..
 ```
 git clone https://github.com/equalitie/baskerville.git
 cd baskerville
-sudo pip install -e .
+pip install -e .
 ```
 * set up a cron job for Java GC memory leak workaround
 ```
 /home/spark/baskerville/data/set_up_cron_job_for_periodic_gc.sh
 ```
+
+## Redis
+* install [Redis](https://redis.io/topics/quickstart)
+* rename `baskerville/redis_dot_conf` to `baskerville/redis.conf'
+* set spark password in the line 772 `requirepass spark_password`
+* run redis server `redis-server ~/baskerville/redis.conf --daemonize yes`
+
+## Logstash Kafka Output
+* Stop logstash:
+```
+sudo server logstash stop
+```
+* Install kafka output logstash plugin
+```
+sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-kafka
+sudo /usr/share/logstash/bin/logstash-plugin update logstash-output-kafka
+sudo mkdir /etc/logstash/ssl_kafka
+```
+* Copy the client storekey and the truststore to logstash server
+```
+scp -oProxyCommand="ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca" kafka.client.keystore.jks sysop@opsdashca0.deflect.ca:/etc/logstash/ssl_kafka
+scp -oProxyCommand="ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca" kafka.truststore.jks sysop@opsdashca0.deflect.ca:/etc/logstash/ssl_kafka
+```
+* Configure kafka output in `/etc/logstash/conf.d/edgelogs.conf`:
+```
+output {
+	#...
+	kafka {
+	    id => "baskerville"
+	    topic_id => "deflect.logs"
+	    acks => "0"
+	    bootstrap_servers => "kafka_server_ip:9092"
+	    security_protocol => "SSL"
+	    ssl_key_password => "user password created in Kafka section"
+	    ssl_keystore_location => "/etc/logstash/ssl_kafka/kafka.client.keystore.jks"
+	    ssl_keystore_password => "user password created in Kafka section"
+	    ssl_keystore_type => "JKS"
+	    ssl_truststore_location => "/etc/logstash/ssl_kafka/kafka.truststore.jks"
+	    ssl_truststore_password => "spark user password"
+	    ssl_truststore_type => "JKS"
+	    ssl_endpoint_identification_algorithm => ""
+  	}
+}
+```
+* Start logstash:
+```
+sudo server logstash start
+```
+* Confirm that Kafka is receving the logs(see above example of testing Kafka consumer):
+```
+$KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server kafka_server_ip:9092 --topic deflect.logs --consumer.config client-ssl.properties
+```
+
+## Logstash Kafka Output
+* Stop logstash:
+```
+sudo server logstash stop
+```
+* Install kafka output logstash plugin
+```
+sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-kafka
+sudo /usr/share/logstash/bin/logstash-plugin update logstash-output-kafka
+sudo mkdir /etc/logstash/ssl_kafka
+```
+* Copy the client storekey and the truststore to logstash server
+```
+scp -oProxyCommand="ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca" kafka.client.keystore.jks sysop@opsdashca0.deflect.ca:/etc/logstash/ssl_kafka
+scp -oProxyCommand="ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca" kafka.truststore.jks sysop@opsdashca0.deflect.ca:/etc/logstash/ssl_kafka
+```
+* Configure kafka output in `/etc/logstash/conf.d/edgelogs.conf`:
+```
+output {
+	#...
+	kafka {
+	    id => "baskerville"
+	    topic_id => "deflect.logs"
+	    acks => "0"
+	    bootstrap_servers => "kafka_server_ip:9092"
+	    security_protocol => "SSL"
+	    ssl_key_password => "user password created in Kafka section"
+	    ssl_keystore_location => "/etc/logstash/ssl_kafka/kafka.client.keystore.jks"
+	    ssl_keystore_password => "user password created in Kafka section"
+	    ssl_keystore_type => "JKS"
+	    ssl_truststore_location => "/etc/logstash/ssl_kafka/kafka.truststore.jks"
+	    ssl_truststore_password => "spark user password"
+	    ssl_truststore_type => "JKS"
+	    ssl_endpoint_identification_algorithm => ""
+  	}
+}
+```
+* Start logstash:
+```
+sudo server logstash start
+```
+* Confirm that Kafka is receiving the logs(see above example of testing Kafka consumer):
+```
+$KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server kafka_server_ip:9092 --topic deflect.logs --consumer.config client-ssl.properties
+```
+
 
 ## Baskerville configuration for Server 1
 * login as user spark
@@ -565,11 +670,40 @@ kafka:
 	url: server2_ip:9092
 engine:
 	training:
-	    train_global_model: False
-	    training_days: 14
-	    n_estimators: 1000
-	    max_samples: 1.0
-	    contamination: 0.2
+        model: 'baskerville.models.anomaly_model.AnomalyModel'
+        data_parameters:
+          #training_days: 30
+          from_date: '2020-07-06 18:00:00'
+          to_date: '2020-07-10 17:00:00'
+          max_samples_per_host: 5000
+        model_parameters:
+          threshold: 0.45
+          max_samples: 1000
+          #contamination: 0.1
+          num_trees: 300
+          max_depth: 10
+          max_features: 1.0
+          #approximate_quantile_relative_error: 0.4
+          features:
+            - host
+            # - country
+            - request_rate
+            - css_to_html_ratio
+            - image_to_html_ratio
+            - js_to_html_ratio
+            - path_depth_average
+            - path_depth_variance
+            - payload_size_average
+            - payload_size_log_average
+            - request_interval_average
+            - request_interval_variance
+            - response4xx_to_request_ratio
+            - top_page_to_request_ratio
+            - unique_path_rate
+            - unique_path_to_request_ratio
+            - unique_query_rate
+            - unique_query_to_unique_path_ratio
+            - unique_ua_rate
 	logpath: './logs/log.txt'
 	log_level: 'DEBUG'
   	manual_raw_log:
@@ -606,6 +740,106 @@ spark:
 	jars: '/home/spark/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.4.jar,/home/spark/baskerville/data/jars/postgresql-42.2.4.jar,/home/spark/equalitie/baskerville/data/jars/elasticsearch-spark-20_2.11-5.6.5.jar'
 ```
 
+## Start Baskerville
+We use screens for every baskerville pipeline. 
+
+* Start Training pipeline
+```
+screen -S training
+spark-submit --master spark://$SPARK_MASTER_HOST:7077 --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.0,org.postgresql:postgresql:42.2.4 --jars ${BASKERVILLE_ROOT}/data/jars/spark-iforest-2.4.0.99.jar,${BASKERVILLE_ROOT}/data/jars/postgresql-42.2.4.jar,${BASKERVILLE_ROOT}/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.3.1.jar --conf spark.executor.memory=20g --conf spark.hadoop.dfs.client.use.datanode.hostname=true --total-executor-cores=40 $BASKERVILLE_ROOT/src/baskerville/main.py training -c $BASKERVILLE_ROOT/conf/training.yaml
+```
+* Confirm the model was trained:
+```
+2020-09-18 16:29:58,058 Task.run +95: INFO     [6752] Starting step GetDataPostgres Train
+2020-09-18 16:30:05,335 GetDataPostgres.load +402: DEBUG    [6752] Fetching 12143123 rows. min: 92448289 max: 104886289
+2020-09-18 16:30:05,379 GetDataPostgres.run +95: INFO     [6752] Starting step Train
+2020-09-18 16:31:52,861 Train.load_dataset +1092: DEBUG    [6752] Loaded 12143123 rows dataset...
+2020-09-18 16:31:53,265 Train.train +129: INFO     [6752] Creating regular features...
+2020-09-18 16:31:53,713 Train.train +132: INFO     [6752] Scaling...
+2020-09-18 16:34:05,851 Train.train +144: INFO     [6752] Creating feature columns...
+2020-09-18 16:34:05,875 Train.train +147: INFO     [6752] Fitting string indexes...
+2020-09-18 16:34:49,290 Train.train +149: INFO     [6752] Adding categorical features...
+2020-09-18 16:34:49,599 Train.train +153: INFO     [6752] Fitting Isolation Forest model...
+2020-09-18 16:39:11,899 Train.save +1103: DEBUG    [6752] The new model has been saved to: hdfs://hadoop-01:8020/prod/models/AnomalyModel__2020_09_18___16_39
+2020-09-18 16:39:11,961 GetDataPostgres.run +97: INFO     [6752] Completed step Train
+2020-09-18 16:39:11,961 Task.run +97: INFO     [6752] Completed step GetDataPostgres Train
+2020-09-18 16:39:11,961 __main__.clean_up_before_shutdown +193: INFO     [6752] Just a sec, finishing up...
+2020-09-18 16:39:11,962 __main__.clean_up_before_shutdown +195: INFO     [6752] Finishing up Baskerville...
+2020-09-18 16:39:11,962 BaskervilleAnalyticsEngine.finish_up +283: INFO     [6752] Exiting: please, hold while Task pipeline finishes up...
+2020-09-18 16:39:12,997 BaskervilleAnalyticsEngine.finish_up +294: INFO     [6752] BaskervilleAnalyticsEngine says 'Goodbye'.
+```
+
+* Start Preprocessing pipeline
+```
+screen -S preprocessing
+spark-submit --master spark://$SPARK_MASTER_HOST:7077 --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.0,org.postgresql:postgresql:42.2.4 --jars ${BASKERVILLE_ROOT}/data/jars/spark-iforest-2.4.0.99.jar,${BASKERVILLE_ROOT}/data/jars/postgresql-42.2.4.jar,${BASKERVILLE_ROOT}/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.3.1.jar,${BASKERVILLE_ROOT}/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar --conf spark.memory.offHeap.enabled=true --conf spark.memory.offHeap.size=40g --conf spark.executor.memory=60g --conf spark.hadoop.dfs.client.use.datanode.hostname=true --conf spark.sql.autoBroadcastJoinThreshold=-1 --total-executor-cores=10 $BASKERVILLE_ROOT/src/baskerville/main.py preprocessing -c $BASKERVILLE_ROOT/conf/preprocessing.yaml
+```
+* You should see the batch processing reports in the logs
+```
+2020-09-18 20:02:00,035 GetDataKafka.process_subsets +99: INFO     [23684] Data until 2020-09-18 20:02:00 from kafka topic 'deflect.logs'
+2020-09-18 20:02:03,540 GetDataKafka.run +95: INFO     [23684] Starting step GenerateFeatures
+39015
+2020-09-18 20:02:16,866 ServiceProvider.add_cache_columns +196: DEBUG    [23684] ****** > # of rows in cache: 3027
+2020-09-18 20:02:27,311 GenerateFeatures.feature_extraction +662: INFO     [23684] Number of logs after feature extraction 5490
+2020-09-18 20:02:30,897 GetDataKafka.run +97: INFO     [23684] Completed step GenerateFeatures
+2020-09-18 20:02:30,897 GetDataKafka.run +95: INFO     [23684] Starting step CacheSensitiveData
+2020-09-18 20:02:45,416 GetDataKafka.run +97: INFO     [23684] Completed step CacheSensitiveData
+2020-09-18 20:02:45,416 GetDataKafka.run +95: INFO     [23684] Starting step SendToKafka
+2020-09-18 20:02:45,417 SendToKafka.run +1015: INFO     [23684] Sending to kafka topic 'features'...
+2020-09-18 20:02:57,498 GetDataKafka.run +97: INFO     [23684] Completed step SendToKafka
+2020-09-18 20:02:57,498 GetDataKafka.run +95: INFO     [23684] Starting step RefreshCache
+2020-09-18 20:02:58,057 ServiceProvider.update_self +313: DEBUG    [23684] Source_df count = 5490
+2020-09-18 20:03:00,257 ServiceProvider.update_self +368: INFO     [23684] Persistent cache size after expiration = 50459 (-2552)
+2020-09-18 20:03:02,872 ServiceProvider.update_self +383: DEBUG    [23684] # Number of rows in persistent cache: 50459
+2020-09-18 20:03:03,261 GetDataKafka.run +97: INFO     [23684] Completed step RefreshCache
+```
+
+* Start Predicting pipeline
+```
+screen -S predicting
+spark-submit --master spark://$SPARK_MASTER_HOST:7077 --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.0,org.postgresql:postgresql:42.2.4 --jars ${BASKERVILLE_ROOT}/data/jars/spark-iforest-2.4.0.99.jar,${BASKERVILLE_ROOT}/data/jars/postgresql-42.2.4.jar,${BASKERVILLE_ROOT}/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.3.1.jar,${BASKERVILLE_ROOT}/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar --conf spark.memory.offHeap.enabled=true --conf spark.executor.memory=20g --conf spark.hadoop.dfs.client.use.datanode.hostname=true --total-executor-cores=10 $BASKERVILLE_ROOT/src/baskerville/main.py predicting -c $BASKERVILLE_ROOT/conf/predicting.yaml
+
+```
+* You should see the batch processing reports in the logs
+```
+2020-09-18 20:07:28,047 GetFeatures.process_subsets +99: INFO     [28189] Data until 2020-09-18 20:07:20 from kafka topic 'features'
+2020-09-18 20:07:28,260 GetFeatures.run +95: INFO     [28189] Starting step Predict
+2020-09-18 20:07:28,260 ServiceProvider.predict +175: INFO     [28189] Creating regular features...
+2020-09-18 20:07:28,422 ServiceProvider.predict +178: INFO     [28189] Scaling...
+2020-09-18 20:07:28,431 ServiceProvider.predict +181: INFO     [28189] Adding categorical features...
+2020-09-18 20:07:28,513 ServiceProvider.predict +185: INFO     [28189] Isolation forest transform...
+2020-09-18 20:07:28,774 GetFeatures.run +97: INFO     [28189] Completed step Predict
+2020-09-18 20:07:28,774 GetFeatures.run +95: INFO     [28189] Starting step SendToKafka
+2020-09-18 20:07:28,774 SendToKafka.run +1015: INFO     [28189] Sending to kafka topic 'predictions'...
+2020-09-18 20:07:31,752 GetFeatures.run +97: INFO     [28189] Completed step SendToKafka
+```
+* Start Postprocessing pipeline
+```
+screen -S postprocessing
+spark-submit --master spark://$SPARK_MASTER_HOST:7077 --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.0,org.postgresql:postgresql:42.2.4 --jars ${BASKERVILLE_ROOT}/data/jars/spark-iforest-2.4.0.99.jar,${BASKERVILLE_ROOT}/data/jars/postgresql-42.2.4.jar,${BASKERVILLE_ROOT}/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.3.1.jar,${BASKERVILLE_ROOT}/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar --conf spark.memory.offHeap.enabled=true --conf spark.executor.memory=20g --conf spark.hadoop.dfs.client.use.datanode.hostname=true --total-executor-cores=10 $BASKERVILLE_ROOT/src/baskerville/main.py postprocessing -c $BASKERVILLE_ROOT/conf/postprocessing.yaml -e
+
+```
+* You should see the batch processing reports in the logs
+```
+2020-09-18 20:09:00,041 GetPredictions.process_subsets +99: INFO     [26077] Data until 2020-09-18 20:09:00 from kafka topic'
+2020-09-18 20:09:00,329 GetPredictions.run +95: INFO     [26077] Starting step MergeWithSensitiveData
+2020-09-18 20:09:00,847 GetPredictions.run +97: INFO     [26077] Completed step MergeWithSensitiveData
+2020-09-18 20:09:00,848 GetPredictions.run +95: INFO     [26077] Starting step AttackDetection
+2020-09-18 20:09:00,848 AttackDetection.classify_anomalies +1262: INFO     [26077] Anomaly thresholding...
+2020-09-18 20:09:00,904 AttackDetection.update_sliding_window +1268: INFO     [26077] Updating sliding window...
+2020-09-18 20:09:01,319 AttackDetection.update_sliding_window +1273: INFO     [26077] max_ts= 2020-09-18 20:07:58
+2020-09-18 20:09:01,426 AttackDetection.update_sliding_window +1285: INFO     [26077] Removing sliding window tail at 2020-09
+2020-09-18 20:09:07,555 AttackDetection.update_sliding_window +1292: INFO     [26077] Sliding window size 56...
+2020-09-18 20:09:16,183 AttackDetection.send_challenge +1418: INFO     [26077] Sending 10 IP challenge commands to kafka top.
+2020-09-18 20:09:16,401 GetPredictions.run +97: INFO     [26077] Completed step AttackDetection
+2020-09-18 20:09:16,401 GetPredictions.run +95: INFO     [26077] Starting step Save
+2020-09-18 20:09:16,437 Save.run +920: DEBUG    [26077] Saving request_sets
+2020-09-18 20:09:18,471 GetPredictions.run +97: INFO     [26077] Completed step Save
+```
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+<img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />
+This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+
 ## Testing Pipelines
 * Execute Raw logs pipeline:
 ```
@@ -619,113 +853,3 @@ cd /home/spark/baskerville/src/baskerville
 spark-submit --master spark://$SPARK_MASTER_HOST:7077 --jars '/home/spark/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.4.jar,/home/spark/baskerville/data/jars/postgresql-42.2.4.jar,/home/spark/baskerville/data/jars/elasticsearch-spark-20_2.11-5.6.5.jar' main.py kafka -s
 ```
 * Monitor the logs and confirm you see the command `Saving request_sets` is executed successfully.
-
-## Logstash Kafka Output
-* Stop logstash:
-```
-sudo server logstash stop
-```
-* Install kafka output logstash plugin
-```
-sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-kafka
-sudo /usr/share/logstash/bin/logstash-plugin update logstash-output-kafka
-sudo mkdir /etc/logstash/ssl_kafka
-```
-* Copy the client storekey and the truststore to logstash server
-```
-scp -oProxyCommand="ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca" kafka.client.keystore.jks sysop@opsdashca0.deflect.ca:/etc/logstash/ssl_kafka
-scp -oProxyCommand="ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca" kafka.truststore.jks sysop@opsdashca0.deflect.ca:/etc/logstash/ssl_kafka
-```
-* Configure kafka output in `/etc/logstash/conf.d/edgelogs.conf`:
-```
-output {
-	#...
-	kafka {
-	    id => "baskerville"
-	    topic_id => "deflect.logs"
-	    acks => "0"
-	    bootstrap_servers => "kafka_server_ip:9092"
-	    security_protocol => "SSL"
-	    ssl_key_password => "user password created in Kafka section"
-	    ssl_keystore_location => "/etc/logstash/ssl_kafka/kafka.client.keystore.jks"
-	    ssl_keystore_password => "user password created in Kafka section"
-	    ssl_keystore_type => "JKS"
-	    ssl_truststore_location => "/etc/logstash/ssl_kafka/kafka.truststore.jks"
-	    ssl_truststore_password => "spark user password"
-	    ssl_truststore_type => "JKS"
-	    ssl_endpoint_identification_algorithm => ""
-  	}
-}
-```
-* Start logstash:
-```
-sudo server logstash start
-```
-* Confirm that Kafka is receving the logs(see above example of testing Kafka consumer):
-```
-$KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server kafka_server_ip:9092 --topic deflect.logs --consumer.config client-ssl.properties
-```
-## Start Baskerville
-* Start Kafka pipeline
-```
-cd /home/spark/baskerville/src/baskerville
-
-spark-submit --master spark://server1:7077 --jars /home/spark/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.4.jar,/home/spark/baskerville/data/jars/postgresql-42.2.4.jar,/home/spark/baskerville/data/jars/elasticsearch-spark-20_2.11-5.6.5.jar main.py kafka -e &>/dev/null &
-```
-* Monitor Baskerville logs
-```
-tail -f /home/spark/baskerville/src/baskerville/logs/log.txt
-```
-* Monitor Spark UI at `http://server1_ip:8080/`
-
-## Logstash Kafka Output
-* Stop logstash:
-```
-sudo server logstash stop
-```
-* Install kafka output logstash plugin
-```
-sudo /usr/share/logstash/bin/logstash-plugin install logstash-output-kafka
-sudo /usr/share/logstash/bin/logstash-plugin update logstash-output-kafka
-sudo mkdir /etc/logstash/ssl_kafka
-```
-* Copy the client storekey and the truststore to logstash server
-```
-scp -oProxyCommand="ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca" kafka.client.keystore.jks sysop@opsdashca0.deflect.ca:/etc/logstash/ssl_kafka
-scp -oProxyCommand="ssh -At -W %h:%p your_user_name@cerveaux.prod.deflect.ca" kafka.truststore.jks sysop@opsdashca0.deflect.ca:/etc/logstash/ssl_kafka
-```
-* Configure kafka output in `/etc/logstash/conf.d/edgelogs.conf`:
-```
-output {
-	#...
-	kafka {
-	    id => "baskerville"
-	    topic_id => "deflect.logs"
-	    acks => "0"
-	    bootstrap_servers => "kafka_server_ip:9092"
-	    security_protocol => "SSL"
-	    ssl_key_password => "user password created in Kafka section"
-	    ssl_keystore_location => "/etc/logstash/ssl_kafka/kafka.client.keystore.jks"
-	    ssl_keystore_password => "user password created in Kafka section"
-	    ssl_keystore_type => "JKS"
-	    ssl_truststore_location => "/etc/logstash/ssl_kafka/kafka.truststore.jks"
-	    ssl_truststore_password => "spark user password"
-	    ssl_truststore_type => "JKS"
-	    ssl_endpoint_identification_algorithm => ""
-  	}
-}
-```
-* Start logstash:
-```
-sudo server logstash start
-```
-* Confirm that Kafka is receving the logs(see above example of testing Kafka consumer):
-```
-$KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server kafka_server_ip:9092 --topic deflect.logs --consumer.config client-ssl.properties
-```
-
-
-
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
-<img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />
-This work is copyright (c) 2020, eQualit.ie inc., and is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.

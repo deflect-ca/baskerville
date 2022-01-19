@@ -22,3 +22,22 @@ def get_default_log_path():
     :return:
     """
     return f'{os.path.dirname(os.path.realpath(__file__))}/../logs'
+
+
+test_baskerville_conf = {
+    'database': {
+        'name': 'test_db',
+        'user': 'postgres',
+        'password': '***',
+        'host': 'localhost'
+    },
+    'spark': {
+        'db_driver': 'test',
+        'storage_level': 'MEMORY_AND_DISK',
+    },
+    'engine': {
+        'raw_log': {},
+        'extra_features': ['css_to_html_ratio', ]
+
+    }
+}

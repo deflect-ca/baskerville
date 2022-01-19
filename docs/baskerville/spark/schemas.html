@@ -60,19 +60,35 @@ prediction_schema = T.StructType([
     T.StructField("threshold", T.FloatType(), True)
 ])
 
+client_prediction_schema = T.StructType([
+    T.StructField("id_client", T.StringType(), False),
+    T.StructField("id_group", T.StringType(), False),
+    T.StructField("features", T.StringType(), False)
+])
 
-def get_cache_schema():
-    return T.StructType([
-        T.StructField("id", T.IntegerType(), False),
-        T.StructField("target", T.StringType(), False),
-        T.StructField("ip", T.StringType(), False),
-        T.StructField("first_ever_request", T.TimestampType(), True),
-        T.StructField("old_subset_count", T.IntegerType(), True),
-        T.StructField("old_features",
-                      T.MapType(T.StringType(), T.DoubleType()), True),
-        T.StructField("old_num_requests", T.IntegerType(), True),
-        T.StructField("updated_at", T.TimestampType(), True)
-    ])</code></pre>
+client_prediction_input_schema = T.StructType([
+    T.StructField("id_client", T.StringType(), False),
+    T.StructField("id_group", T.StringType(), False),
+    T.StructField("features", T.StringType(), False),
+    T.StructField("prediction", T.FloatType(), False),
+    T.StructField("score", T.FloatType(), False)
+])
+
+feature_vectors_schema = T.StructField(
+    'features', T.MapType(T.StringType(), T.FloatType()), False
+)
+
+rs_cache_schema = T.StructType([
+    T.StructField("id", T.IntegerType(), False),
+    T.StructField("target", T.StringType(), False),
+    T.StructField("ip", T.StringType(), False),
+    T.StructField("first_ever_request", T.TimestampType(), True),
+    T.StructField("old_subset_count", T.IntegerType(), True),
+    T.StructField("old_features",
+                  T.MapType(T.StringType(), T.DoubleType()), True),
+    T.StructField("old_num_requests", T.IntegerType(), True),
+    T.StructField("updated_at", T.TimestampType(), True)
+])</code></pre>
      </details>
     </section>
     <section>
@@ -80,48 +96,6 @@ def get_cache_schema():
     <section>
     </section>
     <section>
-     <h2 class="section-title" id="header-functions">
-      Functions
-     </h2>
-     <dl>
-      <dt id="baskerville.spark.schemas.get_cache_schema">
-       <code class="name flex">
-        <span>
-         def
-         <span class="ident">
-          get_cache_schema
-         </span>
-        </span>
-        (
-        <span>
-         )
-        </span>
-       </code>
-      </dt>
-      <dd>
-       <section class="desc">
-       </section>
-       <details class="source">
-        <summary>
-         <span>
-          Expand source code
-         </span>
-        </summary>
-        <pre><code class="python">def get_cache_schema():
-    return T.StructType([
-        T.StructField("id", T.IntegerType(), False),
-        T.StructField("target", T.StringType(), False),
-        T.StructField("ip", T.StringType(), False),
-        T.StructField("first_ever_request", T.TimestampType(), True),
-        T.StructField("old_subset_count", T.IntegerType(), True),
-        T.StructField("old_features",
-                      T.MapType(T.StringType(), T.DoubleType()), True),
-        T.StructField("old_num_requests", T.IntegerType(), True),
-        T.StructField("updated_at", T.TimestampType(), True)
-    ])</code></pre>
-       </details>
-      </dd>
-     </dl>
     </section>
     <section>
     </section>
@@ -144,22 +118,6 @@ def get_cache_schema():
         <code>
          <a href="index.html" title="baskerville.spark">
           baskerville.spark
-         </a>
-        </code>
-       </li>
-      </ul>
-     </li>
-     <li>
-      <h3>
-       <a href="#header-functions">
-        Functions
-       </a>
-      </h3>
-      <ul class="">
-       <li>
-        <code>
-         <a href="#baskerville.spark.schemas.get_cache_schema" title="baskerville.spark.schemas.get_cache_schema">
-          get_cache_schema
          </a>
         </code>
        </li>

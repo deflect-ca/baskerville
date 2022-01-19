@@ -16,7 +16,7 @@ from baskerville.util.enums import ModelEnum
 from baskerville.util.helpers import get_logger, get_default_data_path, \
     SerializableMixin
 from dateutil.tz import tzutc
-from baskerville.features import FEATURES
+from baskerville.features import FEATURE_NAME_TO_CLASS
 
 logger = get_logger(__name__)
 
@@ -100,6 +100,7 @@ def validate(fn):
             logger.error(e)
             raise ValueError(e)
         return fn(*args, **kwargs)
+
     return wrapper
 
 
@@ -110,11 +111,12 @@ class Config(SerializableMixin):
     _remove = ('parent', 'errors', 'serialized_errors')
 
     def __init__(self, config_dict, parent=None):
-        self.__dict__.update(**{
-            k: v for k, v in self.__class__.__dict__.items()
-            if '__' not in k and not callable(v)
-        })
-        self.__dict__.update(**config_dict)
+        if config_dict:
+            self.__dict__.update(**{
+                k: v for k, v in self.__class__.__dict__.items()
+                if '__' not in k and not callable(v)
+            })
+            self.__dict__.update(**config_dict)
         self.parent = parent
         self._is_validated = False
         self._is_valid = False
@@ -180,12 +182,13 @@ class BaskervilleConfig(Config):
     - kafka      : optional - depends on the chosen pipeline
 
     """
-    database = None
-    elastic = None
-    misp = None
-    engine = None
-    kafka = None
-    spark = None
+    database: 'DatabaseConfig' = None
+    elastic: 'ElasticConfig' = None
+    misp: 'MispConfig' = None
+    engine: 'EngineConfig' = None
+    kafka: 'KafkaConfig' = None
+    spark: 'SparkConfig' = None
+    user_details: 'UserDetailsConfig' = None
 
     def __init__(self, config):
         super(BaskervilleConfig, self).__init__(config)
@@ -201,6 +204,8 @@ class BaskervilleConfig(Config):
             self.kafka = KafkaConfig(self.kafka)
         if self.spark:
             self.spark = SparkConfig(self.spark)
+        if self.user_details:
+            self.user_details = UserDetailsConfig(self.user_details)
 
     def validate(self):
         logger.debug('Validating BaskervilleConfig...')
@@ -224,6 +229,10 @@ class BaskervilleConfig(Config):
             self.spark.validate()
         else:
             logger.debug('No spark config')
+        if self.user_details:
+            self.user_details.validate()
+        else:
+            logger.error('No user_details config')
 
         self._is_validated = True
         self._is_valid = len(self.errors) == 0
@@ -244,6 +253,7 @@ class EngineConfig(Config):
     simulation = None
     datetime_format = '%Y-%m-%d %H:%M:%S'
     cache_path = None
+    save_cache_to_storage = False
     storage_path = None
     cache_expire_time = None
     cache_load_past = False
@@ -255,13 +265,44 @@ class EngineConfig(Config):
     metrics = None
     data_config = None
     logpath = 'baskerville.log'
-    log_level = None
+    log_level = 'INFO'
     time_bucket = 120
     all_features = None
     load_test = False
     trigger_challenge = True
-    challenge_threshold = 0.5
+    anomaly_threshold = 0.45
+    anomaly_threshold_during_incident = 0.35
+    challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
+    ttl = 500
+    low_rate_attack_enabled = True
+    low_rate_attack_period = [600, 3600]
+    low_rate_attack_total_request = [400, 2000]
+    ip_cache_passed_challenge_ttl = 60 * 60 * 24  # 24h
+    ip_cache_passed_challenge_size = 100000
+    ip_cache_pending_ttl = 60 * 60 * 1  # 1h
+    ip_cache_pending_size = 100000
+    save_to_storage = True
+    white_list_ips = []
+    white_list_hosts = []
+    white_list_urls = []
+    banjax_sql_update_filter_minutes = 90
+    banjax_num_fails_to_ban = 9
+    register_banjax_metrics = False
+    dashboard_config_refresh_period_in_seconds = 300
+    url_origin_ips = ''
+    url_whitelist_ips = ''
+    url_whitelist_urls = ''
+    url_whitelist_hosts = ''
+    new_model_check_in_seconds = 300
+    kafka_send_by_partition = True
+    use_storage_for_request_cache = False
+    handle_missing_features = False
+
+    use_kafka_for_sensitive_data = False
+    kafka_topic_sensitive = 'sensitive'
+
+    client_mode = False
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
@@ -277,9 +318,8 @@ class EngineConfig(Config):
             self.data_config = DataParsingConfig(self.data_config)
         if self.training:
             self.training = TrainingConfig(self.training, self)
-        self.all_features = dict(
-            (f.feature_name_from_class(), f) for f in FEATURES
-        )
+        self.all_features = FEATURE_NAME_TO_CLASS
+
         if not self.storage_path:
             self.storage_path = os.path.join(
                 get_default_data_path(), 'storage')
@@ -289,10 +329,7 @@ class EngineConfig(Config):
         if self.load_test:
             self.load_test = int(self.load_test)
         if not self.es_log and not self.raw_log and not self.training:
-            self.add_error(ConfigError(
-                'Either es_log or raw_log config must be provided',
-                ['es_log', 'raw_log'],
-            ))
+            logger.warn('es_log or raw_log config are not provided')
         if self.model_id and self.model_path:
             self.add_error(ConfigError(
                 'Model version id and model path cannot both be specified.',
@@ -334,8 +371,19 @@ class EngineConfig(Config):
                 if f not in self.all_features:
                     self.add_error(
                         ConfigError(f'Unknown feature {f}.', [
-                                    'extra_features'])
+                            'extra_features'])
                     )
+
+        if len(self.low_rate_attack_period) != 2 or len(self.low_rate_attack_total_request) != 2:
+            self.add_error(
+                ConfigError('low_rate_attack_period and low_rate_attack_total_request must be lists of size 2')
+            )
+
+        if len(self.white_list_hosts) != len(set(self.white_list_hosts)):
+            warnings.warn('You have duplicates in "white_list_hosts" parameter.')
+
+        if len(self.white_list_ips) != len(set(self.white_list_ips)):
+            warnings.warn('You have duplicates in "white_list_ips" parameter.')
 
         self._is_validated = True
 
@@ -453,16 +501,11 @@ class TrainingConfig(Config):
     Model Parameters:  (optional)
         -
     """
-    classifier: str
-    scaler: str
-    model_parameters: dict
-    n_jobs: int = -1
-    max_number_of_records_to_read_from_db: int = None
+    model_parameters = dict
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
-        self.allowed_models = list(
-            vars(ModelEnum)['_value2member_map_'].keys())
+        self.allowed_models = [e.value for e in ModelEnum]
 
     def validate(self):
         logger.debug('Validating TrainingConfig...')
@@ -497,6 +540,7 @@ class ElasticConfig(Config):
     host = ''
     base_index = ''
     index_type = ''
+    port = 443
 
     def __init__(self, config):
         super(ElasticConfig, self).__init__(config)
@@ -698,46 +742,46 @@ class KafkaConfig(Config):
     Configuration for access to a Kafka instance for the kafka pipeline.
     """
     bootstrap_servers = '0.0.0.0:9092'
-    zookeeper = 'localhost:2181'
-    consume_topic = 'deflect.logs'
-    publish_logs = 'baskerville.logs'
-    publish_stats = 'baskerville.stats'
-    publish_predictions = 'baskerville.predictions'
-    security_protocol = ''
+    data_topic = 'deflect.logs'
+    features_topic = 'features'
+    feedback_topic = 'feedback'
+    feedback_response_topic = ''
+    predictions_topic = 'predictions'
+    predictions_topic_client = 'predictions'
+    register_topic = 'register'
+    auto_offset_reset = 'largest'
+    banjax_command_topic = 'banjax_command_topic'
+    banjax_report_topic = 'banjax_report_topic'
+    security_protocol = 'PLAINTEXT'
     ssl_truststore_location = ''
     ssl_truststore_password = ''
     ssl_keystore_location = ''
     ssl_keystore_password = ''
     ssl_key_password = ''
     ssl_endpoint_identification_algorithm = ''
+    ssl_check_hostname = False
+    ssl_cafile = ''
+    ssl_certfile = ''
+    ssl_keyfile = ''
+    connection = None
+    clearing_house_connection = None
+    client_connections = {}
 
     def __init__(self, config):
         super(KafkaConfig, self).__init__(config)
 
     def validate(self):
         logger.debug('Validating KafkaConfig...')
-        if not self.bootstrap_servers:
-            self.add_error(ConfigError(
-                'Kafka bootstrap_servers is empty.',
-                ['bootstrap_servers'],
-            ))
-            # raise ValueError('Kafka bootstrap_servers is empty.')
-        if not self.zookeeper:
-            # kafka client can be used without zookeeper
-            warnings.warn('Zookeeper url is empty.')
-        if not self.consume_topic:
-            warnings.warn('Consume topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_logs:
-            warnings.warn('Publish logs is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_stats:
-            warnings.warn('Publish stats topic is empty. If you are not using '
-                          'simulation or Realtime pipeline ignore this')
-        if not self.publish_predictions:
-            warnings.warn(
-                'Publish predictions topic is empty. If you are not using '
-                'simulation or Realtime pipeline ignore this')
+        if not self.data_topic:
+            warnings.warn('Data topic is empty.')
+        if not self.feedback_topic:
+            warnings.warn('Feedback topic is empty.')
+        if not self.feedback_response_topic:
+            warnings.warn('Feedback response topic is empty.')
+        if not self.features_topic:
+            warnings.warn('Features topic is empty')
+        if not self.predictions_topic:
+            warnings.warn('Predictions topic is empty.')
 
         self._is_validated = True
         return self
@@ -769,10 +813,35 @@ class SparkConfig(Config):
     driver_extra_class_path = None
     spark_executor_instances = None
     spark_executor_cores = None
+    spark_driver_cores = None
     spark_executor_memory = None
     spark_python_profile = False
     storage_level = None
     off_heap_size = None
+    redis_host = 'localhost'
+    redis_port = 6379
+    auth_secret = None
+    ssl_enabled = False
+    ssl_truststore = None
+    ssl_truststore_password = None
+    ssl_keystore = None
+    ssl_keystore_password = None
+    ssl_keypassword = None
+    ssl_ui_enabled = False
+    ssl_standalone_enabled = False
+    ssl_history_server_enabled = False
+    s3_endpoint = None
+    s3_access_key = None
+    s3_secret_key = None
+    kubernetes = True
+    spark_kubernetes_driver_request_cores = None
+    spark_kubernetes_driver_limit_cores = None
+    spark_kubernetes_executor_request_cores = None
+    spark_kubernetes_executor_limit_cores = None
+    spark_kubernetes_driver_memory = None
+    spark_kubernetes_driver_memoryOverhead = None
+    spark_kubernetes_executor_memory = None
+    spark_kubernetes_executor_memoryOverhead = None
 
     def __init__(self, config):
         super(SparkConfig, self).__init__(config)
@@ -809,6 +878,7 @@ class SparkConfig(Config):
                 self.shuffle_partitions = int(self.shuffle_partitions)
             except ValueError:
                 self.add_error(ConfigError(
+                    'Spark shuffle_partitions should be an integer',
                     'Spark shuffle_partitions should be an integer',
                     ['shuffle_partitions'],
                 ))
@@ -884,6 +954,12 @@ class SparkConfig(Config):
                     # raise ValueError('serializer_buffer\'s value cannot be '
                     #                  'greater than serializer_buffer_max')
 
+        if self.ssl_enabled:
+            if not self.ssl_truststore:
+                self.add_error(ConfigError('ssl_truststore must be specified if ssl_enabled is true'))
+            if not self.ssl_keystore:
+                self.add_error(ConfigError('ssl_keystore must be specified if ssl_enabled is true'))
+
         self._is_validated = True
         return self
 
@@ -918,11 +994,8 @@ class DataParsingConfig(Config):
     schema = None
     schema_obj = None
     parser = 'JSONLogSparkParser'
-    group_by_cols = ['client_request_host', 'client_ip']
+    group_by_cols = ('client_request_host', 'client_ip')
     timestamp_column = '@timestamp'
-
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
 
     def validate(self):
         logger.debug('Validating DataParsingConfig...')
@@ -954,3 +1027,31 @@ class DataParsingConfig(Config):
 
         self._is_validated = True
         return self
+
+
+class UserDetailsConfig(Config):
+    username = ''
+    password = ''
+    organization_uuid = ''
+
+    def validate(self):
+        logger.debug('Validating UserDetailsConfig...')
+        if not self.username:
+            self.add_error(ConfigError(
+                f'Please, provide a username',
+                ['username'],
+                exception_type=ValueError
+            ))
+        if not self.password:
+            self.add_error(ConfigError(
+                f'Please, provide a password',
+                ['password'],
+                exception_type=ValueError
+            ))
+        if not self.organization_uuid:
+            self.add_error(ConfigError(
+                f'Please, provide an organization_uuid',
+                ['organization_uuid'],
+                exception_type=ValueError
+            ))
+

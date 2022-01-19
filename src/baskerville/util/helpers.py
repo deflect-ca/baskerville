@@ -14,6 +14,8 @@ from functools import wraps
 
 import yaml
 
+from baskerville.util.enums import ModelEnum, BaseStrEnum
+
 FOLDER_MODELS = 'models'
 FOLDER_CACHE = 'cache'
 
@@ -134,44 +136,6 @@ def generate_random_ip():
     return '.'.join(str(randint(0, 255)) for _ in range(4))
 
 
-def randomize_data(path_to_json, output_path='test_data_1k.json', take=1000):
-    """
-    Randomize log values and drop unnecessary columns
-    :param str path_to_json: full path to json file that contains the logs in
-    lines
-    :param str output_path: where to save, defaults to json 1k
-    :param int take: how many lines to keep, defaults to 1000
-    :return: None
-    """
-    import pandas as pd
-    import random
-
-    df = pd.read_json(
-        path_to_json,
-        orient='records',
-        lines=True,
-        encoding='utf-8'
-    )
-
-    if 0 < take <= len(df):
-        df = df[:take]
-    df = df.drop('_metadata', axis=1)
-    df['dnet'] = df['dnet'].apply(
-        lambda x: ''.join(random.sample(x, len(x))))
-    df['ISP'] = df['ISP'].apply(
-        lambda x: ''.join(random.sample(x, len(x))))
-    df['host'] = df['host'].apply(
-        lambda x: 'testhost.' + '.'.join(x.split('.')[1:]))
-    df['type'] = 'testdata'
-    df['client_request_host'] = 'testhost.net'
-    df['client_ip'] = df['client_ip'].apply(generate_random_ip)
-    df.to_json(
-        output_path,
-        orient='records',
-        lines=True
-    )
-
-
 def get_objects_attributes(obj, exclude=()):
     return [
         attr
@@ -246,9 +210,8 @@ def periods_overlap(
     :rtype: bool
     """
     if allow_closed_interval:
-        # the not overlaping check does not take equality into account
-        return not (other_start < start and other_end < start) and \
-            not (other_start > end and other_end > end)
+        # the not overlapping check does not take equality into account
+        return not (other_start < start and other_end < start) and not (other_start > end and other_end > end)
     return not (other_start < start and other_end <= start) and not (other_start >= end and other_end > end)
 
 
@@ -262,6 +225,19 @@ def get_default_data_path() -> str:
         return os.path.join(baskerville_root, 'data')
     return os.path.join(
         os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'data'
+    )
+
+
+def get_default_ip_cache_path() -> str:
+    """
+    Returns the absolute path to the ip cache folder
+    :return:
+    """
+    baskerville_root = os.environ.get('BASKERVILLE_ROOT')
+    if baskerville_root:
+        return os.path.join(baskerville_root, 'ip_cache')
+    return os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'ip_cache'
     )
 
 
@@ -306,7 +282,7 @@ class SerializableMixin(object):
         :rtype: dict[str, T]
         """
         if not cols:
-            if getattr(self, '__table__', None):
+            if getattr(self, '__table__') is not None:
                 cols = self.__table__.columns
                 basic_attrs = {c.name: getattr(self, c.name)
                                for c in cols
@@ -317,8 +293,7 @@ class SerializableMixin(object):
                 basic_attrs = {c: getattr(self, c)
                                for c in cols
                                if c not in self._remove and
-                               not c.startswith('_') and not callable(
-                    getattr(self, c))}
+                               not c.startswith('_') and not callable(getattr(self, c))}
         else:
             basic_attrs = {c: getattr(self, c)
                            for c in cols
@@ -333,9 +308,9 @@ class SerializableMixin(object):
                 if d is None:
                     continue
                 if isinstance(d, (list, tuple, set)):
-                    extra_attrs[attr] = [each.as_dict() for each in d]
+                    extra_attrs[attr] = [each.to_dict() for each in d]
                 else:
-                    extra_attrs[attr] = d.as_dict()
+                    extra_attrs[attr] = d.to_dict()
             basic_attrs.update(extra_attrs)
 
         for k, v in basic_attrs.items():
@@ -343,6 +318,8 @@ class SerializableMixin(object):
                 if hasattr(v, 'parent') and 'parent' not in v._remove:
                     v._remove += ('parent')
                 basic_attrs[k] = v.to_dict()
+            if isinstance(v, BaseStrEnum):
+                basic_attrs[k] = str(v)
 
         return basic_attrs
 
@@ -410,3 +387,35 @@ def get_model_path(storage_path, model_name='model'):
     return os.path.join(storage_path,
                         FOLDER_MODELS,
                         f'{model_name}__{get_timestamp()}')
+
+
+def load_model_from_path(model_path, spark=None):
+    """
+    Instantiate the proper model and load from the path.
+    :param model_path: the full path to the model.
+    :param spark: The spark context. Not required for local paths.
+    :return: The instance of the loaded model
+    """
+    name = os.path.basename(model_path).split('_')[0]
+    if name not in [e.name for e in ModelEnum]:
+        raise RuntimeError(
+            f'Model path {model_path} is invalid. Model name {name} is not in {[e.name for e in ModelEnum]}')
+    model = instantiate_from_str(ModelEnum[name].value)
+    model.load(model_path, spark)
+    return model
+
+
+class Singleton(object):
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '_instance'):
+            cls._instance = super(Singleton, cls).__new__(cls)
+        return cls._instance
+
+
+class Borg(object):
+    _shared_state = {}
+
+    def __new__(cls, *args, **kwargs):
+        obj = super(Borg, cls).__new__(cls)
+        obj.__dict__ = cls._shared_state
+        return obj

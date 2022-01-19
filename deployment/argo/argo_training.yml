@@ -1,0 +1,119 @@
+metadata:
+  name: training
+  namespace: default
+spec:
+  templates:
+    - name: spark-submit
+      inputs:
+        parameters:
+          - name: baskerville_image
+          - name: config
+          - name: config-branch
+      outputs: {}
+      metadata: {}
+      container:
+        name: ''
+        image: '{{inputs.parameters.baskerville_image}}'
+        command:
+          - sh
+        args:
+          - /opt/spark/bin/spark-submit
+          - '--master'
+          - 'k8s://https://kubernetes.default.svc'
+          - '--deploy-mode'
+          - client
+          - '--conf'
+          - spark.kubernetes.namespace=default
+          - '--conf'
+          - spark.kubernetes.container.image=sparkimage
+          - '--conf'
+          - spark.executor.instances=3
+          - '--name'
+          - training
+          - '--conf'
+          - spark.kubernetes.pyspark.pythonVersion=3
+          - '--conf'
+          - spark.kubernetes.memoryOverheadFactor=0.5
+          - '--conf'
+          - spark.memory.fraction=0.2
+          - '--conf'
+          - spark.kubernetes.executor.request.cores=2
+          - '--conf'
+          - spark.kubernetes.executor.limit.cores=2
+          - '--conf'
+          - spark.executor.memory=6G
+          - '--jars'
+          - >-
+            local:///usr/local/baskerville/data/jars/hadoop-aws-2.7.1.jar,local:///usr/local/baskerville/data/jars/aws-java-sdk-1.7.4.jar,local:///usr/local/baskerville/data/jars/spark-iforest-2.4.0.99.jar,local:///usr/local/baskerville/data/jars/postgresql-42.2.4.jar,local:///usr/local/baskerville/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,local:///usr/local/baskerville/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar
+          - '--conf'
+          - >-
+            spark.kubernetes.container.image={{inputs.parameters.baskerville_image}}
+          - /usr/local/baskerville/src/baskerville/main.py
+          - training
+          - '-c'
+          - '{{inputs.parameters.config}}'
+          - '-cb'
+          - '{{inputs.parameters.config-branch}}'
+        env:
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: POSTGRES_PASS
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_password
+          - name: S3_ACCESS
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: s3_access
+          - name: S3_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: s3_secret
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: redis_password
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_host
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: postgres_user
+          - name: KAFKA_HOST
+            valueFrom:
+              secretKeyRef:
+                name: baskerville-secrets
+                key: kafka_host
+        resources: {}
+        volumeMounts:
+          - name: ssh-secrets
+            mountPath: /usr/local/baskerville/ssh
+        imagePullPolicy: Always
+  entrypoint: spark-submit
+  arguments:
+    parameters:
+      - name: baskerville_image
+        value: 'equalitie/baskerville:latest'
+      - name: config
+        value: 'git@github.com:equalitie/baskerville_config.git'
+      - name: config-branch
+        value: main
+  volumes:
+    - name: ssh-secrets
+      secret:
+        secretName: ssh-secrets
+        defaultMode: 384

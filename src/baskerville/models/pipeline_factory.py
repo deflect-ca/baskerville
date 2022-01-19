@@ -6,7 +6,8 @@
 
 
 from baskerville.models.pipeline_training import TrainingPipeline
-from baskerville.models.pipelines import RawLogPipeline, ElasticsearchPipeline, KafkaPipeline
+from baskerville.models.pipelines import RawLogPipeline, \
+    ElasticsearchPipeline, KafkaPipeline
 from baskerville.util.enums import RunType
 
 
@@ -32,12 +33,61 @@ class PipelineFactory(object):
                 config.kafka,
                 config.spark
             )
-        elif run_type == RunType.training:
+        elif run_type == RunType.training_old:
             return TrainingPipeline(
                 config.database,
                 config.engine,
                 config.spark
             )
+        elif run_type == RunType.preprocessing:
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_preprocessing_pipeline
+            return set_up_preprocessing_pipeline(config)
+        elif run_type == RunType.postprocessing:
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_postprocessing_pipeline
+            return set_up_postprocessing_pipeline(config)
+        elif run_type == RunType.irawlog:
+            from baskerville.models.pipeline_tasks.rawlog_pipeline \
+                import set_up_isac_rawlog_pipeline
+            return set_up_isac_rawlog_pipeline(config)
+        elif run_type == RunType.ikafka:
+            from baskerville.models.pipeline_tasks.tasks_base \
+                import set_up_isac_kafka_pipeline
+            return set_up_isac_kafka_pipeline(config)
+        elif run_type == RunType.predicting:
+            from baskerville.models.pipeline_tasks.prediction_pipeline \
+                import set_up_prediction_pipeline
+            return set_up_prediction_pipeline(config)
+        elif run_type == RunType.training:
+            from baskerville.models.pipeline_tasks.training_pipeline \
+                import set_up_training_pipeline
+            return set_up_training_pipeline(config)
+        # elif run_type == RunType.dashboard_preprocessing:
+        #     from baskerville.models.pipeline_tasks.dashboard_pipeline import \
+        #         set_up_dashboard_preprocessing_pipeline
+        #     return set_up_dashboard_preprocessing_pipeline(config)
+        # elif run_type == RunType.dashboard:
+        #     from baskerville.models.pipeline_tasks.dashboard_pipeline import \
+        #         set_up_dashboard_pipeline
+        #     return set_up_dashboard_pipeline(config)
+        elif run_type == RunType.client_rawlog:
+            from baskerville.models.pipeline_tasks.client_pipeline import \
+                set_up_client_rawlog_pipeline
+            return set_up_client_rawlog_pipeline(config)
+        elif run_type == RunType.feedback:
+            from baskerville.models.pipeline_tasks.feedback_pipeline import \
+                set_up_feedback_pipeline
+            return set_up_feedback_pipeline(config)
+        elif run_type == RunType.retrain:
+            from baskerville.models.pipeline_tasks.retrain_pipeline import \
+                set_up_retraining_pipeline
+            return set_up_retraining_pipeline(config)
+        elif run_type == RunType.labeling:
+            from baskerville.models.pipeline_tasks.client_pipeline \
+                import set_up_labeling_pipeline
+            return set_up_labeling_pipeline(config)
+
         raise RuntimeError(
             'Cannot set up a pipeline with the current configuration.'
         )

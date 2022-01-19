@@ -43,7 +43,18 @@ class RunType(BaseStrEnum):
     es = 'es'
     rawlog = 'rawlog'
     kafka = 'kafka'
+    training_old = 'training_old'
+    irawlog = 'irawlog'
+    ikafka = 'ikafka'
     training = 'training'
+    preprocessing = 'preprocessing'
+    postprocessing = 'postprocessing'
+    predicting = 'predicting'
+    dashboard = 'dashboard'
+    client_rawlog = 'client_rawlog'
+    feedback = 'feedback'
+    retrain = 'retrain'
+    labeling = 'labeling'
 
 
 class Step(BaseStrEnum):
@@ -125,5 +136,38 @@ class PartitionByEnum(BaseStrEnum):
 
 
 class ModelEnum(BaseStrEnum):
-    isolation_forest_sklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
-    isolation_forest = "baskerville.models.anomaly_model.AnomalyModel"
+    AnomalyModelSklearn = "baskerville.models.anomaly_model_sklearn.AnomalyModelSklearn"
+    AnomalyModel = "baskerville.models.anomaly_model.AnomalyModel"
+
+
+class UserCategoryEnum(BaseStrEnum):
+    admin = 'Administrator'
+    guest = 'Guest'
+    user = 'User'
+
+
+class FeedbackEnum(BaseStrEnum):
+    correct = 'correct'
+    incorrect = 'incorrect'
+    bot = 'bot'
+    not_bot = 'notbot'
+    none = ''
+
+
+class FeedbackContextTypeEnum(BaseStrEnum):
+    attack = 'attack'
+    false_positive = 'false positive'
+    false_negative = 'false negative'
+    true_positive = 'true positive'
+    true_negative = 'true negative'
+    other = 'other'
+
+
+FEEDBACK_CONTEXT_TO_DESCRIPTION = {
+    FeedbackContextTypeEnum.attack: 'Label request sets that were part of an attack',
+    FeedbackContextTypeEnum.false_positive: 'We marked something as bot, when it was not',
+    FeedbackContextTypeEnum.false_negative: 'We marked something as not bot, when it was',
+    FeedbackContextTypeEnum.true_positive: 'We did well (marked the bots correctly) and you want to tell us!',
+    FeedbackContextTypeEnum.true_negative: 'We did well (marked the normal traffic correctly) and you want to tell us!',
+    FeedbackContextTypeEnum.other: 'Anything else :)'
+}

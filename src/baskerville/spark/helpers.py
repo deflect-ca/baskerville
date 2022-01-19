@@ -7,9 +7,11 @@
 
 from typing import T, Any, Mapping
 
+import pyspark
+
 from baskerville.spark import get_spark_session
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import class_from_str
+from baskerville.util.helpers import TimeBucket, get_logger
 from pyspark import AccumulatorParam
 from pyspark import StorageLevel
 from pyspark.sql import functions as F
@@ -57,7 +59,8 @@ class DictAccumulatorParam(AccumulatorParam):
             for k, v in items:
                 value1[k] += v
         else:
-            value1['--unknown--'] += 1
+            pass
+            # value1['--unknown--'] += 1
 
         return value1
 
@@ -104,7 +107,7 @@ def save_df_to_table(
     """
     if not isinstance(storage_level, StorageLevel):
         storage_level = StorageLevelFactory.get_storage_level(storage_level)
-    df = df.persist(storage_level)
+    #df = df.persist(storage_level)
     for c in json_cols:
         df = col_to_json(df, c)
     df.write.format('jdbc').options(
@@ -120,6 +123,34 @@ def save_df_to_table(
         reWriteBatchedInserts=True,
         useServerPrepStmts=False,
     ).mode(mode).save()
+
+
+def load_df_from_table(
+        table_name_or_q,
+        db_config,
+        db_driver='org.postgresql.Driver',
+        where=None,
+        columns_to_keep=('*',)
+):
+    spark = get_spark_session()
+    df = spark.read.format('jdbc').options(
+        url=db_config['db_url'],
+        driver=db_driver,
+        dbtable=table_name_or_q,
+        user=db_config['user'],
+        password=db_config['password'],
+        fetchsize=1000,
+        max_connections=200,
+    ).load()
+    if where:
+        df = df.where(where).select(*columns_to_keep)
+    return df
+
+
+def handle_missing_col(df: pyspark.sql.DataFrame, col: str, value=None):
+    if col not in df.columns:
+        df = df.withColumn(col, F.lit(value))
+    return df
 
 
 def map_to_array(df, map_col, array_col, map_keys):
@@ -166,41 +197,106 @@ def reset_spark_storage():
     # self.spark.sparkContext._jvm.System.gc()
 
 
-def load_model_from_path(model_type, path):
-    """
-    Loads a spark ml model from a path
-    :param str | AlgorithmEnum | ScalerEnum model_type: the string
-    representation of the model import, e.g.
-    `pyspark.ml.feature.StandardScaler`
-    :param str path:
-    :return:
-    """
-    return class_from_str(model_type).load(path)
-
-
-def save_model(model, path, mode='overwrite'):
-    """
-    Save a Pyspark ML model to disk / hdfs
-    :param Estimator model:
-    :param str path:
-    :param str mode:
-    :return:
-    """
-    writer = model.write()
-    if mode == 'overwrite':
-        writer = writer.overwrite()
-    else:
-        writer = writer.option('mode', mode)
-    writer.save(path)
-
-
-def set_unknown_prediction(df, columns=('prediction', 'score', 'threshold')):
+def set_unknown_prediction(
+        df,
+        columns=('prediction', 'score', 'threshold'),
+        ctypes=('int', 'float', 'float')
+):
     """
     Sets the preset unknown value for prediction and score
     :param pyspark.sql.Dataframe df:
-    :param columns:
+    :param columns: column names to be filled
+    :param ctypes: column data types for casting
+    :return: the modified dataframe
+    :rtype: pyspark.DataFrame
+    """
+    if not ctypes or len(ctypes) != len(columns):
+        raise ValueError('Columns and Column Types do not mach')
+    for c, t in zip(columns, ctypes):
+        df = df.withColumn(c, F.lit(LabelEnum.unknown.value).cast(t))
+    return df
+
+
+def load_test(df, load_test_num, storage_level):
+    """
+    If the user has set the load_test configuration, then multiply the
+    traffic by `EngineConfig.load_test` times to do load testing.
     :return:
     """
-    for c in columns:
-        df = df.withColumn(c, F.lit(LabelEnum.unknown.value))
+    if load_test_num > 0:
+        df = df.persist(storage_level)
+        # print(f'-------- Initial df count {df.count()}')
+        initial_df = df
+        for i in range(load_test_num - 1):
+            temp_df = initial_df.withColumn(
+                'client_ip', F.concat(
+                    F.round(F.rand(42)).cast('string'), F.lit('_load_test')
+                )
+            )
+            df = df.union(temp_df).persist(storage_level)
+
+        print(f'---- Count after multiplication: {df.count()}')
     return df
+
+
+def columns_to_dict(df, col_name, columns_to_gather):
+    """
+    Convert the columns to dictionary
+    :param string column: the name of the column to use as output
+    :return: None
+    """
+    import itertools
+    from pyspark.sql import functions as F
+
+    return df.withColumn(
+        col_name,
+        F.create_map(
+            *list(
+                itertools.chain(
+                    *[
+                        (F.lit(f), F.col(f))
+                        for f in columns_to_gather
+                    ]
+                )
+            ))
+    )
+
+
+def get_window(df, time_bucket: TimeBucket, storage_level: str):
+    df = df.withColumn(
+        'timestamp', F.col('@timestamp').cast('timestamp')
+    )
+    df = df.sort('timestamp')
+    current_window_start = df.agg({"timestamp": "min"}).collect()[0][0]
+    stop = df.agg({"timestamp": "max"}).collect()[0][0]
+    window_df = None
+    current_end = current_window_start + time_bucket.td
+
+    while True:
+        if window_df:
+            window_df.unpersist(blocking=True)
+            del window_df
+        filter_ = (
+            (F.col('timestamp') >= current_window_start) &
+            (F.col('timestamp') < current_end)
+        )
+        window_df = df.where(filter_) #.persist(storage_level)
+        if not window_df.rdd.isEmpty():
+            print(f'# Request sets = {window_df.count()}')
+            yield window_df
+        else:
+            print(f'Empty window df for {str(filter_._jc)}')
+        current_window_start = current_window_start + time_bucket.td
+        current_end = current_window_start + time_bucket.td
+        if current_window_start >= stop:
+            window_df.unpersist(blocking=True)
+            del window_df
+            break
+
+
+def df_has_rows(df):
+    return df and df.head(1)
+
+
+def get_dtype_for_col(df, col):
+    return dict(df.dtypes).get(col)

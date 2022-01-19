@@ -26,7 +26,7 @@ class FileManager(object):
         super().__init__()
         self.spark_session = spark_session
 
-        if path.startswith('hdfs://'):
+        if path.startswith('hdfs://') or path.startswith('s3a://') or path.startswith('file:'):
             if not self.spark_session:
                 raise RuntimeError(
                     'You must pass a valid spark session if you use distributed storage')

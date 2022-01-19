@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: spark
+  name: notebook-deployment
+  labels:
+    app: notebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notebook
+  template:
+    metadata:
+      labels:
+        app: notebook
+    spec:
+      serviceAccountName: spark
+      containers:
+      - name: notebook
+        imagePullPolicy: Always
+        image: equalitie/baskerville:notebook
+        ports:
+          - containerPort: 8888
+        volumeMounts:
+          - mountPath: /root/data
+            name: notebook-pv
+        workingDir: /root
+#        resources:
+#          limits:
+#            memory: 4Gi
+        env:
+          - name: POSTGRES_PASS
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: postgres_password
+          - name: POSTGRES_USER
+            value: "postgres"
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: postgres_host
+          - name: S3_ACCESS
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: s3_access
+          - name: S3_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: s3_secret
+          - name: S3_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: spark-secrets
+                key: s3_endpoint
+
+      volumes:
+        - name: notebook-pv
+          persistentVolumeClaim:
+            claimName: notebook-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: spark
+  name: notebook-deployment
+spec:
+  selector:
+    app: notebook
+  ports:
+    - protocol: TCP
+      port: 29413
+  clusterIP: None

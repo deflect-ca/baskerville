@@ -4,9 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-
-from collections import defaultdict
-
 from baskerville.models.base import BaskervilleBase
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_factory import PipelineFactory
@@ -25,6 +22,8 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         self.run_type = run_type
         self.pipeline = None
         self.performance_stats = None
+        self.report_consumer = None
+        self.banjax_thread = None
 
         # set config's logger
         BaskervilleConfig.set_logger(
@@ -33,9 +32,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         )
         self.config = BaskervilleConfig(self.config).validate()
 
-        self.register_metrics = (
-            self.config.engine.metrics and register_metrics
-        )
+        self.register_metrics = self.config.engine.metrics and register_metrics
 
         self.logger = get_logger(
             self.__class__.__name__,
@@ -48,6 +45,10 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         return PipelineFactory().get_pipeline(self.run_type, self.config)
 
     def _register_metrics(self):
+        self.logger.debug(
+            'TODO:_register_metrics not functional due to task changes'
+        )
+        return
         if self.register_metrics:
             if self.config.engine.metrics.performance:
                 self.performance_stats = self._register_performance_stats()
@@ -90,7 +91,9 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
 
         # time cache
         if self.pipeline.request_set_cache and \
-                self.config.engine.metrics.performance.get('request_set_cache'):
+                self.config.engine.metrics.performance.get(
+                    'request_set_cache'
+                ):
             for f_name in self.config.engine.metrics.performance[
                 'request_set_cache'
             ]:
@@ -220,7 +223,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         """
         self.pipeline = self._set_up_pipeline()
         self.pipeline.initialize()
-        self._register_metrics()
+
         self.pipeline.run()
 
     def finish_up(self):
@@ -232,6 +235,7 @@ class BaskervilleAnalyticsEngine(BaskervilleBase):
         )
         if self.pipeline:
             self.pipeline.finish_up()
+
         self.logger.info('{} says \'Goodbye\'.'.format(
             self.__class__.__name__
         )

@@ -11,6 +11,7 @@ import warnings
 import warlock
 import pyspark.sql.types as T
 import pyspark.sql.functions as F
+from baskerville.spark.schemas import NAME_TO_SCHEMA
 from baskerville.util.helpers import SerializableMixin
 
 
@@ -125,29 +126,43 @@ class JSONLogParser(LogParser, SerializableMixin):
 
 
 class JSONLogSparkParser(JSONLogParser, SerializableMixin):
+    _name = ''
 
     def __init__(self, schema, drop_row_if_missing=None, sample=None):
+        self._name = schema['name']
 
         self.str_to_type = {
-            'string': (lambda sample: T.StringType()),
-            'number': (lambda sample: T.FloatType()),
-            'integer': (lambda sample: T.IntegerType()),
+            'string': (lambda sample, name: T.StringType()),
+            'number': (lambda sample, name: T.FloatType()),
+            'integer': (lambda sample, name: T.IntegerType()),
+            'object': (lambda sample, name: NAME_TO_SCHEMA[self._name].get(name)),
         }
         self.sample = sample
 
         super().__init__(schema, drop_row_if_missing)
 
         # back up json schema
-        self.__json_schema = self.schema
-        self.__schema = T.StructType([
-            T.StructField(
-                name,
-                self.str_to_type[v['type']](v.get('default')),
-                not v.get('required', False)
-            )
-            for name, v in self.__json_schema['properties'].items()
-        ]
-        )
+        self.__json_schema = schema
+
+        def add_json_item(parent, name, value):
+            if 'type' in value.keys():
+                parent.add(T.StructField(
+                    name,
+                    self.str_to_type[value['type']](value.get('default'), name),
+                    not value.get('required', False)
+                ))
+                return
+
+            struct_value = T.StructType()
+            for child_name, child_value in value.items():
+                add_json_item(struct_value, child_name, child_value)
+
+            parent.add(T.StructField(name, struct_value))
+
+        self.__schema = T.StructType()
+        for child_name, child_value in schema['properties'].items():
+            add_json_item(self.__schema, child_name, child_value)
+
         self.schema = self.__schema
         self.__schema_class = self.__json_schema
 
@@ -176,8 +191,8 @@ class JSONLogSparkParser(JSONLogParser, SerializableMixin):
                     default = properties[c].get('default', None)
                     if default is not None:
                         df = df.fillna(default, subset=[c])
-                    else:
-                        warnings.warn(f'Default value for {c} is None.')
+                    # else:
+                    #     warnings.warn(f'Default value for {c} is None.')
                 else:
                     # required flag is set and c not in required
                     warnings.warn(
@@ -203,10 +218,12 @@ class JSONLogSparkParser(JSONLogParser, SerializableMixin):
 
     def check_for_missing_columns(self, df, required_only=True):
         """
-
-        :param df:
+        Checks if any columns are missing from the dataframe.
+        Returns a list of the missing columns
+        :param pyspark.sql.DataFrame df:
         :param boolean required_only: look only for missing required columns
-        :return:
+        :return: the list of missing column names
+        :rtype: list[str]
         """
         cols = self.__json_schema['properties'].keys()
         if required_only:

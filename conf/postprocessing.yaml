@@ -1,0 +1,134 @@
+---
+database:
+  name: baskerville
+  user: !ENV ${POSTGRES_USER}
+  password: !ENV ${POSTGRES_PASS}
+  host: !ENV ${POSTGRES_HOST}
+  port : 5432
+  type: 'postgres'
+  data_partition: True
+
+user_details:
+  username: 'admin'
+  password: 'pass'
+  organization_uuid: 'test'
+  organization_name: 'test_org'
+
+engine:
+  use_kafka_for_sensitive_data: False
+  anomaly_threshold: 0.5
+  attack_threshold: 0.0
+  id_client: 'production'
+  ttl: 500
+  time_bucket: 15
+  ip_cache_pending_size: 300000
+  storage_path: 's3a://dev'
+  metrics:
+    port: 8998
+    performance:
+      pipeline:
+        - '_get_df'
+        - '_feature_extraction'
+        - '_group_by'
+        - '_predict'
+        - '_save'
+        - 'clean_cache'
+        - '_update'
+        - '_instantiate_spark_session'
+      request_set_cache:
+        - 'instantiate_cache'
+        - '__getitem__'
+        - '__contains__'
+        - 'clean'
+      features: True
+    progress: True
+  verbose: False
+  datetime_format: '%Y-%m-%d %H:%M:%S'
+  training:
+    model: 'baskerville.models.anomaly_model.AnomalyModel'
+    data_parameters:
+      #training_days: 30
+      from_date: '2020-04-01'
+      to_date: '2020-04-15'
+    model_parameters:
+      categorical_features: ['target']
+      threshold: 0.45
+      max_samples: 5000 #1000
+      contamination: 0.1
+      num_trees: 300 # 1000
+      max_depth: 10 #5
+      max_features: 1.0 #0.8
+      approximate_quantile_relative_error: 0.4
+
+  extra_features:
+      - host
+      - country
+      - host_country
+      - request_rate
+      - css_to_html_ratio
+      - image_to_html_ratio
+      - js_to_html_ratio
+      - minutes_total
+      - path_depth_average
+      - path_depth_variance
+      - payload_size_average
+      - payload_size_log_average
+      - request_interval_average
+      - request_interval_variance
+      - request_total
+      - response4xx_to_request_ratio
+      - top_page_to_request_ratio
+      - unique_path_rate
+      - unique_path_to_request_ratio
+      - unique_query_rate
+      - unique_query_to_unique_path_ratio
+      - unique_ua_rate
+  data_config:
+    parser: JSONLogSparkParser
+    schema: !ENV '${BASKERVILLE_ROOT}/data/samples/ats_log_schema.json'
+    group_by_cols:
+      - 'client_request_host'
+      - 'client_ip'
+    timestamp_column: '@timestamp'
+  use_spark: True
+  logpath : !ENV '${BASKERVILLE_ROOT}/src/baskerville/logs/baskerville.log'
+  log_level: 'DEBUG'
+  cache_expire_time: 7200    # sec (604800 = 1 week)
+  cache_load_past: False      # Load past request sets or not
+  cache_lookup: True          # search cache for sessions
+  cross_reference: False      # search MISP for IPs
+  db_lookup: False            # search database for sessions
+  manual_rawlog:
+    raw_logs_path:
+      - !ENV '${BASKERVILLE_ROOT}/data/samples/test_data_1k.json' # 1k randomized logs
+  simulation:
+    sleep: True
+    verbose: True
+
+kafka:
+  connection:
+    bootstrap_servers: !ENV '${KAFKA_HOST}'
+  bootstrap_servers: !ENV '${KAFKA_HOST}'
+  consume_topic: 'deflect.logs'
+  consume_group: 'baskerville'
+
+spark:
+  redis_host: 'redis-replicas.default.svc.cluster.local'
+  redis_password: !ENV ${REDIS_PASSWORD}
+  app_name: 'Postprocessing'
+  master: 'k8s://https://kubernetes.default.svc'
+  parallelism: -1
+  log_conf: 'true'
+  log_level: 'ERROR'
+  jars: !ENV '${BASKERVILLE_ROOT}/data/jars/hadoop-aws-2.7.1.jar,${BASKERVILLE_ROOT}/data/jars/aws-java-sdk-1.7.4.jar,${BASKERVILLE_ROOT}/data/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.0.jar,${BASKERVILLE_ROOT}/data/jars/spark-redis_2.11-2.5.0-SNAPSHOT-jar-with-dependencies.jar,${BASKERVILLE_ROOT}/data/jars/spark-iforest-2.4.0.99.jar,${BASKERVILLE_ROOT}/data/jars/postgresql-42.2.4.jar'
+  session_timezone: 'UTC'
+  # shuffle_partitions: 6   # 2 * cores * workers
+
+  db_driver: 'org.postgresql.Driver'
+  event_log: False
+  serializer: 'org.apache.spark.serializer.KryoSerializer'
+  kryoserializer_buffer_max: '2024m'
+  kryoserializer_buffer: '1024k'
+  s3_endpoint: 'store.greenhost.net'
+  s3_access_key: !ENV ${S3_ACCESS}
+  s3_secret_key: !ENV ${S3_SECRET}
