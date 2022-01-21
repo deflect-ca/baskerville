@@ -403,8 +403,6 @@ class GetDataLog(Task):
         if len(self.df.head(1)) == 0:
             self.logger.info('No data in to process.')
         else:
-            df_original = self.df
-
             for window_df in get_window(
                     df_original, self.time_bucket, self.config.spark.storage_level, self.logger
             ):
@@ -1697,7 +1695,6 @@ class AttackDetection(Task):
                 **config.incident_detector
             )
         else:
-            self.logger.info('No incident detector configured')
             self.incident_detector = None
 
     def initialize(self):
@@ -1822,6 +1819,7 @@ class AttackDetection(Task):
     def run(self):
         if get_dtype_for_col(self.df, 'features') == 'string':
             self.logger.info('Unwrapping features from json...')
+
             # this can be true when running the raw log pipeline
             self.df = self.df.withColumn(
                 "features",
