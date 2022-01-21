@@ -1795,7 +1795,6 @@ class AttackDetection(Task):
                 'features',
                 F.from_json('features', self.low_rate_attack_schema)
             )
-        self.df.select('features').show(1, False)
         self.df = self.df.withColumn(
             'features.request_total',
             F.col('features.request_total').cast(
