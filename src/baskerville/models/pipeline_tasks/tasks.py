@@ -403,8 +403,10 @@ class GetDataLog(Task):
         if len(self.df.head(1)) == 0:
             self.logger.info('No data in to process.')
         else:
+            df_original = self.df
+
             for window_df in get_window(
-                    self.df, self.time_bucket, self.config.spark.storage_level
+                    df_original, self.time_bucket, self.config.spark.storage_level, self.logger
             ):
                 self.df = window_df.repartition(
                     *self.group_by_cols
@@ -1245,7 +1247,6 @@ class SaveFeedback(SaveDfInPostgres):
     def prepare_to_save(self):
         try:
             success = self.upsert_feedback_context()
-            self.df.show()
             success = True
             if success:
                 # explode submitted feedback first
@@ -1257,7 +1258,6 @@ class SaveFeedback(SaveDfInPostgres):
                     F.col('id_fc').alias('sumbitted_context_id'),
                     F.explode('feedback').alias('feedback')
                 ).cache()
-                self.df.show()
                 self.df = self.df.select(
                     F.col('uuid_organization').alias('top_uuid_organization'),
                     F.col('id_context').alias('client_id_context'),
@@ -1697,6 +1697,7 @@ class AttackDetection(Task):
                 **config.incident_detector
             )
         else:
+            self.logger.info('No incident detector configured')
             self.incident_detector = None
 
     def initialize(self):
@@ -1771,22 +1772,34 @@ class AttackDetection(Task):
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
-        hosts = self.incident_detector.get_hosts_with_incidents() if self.incident_detector else []
+        if self.incident_detector:
+            self.logger.info('Getting hosts with incidents...')
+            hosts = self.incident_detector.get_hosts_with_incidents()
+        else:
+            hosts = []
 
+        self.logger.info(f'Number of hosts under attack {len(hosts)}.')
+
+        self.df = self.df.withColumn('attack_prediction',
+                                     F.when(F.col('target').isin(hosts),
+                                            F.lit(1)).otherwise(F.lit(0)))
+
+        self.logger.info(f'Dynamic thresholds calculation...')
         self.df = self.df.withColumn('threshold',
                                      F.when(F.col('target').isin(hosts),
-                                            self.config.engine.anomaly_threshold_during_incident).otherwise(
-                                         self.config.engine.anomaly_threshold))
-
+                                            F.lit(self.config.engine.anomaly_threshold_during_incident)).otherwise(
+                                         F.lit(self.config.engine.anomaly_threshold)))
+        self.logger.info(f'Dynamic thresholding...')
         self.df = self.df.withColumn(
             'prediction',
-            F.when(F.col('score') > F.col('threshold'), F.lit(1.0)).otherwise(F.lit(0.)))
+            F.when(F.col('score') > F.col('threshold'), F.lit(1)).otherwise(F.lit(0)))
 
         self.df = self.df.drop('threshold')
 
     def detect_low_rate_attack(self):
         if not self.config.engine.low_rate_attack_enabled:
-            self.df = self.df.withColumn('low_rate_attack', 0.0)
+            self.logger.info('Skipping low rate attack detection.')
+            self.df = self.df.withColumn('low_rate_attack', F.lit(0))
             return
 
         self.logger.info('Low rate attack detecting...')
@@ -1795,50 +1808,28 @@ class AttackDetection(Task):
                 'features',
                 F.from_json('features', self.low_rate_attack_schema)
             )
-        self.df.select('features').show(1, False)
         self.df = self.df.withColumn(
             'features.request_total',
             F.col('features.request_total').cast(
                 T.DoubleType()
             ).alias('features.request_total')
-        ).persist(self.config.spark.storage_level)
+        )
         self.df = self.df.withColumn(
             'low_rate_attack',
-            F.when(self.lra_condition, 1.0).otherwise(0.0)
-        )
-
-    def detect_attack(self):
-        self.logger.info('Attack detecting...')
-        self.detect_low_rate_attack()
-        # return df_attack
-        return self.df
-
-    def updated_df_with_attacks(self, df_attack):
-        self.df = self.df.join(
-            df_attack,
-            on=[df_attack.uuid_request_set == self.df.uuid_request_set],
-            how='left'
+            F.when(self.lra_condition, F.lit(1)).otherwise(F.lit(0))
         )
 
     def run(self):
         if get_dtype_for_col(self.df, 'features') == 'string':
+            self.logger.info('Unwrapping features from json...')
             # this can be true when running the raw log pipeline
             self.df = self.df.withColumn(
                 "features",
                 F.from_json("features", self.features_schema)
             )
-        self.df = self.df.repartition('target').persist(
-            self.config.spark.storage_level
-        )
+
         self.classify_anomalies()
-        df_attack = self.detect_attack()
-
-        # 'attack_prediction' column is not set anymore in this task
-        self.df = self.df.withColumn('attack_prediction', F.lit(0))
-
-        if not df_has_rows(df_attack):
-            self.updated_df_with_attacks(df_attack)
-            self.logger.info('No attacks detected...')
+        self.detect_low_rate_attack()
 
         self.df = super().run()
         return self.df
