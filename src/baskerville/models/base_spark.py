@@ -398,7 +398,7 @@ class SparkPipelineBase(PipelineBase):
             #  self.spark_conf.storage_level
             # )
             if not window_df.rdd.isEmpty():
-                print(f'# Request sets = {window_df.count()}')
+                self.logger.info(f'# Request sets = {window_df.count()}')
                 yield window_df
             else:
                 self.logger.info(f'Empty window df for {str(filter_._jc)}')

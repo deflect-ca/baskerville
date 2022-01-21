@@ -191,6 +191,8 @@ def get_or_create_spark_session(spark_conf):
         conf.set('spark.kubernetes.driver.pod.name', os.environ['MY_POD_NAME'])
         conf.set('spark.driver.host', os.environ['MY_POD_IP'])
         conf.set('spark.driver.port', 20020)
+    else:
+        conf.set('spark.sql.codegen.wholeStage', 'false')
 
     spark = SparkSession.builder \
         .config(conf=conf) \
