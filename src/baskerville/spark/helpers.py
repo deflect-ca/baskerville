@@ -262,7 +262,7 @@ def columns_to_dict(df, col_name, columns_to_gather):
     )
 
 
-def get_window(df, time_bucket: TimeBucket, storage_level: str):
+def get_window(df, time_bucket: TimeBucket, storage_level: str, logger):
     df = df.withColumn(
         'timestamp', F.col('@timestamp').cast('timestamp')
     )
@@ -282,10 +282,10 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str):
         )
         window_df = df.where(filter_) #.persist(storage_level)
         if not window_df.rdd.isEmpty():
-            print(f'# Request sets = {window_df.count()}')
+            logger.info(f'# Request sets = {window_df.count()}')
             yield window_df
         else:
-            print(f'Empty window df for {str(filter_._jc)}')
+            logger.info(f'Empty window df for {str(filter_._jc)}')
         current_window_start = current_window_start + time_bucket.td
         current_end = current_window_start + time_bucket.td
         if current_window_start >= stop:
