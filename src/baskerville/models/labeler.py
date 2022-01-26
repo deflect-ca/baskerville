@@ -61,16 +61,16 @@ class Labeler(object):
         self.logger.info(f'{len(df)} records retrieved.')
         num_ips = len(df['ip'].unique())
         self.logger.info(f'{num_ips} unique IPs')
-        self.logger.info(f'Unwrapping features...')
-        if len(df) > 0:
-            ff = df['features'].apply(pd.Series).columns.to_list()
-            df[ff] = df['features'].apply(pd.Series)
-            df.drop('features', axis=1, inplace=True)
-            df.drop('host', axis=1, inplace=True)
-            # df.drop('country', axis=1, inplace=True)
-            df.drop('request_total', axis=1, inplace=True)
-            df.drop('minutes_total', axis=1, inplace=True)
-        self.logger.info(f'Unwrapping features complete.')
+        # self.logger.info(f'Unwrapping features...')
+        # if len(df) > 0:
+        #     ff = df['features'].apply(pd.Series).columns.to_list()
+        #     df[ff] = df['features'].apply(pd.Series)
+        #     df.drop('features', axis=1, inplace=True)
+        #     df.drop('host', axis=1, inplace=True)
+        #     # df.drop('country', axis=1, inplace=True)
+        #     df.drop('request_total', axis=1, inplace=True)
+        #     df.drop('minutes_total', axis=1, inplace=True)
+        # self.logger.info(f'Unwrapping features complete.')
         df = df.fillna(0)
         return df
 
@@ -87,8 +87,8 @@ class Labeler(object):
                                        f'stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'', engine)
 
         regular_ips = df_regular[['ip']].drop_duplicates()
-        df_attack = df_attack.merge(regular_ips[['ip']], on=['ip'], how='outer', indicator=True)
-        df_attack = df_attack[df_attack['_merge'] == 'left_only']
+        # df_attack = df_attack.merge(regular_ips[['ip']], on=['ip'], how='outer', indicator=True)
+        # df_attack = df_attack[df_attack['_merge'] == 'left_only']
 
         features = [
             'request_rate',
@@ -110,43 +110,44 @@ class Labeler(object):
             'unique_ua_rate'
         ]
 
-        labels = np.ones(len(df_regular), dtype=int)
-        labels = np.append(labels, np.zeros(len(df_attack), dtype=int))
-        dataset = pd.concat([df_regular[features], df_attack[features]])
+        # labels = np.ones(len(df_regular), dtype=int)
+        # labels = np.append(labels, np.zeros(len(df_attack), dtype=int))
+        # dataset = pd.concat([df_regular[features], df_attack[features]])
+        #
+        # # scaler = StandardScaler()
+        # # dataset = scaler.fit_transform(dataset[features].values)
+        #
+        # model = GradientBoostingClassifier(
+        #     n_estimators=500, random_state=777,
+        #     max_depth=12,
+        #     max_features='auto',
+        #     learning_rate=0.05)
+        # model.fit(dataset, labels)
+        #
+        # predictions = model.predict(df_attack[features])
+        #
+        # incident = df_attack[['ip']].copy()
+        # incident['predictions'] = predictions
+        # attackers_predicted = incident[incident['predictions'] == 0][['ip']].drop_duplicates()
+        #
+        # incident_ips = incident[['ip']].drop_duplicates()
+        # regular_ips = df_regular[['ip']].drop_duplicates()
+        #
+        # attackers_vs_regular_traffic = pd.merge(regular_ips, attackers_predicted, how='inner', on=['ip'])
+        # regulars_vs_incident = pd.merge(regular_ips, incident_ips, how='inner', on=['ip'])
+        #
+        # self.logger.info(f'Number of unique IPs in the incident = {len(incident_ips)}')
+        # self.logger.info(f'Number of predicted attackers = {len(attackers_predicted)}')
+        # self.logger.info(f'Number of predicted regulars = {len(incident_ips) - len(attackers_predicted)}')
+        # self.logger.info(
+        #     f'Intersection predicted attackers in regular traffic = {len(attackers_vs_regular_traffic)}, {len(attackers_vs_regular_traffic) / len(regular_ips) * 100:2.1f}%')
+        # self.logger.info(f'Intersection regular traffic in incident = {len(regulars_vs_incident)}')
+        #
+        # # filter out the IPs from regular traffic
+        # attackers = pd.merge(attackers_predicted, regulars_vs_incident, how='outer', on=['ip'], indicator=True)
+        # attackers = attackers[attackers['_merge'] == 'left_only'][['ip']]
 
-        # scaler = StandardScaler()
-        # dataset = scaler.fit_transform(dataset[features].values)
-
-        model = GradientBoostingClassifier(
-            n_estimators=500, random_state=777,
-            max_depth=12,
-            max_features='auto',
-            learning_rate=0.05)
-        model.fit(dataset, labels)
-
-        predictions = model.predict(df_attack[features])
-
-        incident = df_attack[['ip']].copy()
-        incident['predictions'] = predictions
-        attackers_predicted = incident[incident['predictions'] == 0][['ip']].drop_duplicates()
-
-        incident_ips = incident[['ip']].drop_duplicates()
-        regular_ips = df_regular[['ip']].drop_duplicates()
-
-        attackers_vs_regular_traffic = pd.merge(regular_ips, attackers_predicted, how='inner', on=['ip'])
-        regulars_vs_incident = pd.merge(regular_ips, incident_ips, how='inner', on=['ip'])
-
-        self.logger.info(f'Number of unique IPs in the incident = {len(incident_ips)}')
-        self.logger.info(f'Number of predicted attackers = {len(attackers_predicted)}')
-        self.logger.info(f'Number of predicted regulars = {len(incident_ips) - len(attackers_predicted)}')
-        self.logger.info(
-            f'Intersection predicted attackers in regular traffic = {len(attackers_vs_regular_traffic)}, {len(attackers_vs_regular_traffic) / len(regular_ips) * 100:2.1f}%')
-        self.logger.info(f'Intersection regular traffic in incident = {len(regulars_vs_incident)}')
-
-        # filter out the IPs from regular traffic
-        attackers = pd.merge(attackers_predicted, regulars_vs_incident, how='outer', on=['ip'], indicator=True)
-        attackers = attackers[attackers['_merge'] == 'left_only'][['ip']]
-
+        attackers = df_attack[['ip']].drop_duplicates()
         self.logger.info(f'Final number of attackers IP: {len(attackers)}')
 
         # update ips in the database
