@@ -191,7 +191,7 @@ def set_up_db(conf, create=True, partition=True):
     Base.metadata.create_all(bind=engine)
     # session = Session()
 
-    if Session.query(Organization).count() == 0 and \
+    if conf.get('create_organization') and Session.query(Organization).count() == 0 and \
             Session.query(User).count() == 0 and \
             Session.query(UserCategory).count() == 0:
         try:

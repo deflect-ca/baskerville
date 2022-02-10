@@ -698,6 +698,7 @@ class DatabaseConfig(Config):
     port = None
     type = 'postgres'
     maintenance = None
+    create_organization = True
 
     def __init__(self, config, parent=None):
         super(DatabaseConfig, self).__init__(config, parent)
