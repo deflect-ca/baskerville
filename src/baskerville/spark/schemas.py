@@ -22,7 +22,8 @@ prediction_schema = T.StructType([
     T.StructField("id_client", T.StringType(), False),
     T.StructField("uuid_request_set", T.StringType(), False),
     T.StructField("prediction", T.FloatType(), False),
-    T.StructField("score", T.FloatType(), False)
+    T.StructField("score", T.FloatType(), False),
+    T.StructField("classifier_score", T.FloatType(), False)
 ])
 
 feature_vectors_schema = T.StructField(

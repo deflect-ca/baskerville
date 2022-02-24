@@ -259,6 +259,7 @@ class EngineConfig(Config):
     cache_load_past = False
     cross_reference = False
     model_path = None
+    classifier_model_path = None
     model_id = None
     extra_features = None
     verbose = False
@@ -272,6 +273,8 @@ class EngineConfig(Config):
     trigger_challenge = True
     anomaly_threshold = 0.45
     anomaly_threshold_during_incident = 0.35
+    classifier_threshold = 0.95
+    classifier_threshold_during_incident = 0.8
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500

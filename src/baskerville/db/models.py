@@ -105,6 +105,7 @@ class RequestSet(Base, SerializableMixin):
     banned = Column(Integer)
     low_rate_attack = Column(Integer)
     score = Column(Float)
+    classifier_score = Column(Float)
     features = Column(JSON)
     created_at = Column(DateTime(timezone=True), server_default=utcnow())
     updated_at = Column(
@@ -149,6 +150,7 @@ class RequestSet(Base, SerializableMixin):
         'low_rate_attack',
         'challenged',
         'score',
+        'classifier_score',
         'label',
         'id_attribute',
         'features',
