@@ -1051,18 +1051,8 @@ class Predict(MLTask):
         super().initialize()
 
         if self.config.engine.classifier_model_path:
-            self.classifier_model = ClassifierModel(
-                features=['image_total', 'unique_path_to_request_ratio', 'unique_path_total', 'unique_ua_total',
-                          'path_depth_average', 'request_total', 'unique_ua_rate', 'image_to_html_ratio',
-                          'minutes_total', 'top_page_to_request_ratio', 'js_total', 'payload_size_average',
-                          'path_depth_variance', 'payload_size_log_average', 'unique_query_rate', 'unique_path_rate',
-                          'response4xx_to_request_ratio', 'top_page_total', 'request_interval_variance',
-                          'response4xx_total', 'css_total', 'js_to_html_ratio', 'unique_query_to_unique_path_ratio',
-                          'request_interval_average', 'css_to_html_ratio', 'html_total', 'request_rate',
-                          'unique_query_total'],
-                logger=self.logger)
-
-            self.classifier_model.load(self.config.engine.classifier_model_path)
+            self.classifier_model = ClassifierModel()
+            self.classifier_model.load(self.config.engine.classifier_model_path, spark_session=self.spark)
 
     def handle_missing_features(self):
         """

@@ -281,6 +281,12 @@ kubectl apply -f deployment/postgres/postgres.yaml
 kubectl apply -f deployment/postgres/postgres_lb.yaml
 ```
 
+* port forwarding
+```
+kubectl port-forward service/postgres-db-lb 5432:5432
+```
+
+
 ## Grafana
 * set your postgres password in the datasource `deployment/grafana/datasources/postgres.yaml`
 ```yaml

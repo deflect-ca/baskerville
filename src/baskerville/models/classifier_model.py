@@ -3,10 +3,9 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-
-
+from pyspark.ml.classification import GBTClassifier
 from pyspark.ml.feature import StandardScaler, StandardScalerModel, StringIndexer, StringIndexerModel
-from pyspark.ml.pipeline import PipelineModel
+from pyspark.ml.pipeline import PipelineModel, Pipeline
 from pyspark.sql.functions import array
 from baskerville.models.model_interface import ModelInterface
 from baskerville.spark.helpers import map_to_array, StorageLevelFactory
@@ -35,14 +34,39 @@ def to_sparse(c):
 
 class ClassifierModel(ModelInterface):
 
-    def __init__(self, features, logger):
+    def __init__(self, features=[]):
         super().__init__()
         self.model = None
         self.features = features
-        self.logger = logger
+
+    def evaluate(self, df):
+        P = df.where(F.col('label') == 1).count()
+        N = df.where(F.col('label') == 0).count()
+        FP = df.where((F.col('label') == 0) & (F.col('prediction') == 1)).count()
+        TP = df.where((F.col('label') == 1) & (F.col('prediction') == 1)).count()
+
+        self.logger.info(f'Positives = {P}')
+        self.logger.info(f'Negatives = {N}')
+        self.logger.info(f'Recall={TP / P if P > 0 else -1}')
+        self.logger.info(f'FPR={FP / N if N > 0 else -1}')
 
     def train(self, df):
-        pass
+        df = self.prepare_df(df)
+
+        (trainingData, testData) = df.randomSplit([0.8, 0.2])
+
+        classifier = GBTClassifier(
+            labelCol="label",
+            featuresCol="features_sparse",
+            maxIter=100)
+        pipeline = Pipeline(stages=[classifier])
+        self.model = pipeline.fit(trainingData)
+        predictions_test = self.model.transform(testData)
+        predictions_train = self.model.transform(trainingData)
+        self.logger.info("Training performance:")
+        self.evaluate(predictions_train)
+        self.logger.info("Test performance:")
+        self.evaluate(predictions_test)
 
     def prepare_df(self, df):
         df = map_to_array(df, map_col='features', array_col='features_vector',
@@ -60,9 +84,21 @@ class ClassifierModel(ModelInterface):
         df = df.drop('features_sparse', 'rawPrediction', 'probability', 'prediction')
         return df
 
+    def _get_params_path(self, path):
+        return os.path.join(path, 'params.json')
+
+    def _get_model_path(self, path):
+        return os.path.join(path, 'model/')
+
     def save(self, path, spark_session=None, training_config=None):
-        pass
+        file_manager = FileManager(path, spark_session)
+        file_manager.save_to_file(self.get_params(), self._get_params_path(path), format='json')
+        self.model.save(self._get_model_path(path))
 
     def load(self, path, spark_session=None):
-        self.model = PipelineModel.load(path)
+        file_manager = FileManager(path, spark_session)
+        params = file_manager.load_from_file(self._get_params_path(path), format='json')
+        self.set_params(**params)
+
+        self.model = PipelineModel.load(self._get_model_path(path))
         return self

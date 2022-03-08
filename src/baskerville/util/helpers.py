@@ -17,6 +17,7 @@ import yaml
 from baskerville.util.enums import ModelEnum, BaseStrEnum
 
 FOLDER_MODELS = 'models'
+FOLDER_CLASSIFIER_MODELS = 'classifier_models'
 FOLDER_CACHE = 'cache'
 
 
@@ -388,6 +389,17 @@ def get_model_path(storage_path, model_name='model'):
                         FOLDER_MODELS,
                         f'{model_name}__{get_timestamp()}')
 
+
+def get_classifier_model_path(storage_path, model_name='model'):
+    """
+    Crete the model full path for the given storage and the name of the model\
+    :param storage_path: the path to the storage root folder
+    :param model_name:
+    :return: storage_path/models/mdel_name__2020_01_01__14:30
+    """
+    return os.path.join(storage_path,
+                        FOLDER_CLASSIFIER_MODELS,
+                        f'{model_name}__{get_timestamp()}')
 
 def load_model_from_path(model_path, spark=None):
     """

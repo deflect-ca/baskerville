@@ -255,6 +255,7 @@ class EngineConfig(Config):
     cache_path = None
     save_cache_to_storage = False
     storage_path = None
+    incidents_path = None
     cache_expire_time = None
     cache_load_past = False
     cross_reference = False
@@ -326,6 +327,7 @@ class EngineConfig(Config):
         if not self.storage_path:
             self.storage_path = os.path.join(
                 get_default_data_path(), 'storage')
+
 
     def validate(self):
         logger.debug('Validating EngineConfig...')
@@ -505,6 +507,8 @@ class TrainingConfig(Config):
         -
     """
     model_parameters = dict
+    classifier_model = 'baskerville.models.classifier_model.ClassifierModel'
+    incidents_folder = 'attacks'
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
