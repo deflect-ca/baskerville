@@ -47,6 +47,7 @@ class RunType(BaseStrEnum):
     irawlog = 'irawlog'
     ikafka = 'ikafka'
     training = 'training'
+    training_classifier = 'training_classifier'
     preprocessing = 'preprocessing'
     postprocessing = 'postprocessing'
     predicting = 'predicting'

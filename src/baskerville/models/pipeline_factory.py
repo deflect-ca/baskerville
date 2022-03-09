@@ -63,6 +63,10 @@ class PipelineFactory(object):
             from baskerville.models.pipeline_tasks.training_pipeline \
                 import set_up_training_pipeline
             return set_up_training_pipeline(config)
+        elif run_type == RunType.training_classifier:
+            from baskerville.models.pipeline_tasks.training_pipeline \
+                import set_up_classifier_training_pipeline
+            return set_up_classifier_training_pipeline(config)
         # elif run_type == RunType.dashboard_preprocessing:
         #     from baskerville.models.pipeline_tasks.dashboard_pipeline import \
         #         set_up_dashboard_preprocessing_pipeline

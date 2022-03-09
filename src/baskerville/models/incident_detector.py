@@ -21,9 +21,9 @@ class IncidentDetector:
     def __init__(self,
                  db_config,
                  time_bucket_in_seconds=120,
-                 time_horizon_in_seconds=600,
+                 time_horizon_in_seconds=400,
                  check_interval_in_seconds=120,
-                 stat_refresh_period_in_minutes=30,
+                 stat_refresh_period_in_minutes=60,
                  stat_window_in_hours=1,
                  min_traffic=3,
                  min_traffic_incident=50,
@@ -75,6 +75,7 @@ class IncidentDetector:
             self._detect()
             is_killed = self.kill.wait(self.check_interval_in_seconds)
             if is_killed:
+                self.logger.info('is_killed is True. Incident detector stopped.')
                 break
 
     def start(self):
@@ -289,7 +290,6 @@ class IncidentDetector:
 
         anomalies = batch[condition]
         regulars = batch[~condition]
-
         with self.lock:
             self._stop_incidents(regulars)
             self._start_incidents(anomalies)

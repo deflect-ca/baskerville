@@ -4,9 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-
 import datetime
-from collections import defaultdict
 
 import itertools
 import json
@@ -19,15 +17,14 @@ from kafka.errors import TopicAlreadyExistsError
 
 from baskerville.db.dashboard_models import FeedbackContext
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType, StructField, StructType, DoubleType
+from pyspark.sql.types import StringType, StructField, StructType
 from pyspark.streaming import StreamingContext
-from functools import reduce
-from pyspark.sql import DataFrame
 from sqlalchemy.exc import SQLAlchemyError
 
 from baskerville.db import get_jdbc_url
-from baskerville.db.models import RequestSet, Model, Attack
+from baskerville.db.models import RequestSet, Model
 from baskerville.models.banjax_report_consumer import BanjaxReportConsumer
+from baskerville.models.classifier_model import ClassifierModel
 from baskerville.models.incident_detector import IncidentDetector
 from baskerville.models.ip_cache import IPCache
 from baskerville.models.metrics.registry import metrics_registry
@@ -39,16 +36,13 @@ from baskerville.spark.helpers import map_to_array, load_test, \
     df_has_rows, get_dtype_for_col, \
     handle_missing_col
 from baskerville.spark.schemas import features_schema, \
-    prediction_schema, get_message_schema, get_data_schema, \
-    get_feedback_context_schema, get_features_schema
+    prediction_schema, get_message_schema, get_data_schema, get_features_schema
 from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
 # broadcasts
 from baskerville.util.elastic_writer import ElasticWriter
-from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import instantiate_from_str, get_model_path, \
-    parse_config
+from baskerville.util.helpers import parse_config
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
 from baskerville.util.mail_sender import MailSender
@@ -1051,6 +1045,14 @@ class Predict(MLTask):
     def __init__(self, config: BaskervilleConfig, steps=()):
         super().__init__(config, steps)
         self._is_initialized = False
+        self.classifier_model = None
+
+    def initialize(self):
+        super().initialize()
+
+        if self.config.engine.classifier_model_path:
+            self.classifier_model = ClassifierModel()
+            self.classifier_model.load(self.config.engine.classifier_model_path, spark_session=self.spark)
 
     def handle_missing_features(self):
         """
@@ -1070,6 +1072,12 @@ class Predict(MLTask):
             self.df = self.df.fillna(default_value, subset=[feat_dict_col])
 
     def predict(self):
+        if self.classifier_model:
+            self.logger.info('Classifier predicting...')
+            self.df = self.classifier_model.predict(self.df)
+        else:
+            self.logger.info('Classifier model is not used')
+
         if self.model:
             self.df = self.model.predict(self.df)
         else:
@@ -1673,6 +1681,30 @@ class SaveFeaturesHive(MLTask):
         return self.df
 
 
+def prediction(score,
+               classifier_score,
+               attack_prediction,
+               anomaly_threshold,
+               anomaly_threshold_attack,
+               classifier_threshold,
+               classifier_threshold_attack):
+    if attack_prediction == 1:
+        if classifier_score:
+            if score > anomaly_threshold_attack or classifier_score > classifier_threshold:
+                return 1
+        else:
+            if score > anomaly_threshold_attack:
+                return 1
+    else:
+        if classifier_score:
+            if score > anomaly_threshold and classifier_score > classifier_threshold_attack:
+                return 1
+        else:
+            if score > anomaly_threshold:
+                return 1
+    return 0
+
+
 class AttackDetection(Task):
     """
     Calculates prediction per IP, attack_score per Target, regular vs anomaly counts, attack_prediction
@@ -1782,16 +1814,13 @@ class AttackDetection(Task):
                                             F.lit(1)).otherwise(F.lit(0)))
 
         self.logger.info(f'Dynamic thresholds calculation...')
-        self.df = self.df.withColumn('threshold',
-                                     F.when(F.col('target').isin(hosts),
-                                            F.lit(self.config.engine.anomaly_threshold_during_incident)).otherwise(
-                                         F.lit(self.config.engine.anomaly_threshold)))
-        self.logger.info(f'Dynamic thresholding...')
-        self.df = self.df.withColumn(
-            'prediction',
-            F.when(F.col('score') > F.col('threshold'), F.lit(1)).otherwise(F.lit(0)))
-
-        self.df = self.df.drop('threshold')
+        self.df = self.df.withColumn('prediction', F.udf(prediction, T.IntegerType())(
+            'score', 'classifier_score', 'attack_prediction',
+            F.lit(self.config.engine.anomaly_threshold),
+            F.lit(self.config.engine.anomaly_threshold_during_incident),
+            F.lit(self.config.engine.classifier_threshold),
+            F.lit(self.config.engine.classifier_threshold_during_incident)
+        ))
 
     def detect_low_rate_attack(self):
         if not self.config.engine.low_rate_attack_enabled:

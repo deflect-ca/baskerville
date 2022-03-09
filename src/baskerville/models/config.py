@@ -255,10 +255,12 @@ class EngineConfig(Config):
     cache_path = None
     save_cache_to_storage = False
     storage_path = None
+    incidents_path = None
     cache_expire_time = None
     cache_load_past = False
     cross_reference = False
     model_path = None
+    classifier_model_path = None
     model_id = None
     extra_features = None
     verbose = False
@@ -272,6 +274,8 @@ class EngineConfig(Config):
     trigger_challenge = True
     anomaly_threshold = 0.45
     anomaly_threshold_during_incident = 0.35
+    classifier_threshold = 0.95
+    classifier_threshold_during_incident = 0.8
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
@@ -323,6 +327,7 @@ class EngineConfig(Config):
         if not self.storage_path:
             self.storage_path = os.path.join(
                 get_default_data_path(), 'storage')
+
 
     def validate(self):
         logger.debug('Validating EngineConfig...')
@@ -502,6 +507,8 @@ class TrainingConfig(Config):
         -
     """
     model_parameters = dict
+    classifier_model = 'baskerville.models.classifier_model.ClassifierModel'
+    incidents_folder = 'attacks'
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)

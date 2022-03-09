@@ -21,19 +21,18 @@ class DBReader(object):
         self.fresh_data = None
         self.lock = threading.Lock()
         self.thread = None
-        self.refresh()
 
     def set_query(self, query):
         self.query = query
 
-    def read_from_database(self):
+    def _read_from_database(self):
         try:
             session, engine = set_up_db(self.db_config.__dict__)
         except Exception as e:
             if self.logger:
                 self.logger.error(str(e))
             return None
-        data = None
+
         try:
             data = pd.read_sql(self.query, engine)
             with self.lock:
@@ -47,25 +46,26 @@ class DBReader(object):
             session.close()
             engine.dispose()
 
-        return data
+    def _run(self):
+        while True:
+            if not self.last_timestamp or int(time.time() - self.last_timestamp) > self.refresh_period_in_minutes*60:
+                self._read_from_database()
+                self.last_timestamp = time.time()
 
-    def refresh(self):
+    def _start(self):
         if not self.query:
             return
-        if not self.last_timestamp or int(time.time() - self.last_timestamp) > self.refresh_period_in_minutes*60:
-            self.last_timestamp = time.time()
-            if self.query:
-                if self.thread and self.thread.isAlive():
-                    return
+        if self.thread:
+            return
 
-                self.thread = threading.Thread(target=self.read_from_database)
-                self.thread.start()
+        self.thread = threading.Thread(target=self._run, daemon=True)
+        self.thread.start()
 
     def get(self):
         if not self.query:
             return None
 
-        self.refresh()
+        self._start()
         with self.lock:
             if self.fresh_data is not None:
                 self.data = self.fresh_data.copy()
