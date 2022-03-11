@@ -14,6 +14,7 @@ from baskerville.db.models import Attack
 from baskerville.util.db_reader import DBReader
 import datetime
 import pandas as pd
+import numpy as np
 
 
 class IncidentDetector:
@@ -33,6 +34,7 @@ class IncidentDetector:
                  dashboard_url_prefix=None,
                  dashboard_minutes_before=60,
                  dashboard_minutes_after=120,
+                 stop_delay_in_seconds=300,
                  logger=None,
                  mail_sender=None,
                  emails=None):
@@ -67,6 +69,7 @@ class IncidentDetector:
         self.dashboard_url_prefix = dashboard_url_prefix
         self.dashboard_minutes_before = dashboard_minutes_before
         self.dashboard_minutes_after = dashboard_minutes_after
+        self.stop_delay_in_seconds = stop_delay_in_seconds
         self.lock = threading.Lock()
 
     def _run(self):
@@ -163,6 +166,7 @@ class IncidentDetector:
         new_incidents['id'] = 0
         new_incidents['start'] = pd.to_datetime(new_incidents['time'], unit='s', utc=True)
         new_incidents = new_incidents.drop('time', 1)
+        new_incidents['first_stop'] = None
 
         session, engine = set_up_db(self.db_config.__dict__)
 
@@ -216,7 +220,17 @@ class IncidentDetector:
         if self.incidents is None or self.incidents.empty:
             return
 
-        stopped_incidents = pd.merge(self.incidents, regulars[['target', 'time']], how='inner', on='target')
+        # update first_stop column
+        self.incidents = pd.merge(self.incidents, regulars[['target', 'time']], how='left', on='target')
+        self.incidents['first_stop'] = np.where(self.incidents['first_stop'].isnull() & ~(self.incidents['time'].isnull()),
+                                           self.incidents['time'], self.incidents['first_stop'])
+        stopped_incidents = self.incidents[~self.incidents['time'].isnull()
+                                           & ~self.iself.ncidents['first_stop'].isnull()].copy()
+        self.incidents = self.incidents.drop('time', 1)
+
+        stopped_incidents['diff'] = stopped_incidents['time'] - stopped_incidents['first_stop']
+        stopped_incidents = stopped_incidents[stopped_incidents['diff'] > self.stop_delay_in_seconds]
+
         if len(stopped_incidents) == 0:
             return
 
