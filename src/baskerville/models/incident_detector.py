@@ -222,12 +222,14 @@ class IncidentDetector:
 
         # update first_stop column
         self.incidents = pd.merge(self.incidents, regulars[['target', 'time']], how='left', on='target')
-        self.incidents['first_stop'] = np.where(self.incidents['first_stop'].isnull() & ~(self.incidents['time'].isnull()),
-                                           self.incidents['time'], self.incidents['first_stop'])
+        self.incidents['first_stop'] = np.where(
+            self.incidents['first_stop'].isnull() & ~(self.incidents['time'].isnull()),
+            self.incidents['time'], self.incidents['first_stop'])
         stopped_incidents = self.incidents[~self.incidents['time'].isnull()
-                                           & ~self.iself.ncidents['first_stop'].isnull()].copy()
+                                           & ~self.incidents['first_stop'].isnull()].copy()
         self.incidents = self.incidents.drop('time', 1)
 
+        # filter only the incidents which stopped more then self.stop_delay_in_seconds ago
         stopped_incidents['diff'] = stopped_incidents['time'] - stopped_incidents['first_stop']
         stopped_incidents = stopped_incidents[stopped_incidents['diff'] > self.stop_delay_in_seconds]
 
@@ -283,6 +285,7 @@ class IncidentDetector:
         stats = self.stats_reader.get()
 
         if stats is None:
+            self.logger.info('No stats')
             return
 
         stats = stats[(~stats['avg_traffic'].isnull()) & (~stats['stddev_traffic'].isnull())
@@ -293,6 +296,7 @@ class IncidentDetector:
 
         sample = self._read_sample()
         if sample is None:
+            self.logger.info('No sample')
             return
 
         batch = pd.merge(sample, stats, how='left', on='target')
