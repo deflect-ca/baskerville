@@ -57,7 +57,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                                    f'/logs/test_base.log'
         self.engine_conf.metrics = False
         self.engine_conf.cache_expire_time = 10
-        self.spark_conf = SparkConfig({'db_driver': 'test'})
+        self.spark_conf = SparkConfig({'db_driver': 'test', 'jars': ''})
         self.spark_conf.validate()
 
         from baskerville.models.base_spark import SparkPipelineBase
@@ -726,6 +726,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'r': 0.,
                 'time_bucket': 10,
                 'model_version': 'test',
+                'classifier_score': 0.0
             },
             {
                 'id': 1,
@@ -755,6 +756,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'updated_at': now,
                 'time_bucket': 10,
                 'model_version': 'test',
+                'classifier_score': 0.0
             }
         ]
         self.spark_pipeline.set_broadcasts = mock.MagicMock()
@@ -878,8 +880,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             df, test_table, json_cols=json_cols, mode=mode_param
         )
 
-        persist.assert_called_once_with(
-            StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
+        # persist.assert_called_once_with(
+        #     StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
         format.assert_called_once_with('jdbc')
         options.assert_called_once_with(
             url=self.spark_pipeline.db_url,
@@ -904,39 +906,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
 
         self.assertSetEqual(set(called_args), set(json_cols))
 
-        save.assert_called_once()
-
-    def test_save_df_to_table(self):
-        test_table_name = 'test'
-        df = mock.MagicMock()
-        persist = df.persist
-        after_col_to_json = persist.return_value
-        format = after_col_to_json.write.format
-        options = format.return_value.options
-        mode = options.return_value.mode
-        save = mode.return_value.save
-
-        self.spark_pipeline.save_df_to_table(
-            df,
-            test_table_name,
-            json_cols=()
-        )
-
-        format.assert_called_once_with('jdbc')
-        options.assert_called_once_with(
-            url=self.spark_pipeline.db_url,
-            driver=self.spark_pipeline.spark_conf.db_driver,
-            dbtable=test_table_name,
-            user=self.spark_pipeline.db_conf.user,
-            password=self.spark_pipeline.db_conf.password,
-            stringtype='unspecified',
-            batchsize=100000,
-            max_connections=1250,
-            rewriteBatchedStatements=True,
-            reWriteBatchedInserts=True,
-            useServerPrepStmts=False
-        )
-        mode.assert_called_once_with('append')
         save.assert_called_once()
 
     @mock.patch('baskerville.spark.helpers.col_to_json')
