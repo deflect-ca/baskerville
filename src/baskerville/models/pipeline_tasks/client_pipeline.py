@@ -16,36 +16,36 @@ from baskerville.models.pipeline_tasks.tasks import GetDataKafka, \
 def set_up_preprocessing_pipeline(config: BaskervilleConfig):
     if config.engine.use_kafka_for_sensitive_data:
         steps = [
-                GenerateFeatures(config),
-                SendToKafka(
-                    config=config,
-                    columns=('id_client', 'uuid_request_set', 'features'),
-                    topic=config.kafka.features_topic,
-                ),
-                SendToKafka(
-                    config=config,
-                    columns=(
-                        'id_client', 'id_request_sets',
-                        'features',
-                        'target', 'ip', 'num_requests', 'target_original', 'first_ever_request',
-                        'id_runtime', 'time_bucket', 'start', 'stop', 'subset_count', 'dt', 'features'),
-                    topic=config.engine.kafka_topic_sensitive,
-                    send_to_clearing_house=config.engine.client_mode
-                ),
-                RefreshCache(config)
-            ]
+            GenerateFeatures(config),
+            SendToKafka(
+                config=config,
+                columns=('id_client', 'uuid_request_set', 'features'),
+                topic=config.kafka.features_topic,
+            ),
+            SendToKafka(
+                config=config,
+                columns=(
+                    'id_client', 'id_request_sets',
+                    'features',
+                    'target', 'ip', 'num_requests', 'target_original', 'first_ever_request',
+                    'id_runtime', 'time_bucket', 'start', 'stop', 'subset_count', 'dt', 'features'),
+                topic=config.engine.kafka_topic_sensitive,
+                send_to_clearing_house=config.engine.client_mode
+            ),
+            RefreshCache(config)
+        ]
     else:
         steps = [
-                GenerateFeatures(config),
-                CacheSensitiveData(config),
-                SendToKafka(
-                    config=config,
-                    columns=('id_client', 'uuid_request_set', 'features'),
-                    topic=config.kafka.features_topic,
-                    send_to_clearing_house=config.engine.client_mode
-                ),
-                RefreshCache(config)
-            ]
+            GenerateFeatures(config),
+            CacheSensitiveData(config),
+            SendToKafka(
+                config=config,
+                columns=('id_client', 'uuid_request_set', 'features'),
+                topic=config.kafka.features_topic,
+                send_to_clearing_house=config.engine.client_mode
+            ),
+            RefreshCache(config)
+        ]
     task = [
         GetDataKafka(
             config,

@@ -144,8 +144,7 @@ class IForestCrossValidator(CrossValidator):
         for i in range(nFolds):
             validateLB = i * h
             validateUB = (i + 1) * h
-            condition = (df[randCol] >= validateLB) & (
-                        df[randCol] < validateUB)
+            condition = (df[randCol] >= validateLB) & (df[randCol] < validateUB)
             validation = self.get_validation(df, condition)
             train = self.get_train(df, condition)
 
@@ -190,8 +189,7 @@ def get_random_attacks_by_percentage(
     h = 1.0 / (percent_anomalies / 10)
     validateLB = h
     validateUB = 6 * h
-    condition = (attack_df[random_col] >= validateLB) & (
-            attack_df[random_col] < validateUB)
+    condition = (attack_df[random_col] >= validateLB) & (attack_df[random_col] < validateUB)
     return attack_df.select(
         "*", F.rand(43).alias(random_col)
     ).select(condition).cache()
@@ -288,5 +286,3 @@ if __name__ == '__main__':
     config = parse_config(config_path)
     bask_config = BaskervilleConfig(config).validate()
     cross_validate(start, stop, bask_config, num_folds=num_folds)
-
-

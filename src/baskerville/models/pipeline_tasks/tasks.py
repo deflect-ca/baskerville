@@ -398,7 +398,7 @@ class GetDataLog(Task):
             self.logger.info('No data in to process.')
         else:
             for window_df in get_window(
-                    df_original, self.time_bucket, self.config.spark.storage_level, self.logger
+                    self.df, self.time_bucket, self.config.spark.storage_level, self.logger
             ):
                 self.df = window_df.repartition(
                     *self.group_by_cols
@@ -1150,11 +1150,11 @@ class Save(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                         'prediction',
-                         'model_version',
-                         'label',
-                         'id_attribute',
-                         'updated_at')
+                     'prediction',
+                     'model_version',
+                     'label',
+                     'id_attribute',
+                     'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1195,11 +1195,11 @@ class SaveFeedback(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                         'prediction',
-                         'model_version',
-                         'label',
-                         'id_attribute',
-                         'updated_at')
+                     'prediction',
+                     'model_version',
+                     'label',
+                     'id_attribute',
+                     'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1278,7 +1278,8 @@ class SaveFeedback(SaveDfInPostgres):
                 self.df = SaveDfInPostgres.run(self)
             self.df = self.df.groupBy('uuid_organization', 'id_context').count().toDF()
             self.df = self.df.withColumn('success', F.lit(True))
-        except:
+        except Exception as exp:
+            self.logger.error(exp)
             self.df = self.df.withColumn('success', F.lit(False))
 
     def run(self):
@@ -1506,7 +1507,7 @@ class Train(Task):
                     fractions[key] = 1.0
             dataset = dataset.sampleBy('target', fractions, 777)
 
-        self.logger.debug(f'Unwrapping features from json...')
+        self.logger.debug('Unwrapping features from json...')
         schema = StructType([])
         for feature in features:
             schema.add(StructField(
@@ -1737,14 +1738,13 @@ class AttackDetection(Task):
             name='request_total', dataType=StringType(), nullable=True
         )])
         self.time_filter = (
-                F.abs(F.unix_timestamp(F.col('stop'))) -
-                F.abs(F.unix_timestamp(F.col('start')))
+            F.abs(F.unix_timestamp(F.col('stop'))) - F.abs(F.unix_timestamp(F.col('start')))
         )
         self.lra_condition = (
-                ((F.col('features.request_total') > lr_attack_period[0]) &
-                 (self.time_filter > lra_total_req[0])) |
-                ((F.col('features.request_total') > lr_attack_period[1]) &
-                 (self.time_filter > lra_total_req[1]))
+            ((F.col('features.request_total') > lr_attack_period[0]) &
+             (self.time_filter > lra_total_req[0])) |
+            ((F.col('features.request_total') > lr_attack_period[1]) &
+             (self.time_filter > lra_total_req[1]))
         )
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
@@ -1813,7 +1813,7 @@ class AttackDetection(Task):
                                      F.when(F.col('target').isin(hosts),
                                             F.lit(1)).otherwise(F.lit(0)))
 
-        self.logger.info(f'Dynamic thresholds calculation...')
+        self.logger.info('Dynamic thresholds calculation...')
         self.df = self.df.withColumn('prediction', F.udf(prediction, T.IntegerType())(
             'score', 'classifier_score', 'attack_prediction',
             F.lit(self.config.engine.anomaly_threshold),
@@ -2023,7 +2023,8 @@ class Challenge(Task):
         #
         #     elif self.config.engine.challenge == 'ip':
         #         col_of_interest = 'ip'
-        #         df_to_challenge = self.df.select('ip', 'target').where( # this does not look right. Why (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)?
+        #         df_to_challenge = self.df.select('ip', 'target').
+        #         where( # this does not look right. Why (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)?
         #             (F.col('attack_prediction') == 1) &
         #             (F.col('prediction') == 1) |
         #             (F.col('low_rate_attack') == 1)

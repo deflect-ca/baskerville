@@ -67,7 +67,8 @@ class Runtime(Base, SerializableMixin):
     # runtimes * - 1 users
     try:
         from baskerville.db.dashboard_models import User
-    except:
+    except Exception as exp:
+        print(exp)
         pass
     user = relationship(
         'User',

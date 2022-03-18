@@ -8,9 +8,7 @@ from pyspark.ml.linalg import SparseVector, VectorUDT
 
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks_base import Task
-from baskerville.spark.helpers import map_to_array
 from baskerville.util.helpers import instantiate_from_str, get_classifier_model_path
-import os
 import numpy as np
 import pyspark.sql.functions as F
 

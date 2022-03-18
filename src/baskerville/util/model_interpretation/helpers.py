@@ -346,12 +346,7 @@ def calculate_shapley_values_for_all_features(
 
         predict_df = predict_df.withColumn(
             'marginal_contribution',
-            (
-                    F.col(column_to_examine) - F.lag(
-                F.col(column_to_examine), 1).over(
-                Window.partitionBy("id").orderBy("id")
-            )
-            )
+            (F.col(column_to_examine) - F.lag(F.col(column_to_examine), 1).over(Window.partitionBy("id").orderBy("id")))
         )
         predict_df = predict_df.filter(
             predict_df.marginal_contribution.isNotNull()

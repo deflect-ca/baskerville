@@ -4,7 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-
 import json
 import os
 import warnings
@@ -327,7 +326,6 @@ class EngineConfig(Config):
         if not self.storage_path:
             self.storage_path = os.path.join(
                 get_default_data_path(), 'storage')
-
 
     def validate(self):
         logger.debug('Validating EngineConfig...')
@@ -1046,20 +1044,19 @@ class UserDetailsConfig(Config):
         logger.debug('Validating UserDetailsConfig...')
         if not self.username:
             self.add_error(ConfigError(
-                f'Please, provide a username',
+                'Please, provide a username',
                 ['username'],
                 exception_type=ValueError
             ))
         if not self.password:
             self.add_error(ConfigError(
-                f'Please, provide a password',
+                'Please, provide a password',
                 ['password'],
                 exception_type=ValueError
             ))
         if not self.organization_uuid:
             self.add_error(ConfigError(
-                f'Please, provide an organization_uuid',
+                'Please, provide an organization_uuid',
                 ['organization_uuid'],
                 exception_type=ValueError
             ))
-

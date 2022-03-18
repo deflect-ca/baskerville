@@ -48,7 +48,7 @@ class DBReader(object):
 
     def _run(self):
         while True:
-            if not self.last_timestamp or int(time.time() - self.last_timestamp) > self.refresh_period_in_minutes*60:
+            if not self.last_timestamp or int(time.time() - self.last_timestamp) > self.refresh_period_in_minutes * 60:
                 self._read_from_database()
                 self.last_timestamp = time.time()
 
@@ -71,4 +71,3 @@ class DBReader(object):
                 self.data = self.fresh_data.copy()
                 self.fresh_data = None
         return self.data
-
