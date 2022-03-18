@@ -24,7 +24,11 @@ class SQLTestCaseLatestSpark(SQLTestCase):
         # set shuffle partitions to a low number, e.g. <= cores * 2 to speed
         # things up, otherwise the tests will use the default 200 partitions
         # and it will take a lot more time to complete
-        conf.set('spark.sql.shuffle.partitions', str(os.cpu_count() * 2))
+        # conf.set('spark.sql.shuffle.partitions', str(os.cpu_count() * 2))
+        conf.set('spark.sql.shuffle.partitions', 2)
+        conf.set(
+            'spark.driver.memory', '2g'
+        )
         return conf
 
     def setUp(self):
