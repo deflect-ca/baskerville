@@ -43,7 +43,7 @@ jobs:
     - name: Test with pytest
       run: |
         export PYTHONPATH="./src:./esretriever/src"
-        pytest ./tests/unit
+        pytest ./tests/unit/baskerville_tests/models_tests/test_base_spark.py
     - name: License check
       run: |
         python ./src/baskerville/util/licensing.py
