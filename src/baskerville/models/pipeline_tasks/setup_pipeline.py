@@ -19,7 +19,7 @@ def set_up_registration_pipeline(config: BaskervilleConfig):
         GetDataKafka(
             config,
             steps=[
-                Register(config),
+                # Register(config),
                 CacheSensitiveData(config),
                 SendToKafka(
                     config=config,
@@ -40,7 +40,7 @@ def set_up_user_creation_pipeline(config: BaskervilleConfig):
         GetDataKafka(
             config,
             steps=[
-                Register(config),
+                # Register(config),
                 CacheSensitiveData(config),
                 SendToKafka(
                     config=config,

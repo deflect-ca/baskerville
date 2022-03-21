@@ -7,7 +7,7 @@
 from baskerville.db import Base
 from baskerville.db.models import utcnow, SerializableMixin
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Enum, String, \
-    Boolean, BigInteger, Float, JSON, Text, TEXT
+    Boolean, BigInteger, Float, JSON, TEXT
 from sqlalchemy.orm import relationship
 from passlib.apps import custom_app_context as pwd_context
 

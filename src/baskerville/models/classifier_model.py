@@ -4,13 +4,9 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 from pyspark.ml.classification import GBTClassifier
-from pyspark.ml.feature import StandardScaler, StandardScalerModel, StringIndexer, StringIndexerModel
 from pyspark.ml.pipeline import PipelineModel, Pipeline
-from pyspark.sql.functions import array
 from baskerville.models.model_interface import ModelInterface
-from baskerville.spark.helpers import map_to_array, StorageLevelFactory
-from baskerville.spark.udfs import udf_to_dense_vector, udf_add_to_dense_vector
-from pyspark_iforest.ml.iforest import IForest, IForestModel
+from baskerville.spark.helpers import map_to_array
 import os
 
 from baskerville.util.file_manager import FileManager

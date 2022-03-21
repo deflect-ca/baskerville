@@ -12,7 +12,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     steps:
     - uses: actions/checkout@v2
@@ -28,7 +28,7 @@ jobs:
         git clone -b categorical_features https://github.com/equalitie/spark-iforest.git
         cd spark-iforest/python
         python setup.py sdist
-        pip install dist/pyspark-iforest-2.4.0.tar.gz
+        pip install dist/pyspark-iforest-2.4.0.99.tar.gz
         cd ../../
         git clone https://github.com/equalitie/esretriever.git
         cd esretriever
@@ -38,7 +38,7 @@ jobs:
     - name: Lint with flake8
       run: |
         cd ./src
-        flake8 . --count --ignore=C901,W503,W504,E226 --max-line-length=127 --statistics
+        flake8 . --count --ignore=C901,W503,W504,E226,E402 --max-line-length=127 --statistics
 
     - name: Test with pytest
       run: |

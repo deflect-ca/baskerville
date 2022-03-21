@@ -14,7 +14,6 @@ from datetime import datetime, timedelta
 from unittest import mock
 
 from baskerville.db.models import RequestSet
-from baskerville.spark.helpers import StorageLevelFactory
 from baskerville.util.helpers import get_default_data_path
 
 from tests.unit.baskerville_tests.helpers.spark_testing_base import \
@@ -57,7 +56,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                                    f'/logs/test_base.log'
         self.engine_conf.metrics = False
         self.engine_conf.cache_expire_time = 10
-        self.spark_conf = SparkConfig({'db_driver': 'test'})
+        self.spark_conf = SparkConfig({'db_driver': 'test', 'jars': ''})
         self.spark_conf.validate()
 
         from baskerville.models.base_spark import SparkPipelineBase
@@ -178,59 +177,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         )
         mock_bytes.decode.assert_called_once()
         mock_instantiate_from_str.assert_called_once()
-
-    # def test_initialize_model_path(self):
-    #
-    #     # to call get_ml_model_from_file
-    #     self.engine_conf.model_id = None
-    #     self.engine_conf.model_path = 'some test path'
-    #     self.spark_pipeline.model_manager.set_anomaly_detector_broadcast = mock.MagicMock()
-    #     self.spark_pipeline.initialize()
-    #     self.assertEqual(
-    #         self.spark_pipeline.time_bucket.sec,
-    #         self.engine_conf.time_bucket
-    #     )
-    #     self.assertEqual(
-    #         self.spark_pipeline.time_bucket.td,
-    #         timedelta(seconds=self.engine_conf.time_bucket)
-    #     )
-    #
-    #     db_tools = self.spark_pipeline.tools
-    #     db_tools.connect_to_db.assert_called_once()
-    #
-    #     self.spark_pipeline.instantiate_spark_session.assert_called_once()
-    #     self.spark_pipeline.set_up_request_set_cache.assert_called_once()
-    #
-    #     self.assertEqual(len(self.spark_pipeline.group_by_aggs), 3)
-    #     self.assertTrue('first_request' in self.spark_pipeline.group_by_aggs)
-    #     self.assertTrue('last_request' in self.spark_pipeline.group_by_aggs)
-    #     self.assertTrue('num_requests' in self.spark_pipeline.group_by_aggs)
-    #     self.assertEqual(
-    #         str(self.spark_pipeline.group_by_aggs['first_request']._jc),
-    #         'min(@timestamp) AS `first_request`'
-    #     )
-    #     self.assertEqual(
-    #         str(self.spark_pipeline.group_by_aggs['last_request']._jc),
-    #         'max(@timestamp) AS `last_request`'
-    #     )
-    #     self.assertEqual(
-    #         str(self.spark_pipeline.group_by_aggs['num_requests']._jc),
-    #         'count(@timestamp) AS `num_requests`'
-    #     )
-    #
-    #     self.assertEqual(len(self.spark_pipeline.feature_manager.column_renamings), 0)
-    #     self.assertEqual(len(self.spark_pipeline.feature_manager.active_features), 0)
-    #     self.assertEqual(len(self.spark_pipeline.feature_manager.active_feature_names), 0)
-    #     self.assertEqual(len(self.spark_pipeline.feature_manager.active_columns), 0)
-    #     self.assertEqual(len(self.spark_pipeline.columns_to_filter_by), 3)
-    #     self.assertSetEqual(
-    #         self.spark_pipeline.columns_to_filter_by,
-    #         {'client_request_host', 'client_ip', '@timestamp'}
-    #     )
-    #     db_tools = self.spark_pipeline.tools
-    #     db_tools.get_ml_model_from_file.assert_called_once_with(
-    #         self.engine_conf.model_path
-    #     )
 
     @mock.patch('baskerville.models.base_spark.instantiate_from_str')
     def test_initialize_no_model_register_metrics(self, mock_instantiate_from_str):
@@ -726,6 +672,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'r': 0.,
                 'time_bucket': 10,
                 'model_version': 'test',
+                'classifier_score': 0.0
             },
             {
                 'id': 1,
@@ -755,6 +702,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'updated_at': now,
                 'time_bucket': 10,
                 'model_version': 'test',
+                'classifier_score': 0.0
             }
         ]
         self.spark_pipeline.set_broadcasts = mock.MagicMock()
@@ -878,8 +826,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             df, test_table, json_cols=json_cols, mode=mode_param
         )
 
-        persist.assert_called_once_with(
-            StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
+        # persist.assert_called_once_with(
+        #     StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
         format.assert_called_once_with('jdbc')
         options.assert_called_once_with(
             url=self.spark_pipeline.db_url,
@@ -904,39 +852,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
 
         self.assertSetEqual(set(called_args), set(json_cols))
 
-        save.assert_called_once()
-
-    def test_save_df_to_table(self):
-        test_table_name = 'test'
-        df = mock.MagicMock()
-        persist = df.persist
-        after_col_to_json = persist.return_value
-        format = after_col_to_json.write.format
-        options = format.return_value.options
-        mode = options.return_value.mode
-        save = mode.return_value.save
-
-        self.spark_pipeline.save_df_to_table(
-            df,
-            test_table_name,
-            json_cols=()
-        )
-
-        format.assert_called_once_with('jdbc')
-        options.assert_called_once_with(
-            url=self.spark_pipeline.db_url,
-            driver=self.spark_pipeline.spark_conf.db_driver,
-            dbtable=test_table_name,
-            user=self.spark_pipeline.db_conf.user,
-            password=self.spark_pipeline.db_conf.password,
-            stringtype='unspecified',
-            batchsize=100000,
-            max_connections=1250,
-            rewriteBatchedStatements=True,
-            reWriteBatchedInserts=True,
-            useServerPrepStmts=False
-        )
-        mode.assert_called_once_with('append')
         save.assert_called_once()
 
     @mock.patch('baskerville.spark.helpers.col_to_json')

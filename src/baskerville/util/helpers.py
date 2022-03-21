@@ -401,6 +401,7 @@ def get_classifier_model_path(storage_path, model_name='model'):
                         FOLDER_CLASSIFIER_MODELS,
                         f'{model_name}__{get_timestamp()}')
 
+
 def load_model_from_path(model_path, spark=None):
     """
     Instantiate the proper model and load from the path.

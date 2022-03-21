@@ -7,7 +7,6 @@
 
 import pytz
 from baskerville.features.helpers import update_features
-from baskerville.features.helpers import extract_features_in_order
 from baskerville.spark.schemas import cross_reference_schema
 from baskerville.util.enums import LabelEnum
 from dateutil.tz import tzutc

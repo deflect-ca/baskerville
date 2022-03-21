@@ -79,13 +79,12 @@ class ServiceProvider(Borg):
 
         if self.config.engine.model_id and self._model_ts:
             seconds_since_last_update = (
-                        datetime.datetime.utcnow() - self._model_ts
+                datetime.datetime.utcnow() - self._model_ts
             ).total_seconds()
             self.logger.debug(
                 f'Seconds since last update: {seconds_since_last_update}'
             )
-            if seconds_since_last_update > \
-                self.config.engine.new_model_check_in_seconds:
+            if seconds_since_last_update > self.config.engine.new_model_check_in_seconds:
                 self.load_model_from_db()
 
     def create_runtime(self):
@@ -94,14 +93,14 @@ class ServiceProvider(Borg):
             uuid=self.config.user_details.organization_uuid
         ).first()
         if not org:
-            raise ValueError(f'No such organization.')
+            raise ValueError('No such organization.')
 
         user = self.tools.session.query(User).filter_by(
             username=self.config.user_details.username).filter_by(
             id_organization=org.id
         ).first()
         if not user:
-            raise ValueError(f'No such user.')
+            raise ValueError('No user.')
         self.runtime = self.tools.create_runtime(
             start=self.start_time,
             conf=self.config.engine,
@@ -137,8 +136,7 @@ class ServiceProvider(Borg):
             if self.config.engine.cache_load_past:
                 self.request_set_cache = self.request_set_cache.load(
                     update_date=(self.start_time - datetime.timedelta(
-                        seconds=self.config.engine.cache_expire_time)
-                                 ).replace(tzinfo=tzutc()),
+                        seconds=self.config.engine.cache_expire_time)).replace(tzinfo=tzutc()),
                     extra_filters=(
                             F.col('time_bucket') == self.time_bucket.sec
                     )  # todo: & (F.col("id_runtime") == self.runtime.id)?

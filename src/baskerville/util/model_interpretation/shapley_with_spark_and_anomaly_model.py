@@ -53,7 +53,7 @@ def shapley_values_for_anomaly_model(
     # select the row to be examined
     df = select_row(df, row_id)
     row = df.select('id', 'features').where(
-        F.col('is_selected') == True
+        F.col('is_selected') is True
     ).first()
     print('Row: ', row)
 

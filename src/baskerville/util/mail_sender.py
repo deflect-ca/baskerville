@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 import smtplib
 
+
 class MailSender(object):
 
     def __init__(self, from_email, server, port, user, password):

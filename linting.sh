@@ -1,1 +1,1 @@
-flake8 . --count --ignore=C901,W503,W504,E226 --max-line-length=127 --statistics
+flake8 . --count --ignore=C901,W503,W504,E226,E402 --max-line-length=127 --statistics

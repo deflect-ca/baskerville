@@ -10,7 +10,7 @@ from baskerville.db import set_up_db, get_jdbc_url
 from baskerville.db.models import Attack, Attribute
 import pandas as pd
 from pyspark.sql import functions as F
-from pyspark.sql.types import StringType, StructField, StructType, DoubleType
+from pyspark.sql.types import StringType, StructField, StructType
 
 
 class Labeler(object):
@@ -143,7 +143,8 @@ class Labeler(object):
         regular_start = attack.start - datetime.timedelta(minutes=self.regular_traffic_before_attack_in_minutes)
         query = f'(select * from request_sets where ' \
                 f'target = \'{attack.target}\' and ' \
-                f'stop >= \'{regular_start.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp) as attack1 '
+                f'stop >= \'{regular_start.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp ' \
+                f'and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp) as attack1 '
         self.logger.info(query)
         df = self._load_request_sets(query)
         if len(df.head(1)) == 0:
