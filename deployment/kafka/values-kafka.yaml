@@ -2,6 +2,7 @@ replicaCount: 3
 logRetentionMinutes: 6
 logRetentionCheckIntervalMs: 60000
 autoCreateTopicsEnable: True
+deleteTopicEnable: True
 
 nodeSelector:
   nodepool: workers

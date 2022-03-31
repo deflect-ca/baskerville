@@ -406,3 +406,24 @@ kafka:
       ssl_keyfile: '/usr/local/baskerville/kafka/admin.key.pem'
       api_version: '0.11.5'
 ```
+## Install KSQL
+
+* clone the repo `git@github.com:confluentinc/cp-helm-charts.git`
+```
+cd baskerville
+git clone git@github.com:confluentinc/cp-helm-charts.git
+```
+* install schema registry
+``commandline
+helm install ksql-schema-registry -f deployment/ksql/values-ksql-registry.yaml cp-helm-charts/charts/cp-schema-registry
+``
+
+* install `ksql`
+```commandline
+helm install ksql -f deployment/ksql/values-ksql.yaml cp-helm-charts/charts/cp-ksql-server
+```
+
+* connect to ksql cli to confirm the deployment
+```commandline
+kubectl run ksql-cli --rm -i --tty --image confluentinc/cp-ksql-cli:5.2.1 http://ksql-cp-ksql-server:8088
+```
