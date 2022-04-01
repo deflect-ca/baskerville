@@ -28,7 +28,7 @@ class IncidentDetector:
                  stat_window_in_hours=1,
                  min_traffic=3,
                  min_traffic_incident=50,
-                 min_challenged_portion_incident=0.5,
+                 min_anomaly_portion_incident=0.5,
                  sigma_score=2.5,
                  sigma_traffic=2.5,
                  dashboard_url_prefix=None,
@@ -47,7 +47,7 @@ class IncidentDetector:
         self.sigma_traffic = sigma_traffic
         self.min_traffic = min_traffic
         self.min_traffic_incident = min_traffic_incident
-        self.min_challenged_portion_incident = min_challenged_portion_incident
+        self.min_anomaly_portion_incident = min_anomaly_portion_incident
         self.db_config = db_config
 
         if logger:
@@ -111,7 +111,7 @@ class IncidentDetector:
                 seconds=self.time_horizon_in_seconds)).strftime("%Y-%m-%d %H:%M:%S %z")
             query = f'SELECT floor(extract(epoch from stop)/{self.time_bucket_in_seconds})*' \
                     f'{self.time_bucket_in_seconds} AS "time", target, ' \
-                    f'count(distinct ip) as traffic, (sum(prediction*1.0) / count(ip)) as challenged_portion ' \
+                    f'count(ip) as traffic, (sum(prediction_anomaly*1.0) / count(ip)) as anomaly_portion ' \
                     f'FROM request_sets WHERE stop > \'{stop}\' ' \
                     f'and floor(extract(epoch from stop)/{self.time_bucket_in_seconds})*' \
                     f'{self.time_bucket_in_seconds} in ' \
@@ -177,7 +177,7 @@ class IncidentDetector:
                 attack.start = start
                 attack.target = row['target']
                 attack.detected_traffic = row['traffic']
-                attack.anomaly_traffic_portion = row['challenged_portion']
+                attack.anomaly_traffic_portion = row['anomaly_portion']
                 dashboard_url = self._get_dashboard_url(row['start'], row['target'])
                 attack.dashboard_url = dashboard_url
                 session.add(attack)
@@ -187,8 +187,8 @@ class IncidentDetector:
                 target = row['target']
                 self.logger.info(f'New incident, target={target}, id={attack.id}, '
                                  f'traffic={row["traffic"]:.0f} ({row["avg_traffic"]:.0f}) '
-                                 f'anomaly_portion={row["challenged_portion"]:.2f} '
-                                 f'({row["avg_challenged_portion"]:.2f}) '
+                                 f'anomaly_portion={row["anomaly_portion"]:.2f} '
+                                 f'({row["avg_anomaly_portion"]:.2f}) '
                                  f'url="{dashboard_url}" '
                                  )
                 if self.mail_sender and self.emails:
@@ -272,11 +272,11 @@ class IncidentDetector:
 
         self.stats_reader.set_query(
             f'select target, avg(traffic) as avg_traffic, stddev(traffic) as stddev_traffic, '
-            f'avg(challenged_portion) as avg_challenged_portion, '
-            f'stddev(challenged_portion) as stddev_challenged_portion from'
+            f'avg(anomaly_portion) as avg_anomaly_portion, '
+            f'stddev(anomaly_portion) as stddev_anomaly_portion from'
             f'('
             f'SELECT floor(extract(epoch from stop)/120)*120 AS "time", target, count(ip) as traffic, '
-            f'(sum(prediction*1.0) / count(ip)) as challenged_portion '
+            f'(sum(prediction_anomaly*1.0) / count(ip)) as anomaly_portion '
             f'FROM request_sets WHERE stop > \'{stop}\' '
             f'group by 1, 2'
             f') a '
@@ -289,10 +289,10 @@ class IncidentDetector:
             return
 
         stats = stats[(~stats['avg_traffic'].isnull()) & (~stats['stddev_traffic'].isnull())
-                      & (~stats['avg_challenged_portion'].isnull()) & (~stats['stddev_challenged_portion'].isnull())
+                      & (~stats['avg_anomaly_portion'].isnull()) & (~stats['stddev_anomaly_portion'].isnull())
                       & (stats['avg_traffic'] > self.min_traffic)
-                      & (stats['avg_challenged_portion'] > 0)
-                      & (stats['avg_challenged_portion'] < 0.6)]
+                      & (stats['avg_anomaly_portion'] > 0)
+                      & (stats['avg_anomaly_portion'] < 0.6)]
 
         sample = self._read_sample()
         if sample is None:
@@ -301,10 +301,10 @@ class IncidentDetector:
 
         batch = pd.merge(sample, stats, how='left', on='target')
 
-        condition = (batch['challenged_portion'] > (batch['avg_challenged_portion'] +
-                                                    self.sigma_score * batch['stddev_challenged_portion'])) & \
+        condition = (batch['anomaly_portion'] > (batch['avg_anomaly_portion'] +
+                                                 self.sigma_score * batch['stddev_anomaly_portion'])) & \
                     (batch['traffic'] > (batch['avg_traffic'] + self.sigma_traffic * batch['stddev_traffic'])) & \
-                    (batch['challenged_portion'] > self.min_challenged_portion_incident)
+                    (batch['anomaly_portion'] > self.min_anomaly_portion_incident)
 
         anomalies = batch[condition]
         regulars = batch[~condition]

@@ -1151,6 +1151,8 @@ class Save(SaveDfInPostgres):
                  mode='append',
                  not_common=(
                      'prediction',
+                     'prediction_anomaly',
+                     'prediction_classifier',
                      'model_version',
                      'label',
                      'id_attribute',
@@ -1412,10 +1414,10 @@ class MergeWithSensitiveData(Task):
             self.df_sensitive, on=['id_client', 'uuid_request_set'], how='inner'
         ).drop('df.id_client', 'df.uuid_request_set')
 
-        if self.df and self.df.head(1):
+        if self.df:
             merge_count = self.df.count()
 
-            if count != merge_count:
+            if (merge_count > 0) and (count != merge_count):
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
@@ -1682,28 +1684,33 @@ class SaveFeaturesHive(MLTask):
         return self.df
 
 
-def prediction(score,
-               classifier_score,
-               attack_prediction,
-               anomaly_threshold,
-               anomaly_threshold_attack,
-               classifier_threshold,
-               classifier_threshold_attack):
+def dynamic_threshold(score, attack_prediction, threshold, threshold_attack):
+    if not score:
+        return 0
+
     if attack_prediction == 1:
-        if classifier_score:
-            if score > anomaly_threshold_attack or classifier_score > classifier_threshold:
-                return 1
+        if score > threshold_attack:
+            return 1
         else:
-            if score > anomaly_threshold_attack:
-                return 1
+            return 0
     else:
-        if classifier_score:
-            if score > anomaly_threshold and classifier_score > classifier_threshold_attack:
-                return 1
+        if score > threshold:
+            return 1
         else:
-            if score > anomaly_threshold:
-                return 1
-    return 0
+            return 0
+
+
+def prediction(prediction_anomaly, prediction_classifier, attack_prediction):
+    if attack_prediction == 1:
+        if (prediction_anomaly == 1) or (prediction_classifier == 1):
+            return 1
+        else:
+            return 0
+    else:
+        if (prediction_anomaly == 1) and (prediction_classifier == 1):
+            return 1
+        else:
+            return 0
 
 
 class AttackDetection(Task):
@@ -1814,12 +1821,20 @@ class AttackDetection(Task):
                                             F.lit(1)).otherwise(F.lit(0)))
 
         self.logger.info('Dynamic thresholds calculation...')
-        self.df = self.df.withColumn('prediction', F.udf(prediction, T.IntegerType())(
-            'score', 'classifier_score', 'attack_prediction',
+        self.df = self.df.withColumn('prediction_anomaly', F.udf(dynamic_threshold, T.IntegerType())(
+            'score', 'attack_prediction',
             F.lit(self.config.engine.anomaly_threshold),
-            F.lit(self.config.engine.anomaly_threshold_during_incident),
+            F.lit(self.config.engine.anomaly_threshold_during_incident)
+        ))
+
+        self.df = self.df.withColumn('prediction_classifier', F.udf(dynamic_threshold, T.IntegerType())(
+            'classifier_score', 'attack_prediction',
             F.lit(self.config.engine.classifier_threshold),
             F.lit(self.config.engine.classifier_threshold_during_incident)
+        ))
+
+        self.df = self.df.withColumn('prediction', F.udf(prediction, T.IntegerType())(
+            'prediction_anomaly', 'prediction_classifier', 'attack_prediction'
         ))
 
     def detect_low_rate_attack(self):
