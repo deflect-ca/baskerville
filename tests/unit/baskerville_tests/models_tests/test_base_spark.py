@@ -684,6 +684,8 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
                 'id_runtime': -1,
                 'request_set_prediction': -1,
                 'prediction': -1,
+                'prediction_anomaly': 0,
+                'prediction_classifier': 0,
                 'attack_prediction': 0,
                 'low_rate_attack': 0,
                 'challenged': 0,

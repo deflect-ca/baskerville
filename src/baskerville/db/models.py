@@ -99,6 +99,8 @@ class RequestSet(Base, SerializableMixin):
     id_banjax = Column(Integer, ForeignKey('banjax_bans.id'), nullable=True)
     process_flag = Column(Boolean, default=True)
     prediction = Column(Integer)
+    prediction_anomaly = Column(Integer)
+    prediction_classifier = Column(Integer)
     attack_prediction = Column(Integer)
     challenged = Column(Integer)
     challenge_failed = Column(Integer)
@@ -147,6 +149,8 @@ class RequestSet(Base, SerializableMixin):
         'start',
         'stop',
         'prediction',
+        'prediction_anomaly',
+        'prediction_classifier',
         'attack_prediction',
         'low_rate_attack',
         'challenged',
