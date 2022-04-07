@@ -294,7 +294,7 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str, logger):
 
 
 def df_has_rows(df):
-    return df and df.head(1)
+    return df and not df.rdd.isEmpty()
 
 
 def get_dtype_for_col(df, col):
