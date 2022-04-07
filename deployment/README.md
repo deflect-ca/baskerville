@@ -411,16 +411,17 @@ kafka:
 * clone the repo `git@github.com:confluentinc/cp-helm-charts.git`
 ```
 cd baskerville
+cd ..
 git clone git@github.com:confluentinc/cp-helm-charts.git
 ```
 * install schema registry
 ``commandline
-helm install ksql-schema-registry -f deployment/ksql/values-ksql-registry.yaml cp-helm-charts/charts/cp-schema-registry
+helm install ksql-schema-registry -f deployment/ksql/values-ksql-registry.yaml ../cp-helm-charts/charts/cp-schema-registry
 ``
 
 * install `ksql`
 ```commandline
-helm install ksql -f deployment/ksql/values-ksql.yaml cp-helm-charts/charts/cp-ksql-server
+helm install ksql -f deployment/ksql/values-ksql.yaml ../cp-helm-charts/charts/cp-ksql-server
 ```
 
 * connect to ksql cli to confirm the deployment

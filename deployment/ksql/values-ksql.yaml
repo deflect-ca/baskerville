@@ -6,4 +6,4 @@ cp-schema-registry:
   url: "http://ksql-schema-registry-cp-schema-registry:8081"
 
 ksql:
-  headless: false
+  headless: true
