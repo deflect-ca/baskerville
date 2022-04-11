@@ -1,10 +1,28 @@
+--CREATE STREAM STATS_WEBLOGS_SCHEMA (
+--    client_request_host VARCHAR,
+--    client_ip VARCHAR,
+--    client_url VARCHAR,
+--    ua_name VARCHAR,
+--    http_response_code VARCHAR,
+--    timestamp VARCHAR,
+--    reply_length_bytes BIGINT,
+--    geoip STRUCT<country_name VARCHAR>,
+--    cache_result VARCHAR
+--) WITH (
+--    kafka_topic = 'deflect.logs',
+--    partitions = 3,
+--    value_format = 'json',
+--    timestamp = 'timestamp',
+--    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSSZ'
+--);
+
 CREATE STREAM STATS_WEBLOGS_SCHEMA (
     client_request_host VARCHAR,
     client_ip VARCHAR,
     client_url VARCHAR,
     ua_name VARCHAR,
     http_response_code VARCHAR,
-    timestamp VARCHAR,
+    ts_timestamp VARCHAR,
     reply_length_bytes BIGINT,
     geoip STRUCT<country_name VARCHAR>,
     cache_result VARCHAR
@@ -12,8 +30,8 @@ CREATE STREAM STATS_WEBLOGS_SCHEMA (
     kafka_topic = 'deflect.logs',
     partitions = 3,
     value_format = 'json',
-    timestamp = 'timestamp',
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ssZ'
+    timestamp = 'ts_timestamp',
+    timestamp_format = 'dd/LLL/yyyy:HH:mm:ss ZZZ'
 );
 
 CREATE STREAM STATS_WEBLOGS AS
@@ -40,14 +58,84 @@ CREATE STREAM STATS_WEBLOGS AS
 
 
 
-CREATE TABLE REQUESTS9 AS
+
+CREATE TABLE STATS_TEST3 AS
 SELECT client_request_host, EARLIEST_BY_OFFSET(client_request_host) as host,
 count (*) as total,
 sum(cached) as cached,
 HISTOGRAM(country) as countries
- FROM WEBLOGS9
+ FROM STATS_WEBLOGS
+ WINDOW HOPPING (SIZE 5 MINUTE, ADVANCE BY 1 minute)
+ where client_request_host = 'kavkaz-uzel.media'
+ GROUP BY client_request_host;
+
+
+CREATE TABLE STATS_TEST7 AS
+SELECT client_request_host, EARLIEST_BY_OFFSET(client_request_host) as host,
+LATEST_BY_OFFSET(ts_timestamp) as ts_timestamp,
+count (*) as total,
+sum(cached) as cached,
+WINDOWSTART AS window_start,
+WINDOWEND AS window_end,
+TIMESTAMPTOSTRING(WINDOWSTART, 'yyy-MM-dd HH:mm:ss', 'UTC') as ts_window_start,
+TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as ts_window_end,
+HISTOGRAM(country) as countries
+ FROM STATS_WEBLOGS
+ WINDOW TUMBLING (SIZE 5 MINUTE)
+ where client_request_host = 'kavkaz-uzel.media'
+ GROUP BY client_request_host;
+
+
+
+CREATE STREAM STATS_TEST5 WITH
+(
+  timestamp = ts_timestamp
+) AS
+SELECT client_request_host, EARLIEST_BY_OFFSET(client_request_host) as host,
+count (*) as total,
+sum(cached) as cached,
+HISTOGRAM(country) as countries
+ FROM STATS_WEBLOGS
+ WINDOW TUMBLING (SIZE 5 MINUTE)
+ where client_request_host = 'kavkaz-uzel.media'
+ GROUP BY client_request_host;
+
+
+
+CREATE TABLE STATS_TUMBLING_REQUESTS_5M_2 AS
+SELECT client_request_host, EARLIEST_BY_OFFSET(client_request_host) as host,
+count (*) as total,
+sum(cached) as cached,
+HISTOGRAM(country) as countries
+ FROM STATS_WEBLOGS
  WINDOW TUMBLING (SIZE 5 MINUTES)
  GROUP BY client_request_host;
+
+
+
+
+
+
+
+CREATE TABLE STATS_HOPING_REQUESTS_1H AS
+SELECT client_request_host, EARLIEST_BY_OFFSET(client_request_host) as host,
+count (*) as total,
+sum(cached) as cached
+ FROM STATS_WEBLOGS
+ WINDOW HOPPING (SIZE 60 MINUTES, ADVANCE BY 60 SECONDS)
+ GROUP BY client_request_host;
+
+
+CREATE TABLE STATS_HOPING_REQUESTS_TEST3 AS
+SELECT client_request_host, EARLIEST_BY_OFFSET(client_request_host) as host,
+count (*) as total,
+sum(cached) as cached
+ FROM STATS_WEBLOGS
+ WINDOW HOPPING (SIZE 60 SECONDS, ADVANCE BY 20 SECONDS)
+ GROUP BY client_request_host;
+
+
+
 
 CREATE TABLE CACHE_HITS AS
 SELECT client_request_host, EARLIEST_BY_OFFSET(client_request_host) as host,
@@ -104,38 +192,40 @@ HISTOGRAM (http_response_code) as status_code
 
  ----------------------------------
 
-CREATE STREAM BANJAX_SCHEMA (
+CREATE STREAM STATS_BANJAX_SCHEMA7 (
     http_host VARCHAR,
     client_ip VARCHAR,
     action VARCHAR,
     uripath VARCHAR,
     user_agent STRUCT<name VARCHAR>,
     geoip STRUCT<country_name VARCHAR>,
-    timestamp VARCHAR
+    "@timestamp" VARCHAR
 ) WITH (
     kafka_topic = 'banjax',
     partitions = 3,
     value_format = 'json',
-    timestamp = 'timestamp',
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ssZ'
+    timestamp = "timestamp",
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSSZ'
 );
 
-CREATE STREAM BANJAX AS
+
+CREATE STREAM STATS_BANJAX6 AS
     SELECT
         http_host,
         client_ip,
         action,
+        "timestamp",
         uripath,
         user_agent->name as ua_name,
         geoip->country_name as country
-    FROM BANJAX_SCHEMA
+    FROM STATS_BANJAX_SCHEMA6
     PARTITION BY http_host;
 
 
-CREATE TABLE BAN AS
+CREATE TABLE STATS_BAN AS
 SELECT http_host, EARLIEST_BY_OFFSET(http_host) as host,
 count (*) as total
- FROM BANJAX
+ FROM STATS_BANJAX
  WINDOW TUMBLING (SIZE 5 MINUTES)
  GROUP BY http_host;
 

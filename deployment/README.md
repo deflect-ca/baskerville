@@ -428,3 +428,7 @@ helm install ksql -f deployment/ksql/values-ksql.yaml ../cp-helm-charts/charts/c
 ```commandline
 kubectl run ksql-cli --rm -i --tty --image confluentinc/cp-ksql-cli:5.2.1 http://ksql-cp-ksql-server:8088
 ```
+or 
+```commandline
+kubectl attach ksql-cli -c ksql-cli -i -t
+```

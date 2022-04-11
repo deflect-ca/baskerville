@@ -6,4 +6,9 @@ cp-schema-registry:
   url: "http://ksql-schema-registry-cp-schema-registry:8081"
 
 ksql:
-  headless: true
+  headless: false
+
+#resources:
+#  requests:
+#    cpu: 3000m
+#    memory: 1G
