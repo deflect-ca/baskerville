@@ -1,3 +1,4 @@
+replicaCount: 3
 
 kafka:
   bootstrapServers: "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
@@ -8,7 +9,7 @@ cp-schema-registry:
 ksql:
   headless: false
 
-#resources:
-#  requests:
-#    cpu: 3000m
-#    memory: 1G
+resources:
+  requests:
+    cpu: 3000m
+    memory: 1G

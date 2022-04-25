@@ -56,7 +56,8 @@ def send_to_kafka(spark,
                   cc_to_client=False,
                   client_topic=None,
                   client_connections=None,
-                  use_partitions=True):
+                  use_partitions=True,
+                  logger=None):
     if use_partitions:
         broadcast_connection = spark.sparkContext.broadcast(connection)
         broadcast_client_connections = spark.sparkContext.broadcast(client_connections)
@@ -82,7 +83,7 @@ def send_to_kafka(spark,
                 broadcast_connection,
                 broadcast_client_connections
             )
-            (
+                (
                 F.lit(topic),
                 F.lit(cc_to_client),
                 F.lit(client_topic),

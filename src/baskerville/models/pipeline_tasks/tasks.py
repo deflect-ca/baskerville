@@ -1473,7 +1473,8 @@ class SendToKafka(Task):
             cc_to_client=self.cc_to_client,
             client_topic=self.client_topic,
             client_connections=self.client_connections,
-            use_partitions=self.config.engine.kafka_send_by_partition
+            use_partitions=self.config.engine.kafka_send_by_partition,
+            logger=self.logger
         )
 
         return self.df
@@ -1974,7 +1975,7 @@ class Challenge(Task):
                 ).persist()
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
 
-            if df_has_rows(df_ips):
+            if not df_has_rows(df_ips):
                 ips = [(r['ip'], r['target'], r['low_rate_attack']) for r in df_ips.collect()]
                 ips = self.ip_cache.update(ips)
                 num_records = len(ips)

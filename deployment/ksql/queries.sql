@@ -1,3 +1,22 @@
+CREATE TABLE STATS_5M  AS
+SELECT client_request_host, EARLIEST_BY_OFFSET(client_request_host) as host,
+sum (reply_length_bytes) as traffic,
+sum (cached*reply_length_bytes) as traffic_cached,
+count (*) as requests,
+sum(cached) as requests_cached,
+COLLECT_LIST (client_ip) as ips,
+HISTOGRAMM(country) as countries,
+HISTOGRAM (client_url) as urls,
+HISTOGRAM (ua_name) as ua,
+HISTOGRAM (http_response_code) as status_code,
+TIMESTAMPTOSTRING(WINDOWSTART, 'yyy-MM-dd HH:mm:ss', 'UTC') as ts_window_start,
+TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as ts_window_end
+ FROM STATS_WEBLOGS
+ WINDOW TUMBLING (SIZE 5 MINUTES)
+ GROUP BY client_request_host;
+
+
+
 --CREATE STREAM STATS_WEBLOGS_SCHEMA (
 --    client_request_host VARCHAR,
 --    client_ip VARCHAR,
@@ -192,33 +211,31 @@ HISTOGRAM (http_response_code) as status_code
 
  ----------------------------------
 
-CREATE STREAM STATS_BANJAX_SCHEMA7 (
+CREATE STREAM STATS_BANJAX_SCHEMA (
     http_host VARCHAR,
     client_ip VARCHAR,
     action VARCHAR,
     uripath VARCHAR,
     user_agent STRUCT<name VARCHAR>,
     geoip STRUCT<country_name VARCHAR>,
-    "@timestamp" VARCHAR
+    "datestamp" VARCHAR
 ) WITH (
     kafka_topic = 'banjax',
     partitions = 3,
     value_format = 'json',
-    timestamp = "timestamp",
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSSZ'
+    timestamp = "datestamp",
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss'
 );
 
 
-CREATE STREAM STATS_BANJAX6 AS
+CREATE STREAM STATS_BANJAX AS
     SELECT
         http_host,
         client_ip,
-        action,
-        "timestamp",
         uripath,
         user_agent->name as ua_name,
         geoip->country_name as country
-    FROM STATS_BANJAX_SCHEMA6
+    FROM STATS_BANJAX_SCHEMA
     PARTITION BY http_host;
 
 
