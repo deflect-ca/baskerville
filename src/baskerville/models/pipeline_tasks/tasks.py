@@ -47,7 +47,6 @@ from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
 from baskerville.util.mail_sender import MailSender
 from baskerville.util.whitelist_ips import WhitelistIPs
-from baskerville.util.whitelist_hosts import WhitelistHosts
 from baskerville.util.whitelist_urls import WhitelistURLs
 from pyspark.sql.functions import broadcast
 
@@ -1889,11 +1888,6 @@ class Challenge(Task):
         self.attack_filter = None
         self.producer = None
         self.ip_cache = IPCache(config, self.logger)
-        self.whitelist_hosts = WhitelistHosts(
-            url=config.engine.url_whitelist_hosts,
-            logger=self.logger,
-            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
-        )
         if config.elastic:
             self.elastic_writer = ElasticWriter(host=config.elastic.host,
                                                 port=config.elastic.port,
@@ -1962,9 +1956,6 @@ class Challenge(Task):
             hosts = []
             if self.config.engine.white_list_hosts:
                 hosts = self.config.engine.white_list_hosts
-
-            if self.whitelist_hosts.get():
-                hosts += self.whitelist_hosts.get()
 
             if len(hosts):
                 df_white_list_hosts = self.spark.createDataFrame(
