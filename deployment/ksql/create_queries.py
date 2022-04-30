@@ -195,19 +195,20 @@ TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
     """
 ]
 
-# for q in schemas:
-#     print(q.format(prefix))
-#
-# for q in streams:
-#     print(q.format(prefix, prefix))
-#
-# for q in minimum_queries:
-#     print(q.format(prefix, prefix))
-#
-for q in tumbling_queries:
-    for window in tumbling_windows:
-        print(q.format(prefix, window[0], prefix, window[1]))
+for q in schemas:
+    print(q.format(prefix))
 
-for q in hopping_queries:
-    for window in hopping_windows:
-        print(q.format(prefix, window[0], prefix, window[1], window[2]))
+for q in streams:
+    print(q.format(prefix, prefix))
+
+for q in minimum_queries:
+    print(q.format(prefix, prefix))
+
+
+# for q in tumbling_queries:
+#     for window in tumbling_windows:
+#         print(q.format(prefix, window[0], prefix, window[1]))
+#
+# for q in hopping_queries:
+#     for window in hopping_windows:
+#         print(q.format(prefix, window[0], prefix, window[1], window[2]))
