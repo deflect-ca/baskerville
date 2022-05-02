@@ -1967,6 +1967,8 @@ class Challenge(Task):
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
 
             if not df_has_rows(df_ips):
+                self.df = self.df.withColumn('challenged', F.lit(0))
+            else:
                 ips = [(r['ip'], r['target'], r['low_rate_attack']) for r in df_ips.collect()]
                 ips = self.ip_cache.update(ips)
                 num_records = len(ips)
