@@ -205,10 +205,10 @@ for q in minimum_queries:
     print(q.format(prefix, prefix))
 
 
-# for q in tumbling_queries:
-#     for window in tumbling_windows:
-#         print(q.format(prefix, window[0], prefix, window[1]))
-#
-# for q in hopping_queries:
-#     for window in hopping_windows:
-#         print(q.format(prefix, window[0], prefix, window[1], window[2]))
+for q in tumbling_queries:
+    for window in tumbling_windows:
+        print(q.format(prefix, window[0], prefix, window[1]))
+
+for q in hopping_queries:
+    for window in hopping_windows:
+        print(q.format(prefix, window[0], prefix, window[1], window[2]))
