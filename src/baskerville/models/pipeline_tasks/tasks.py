@@ -109,9 +109,65 @@ class GetDataKafka(Task):
         )
 
     def get_data(self):
-        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
-            self.data_parser.schema
-        ).persist(self.spark_conf.storage_level)
+        # self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+        #     self.data_parser.schema
+        # ).persist(self.spark_conf.storage_level)
+
+        self.df = self.df.map(lambda l: json.loads(l[1]))
+
+        schema = T.StructType([
+            T.StructField("message", T.StringType(), True)
+        ])
+        self.df = self.df.map(lambda x: [x['message']]).toDF(schema=schema)
+
+        self.logger.info('ccc')
+        self.logger.info(self.df.collect())
+
+        regex = '([(\d\.)]+) - \[(.*?)\] "(.*?)" (.*) (.*) (\d+) (\d+) "(.*?)" (.*?) (.*?) (.*?) (.*?) "(.*?)" "(.*?)"'
+
+        self.df = self.df.withColumn('client_ip', F.regexp_extract(F.col('message'), regex, 1))
+        self.df = self.df.withColumn('@timestamp', F.regexp_extract(F.col('message'), regex, 2))
+        self.df = self.df.withColumn('@timestamp1', F.to_timestamp(F.col('@timestamp'), 'dd/MMM/yyyy:HH:mm:ss Z'))
+
+        self.df = self.df.withColumn('request', F.regexp_extract(F.col('message'), regex, 3))
+        self.df = self.df.withColumn('client_url', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 2))
+        self.df = self.df.withColumn('client_request_method', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 1))
+        self.df = self.df.drop('request')
+
+        self.df = self.df.withColumn('client_request_host', F.regexp_extract(F.col('message'), regex, 5))
+        self.df = self.df.withColumn('http_response_code', F.regexp_extract(F.col('message'), regex, 6))
+        self.df = self.df.withColumn('reply_length_bytes', F.regexp_extract(F.col('message'), regex, 7))
+
+        self.df = self.df.withColumn('client_ua', F.regexp_extract(F.col('message'), regex, 8))
+        # ...
+
+        self.df = self.df.withColumn('content_type', F.regexp_extract(F.col('message'), regex, 10))
+
+        self.df = self.df.withColumn('querystring', F.regexp_extract(F.col('message'), regex, 13))
+
+
+
+
+
+
+
+
+
+
+        # import re
+        # self.df = self.df.flatMap(lambda x: ((v) for v in re.split(
+        #     '([(\d\.)]+) - - \[(.*?)\] "(.*?)" (.*) (.*) (\d+) (\d+) "(.*?)" (.*?) (.*?) (.*?) (.*?) "(.*?)" "(.*?)"',
+        #     x["message"])))
+
+
+        # self.df = self.db.toDF(schema=['key', 'value'])
+        # self.df = self.df.select(F.split(self.df.value, " ")).rdd.flatMap(
+        #     lambda x: x).toDF(schema=[
+        #     "client_ip", "c1",  "c2"
+        #     ])
+
+        self.logger.info('xxx')
+        self.logger.info(self.df.collect())
 
         self.df = load_test(
             self.df,
@@ -1149,13 +1205,13 @@ class Save(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                     'prediction',
-                     'prediction_anomaly',
-                     'prediction_classifier',
-                     'model_version',
-                     'label',
-                     'id_attribute',
-                     'updated_at')
+                         'prediction',
+                         'prediction_anomaly',
+                         'prediction_classifier',
+                         'model_version',
+                         'label',
+                         'id_attribute',
+                         'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1196,11 +1252,11 @@ class SaveFeedback(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                     'prediction',
-                     'model_version',
-                     'label',
-                     'id_attribute',
-                     'updated_at')
+                         'prediction',
+                         'model_version',
+                         'label',
+                         'id_attribute',
+                         'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1744,13 +1800,13 @@ class AttackDetection(Task):
             name='request_total', dataType=StringType(), nullable=True
         )])
         self.time_filter = (
-            F.abs(F.unix_timestamp(F.col('stop'))) - F.abs(F.unix_timestamp(F.col('start')))
+                F.abs(F.unix_timestamp(F.col('stop'))) - F.abs(F.unix_timestamp(F.col('start')))
         )
         self.lra_condition = (
-            ((F.col('features.request_total') > lr_attack_period[0]) &
-             (self.time_filter > lra_total_req[0])) |
-            ((F.col('features.request_total') > lr_attack_period[1]) &
-             (self.time_filter > lra_total_req[1]))
+                ((F.col('features.request_total') > lr_attack_period[0]) &
+                 (self.time_filter > lra_total_req[0])) |
+                ((F.col('features.request_total') > lr_attack_period[1]) &
+                 (self.time_filter > lra_total_req[1]))
         )
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
