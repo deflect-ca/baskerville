@@ -17,9 +17,10 @@ from kafka.errors import TopicAlreadyExistsError
 
 from baskerville.db.dashboard_models import FeedbackContext
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType, StructField, StructType
+from pyspark.sql.types import StringType, StructField, StructType, BooleanType
 from pyspark.streaming import StreamingContext
 from sqlalchemy.exc import SQLAlchemyError
+from user_agents import parse
 
 from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model
@@ -55,6 +56,35 @@ KAFKA_URL_BC = None
 CLIENT_MODE_BC = None
 OUTPUT_COLS_BC = None
 IP_ACC = None
+
+
+def parse_ua(ua_string):
+    # parse library cannot parse None
+    if ua_string is None:
+        ua_string = ""
+
+    parsed_string = parse(ua_string)
+
+    output = [
+        parsed_string.device.brand,
+        parsed_string.device.family,
+        parsed_string.device.model,
+
+        parsed_string.os.family,
+        parsed_string.os.version_string,
+
+        parsed_string.browser.family,
+        parsed_string.browser.version_string,
+
+        (parsed_string.is_mobile or parsed_string.is_tablet),
+        parsed_string.is_bot
+    ]
+    # If any of the column have None value it doesn't comply with schema
+    # and thus throw Null Pointer Exception
+    for i in range(len(output)):
+        if output[i] is None:
+            output[i] = 'Unknown'
+    return output
 
 
 class GetDataKafka(Task):
@@ -139,10 +169,23 @@ class GetDataKafka(Task):
         self.df = self.df.withColumn('reply_length_bytes', F.regexp_extract(F.col('message'), regex, 7))
 
         self.df = self.df.withColumn('client_ua', F.regexp_extract(F.col('message'), regex, 8))
-        # ...
+        ua_parser_udf = F.udf(lambda z: parse_ua(z), StructType([
+            StructField("device_brand", StringType(), False),
+            StructField("device_family", StringType(), False),
+            StructField("device_model", StringType(), False),
+
+            StructField("os_family", StringType(), False),
+            StructField("os_version", StringType(), False),
+
+            StructField("browser_family", StringType(), False),
+            StructField("browser_version", StringType(), False),
+
+            StructField("is_mobile", BooleanType(), False),
+            StructField("is_bot", BooleanType(), False),
+        ]))
+        self.df = self.df.withColumn('ua', ua_parser_udf('client_ua'))
 
         self.df = self.df.withColumn('content_type', F.regexp_extract(F.col('message'), regex, 10))
-
         self.df = self.df.withColumn('querystring', F.regexp_extract(F.col('message'), regex, 13))
 
 
