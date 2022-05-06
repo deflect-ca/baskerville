@@ -14,6 +14,7 @@ import traceback
 
 import pyspark
 from kafka.errors import TopicAlreadyExistsError
+from pyspark.files import SparkFiles
 
 from baskerville.db.dashboard_models import FeedbackContext
 from pyspark.sql import functions as F, types as T
@@ -43,13 +44,16 @@ from dateutil.tz import tzutc
 
 # broadcasts
 from baskerville.util.elastic_writer import ElasticWriter
-from baskerville.util.helpers import parse_config
+from baskerville.util.helpers import parse_config, get_default_data_path
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
 from baskerville.util.mail_sender import MailSender
 from baskerville.util.whitelist_ips import WhitelistIPs
 from baskerville.util.whitelist_urls import WhitelistURLs
-from pyspark.sql.functions import broadcast
+from pyspark.sql.functions import broadcast, udf
+
+from geoip2 import database
+from geoip2.errors import AddressNotFoundError
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
@@ -85,6 +89,24 @@ def parse_ua(ua_string):
         if output[i] is None:
             output[i] = 'Unknown'
     return output
+
+
+geoip_schema = StructType([
+    StructField('country_name', StringType(), True),
+])
+
+
+@udf(returnType=geoip_schema)
+def geoip(ip):
+    geo = database.Reader(SparkFiles.get('GeoLite2-Country.mmdb'))
+
+    try:
+        result = geo.country(ip)
+        pass
+    except AddressNotFoundError:
+        return {'country': None}
+
+    return {'country': result.names['en']}
 
 
 class GetDataKafka(Task):
@@ -137,6 +159,7 @@ class GetDataKafka(Task):
             [self.consume_topic],
             kafkaParams=self.kafka_params,
         )
+        self.spark.sparkContext.addFile(os.path.join(get_default_data_path(), 'geoip2', 'GeoLite2-Country.mmdb'))
 
     def get_data(self):
         # self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
@@ -157,7 +180,7 @@ class GetDataKafka(Task):
 
         self.df = self.df.withColumn('client_ip', F.regexp_extract(F.col('message'), regex, 1))
         self.df = self.df.withColumn('@timestamp', F.regexp_extract(F.col('message'), regex, 2))
-        self.df = self.df.withColumn('@timestamp1', F.to_timestamp(F.col('@timestamp'), 'dd/MMM/yyyy:HH:mm:ss Z'))
+        self.df = self.df.withColumn('@timestamp', F.to_timestamp(F.col('@timestamp'), 'dd/MMM/yyyy:HH:mm:ss Z'))
 
         self.df = self.df.withColumn('request', F.regexp_extract(F.col('message'), regex, 3))
         self.df = self.df.withColumn('client_url', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 2))
@@ -188,26 +211,9 @@ class GetDataKafka(Task):
         self.df = self.df.withColumn('content_type', F.regexp_extract(F.col('message'), regex, 10))
         self.df = self.df.withColumn('querystring', F.regexp_extract(F.col('message'), regex, 13))
 
+        self.df = self.df.withColumn('geoip', geoip('client_ip'))
 
-
-
-
-
-
-
-
-
-        # import re
-        # self.df = self.df.flatMap(lambda x: ((v) for v in re.split(
-        #     '([(\d\.)]+) - - \[(.*?)\] "(.*?)" (.*) (.*) (\d+) (\d+) "(.*?)" (.*?) (.*?) (.*?) (.*?) "(.*?)" "(.*?)"',
-        #     x["message"])))
-
-
-        # self.df = self.db.toDF(schema=['key', 'value'])
-        # self.df = self.df.select(F.split(self.df.value, " ")).rdd.flatMap(
-        #     lambda x: x).toDF(schema=[
-        #     "client_ip", "c1",  "c2"
-        #     ])
+        self.df = self.df.drop('message')
 
         self.logger.info('xxx')
         self.logger.info(self.df.collect())
