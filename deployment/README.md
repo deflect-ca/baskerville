@@ -415,9 +415,9 @@ cd ..
 git clone git@github.com:confluentinc/cp-helm-charts.git
 ```
 * install schema registry
-``commandline
+```commandline
 helm install ksql-schema-registry -f deployment/ksql/values-ksql-registry.yaml ../cp-helm-charts/charts/cp-schema-registry
-``
+```
 
 * install `ksql`
 ```commandline

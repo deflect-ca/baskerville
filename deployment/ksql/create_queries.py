@@ -108,7 +108,7 @@ sum (reply_length_bytes) as allbytes,
 sum (cached*reply_length_bytes) as cachedbytes,
 count (*) as allhits,
 sum(cached) as cachedhits,
-COLLECT_LIST (client_ip) as client_ip,
+COLLECT_SET (client_ip) as client_ip,
 HISTOGRAM (country_code) as country_codes,
 HISTOGRAM (client_url) as viewed_pages,
 HISTOGRAM (ua_name) as ua,
@@ -122,7 +122,7 @@ TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
 CREATE TABLE {}BANJAX_5M AS
 SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
 count (*) as bans,
-COLLECT_LIST (client_ip) as client_ip,
+COLLECT_SET (client_ip) as client_ip,
 HISTOGRAM (country_code) as country_codes,
 HISTOGRAM (uripath) as target_url,
 COUNT_DISTINCT (client_ip) as uniquebots,
@@ -205,10 +205,10 @@ for q in minimum_queries:
     print(q.format(prefix, prefix))
 
 
-for q in tumbling_queries:
-    for window in tumbling_windows:
-        print(q.format(prefix, window[0], prefix, window[1]))
-
-for q in hopping_queries:
-    for window in hopping_windows:
-        print(q.format(prefix, window[0], prefix, window[1], window[2]))
+# for q in tumbling_queries:
+#     for window in tumbling_windows:
+#         print(q.format(prefix, window[0], prefix, window[1]))
+#
+# for q in hopping_queries:
+#     for window in hopping_windows:
+#         print(q.format(prefix, window[0], prefix, window[1], window[2]))
