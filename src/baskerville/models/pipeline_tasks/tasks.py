@@ -159,64 +159,61 @@ class GetDataKafka(Task):
             [self.consume_topic],
             kafkaParams=self.kafka_params,
         )
-        self.spark.sparkContext.addFile(os.path.join(get_default_data_path(), 'geoip2', 'GeoLite2-Country.mmdb'))
+
+        if self.config.engine.input_is_weblogs:
+            self.spark.sparkContext.addFile(os.path.join(get_default_data_path(), 'geoip2', 'GeoLite2-Country.mmdb'))
 
     def get_data(self):
-        # self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
-        #     self.data_parser.schema
-        # ).persist(self.spark_conf.storage_level)
+        if self.config.engine.input_is_weblogs:
+            self.df = self.df.map(lambda l: json.loads(l[1]))
 
-        self.df = self.df.map(lambda l: json.loads(l[1]))
+            schema = T.StructType([
+                T.StructField("message", T.StringType(), True)
+            ])
+            self.df = self.df.map(lambda x: [x['message']]).toDF(schema=schema)
 
-        schema = T.StructType([
-            T.StructField("message", T.StringType(), True)
-        ])
-        self.df = self.df.map(lambda x: [x['message']]).toDF(schema=schema)
+            regex = '([(\d\.)]+) - \[(.*?)\] "(.*?)" (.*) (.*) (\d+) (\d+) "(.*?)" (.*?) (.*?) (.*?) (.*?) "(.*?)" "(.*?)"'
 
-        self.logger.info('ccc')
-        self.logger.info(self.df.collect())
+            self.df = self.df.withColumn('client_ip', F.regexp_extract(F.col('message'), regex, 1))
+            self.df = self.df.withColumn('@timestamp', F.regexp_extract(F.col('message'), regex, 2))
+            self.df = self.df.withColumn('@timestamp', F.to_timestamp(F.col('@timestamp'), 'dd/MMM/yyyy:HH:mm:ss Z'))
 
-        regex = '([(\d\.)]+) - \[(.*?)\] "(.*?)" (.*) (.*) (\d+) (\d+) "(.*?)" (.*?) (.*?) (.*?) (.*?) "(.*?)" "(.*?)"'
+            self.df = self.df.withColumn('request', F.regexp_extract(F.col('message'), regex, 3))
+            self.df = self.df.withColumn('client_url', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 2))
+            self.df = self.df.withColumn('client_request_method', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 1))
+            self.df = self.df.drop('request')
 
-        self.df = self.df.withColumn('client_ip', F.regexp_extract(F.col('message'), regex, 1))
-        self.df = self.df.withColumn('@timestamp', F.regexp_extract(F.col('message'), regex, 2))
-        self.df = self.df.withColumn('@timestamp', F.to_timestamp(F.col('@timestamp'), 'dd/MMM/yyyy:HH:mm:ss Z'))
+            self.df = self.df.withColumn('client_request_host', F.regexp_extract(F.col('message'), regex, 5))
+            self.df = self.df.withColumn('http_response_code', F.regexp_extract(F.col('message'), regex, 6))
+            self.df = self.df.withColumn('reply_length_bytes', F.regexp_extract(F.col('message'), regex, 7))
 
-        self.df = self.df.withColumn('request', F.regexp_extract(F.col('message'), regex, 3))
-        self.df = self.df.withColumn('client_url', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 2))
-        self.df = self.df.withColumn('client_request_method', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 1))
-        self.df = self.df.drop('request')
+            self.df = self.df.withColumn('client_ua', F.regexp_extract(F.col('message'), regex, 8))
+            ua_parser_udf = F.udf(lambda z: parse_ua(z), StructType([
+                StructField("device_brand", StringType(), False),
+                StructField("device_family", StringType(), False),
+                StructField("device_model", StringType(), False),
 
-        self.df = self.df.withColumn('client_request_host', F.regexp_extract(F.col('message'), regex, 5))
-        self.df = self.df.withColumn('http_response_code', F.regexp_extract(F.col('message'), regex, 6))
-        self.df = self.df.withColumn('reply_length_bytes', F.regexp_extract(F.col('message'), regex, 7))
+                StructField("os_family", StringType(), False),
+                StructField("os_version", StringType(), False),
 
-        self.df = self.df.withColumn('client_ua', F.regexp_extract(F.col('message'), regex, 8))
-        ua_parser_udf = F.udf(lambda z: parse_ua(z), StructType([
-            StructField("device_brand", StringType(), False),
-            StructField("device_family", StringType(), False),
-            StructField("device_model", StringType(), False),
+                StructField("browser_family", StringType(), False),
+                StructField("browser_version", StringType(), False),
 
-            StructField("os_family", StringType(), False),
-            StructField("os_version", StringType(), False),
+                StructField("is_mobile", BooleanType(), False),
+                StructField("is_bot", BooleanType(), False),
+            ]))
+            self.df = self.df.withColumn('ua', ua_parser_udf('client_ua'))
 
-            StructField("browser_family", StringType(), False),
-            StructField("browser_version", StringType(), False),
+            self.df = self.df.withColumn('content_type', F.regexp_extract(F.col('message'), regex, 10))
+            self.df = self.df.withColumn('querystring', F.regexp_extract(F.col('message'), regex, 13))
 
-            StructField("is_mobile", BooleanType(), False),
-            StructField("is_bot", BooleanType(), False),
-        ]))
-        self.df = self.df.withColumn('ua', ua_parser_udf('client_ua'))
+            self.df = self.df.withColumn('geoip', geoip('client_ip'))
 
-        self.df = self.df.withColumn('content_type', F.regexp_extract(F.col('message'), regex, 10))
-        self.df = self.df.withColumn('querystring', F.regexp_extract(F.col('message'), regex, 13))
-
-        self.df = self.df.withColumn('geoip', geoip('client_ip'))
-
-        self.df = self.df.drop('message')
-
-        self.logger.info('xxx')
-        self.logger.info(self.df.collect())
+            self.df = self.df.drop('message')
+        else:
+            self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+                self.data_parser.schema
+            ).persist(self.spark_conf.storage_level)
 
         self.df = load_test(
             self.df,

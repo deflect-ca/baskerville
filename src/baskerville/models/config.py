@@ -306,6 +306,7 @@ class EngineConfig(Config):
     kafka_topic_sensitive = 'sensitive'
 
     client_mode = False
+    input_is_weblogs = False
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
