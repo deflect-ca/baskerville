@@ -14,6 +14,8 @@ extraEnvVars:
    value: "User:CN=admin,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown;User:CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown"
  - name: KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND
    value: "true"
+ - name: KAFKA_CFG_MAX_POLL_RECORDS
+   value: "100"
 
 externalAccess:
   enabled: True

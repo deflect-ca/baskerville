@@ -1,6 +1,5 @@
 prefix = "STATS_"
 
-
 tumbling_windows = [
     ('_5M', '5 MINUTES'),
     ('_30M', '30 MINUTES'),
@@ -28,7 +27,8 @@ CREATE STREAM {}WEBLOGS_SCHEMA (
     ts_timestamp VARCHAR,
     reply_length_bytes BIGINT,
     geoip STRUCT<country_code2 VARCHAR>,
-    cache_result VARCHAR
+    cache_result VARCHAR,
+    content_type VARCHAR
 ) WITH (
     kafka_topic = 'deflect.logs',
     partitions = 3,
@@ -62,6 +62,21 @@ CREATE STREAM {}WEBLOGS_WWW AS
     SELECT
         REGEXP_REPLACE(client_request_host, 'www[\.]', '') as host_no_www,
         client_url,
+        CASE 
+         WHEN (http_response_code = '200' or http_response_code = '304') 
+                and (
+                  content_type = 'text/html' or
+                  content_type = 'text/plain' or
+                  content_type = 'application/pdf' or
+                  content_type = 'application/msword' or
+                  content_type = '-'
+                )
+         THEN
+            REGEXP_REPLACE(client_url, '/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|json|png|gif|class|bmp|rss|xml|swf))', '')
+         ELSE 
+            ''
+        END as client_url_filtered,
+
         ts_timestamp,
         reply_length_bytes,
         geoip->country_code2 as country_code,
@@ -75,10 +90,10 @@ CREATE STREAM {}WEBLOGS_WWW AS
     FROM {}WEBLOGS_SCHEMA;
     """,
     """
-CREATE STREAM STATS_WEBLOGS 
+CREATE STREAM {}WEBLOGS 
   WITH (PARTITIONS=3) AS 
   SELECT * 
-   FROM STATS_WEBLOGS_WWW
+   FROM {}WEBLOGS_WWW
    PARTITION BY host_no_www;    
     """,
     """
@@ -92,10 +107,10 @@ CREATE STREAM {}BANJAX_WWW AS
     FROM {}BANJAX_SCHEMA;   
     """,
     """
-CREATE STREAM STATS_BANJAX 
+CREATE STREAM {}BANJAX 
   WITH (PARTITIONS=3) AS 
   SELECT * 
-   FROM STATS_BANJAX_WWW
+   FROM {}BANJAX_WWW
    PARTITION BY host_no_www;      
     """
 ]
@@ -110,13 +125,15 @@ count (*) as allhits,
 sum(cached) as cachedhits,
 COLLECT_SET (client_ip) as client_ip,
 HISTOGRAM (country_code) as country_codes,
-HISTOGRAM (client_url) as viewed_pages,
+HISTOGRAM (client_url) as client_url,
+HISTOGRAM (client_url_filtered) as viewed_pages,
+COUNT(client_url_filtered) as viewed_page_count,
 HISTOGRAM (ua_name) as ua,
 HISTOGRAM (http_response_code) as http_code,
 TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
  FROM {}WEBLOGS
  WINDOW TUMBLING (SIZE 5 MINUTES)
- GROUP BY host_no_www;
+ GROUP BY host_no_www, country_code;
    """,
    """
 CREATE TABLE {}BANJAX_5M AS
