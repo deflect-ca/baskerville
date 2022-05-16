@@ -133,7 +133,7 @@ HISTOGRAM (http_response_code) as http_code,
 TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
  FROM {}WEBLOGS
  WINDOW TUMBLING (SIZE 5 MINUTES)
- GROUP BY host_no_www, country_code;
+ GROUP BY host_no_www;
    """,
    """
 CREATE TABLE {}BANJAX_5M AS
