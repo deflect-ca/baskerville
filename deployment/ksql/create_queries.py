@@ -1,21 +1,5 @@
 prefix = "STATS_"
 
-tumbling_windows = [
-    ('_5M', '5 MINUTES'),
-    ('_30M', '30 MINUTES'),
-    ('_1H', '60 MINUTES'),
-    ('_1D', '24 HOURS'),
-    ('_1W', '7 DAYS')
-]
-
-hopping_windows = [
-    ('_1H', '60 MINUTES', '5 MINUTES'),
-    ('_6H', '6 HOURS', '1 HOUR'),
-    ('_1D', '24 HOURS', '1 HOUR'),
-    ('_1W', '7 DAYS', '1 DAY'),
-    ('_1M', '30 DAYS', ' 1 DAY')
-]
-
 schemas = [
     """
 CREATE STREAM {}WEBLOGS_SCHEMA (
@@ -62,8 +46,8 @@ CREATE STREAM {}WEBLOGS_WWW AS
     SELECT
         REPLACE(client_request_host, 'www.', '') as host_no_www,
         client_url,
-        CASE 
-         WHEN (http_response_code = '200' or http_response_code = '304') 
+        CASE
+         WHEN (http_response_code = '200' or http_response_code = '304')
                 and (
                   content_type = 'text/html; charset=utf-8' or
                   content_type = 'text/plain; charset=utf-8' or
@@ -75,8 +59,8 @@ CREATE STREAM {}WEBLOGS_WWW AS
                   content_type = 'application/pdf; charset=UTF-8' or
                   content_type = 'application/msword; charset=UTF-8')
          THEN
-            REGEXP_REPLACE(client_url, '/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|json|png|gif|class|bmp|rss|xml|swf))', '')
-         ELSE 
+REGEXP_REPLACE(client_url,'/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|json|png|gif|class|bmp|rss|xml|swf))', '')
+         ELSE
             ''
         END as client_url_filtered,
 
@@ -87,10 +71,10 @@ CREATE STREAM {}WEBLOGS_WWW AS
         client_ua,
         http_response_code,
         CASE
-            WHEN 
-            cache_result = 'HIT' or 
-            cache_result = 'STALE' or 
-            cache_result = 'UPDATING' or 
+            WHEN
+            cache_result = 'HIT' or
+            cache_result = 'STALE' or
+            cache_result = 'UPDATING' or
             cache_result = 'REVALIDATED' 
             THEN 1
          ELSE 0
@@ -153,8 +137,7 @@ CREATE TABLE {}BANJAX_UNIQUE_TABLE AS
     partitions = 3,
     value_format = 'json'
 );
-    """
-    ,
+    """,
     """
     CREATE STREAM {}BANJAX_UNIQUE AS
     SELECT
@@ -202,66 +185,6 @@ minimum_queries = [
   """
 ]
 
-tumbling_queries = [
-    """
-CREATE TABLE {}TUMBLING_WEBLOGS{}  AS
-SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
-sum (reply_length_bytes) as allbytes,
-sum (cached*reply_length_bytes) as cachedbytes,
-count (*) as allhits,
-sum(cached) as cachedhits,
-COUNT_DISTINCT (client_ip) as unique_ips,
-HISTOGRAM (country_code) as country_codes,
-TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
- FROM {}WEBLOGS
- WINDOW TUMBLING (SIZE {})
- GROUP BY host_no_www;
-    """,
-    """
-CREATE TABLE {}TUMBLING_BANJAX{} AS
-SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
-COUNT_DISTINCT (*) as bans,
-HISTOGRAM (country_code) as country_codes,
-COUNT_DISTINCT (client_ip) as uniquebots,
-TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
- FROM {}BANJAX
- WINDOW TUMBLING (SIZE {})
- GROUP BY host_no_www;    
-    """
-]
-
-hopping_queries = [
-    """
-CREATE TABLE {}HOPPING_WEBLOGS{}  AS
-SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
-sum (reply_length_bytes) as allbytes,
-sum (cached*reply_length_bytes) as cachedbytes,
-COUNT_DISTINCT (client_ip) as unique_ips,
-count (*) as allhits,
-sum(cached) as cachedhits,
-HISTOGRAM (country_code) as country_codes,
-HISTOGRAM (client_url) as viewed_pages,
-HISTOGRAM (client_ua) as ua,
-HISTOGRAM (http_response_code) as http_code,
-TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
- FROM {}WEBLOGS
- WINDOW HOPPING (SIZE {}, ADVANCE BY {})
- GROUP BY host_no_www;
-    """
-    ,
-    """
-CREATE TABLE {}HOPPING_BANJAX{} AS
-SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
-COUNT_DISTINCT (*) as bans,
-HISTOGRAM (country_code) as country_codes,
-HISTOGRAM (uripath) as target_url,
-COUNT_DISTINCT (client_ip) as uniquebots,
-TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
- FROM {}BANJAX
- WINDOW HOPPING (SIZE {}, ADVANCE BY {})
- GROUP BY host_no_www;    
-    """
-]
 
 for q in schemas:
     print(q.format(prefix))
@@ -271,13 +194,3 @@ for q in streams:
 
 for q in minimum_queries:
     print(q.format(prefix, prefix))
-
-
-
-# for q in tumbling_queries:
-#     for window in tumbling_windows:
-#         print(q.format(prefix, window[0], prefix, window[1]))
-#
-# for q in hopping_queries:
-#     for window in hopping_windows:
-#         print(q.format(prefix, window[0], prefix, window[1], window[2]))

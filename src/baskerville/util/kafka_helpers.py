@@ -83,7 +83,7 @@ def send_to_kafka(spark,
                 broadcast_connection,
                 broadcast_client_connections
             )
-                (
+            (
                 F.lit(topic),
                 F.lit(cc_to_client),
                 F.lit(client_topic),
