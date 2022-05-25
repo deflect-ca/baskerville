@@ -29,7 +29,7 @@ jobs:
         cd spark-iforest/python
         python setup.py sdist
         pip install dist/pyspark-iforest-2.4.0.99.tar.gz
-        cd ..
+        cd ../../
         mkdir ./src/baskerville/logs/
     - name: Lint with flake8
       run: |
