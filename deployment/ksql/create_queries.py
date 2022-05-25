@@ -22,18 +22,18 @@ CREATE STREAM {}WEBLOGS_SCHEMA (
     client_request_host VARCHAR,
     client_ip VARCHAR,
     client_url VARCHAR,
-    ua_name VARCHAR,
+    client_ua VARCHAR,
     http_response_code VARCHAR,
-    ts_timestamp VARCHAR,
+    datestamp VARCHAR,
     reply_length_bytes BIGINT,
     geoip STRUCT<country_code2 VARCHAR>,
     cache_result VARCHAR,
     content_type VARCHAR
 ) WITH (
-    kafka_topic = 'deflect.logs',
+    kafka_topic = 'deflect.log',
     partitions = 3,
     value_format = 'json',
-    timestamp = 'ts_timestamp',
+    timestamp = 'datestamp',
     timestamp_format = 'dd/LLL/yyyy:HH:mm:ss ZZZ'
 );
     """,
@@ -60,31 +60,39 @@ streams = [
     """
 CREATE STREAM {}WEBLOGS_WWW AS
     SELECT
-        REGEXP_REPLACE(client_request_host, 'www[\.]', '') as host_no_www,
+        REPLACE(client_request_host, 'www.', '') as host_no_www,
         client_url,
         CASE 
          WHEN (http_response_code = '200' or http_response_code = '304') 
                 and (
-                  content_type = 'text/html' or
-                  content_type = 'text/plain' or
-                  content_type = 'application/pdf' or
-                  content_type = 'application/msword' or
-                  content_type = '-'
-                )
+                  content_type = 'text/html; charset=utf-8' or
+                  content_type = 'text/plain; charset=utf-8' or
+                  content_type = 'application/pdf; charset=utf-8' or
+                  content_type = 'application/msword; charset=utf-8' or
+                  content_type = '-' or
+                  content_type = 'text/html; charset=UTF-8' or
+                  content_type = 'text/plain; charset=UTF-8' or
+                  content_type = 'application/pdf; charset=UTF-8' or
+                  content_type = 'application/msword; charset=UTF-8')
          THEN
             REGEXP_REPLACE(client_url, '/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|json|png|gif|class|bmp|rss|xml|swf))', '')
          ELSE 
             ''
         END as client_url_filtered,
 
-        ts_timestamp,
+        datestamp,
         reply_length_bytes,
         geoip->country_code2 as country_code,
         client_ip,
-        ua_name,
+        client_ua,
         http_response_code,
         CASE
-            WHEN cache_result <> 'TCP_MISS' THEN 1
+            WHEN 
+            cache_result = 'HIT' or 
+            cache_result = 'STALE' or 
+            cache_result = 'UPDATING' or 
+            cache_result = 'REVALIDATED' 
+            THEN 1
          ELSE 0
         END AS cached
     FROM {}WEBLOGS_SCHEMA;
@@ -99,56 +107,99 @@ CREATE STREAM {}WEBLOGS
     """
 CREATE STREAM {}BANJAX_WWW AS
     SELECT
-        REGEXP_REPLACE(http_host, 'www[\.]', '') as host_no_www,
+        REPLACE(http_host, 'www.', '') as host_no_www,
         client_ip,
-        uripath,
+        CASE WHEN uripath IS null THEN ' ' ELSE uripath END as uripath,
         user_agent->name as ua_name,
         geoip->country_code2 as country_code
-    FROM {}BANJAX_SCHEMA;   
+    FROM {}BANJAX_SCHEMA
+    WHERE action = 'banned';   
     """,
     """
-CREATE STREAM {}BANJAX 
+CREATE STREAM {}BANJAX_PARTITIONED 
   WITH (PARTITIONS=3) AS 
   SELECT * 
    FROM {}BANJAX_WWW
    PARTITION BY host_no_www;      
+    """,
+    # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ UNIQUE @@@@@@@@@@@@@@@@@@
+    """
+CREATE TABLE {}BANJAX_UNIQUE_TABLE AS 
+  SELECT 
+  host_no_www,
+  country_code,
+  client_ip,
+  uripath,
+  EARLIEST_BY_OFFSET(host_no_www) AS host2,
+  EARLIEST_BY_OFFSET(client_ip) as client_ip2, 
+  EARLIEST_BY_OFFSET(country_code) as country_code2,
+  EARLIEST_BY_OFFSET(uripath) as uripath2,
+  COUNT(client_ip) as ip_count,
+  TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
+   FROM {}BANJAX_PARTITIONED  
+   WINDOW TUMBLING (SIZE 5 MINUTES)
+   GROUP BY host_no_www, country_code, client_ip, uripath;      
+    """,
+    """
+    CREATE STREAM {}BANJAX_UNIQUE_SCHEMA 
+     (
+    host2 VARCHAR,
+    client_ip2 VARCHAR,
+    country_code2 VARCHAR,
+    uripath2 VARCHAR,
+    ip_count INTEGER
+) WITH (
+    kafka_topic = '{}BANJAX_UNIQUE_TABLE',
+    partitions = 3,
+    value_format = 'json'
+);
+    """
+    ,
+    """
+    CREATE STREAM {}BANJAX_UNIQUE AS
+    SELECT
+        host2,
+        client_ip2,
+        country_code2,
+        uripath2
+    FROM {}BANJAX_UNIQUE_SCHEMA 
+    WHERE IP_COUNT = 1
+    PARTITION BY host2;
     """
 ]
 
 minimum_queries = [
-   """
-CREATE TABLE {}WEBLOGS_5M  AS
-SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
-sum (reply_length_bytes) as allbytes,
-sum (cached*reply_length_bytes) as cachedbytes,
-count (*) as allhits,
-sum(cached) as cachedhits,
-COLLECT_SET (client_ip) as client_ip,
-HISTOGRAM (country_code) as country_codes,
-HISTOGRAM (client_url) as client_url,
-HISTOGRAM (client_url_filtered) as viewed_pages,
-COUNT(client_url_filtered) as viewed_page_count,
-HISTOGRAM (ua_name) as ua,
-HISTOGRAM (http_response_code) as http_code,
-TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
- FROM {}WEBLOGS
- WINDOW TUMBLING (SIZE 5 MINUTES)
- GROUP BY host_no_www;
-   """,
-   """
-CREATE TABLE {}BANJAX_5M AS
-SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
-count (*) as bans,
-COLLECT_SET (client_ip) as client_ip,
-HISTOGRAM (country_code) as country_codes,
-HISTOGRAM (uripath) as target_url,
-COUNT_DISTINCT (client_ip) as uniquebots,
-TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
- FROM {}BANJAX
- WINDOW TUMBLING (SIZE 5 MINUTES)
- GROUP BY host_no_www;     
- """
-
+    """
+ CREATE TABLE {}WEBLOGS_5M  AS
+ SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
+ sum (reply_length_bytes) as allbytes,
+ sum (cached*reply_length_bytes) as cachedbytes,
+ count (*) as allhits,
+ sum(cached) as cachedhits,
+ COLLECT_SET (client_ip) as client_ip,
+ HISTOGRAM (country_code) as country_codes,
+ HISTOGRAM (client_url) as client_url,
+ HISTOGRAM (client_url_filtered) as viewed_pages,
+ COUNT(client_url_filtered) as viewed_page_count,
+ HISTOGRAM (client_ua) as ua,
+ HISTOGRAM (http_response_code) as http_code,
+ TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
+  FROM {}WEBLOGS
+  WINDOW TUMBLING (SIZE 5 MINUTES)
+  GROUP BY host_no_www;
+    """,
+    """
+ CREATE TABLE {}BANJAX_5M AS
+ SELECT host2, EARLIEST_BY_OFFSET(host2) as host,
+ COLLECT_SET (client_ip2) as client_ip,
+ HISTOGRAM (country_code2) as country_codes,
+ HISTOGRAM (uripath2) as target_url,
+ COUNT_DISTINCT (client_ip2) as uniquebots,
+ TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
+  FROM {}BANJAX_UNIQUE
+  WINDOW TUMBLING (SIZE 5 MINUTES)
+  GROUP BY host2;     
+  """
 ]
 
 tumbling_queries = [
@@ -190,7 +241,7 @@ count (*) as allhits,
 sum(cached) as cachedhits,
 HISTOGRAM (country_code) as country_codes,
 HISTOGRAM (client_url) as viewed_pages,
-HISTOGRAM (ua_name) as ua,
+HISTOGRAM (client_ua) as ua,
 HISTOGRAM (http_response_code) as http_code,
 TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
  FROM {}WEBLOGS
@@ -220,6 +271,7 @@ for q in streams:
 
 for q in minimum_queries:
     print(q.format(prefix, prefix))
+
 
 
 # for q in tumbling_queries:

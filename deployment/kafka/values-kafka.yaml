@@ -16,6 +16,8 @@ extraEnvVars:
    value: "true"
  - name: KAFKA_CFG_MAX_POLL_RECORDS
    value: "100"
+ - name: KAFKA_CFG_MAX_REQUEST_SIZE
+   value: "10048576"
 
 externalAccess:
   enabled: True

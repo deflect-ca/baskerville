@@ -13,3 +13,6 @@ resources:
   requests:
     cpu: 3000m
     memory: 1G
+
+configurationOverrides: {}
+#  "ksql.streams.producer.retries": "2147483647"
