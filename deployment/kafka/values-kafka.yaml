@@ -40,4 +40,4 @@ auth:
   clientProtocol: mtls
   interBrokerProtocol: plaintext
   jksSecret: kafka-jks
-  jksPassword: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+  jksPassword: ""
