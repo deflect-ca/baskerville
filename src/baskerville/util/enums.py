@@ -40,7 +40,6 @@ class LogType(Enum):
 
 
 class RunType(BaseStrEnum):
-    es = 'es'
     rawlog = 'rawlog'
     kafka = 'kafka'
     training_old = 'training_old'
