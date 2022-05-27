@@ -30,10 +30,6 @@ jobs:
         python setup.py sdist
         pip install dist/pyspark-iforest-2.4.0.99.tar.gz
         cd ../../
-        git clone https://github.com/equalitie/esretriever.git
-        cd esretriever
-        sudo pip install -e .
-        cd ..
         mkdir ./src/baskerville/logs/
     - name: Lint with flake8
       run: |

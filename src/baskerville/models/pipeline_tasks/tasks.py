@@ -1574,7 +1574,8 @@ class SendToKafka(Task):
             cc_to_client=self.cc_to_client,
             client_topic=self.client_topic,
             client_connections=self.client_connections,
-            use_partitions=self.config.engine.kafka_send_by_partition
+            use_partitions=self.config.engine.kafka_send_by_partition,
+            logger=self.logger
         )
 
         return self.df

@@ -1,0 +1,18 @@
+replicaCount: 3
+
+kafka:
+  bootstrapServers: "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+
+cp-schema-registry:
+  url: "http://ksql-schema-registry-cp-schema-registry:8081"
+
+ksql:
+  headless: false
+
+resources:
+  requests:
+    cpu: 3000m
+    memory: 1G
+
+configurationOverrides: {}
+#  "ksql.streams.producer.retries": "2147483647"

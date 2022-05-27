@@ -749,7 +749,7 @@ class KafkaConfig(Config):
     Configuration for access to a Kafka instance for the kafka pipeline.
     """
     bootstrap_servers = '0.0.0.0:9092'
-    data_topic = 'deflect.logs'
+    data_topic = 'deflect.log'
     features_topic = 'features'
     feedback_topic = 'feedback'
     feedback_response_topic = ''
