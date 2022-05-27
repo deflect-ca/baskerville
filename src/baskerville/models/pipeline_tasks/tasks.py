@@ -180,7 +180,8 @@ class GetDataKafka(Task):
 
             self.df = self.df.withColumn('request', F.regexp_extract(F.col('message'), regex, 3))
             self.df = self.df.withColumn('client_url', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 2))
-            self.df = self.df.withColumn('client_request_method', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 1))
+            self.df = self.df.withColumn('client_request_method',
+                                         F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 1))
             self.df = self.df.drop('request')
 
             self.df = self.df.withColumn('client_request_host', F.regexp_extract(F.col('message'), regex, 5))
@@ -1251,13 +1252,13 @@ class Save(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                         'prediction',
-                         'prediction_anomaly',
-                         'prediction_classifier',
-                         'model_version',
-                         'label',
-                         'id_attribute',
-                         'updated_at')
+                     'prediction',
+                     'prediction_anomaly',
+                     'prediction_classifier',
+                     'model_version',
+                     'label',
+                     'id_attribute',
+                     'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1298,11 +1299,11 @@ class SaveFeedback(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                         'prediction',
-                         'model_version',
-                         'label',
-                         'id_attribute',
-                         'updated_at')
+                     'prediction',
+                     'model_version',
+                     'label',
+                     'id_attribute',
+                     'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1847,13 +1848,13 @@ class AttackDetection(Task):
             name='request_total', dataType=StringType(), nullable=True
         )])
         self.time_filter = (
-                F.abs(F.unix_timestamp(F.col('stop'))) - F.abs(F.unix_timestamp(F.col('start')))
+            F.abs(F.unix_timestamp(F.col('stop'))) - F.abs(F.unix_timestamp(F.col('start')))
         )
         self.lra_condition = (
-                ((F.col('features.request_total') > lr_attack_period[0]) &
-                 (self.time_filter > lra_total_req[0])) |
-                ((F.col('features.request_total') > lr_attack_period[1]) &
-                 (self.time_filter > lra_total_req[1]))
+            ((F.col('features.request_total') > lr_attack_period[0]) &
+             (self.time_filter > lra_total_req[0])) |
+            ((F.col('features.request_total') > lr_attack_period[1]) &
+             (self.time_filter > lra_total_req[1]))
         )
         self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
         if self.register_metrics:
