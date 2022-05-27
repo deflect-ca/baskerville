@@ -2,6 +2,7 @@ replicaCount: 3
 logRetentionMinutes: 6
 logRetentionCheckIntervalMs: 60000
 autoCreateTopicsEnable: True
+deleteTopicEnable: True
 
 nodeSelector:
   nodepool: workers
@@ -13,6 +14,10 @@ extraEnvVars:
    value: "User:CN=admin,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown;User:CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown"
  - name: KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND
    value: "true"
+ - name: KAFKA_CFG_MAX_POLL_RECORDS
+   value: "100"
+ - name: KAFKA_CFG_MAX_REQUEST_SIZE
+   value: "10048576"
 
 externalAccess:
   enabled: True
@@ -35,4 +40,4 @@ auth:
   clientProtocol: mtls
   interBrokerProtocol: plaintext
   jksSecret: kafka-jks
-  jksPassword: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+  jksPassword: ""

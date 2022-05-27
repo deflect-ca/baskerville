@@ -406,3 +406,94 @@ kafka:
       ssl_keyfile: '/usr/local/baskerville/kafka/admin.key.pem'
       api_version: '0.11.5'
 ```
+
+## Install KSQL
+* clone the repo `git@github.com:confluentinc/cp-helm-charts.git`
+```
+cd baskerville
+cd ..
+git clone git@github.com:confluentinc/cp-helm-charts.git
+```
+* install schema registry
+```commandline
+helm install ksql-schema-registry -f deployment/ksql/values-ksql-registry.yaml ../cp-helm-charts/charts/cp-schema-registry
+```
+
+* install `ksql`
+```commandline
+helm install ksql -f deployment/ksql/values-ksql.yaml ../cp-helm-charts/charts/cp-ksql-server
+```
+
+* connect to ksql cli to confirm the deployment
+```commandline
+kubectl run ksql-cli --rm -i --tty --image confluentinc/cp-ksql-cli:5.2.1 http://ksql-cp-ksql-server:8088
+```
+or 
+```commandline
+kubectl attach ksql-cli -c ksql-cli -i -t
+```
+
+To make sure KSQL is up and running you can list kafka topics inside KSQL:
+```commandline
+shot topics;
+```
+
+* create the cstat KSQL queries. Copy the content of `./deployment/ksql/create_queries.sql`
+and paste it inside KSQL cli pod.
+Make sure you don't have any errors.
+
+* to check KSQL logs:
+List the pods:
+```commandline
+kubectl get pods
+```
+Locate one of the ksql pods, for example, ksql-cp-ksql-server-5b7466c57f-89vx5
+Get the logs:
+```commandline
+kubectl logs ksql-cp-ksql-server-5b7466c57f-89vx5 cp-ksql-server --since=5m
+```
+
+* To change retention policy of cstats topics to 24 hours:
+login go kafka-client pod:
+```commandline
+kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command -- 
+or
+kubectl exec --tty -i kafka-client --namespace default -- bash
+```
+change the retention policy:
+```commandline
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_WEBLOGS_5M --config retention.ms=86400000
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_5M --config retention.ms=86400000
+```
+
+## Uninstalling KSQL
+
+* stop the helm charts:
+```commandline
+helm delete ksql
+helm delete ksql-schema-registry
+```
+
+* delete kafka topics:
+```commandline
+kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command -- 
+```
+or
+```
+kubectl exec --tty -i kafka-client --namespace default -- bash
+```
+then inside kafka-client pod:
+```
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --delete --topic '_confluent-ksql-.*'
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --delete --topic 'STATS_.*'
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --delete --topic _schemas
+```
+
+It might be also necessary to re-partition the topics which were auto-created after the previous step.
+```commandline
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_WEBLOGS_5M --partitions 3 
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_5M --partitions 3 
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX --partitions 3 
+kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_WWW --partitions 3 
+```
+
