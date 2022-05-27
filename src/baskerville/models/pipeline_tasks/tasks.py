@@ -14,12 +14,14 @@ import traceback
 
 import pyspark
 from kafka.errors import TopicAlreadyExistsError
+from pyspark.files import SparkFiles
 
 from baskerville.db.dashboard_models import FeedbackContext
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType, StructField, StructType
+from pyspark.sql.types import StringType, StructField, StructType, BooleanType
 from pyspark.streaming import StreamingContext
 from sqlalchemy.exc import SQLAlchemyError
+from user_agents import parse
 
 from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model
@@ -42,19 +44,69 @@ from dateutil.tz import tzutc
 
 # broadcasts
 from baskerville.util.elastic_writer import ElasticWriter
-from baskerville.util.helpers import parse_config
+from baskerville.util.helpers import parse_config, get_default_data_path
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
 from baskerville.util.mail_sender import MailSender
 from baskerville.util.whitelist_ips import WhitelistIPs
 from baskerville.util.whitelist_urls import WhitelistURLs
-from pyspark.sql.functions import broadcast
+from pyspark.sql.functions import broadcast, udf
+
+from geoip2 import database
+from geoip2.errors import AddressNotFoundError
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
 CLIENT_MODE_BC = None
 OUTPUT_COLS_BC = None
 IP_ACC = None
+
+
+def parse_ua(ua_string):
+    # parse library cannot parse None
+    if ua_string is None:
+        ua_string = ""
+
+    parsed_string = parse(ua_string)
+
+    output = [
+        parsed_string.device.brand,
+        parsed_string.device.family,
+        parsed_string.device.model,
+
+        parsed_string.os.family,
+        parsed_string.os.version_string,
+
+        parsed_string.browser.family,
+        parsed_string.browser.version_string,
+
+        (parsed_string.is_mobile or parsed_string.is_tablet),
+        parsed_string.is_bot
+    ]
+    # If any of the column have None value it doesn't comply with schema
+    # and thus throw Null Pointer Exception
+    for i in range(len(output)):
+        if output[i] is None:
+            output[i] = 'Unknown'
+    return output
+
+
+geoip_schema = StructType([
+    StructField('country_name', StringType(), True),
+])
+
+
+@udf(returnType=geoip_schema)
+def geoip(ip):
+    geo = database.Reader(SparkFiles.get('GeoLite2-Country.mmdb'))
+
+    try:
+        result = geo.country(ip)
+        pass
+    except AddressNotFoundError:
+        return {'country': None}
+
+    return {'country': result.names['en']}
 
 
 class GetDataKafka(Task):
@@ -108,10 +160,61 @@ class GetDataKafka(Task):
             kafkaParams=self.kafka_params,
         )
 
+        if self.config.engine.input_is_weblogs:
+            self.spark.sparkContext.addFile(os.path.join(get_default_data_path(), 'geoip2', 'GeoLite2-Country.mmdb'))
+
     def get_data(self):
-        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
-            self.data_parser.schema
-        ).persist(self.spark_conf.storage_level)
+        if self.config.engine.input_is_weblogs:
+            self.df = self.df.map(lambda l: json.loads(l[1]))
+
+            schema = T.StructType([
+                T.StructField("message", T.StringType(), True)
+            ])
+            self.df = self.df.map(lambda x: [x['message']]).toDF(schema=schema)
+
+            regex = '([(\d\.)]+) - \[(.*?)\] "(.*?)" (.*) (.*) (\d+) (\d+) "(.*?)" (.*?) (.*?) (.*?) (.*?) "(.*?)" "(.*?)"'
+
+            self.df = self.df.withColumn('client_ip', F.regexp_extract(F.col('message'), regex, 1))
+            self.df = self.df.withColumn('@timestamp', F.regexp_extract(F.col('message'), regex, 2))
+            self.df = self.df.withColumn('@timestamp', F.to_timestamp(F.col('@timestamp'), 'dd/MMM/yyyy:HH:mm:ss Z'))
+
+            self.df = self.df.withColumn('request', F.regexp_extract(F.col('message'), regex, 3))
+            self.df = self.df.withColumn('client_url', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 2))
+            self.df = self.df.withColumn('client_request_method',
+                                         F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 1))
+            self.df = self.df.drop('request')
+
+            self.df = self.df.withColumn('client_request_host', F.regexp_extract(F.col('message'), regex, 5))
+            self.df = self.df.withColumn('http_response_code', F.regexp_extract(F.col('message'), regex, 6))
+            self.df = self.df.withColumn('reply_length_bytes', F.regexp_extract(F.col('message'), regex, 7))
+
+            self.df = self.df.withColumn('client_ua', F.regexp_extract(F.col('message'), regex, 8))
+            ua_parser_udf = F.udf(lambda z: parse_ua(z), StructType([
+                StructField("device_brand", StringType(), False),
+                StructField("device_family", StringType(), False),
+                StructField("device_model", StringType(), False),
+
+                StructField("os_family", StringType(), False),
+                StructField("os_version", StringType(), False),
+
+                StructField("browser_family", StringType(), False),
+                StructField("browser_version", StringType(), False),
+
+                StructField("is_mobile", BooleanType(), False),
+                StructField("is_bot", BooleanType(), False),
+            ]))
+            self.df = self.df.withColumn('ua', ua_parser_udf('client_ua'))
+
+            self.df = self.df.withColumn('content_type', F.regexp_extract(F.col('message'), regex, 10))
+            self.df = self.df.withColumn('querystring', F.regexp_extract(F.col('message'), regex, 13))
+
+            self.df = self.df.withColumn('geoip', geoip('client_ip'))
+
+            self.df = self.df.drop('message')
+        else:
+            self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+                self.data_parser.schema
+            ).persist(self.spark_conf.storage_level)
 
         self.df = load_test(
             self.df,
