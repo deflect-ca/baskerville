@@ -508,6 +508,7 @@ class TrainingConfig(Config):
     model_parameters = dict
     classifier_model = 'baskerville.models.classifier_model.ClassifierModel'
     incidents_folder = 'attacks'
+    load_from_storage = True
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
