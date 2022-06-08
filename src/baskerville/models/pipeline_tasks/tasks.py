@@ -27,6 +27,7 @@ from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model
 from baskerville.models.banjax_report_consumer import BanjaxReportConsumer
 from baskerville.models.classifier_model import ClassifierModel
+from baskerville.models.storage_io import StorageIO
 from baskerville.models.incident_detector import IncidentDetector
 from baskerville.models.ip_cache import IPCache
 from baskerville.models.metrics.registry import metrics_registry
@@ -226,6 +227,7 @@ class GetDataKafka(Task):
         self.create_runtime()
 
         def process_subsets(time, rdd):
+            self.df_time = time
             self.logger.info(f'Data until {time} from kafka topic \'{self.consume_topic}\'')
             if rdd and not rdd.isEmpty():
                 try:
@@ -520,6 +522,35 @@ class GetDataLog(Task):
             self.reset()
 
             self.batch_i += 1
+
+
+class GetDataFromStorage(Task):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            from_date=None,
+            to_date=None,
+            load_one_random_batch_from_every_hour=True,
+            steps: list = ()
+    ):
+        super().__init__(config, steps)
+        self.storage_io = None
+        self.from_date = from_date
+        self.to_date = to_date
+        self.load_one_random_batch_from_every_hour = load_one_random_batch_from_every_hour
+
+    def initialize(self):
+        self.storage_io = StorageIO(
+            storage_path=self.config.engine.storage_path,
+            spark=self.spark,
+            logger=self.logger
+        )
+
+    def run(self):
+        self.df = self.storage_io.load(self.from_date, self.to_date,
+                                       load_one_random_batch_from_every_hour=self.load_one_random_batch_from_every_hour)
+        self.df = super().run()
+        return self.df
 
 
 class GetDataPostgres(Task):
@@ -1292,6 +1323,26 @@ class Save(SaveDfInPostgres):
         return self.df
 
 
+class SaveToStorage(Task):
+    def __init__(
+            self,
+            config,
+            steps=()
+    ):
+        super().__init__(config, steps)
+        self.storage_io = None
+
+    def initialize(self):
+        self.storage_io = StorageIO(self.config.engine.storage_path, spark=self.spark, logger=self.logger)
+
+    def run(self):
+        if not self.config.engine.save_to_storage:
+            return self.df
+
+        self.storage_io.save(self.df, self.df_time)
+        return self.df
+
+
 class SaveFeedback(SaveDfInPostgres):
     def __init__(self, config,
                  steps=(),
@@ -1588,11 +1639,13 @@ class Train(Task):
             self,
             config: BaskervilleConfig,
             steps: list = (),
+            convert_features_from_json=False
     ):
         super().__init__(config, steps)
         self.model = None
         self.training_conf = self.config.engine.training
         self.engine_conf = self.config.engine
+        self.convert_features_from_json = convert_features_from_json
 
     def initialize(self):
         super().initialize()
@@ -1671,7 +1724,7 @@ class Train(Task):
         self.model.set_params(**params)
         self.model.set_logger(self.logger)
 
-        dataset = self.load_dataset(self.df, self.model.features)
+        dataset = self.load_dataset(self.df, self.model.features) if self.convert_features_from_json else self.df
 
         self.model.train(dataset)
         dataset.unpersist()

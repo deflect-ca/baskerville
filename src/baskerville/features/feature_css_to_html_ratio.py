@@ -32,8 +32,12 @@ class FeatureCssToHtmlRatio(UpdaterRatio):
                                         F.col('is_css')))
         }
         self.pre_group_by_calcs = {
-            'is_html': F.col('content_type') == 'text/html',
-            'is_css': F.col('content_type') == 'text/css',
+            'is_html': (F.col('content_type') == 'text/html') |
+                       (F.col('content_type') == 'text/html; charset=utf-8') |
+                       (F.col('content_type') == 'text/html; charset=UTF-8'),
+            'is_css': (F.col('content_type') == 'text/css') |
+                      (F.col('content_type') == 'text/css; charset=utf-8') |
+                      (F.col('content_type') == 'text/css; charset=UTF-8')
         }
 
     def compute(self, df):
