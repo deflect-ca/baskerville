@@ -497,3 +497,10 @@ kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_
 kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_WWW --partitions 3 
 ```
 
+## KStream
+
+
+mvn compile jib:build
+
+cd deployment/kafka_stream
+kubectl create -f baskerville-streams-deployment.yaml
