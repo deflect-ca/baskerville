@@ -18,15 +18,16 @@ CREATE STREAM {}WEBLOGS_SCHEMA (
     partitions = 3,
     value_format = 'json',
     timestamp = 'datestamp',
-    timestamp_format = 'dd/LLL/yyyy:HH:mm:ss ZZZ'
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
 );
     """,
     """
 CREATE STREAM {}BANJAX_SCHEMA (
-    http_host VARCHAR,
+    client_request_host VARCHAR,
     client_ip VARCHAR,
     action VARCHAR,
-    uripath VARCHAR,
+    client_url VARCHAR,
+    user_agent STRUCT<name VARCHAR>,
     user_agent STRUCT<name VARCHAR>,
     geoip STRUCT<country_code2 VARCHAR>,
     datestamp VARCHAR
@@ -35,7 +36,7 @@ CREATE STREAM {}BANJAX_SCHEMA (
     partitions = 3,
     value_format = 'json',
     timestamp = 'datestamp',
-    timestamp_format = '''[''yyyy-MM-dd''T''HH:mm:ss'']'''
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
 );
     """
 ]
@@ -91,9 +92,9 @@ CREATE STREAM {}WEBLOGS
     """
 CREATE STREAM {}BANJAX_WWW AS
     SELECT
-        REPLACE(http_host, 'www.', '') as host_no_www,
+        REPLACE(client_request_host, 'www.', '') as host_no_www,
         client_ip,
-        CASE WHEN uripath IS null THEN ' ' ELSE uripath END as uripath,
+        CASE WHEN client_url IS null THEN ' ' ELSE client_url END as client_url,
         user_agent->name as ua_name,
         geoip->country_code2 as country_code
     FROM {}BANJAX_SCHEMA
@@ -113,16 +114,16 @@ CREATE TABLE {}BANJAX_UNIQUE_TABLE AS
   host_no_www,
   country_code,
   client_ip,
-  uripath,
+  client_url,
   EARLIEST_BY_OFFSET(host_no_www) AS host2,
   EARLIEST_BY_OFFSET(client_ip) as client_ip2, 
   EARLIEST_BY_OFFSET(country_code) as country_code2,
-  EARLIEST_BY_OFFSET(uripath) as uripath2,
+  EARLIEST_BY_OFFSET(client_url) as client_url2,
   COUNT(client_ip) as ip_count,
   TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
    FROM {}BANJAX_PARTITIONED  
    WINDOW TUMBLING (SIZE 5 MINUTES)
-   GROUP BY host_no_www, country_code, client_ip, uripath;      
+   GROUP BY host_no_www, country_code, client_ip, client_url;      
     """,
     """
     CREATE STREAM {}BANJAX_UNIQUE_SCHEMA 
@@ -130,7 +131,7 @@ CREATE TABLE {}BANJAX_UNIQUE_TABLE AS
     host2 VARCHAR,
     client_ip2 VARCHAR,
     country_code2 VARCHAR,
-    uripath2 VARCHAR,
+    client_url2 VARCHAR,
     ip_count INTEGER
 ) WITH (
     kafka_topic = '{}BANJAX_UNIQUE_TABLE',
@@ -144,7 +145,7 @@ CREATE TABLE {}BANJAX_UNIQUE_TABLE AS
         host2,
         client_ip2,
         country_code2,
-        uripath2
+        client_url2
     FROM {}BANJAX_UNIQUE_SCHEMA 
     WHERE IP_COUNT = 1
     PARTITION BY host2;
@@ -176,7 +177,7 @@ minimum_queries = [
  SELECT host2, EARLIEST_BY_OFFSET(host2) as host,
  COLLECT_SET (client_ip2) as client_ip,
  HISTOGRAM (country_code2) as country_codes,
- HISTOGRAM (uripath2) as target_url,
+ HISTOGRAM (client_url2) as target_url,
  COUNT_DISTINCT (client_ip2) as uniquebots,
  TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
   FROM {}BANJAX_UNIQUE
