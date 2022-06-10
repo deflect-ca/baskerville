@@ -4,6 +4,7 @@ import ie.equalit.baskerville.streams.stats.serde.JsonDeserializer;
 import ie.equalit.baskerville.streams.stats.serde.JsonSerializer;
 import ie.equalit.baskerville.streams.stats.serde.WrapperSerde;
 import ie.equalit.baskerville.streams.stats.model.Weblog;
+import ie.equalit.baskerville.streams.stats.model.WeblogCorrected;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeClusterResult;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -18,6 +19,7 @@ import org.apache.kafka.streams.kstream.Produced;
 
 import java.time.Duration;
 import java.util.Properties;
+import ie.equalit.baskerville.streams.stats.Constants;
 
 /**
  * Input is a stream of trades
@@ -39,6 +41,8 @@ public class StatsFormatter{
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, WeblogSerde.class.getName());
 
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, Constants.BROKER);
+
         // setting offset reset to earliest so that we can re-run the demo code with the same pre-loaded data
         // Note: To re-run the demo, you need to use the offset reset tool:
         // https://cwiki.apache.org/confluence/display/KAFKA/Kafka+Streams+Application+Reset+Tool
@@ -59,8 +63,8 @@ public class StatsFormatter{
 
         KStream<String, Weblog> source = builder.stream(Constants.WEBLOG_TOPIC);
 
-        KStream<String, Weblog> stats = source
-                .mapValues((weblog) -> weblog.correct());
+        KStream<String, WeblogCorrected> stats = source
+                .mapValues((weblog) -> new WeblogCorrected(weblog));
 
         stats.to("STATS_WEBLOGS_5M_CORRECTED");
 

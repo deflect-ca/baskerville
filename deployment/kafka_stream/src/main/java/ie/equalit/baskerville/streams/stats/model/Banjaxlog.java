@@ -4,36 +4,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class Weblog {
+public class Banjaxlog {
 
     String HOST;
-    int ALLBYTES;
-    int CACHEDBYTES;
-    int ALLHITS;
-    int CACHEDHITS;
     ArrayList<String> CLIENT_IP;
     HashMap<String, String> COUNTRY_CODES;
-    HashMap<String, String> CLIENT_URL;
-    HashMap<String, String> VIEWED_PAGES;
-    int VIEWED_PAGE_COUNT;
-    HashMap<String, String> UA;
-    HashMap<String, String> HTTP_CODE;
+    HashMap<String, String> TARGET_URL;
+    int UNIQUEBOTS;
     String WINDOW_END;
 
     public Weblog(
-        String host,
-        int ALLBYTES,
-        int CACHEDBYTES,
-        int ALLHITS,
-        int CACHEDHITS,
-        ArrayList<String> CLIENT_IP,
-        HashMap<String, String> COUNTRY_CODES,
-        HashMap<String, String> CLIENT_URL,
-        HashMap<String, String> VIEWED_PAGES,
-        int VIEWED_PAGE_COUNT,
-        HashMap<String, String> UA,
-        HashMap<String, String> HTTP_CODE,
-        String WINDOW_END
+    String HOST,
+    ArrayList<String> CLIENT_IP,
+    HashMap<String, String> COUNTRY_CODES,
+    HashMap<String, String> TARGET_URL,
+    int UNIQUEBOTS,
+    String WINDOW_END
     ) {
         this.HOST = HOST;
         this.ALLBYTES = ALLBYTES;
@@ -51,7 +37,7 @@ public class Weblog {
 
     @Override
     public String toString() {
-        return "WeblogStat {" +
+        return "BanjaxlogStat {" +
         "host='" + this.HOST  +
         ", allbytes='" + this.ALLBYTES  +
         ", cachedbytes='" + this.CACHEDBYTES  +
