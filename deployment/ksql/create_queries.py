@@ -6,7 +6,7 @@ CREATE STREAM {}WEBLOGS_SCHEMA (
     client_request_host VARCHAR,
     client_ip VARCHAR,
     client_url VARCHAR,
-    client_ua VARCHAR,
+    user_agent STRUCT<name VARCHAR>,
     http_response_code VARCHAR,
     datestamp VARCHAR,
     reply_length_bytes BIGINT,
@@ -27,7 +27,6 @@ CREATE STREAM {}BANJAX_SCHEMA (
     client_ip VARCHAR,
     action VARCHAR,
     client_url VARCHAR,
-    user_agent STRUCT<name VARCHAR>,
     user_agent STRUCT<name VARCHAR>,
     geoip STRUCT<country_code2 VARCHAR>,
     datestamp VARCHAR
@@ -50,6 +49,10 @@ CREATE STREAM {}WEBLOGS_WWW AS
         CASE
          WHEN (http_response_code = '200' or http_response_code = '304')
                 and (
+                  content_type = 'text/html' or
+                  content_type = 'text/plain' or
+                  content_type = 'application/pdf' or
+                  content_type = 'application/msword' or
                   content_type = 'text/html; charset=utf-8' or
                   content_type = 'text/plain; charset=utf-8' or
                   content_type = 'application/pdf; charset=utf-8' or
@@ -69,7 +72,7 @@ REGEXP_REPLACE(client_url,'/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|js
         reply_length_bytes,
         geoip->country_code2 as country_code,
         client_ip,
-        client_ua,
+        user_agent->name as client_ua,
         http_response_code,
         CASE
             WHEN
