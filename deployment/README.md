@@ -124,7 +124,7 @@ rm -r keystore/
 ```
 * Create a pod for ACL commands
 ```commandline
-kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command -- sleep infinity
+kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --env="ALLOW_PLAINTEXT_LISTENER=yes" --namespace default --command -- sleep infinity
 ```
 * login to the `kafka-client` pod
 ```commandline
@@ -503,4 +503,6 @@ kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_
 mvn compile jib:build
 
 cd deployment/kafka_stream
-kubectl create -f baskerville-streams-deployment.yaml
+kubectl create -f ./deployment/kafka-stream/baskerville-streams-deployment.yaml
+kubectl delete -f ./deployment/kafka-stream/baskerville-streams-deployment.yaml
+

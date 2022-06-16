@@ -47,6 +47,7 @@ public class Weblog {
         this.VIEWED_PAGE_COUNT = VIEWED_PAGE_COUNT;
         this.UA = UA;
         this.HTTP_CODE = HTTP_CODE;
+        this.WINDOW_END = WINDOW_END;
     }
 
     @Override

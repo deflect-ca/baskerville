@@ -13,40 +13,30 @@ public class Banjaxlog {
     int UNIQUEBOTS;
     String WINDOW_END;
 
-    public Weblog(
-    String HOST,
-    ArrayList<String> CLIENT_IP,
-    HashMap<String, String> COUNTRY_CODES,
-    HashMap<String, String> TARGET_URL,
-    int UNIQUEBOTS,
-    String WINDOW_END
+    public Banjaxlog(
+        String HOST,
+        ArrayList<String> CLIENT_IP,
+        HashMap<String, String> COUNTRY_CODES,
+        HashMap<String, String> TARGET_URL,
+        int UNIQUEBOTS,
+        String WINDOW_END
     ) {
         this.HOST = HOST;
-        this.ALLBYTES = ALLBYTES;
-        this.CACHEDBYTES = CACHEDBYTES;
-        this.ALLHITS = ALLHITS;
-        this.CACHEDHITS= CACHEDHITS;
         this.CLIENT_IP = CLIENT_IP;
+        this.UNIQUEBOTS = UNIQUEBOTS;
         this.COUNTRY_CODES = COUNTRY_CODES;
-        this.CLIENT_URL = CLIENT_URL;
-        this.VIEWED_PAGES = VIEWED_PAGES;
-        this.VIEWED_PAGE_COUNT = VIEWED_PAGE_COUNT;
-        this.UA = UA;
-        this.HTTP_CODE = HTTP_CODE;
+        this.TARGET_URL = TARGET_URL;
+        this.WINDOW_END = WINDOW_END;
     }
 
     @Override
     public String toString() {
         return "BanjaxlogStat {" +
-        "host='" + this.HOST  +
-        ", allbytes='" + this.ALLBYTES  +
-        ", cachedbytes='" + this.CACHEDBYTES  +
-        ", client_ip='" + this.CLIENT_IP  +
+        "HOST='" + this.HOST  +
+        ", CLIENT_IP='" + this.CLIENT_IP  +
+        ", UNIQUEBOTS='" + this.UNIQUEBOTS  +
         ", country_codes='" + this.COUNTRY_CODES  +
-        ", client_url='" + this.CLIENT_URL  +
-        ", viewed_pages='" + this.VIEWED_PAGES  +
-        ", viewed_page_count='" + this.VIEWED_PAGE_COUNT  +
-        ", ua='" + this.UA  +
-        ", http_code='" + this.HTTP_CODE;
+        ", TARGET_URL='" + this.TARGET_URL  +
+        ", WINDOW_END='" + this.WINDOW_END;
     }
 }

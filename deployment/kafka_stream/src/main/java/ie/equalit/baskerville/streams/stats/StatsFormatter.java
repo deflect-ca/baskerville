@@ -5,6 +5,8 @@ import ie.equalit.baskerville.streams.stats.serde.JsonSerializer;
 import ie.equalit.baskerville.streams.stats.serde.WrapperSerde;
 import ie.equalit.baskerville.streams.stats.model.Weblog;
 import ie.equalit.baskerville.streams.stats.model.WeblogCorrected;
+import ie.equalit.baskerville.streams.stats.model.Banjaxlog;
+import ie.equalit.baskerville.streams.stats.model.BanjaxlogCorrected;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeClusterResult;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -16,6 +18,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Consumed;
 
 import java.time.Duration;
 import java.util.Properties;
@@ -38,8 +41,8 @@ public class StatsFormatter{
         Properties props = new Properties();
 
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "baskerville-stats");
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, WeblogSerde.class.getName());
+//         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+//         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, WeblogSerde.class.getName());
 
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, Constants.BROKER);
 
@@ -61,12 +64,18 @@ public class StatsFormatter{
 
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream<String, Weblog> source = builder.stream(Constants.WEBLOG_TOPIC);
-
-        KStream<String, WeblogCorrected> stats = source
+        KStream<String, Weblog> sourceWeblog = builder.stream(Constants.WEBLOG_TOPIC,
+            Consumed.with(Serdes.String(), new WeblogSerde()));
+        KStream<String, WeblogCorrected> statsWeblog = sourceWeblog
                 .mapValues((weblog) -> new WeblogCorrected(weblog));
+        statsWeblog.to("STATS_WEBLOGS_5M", Produced.with(Serdes.String(), new WeblogCorrectedSerde()));
 
-        stats.to("STATS_WEBLOGS_5M_CORRECTED");
+
+        KStream<String, Banjaxlog> sourceBanjaxlog = builder.stream(Constants.BANJAXLOG_TOPIC,
+            Consumed.with(Serdes.String(), new BanjaxlogSerde()));
+        KStream<String, BanjaxlogCorrected> statsBanjax = sourceBanjaxlog
+                .mapValues((banjaxlog) -> new BanjaxlogCorrected(banjaxlog));
+        statsBanjax.to("STATS_BANJAX_5M", Produced.with(Serdes.String(), new BanjaxlogCorrectedSerde()));
 
         Topology topology = builder.build();
 
@@ -89,4 +98,21 @@ public class StatsFormatter{
         }
     }
 
-}
+    static public final class WeblogCorrectedSerde extends WrapperSerde<WeblogCorrected> {
+        public WeblogCorrectedSerde() {
+            super(new JsonSerializer<WeblogCorrected>(), new JsonDeserializer<WeblogCorrected>(WeblogCorrected.class));
+        }
+    }
+
+    static public final class BanjaxlogSerde extends WrapperSerde<Banjaxlog> {
+        public BanjaxlogSerde() {
+            super(new JsonSerializer<Banjaxlog>(), new JsonDeserializer<Banjaxlog>(Banjaxlog.class));
+        }
+    }
+
+    static public final class BanjaxlogCorrectedSerde extends WrapperSerde<BanjaxlogCorrected> {
+        public BanjaxlogCorrectedSerde() {
+            super(new JsonSerializer<BanjaxlogCorrected>(), new JsonDeserializer<BanjaxlogCorrected>(BanjaxlogCorrected.class));
+        }
+    }
+ }
