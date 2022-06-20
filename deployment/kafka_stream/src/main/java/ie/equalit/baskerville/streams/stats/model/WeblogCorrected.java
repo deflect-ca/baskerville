@@ -7,12 +7,12 @@ import ie.equalit.baskerville.streams.stats.model.Weblog;
 
 public class WeblogCorrected {
     String HOST;
-    int ALLBYTES;
-    int CACHEDBYTES;
-    int ALLHITS;
-    int CACHEDHITS;
+    Long ALLBYTES;
+    Long CACHEDBYTES;
+    Long ALLHITS;
+    Long CACHEDHITS;
     ArrayList<String> CLIENT_IP;
-    int VIEWED_PAGE_COUNT;
+    Long VIEWED_PAGE_COUNT;
     String WINDOW_END;
 
     ArrayList<Object> UA;

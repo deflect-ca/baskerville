@@ -408,6 +408,8 @@ kafka:
 ```
 
 ## Install KSQL
+KSQL is performing 5 minute window aggregation over the two topics: `deflect.log` and `banjax.log`
+
 * clone the repo `git@github.com:confluentinc/cp-helm-charts.git`
 ```
 cd baskerville
@@ -498,11 +500,31 @@ kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_
 ```
 
 ## KStream
+KStream transformer is correcting the format of KSQL output topics in order to be compatible 
+with the logstash which is is processing the output of KStream. 
+Logstash has a maximum number of fields within a single message. 
+The workaround is to convert the resulting output of KSQL 'HISTOGRAM' from a map of values to a list of values.
+The reference is https://github.com/gwenshap/kafka-streams-stockstats
+>
 
-
-mvn compile jib:build
-
+* To build Java package
+```
 cd deployment/kafka_stream
-kubectl create -f ./deployment/kafka-stream/baskerville-streams-deployment.yaml
-kubectl delete -f ./deployment/kafka-stream/baskerville-streams-deployment.yaml
+mvn compile jib:build
+```
+
+* To deploy KStream
+```
+kubectl create -f ./deployment/kafka_stream/baskerville-streams-deployment.yaml
+```
+
+* To delete KStream
+```
+kubectl delete -f ./deployment/kafka_stream/baskerville-streams-deployment.yaml
+```
+
+* To increase the maximum message size (in kafka cli):
+```
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
+```
 

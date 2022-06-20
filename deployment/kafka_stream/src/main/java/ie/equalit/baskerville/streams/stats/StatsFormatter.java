@@ -14,6 +14,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -45,6 +46,8 @@ public class StatsFormatter{
 //         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, WeblogSerde.class.getName());
 
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, Constants.BROKER);
+        props.put(StreamsConfig.PRODUCER_PREFIX + ProducerConfig.MAX_REQUEST_SIZE_CONFIG, "10000000");
+
 
         // setting offset reset to earliest so that we can re-run the demo code with the same pre-loaded data
         // Note: To re-run the demo, you need to use the offset reset tool:

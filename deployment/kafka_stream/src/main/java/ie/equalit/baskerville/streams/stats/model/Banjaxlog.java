@@ -10,7 +10,7 @@ public class Banjaxlog {
     ArrayList<String> CLIENT_IP;
     HashMap<String, String> COUNTRY_CODES;
     HashMap<String, String> TARGET_URL;
-    int UNIQUEBOTS;
+    Long UNIQUEBOTS;
     String WINDOW_END;
 
     public Banjaxlog(
@@ -18,7 +18,7 @@ public class Banjaxlog {
         ArrayList<String> CLIENT_IP,
         HashMap<String, String> COUNTRY_CODES,
         HashMap<String, String> TARGET_URL,
-        int UNIQUEBOTS,
+        Long UNIQUEBOTS,
         String WINDOW_END
     ) {
         this.HOST = HOST;

@@ -7,30 +7,30 @@ import java.util.HashMap;
 public class Weblog {
 
     String HOST;
-    int ALLBYTES;
-    int CACHEDBYTES;
-    int ALLHITS;
-    int CACHEDHITS;
+    Long ALLBYTES;
+    Long CACHEDBYTES;
+    Long ALLHITS;
+    Long CACHEDHITS;
     ArrayList<String> CLIENT_IP;
     HashMap<String, String> COUNTRY_CODES;
     HashMap<String, String> CLIENT_URL;
     HashMap<String, String> VIEWED_PAGES;
-    int VIEWED_PAGE_COUNT;
+    Long VIEWED_PAGE_COUNT;
     HashMap<String, String> UA;
     HashMap<String, String> HTTP_CODE;
     String WINDOW_END;
 
     public Weblog(
         String host,
-        int ALLBYTES,
-        int CACHEDBYTES,
-        int ALLHITS,
-        int CACHEDHITS,
+        Long ALLBYTES,
+        Long CACHEDBYTES,
+        Long ALLHITS,
+        Long CACHEDHITS,
         ArrayList<String> CLIENT_IP,
         HashMap<String, String> COUNTRY_CODES,
         HashMap<String, String> CLIENT_URL,
         HashMap<String, String> VIEWED_PAGES,
-        int VIEWED_PAGE_COUNT,
+        Long VIEWED_PAGE_COUNT,
         HashMap<String, String> UA,
         HashMap<String, String> HTTP_CODE,
         String WINDOW_END

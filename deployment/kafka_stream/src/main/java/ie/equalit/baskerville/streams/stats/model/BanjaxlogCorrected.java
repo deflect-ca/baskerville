@@ -8,7 +8,7 @@ import ie.equalit.baskerville.streams.stats.model.Banjaxlog;
 public class BanjaxlogCorrected {
     String HOST;
     ArrayList<String> CLIENT_IP;
-    int UNIQUEBOTS;
+    Long UNIQUEBOTS;
     String WINDOW_END;
 
     ArrayList<Object> TARGET_URL;
