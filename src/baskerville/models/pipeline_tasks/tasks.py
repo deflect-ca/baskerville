@@ -1152,8 +1152,13 @@ class GenerateFeatures(MLTask):
         #  the current batch, this will cause conflicts with caching - use
         # e.g. the timestamp too to avoid this
 
+    def rename_timestamp_column(self):
+        if self.config.engine.input_timestamp_column != '@timestamp':
+            self.df = self.df.withColumn('@timestamp', F.col(self.config.engine.input_timestamp_column))
+
     def run(self):
         self.handle_missing_columns()
+        self.rename_timestamp_column()
         self.normalize_host_names()
         # self.df = self.df.repartition('target_original')
         self.white_list_ips()
@@ -1257,7 +1262,7 @@ class SaveDfInPostgres(Task):
 
     def run(self):
         self.config.database.conn_str = self.db_url
-
+        self.df.na.drop()
         if df_has_rows(self.df):
             save_df_to_table(
                 self.df,
@@ -2106,6 +2111,7 @@ class Challenge(Task):
         df_ips = self.get_attack_df()
         if self.config.engine.challenge == 'ip':
             if not df_has_rows(df_ips):
+                self.df = self.df.withColumn('challenged', F.lit(0))
                 self.logger.debug('No attacks to be challenged...')
                 return
 

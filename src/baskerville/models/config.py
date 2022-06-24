@@ -307,6 +307,7 @@ class EngineConfig(Config):
 
     client_mode = False
     input_is_weblogs = False
+    input_timestamp_column = 'datestamp'
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)

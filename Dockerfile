@@ -15,9 +15,8 @@ RUN rm -r $JAVA_HOME/*
 RUN mv jdk262/openlogic-openjdk-8u262-b10-linux-64/* $JAVA_HOME/
 
 COPY ./src /usr/local/baskerville/src
-COPY ./data/jars /usr/local/baskerville/data/jars
+COPY ./data /usr/local/baskerville/data
 COPY ./requirements.txt /usr/local/baskerville
-COPY ./data/geoip2 /usr/local/baskerville/data/geoip2
 
 WORKDIR /usr/local/baskerville
 RUN pip3 install -e .
