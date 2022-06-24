@@ -97,7 +97,7 @@ CREATE STREAM {}BANJAX_WWW AS
     SELECT
         REPLACE(client_request_host, 'www.', '') as host_no_www,
         client_ip,
-        CASE WHEN client_url IS null THEN ' ' ELSE client_url END as client_url,
+        client_url,
         user_agent->name as ua_name,
         geoip->country_code2 as country_code
     FROM {}BANJAX_SCHEMA
@@ -157,7 +157,7 @@ CREATE TABLE {}BANJAX_UNIQUE_TABLE AS
 
 minimum_queries = [
     """
- CREATE TABLE {}WEBLOGS_5M  AS
+ CREATE TABLE {}WEBLOGS_DICTIONARY_5M  AS
  SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
  sum (reply_length_bytes) as allbytes,
  sum (cached*reply_length_bytes) as cachedbytes,
@@ -176,7 +176,7 @@ minimum_queries = [
   GROUP BY host_no_www;
     """,
     """
- CREATE TABLE {}BANJAX_5M AS
+ CREATE TABLE {}BANJAX_DICTIONARY_5M AS
  SELECT host2, EARLIEST_BY_OFFSET(host2) as host,
  COLLECT_SET (client_ip2) as client_ip,
  HISTOGRAM (country_code2) as country_codes,

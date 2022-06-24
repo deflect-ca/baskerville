@@ -1262,7 +1262,7 @@ class SaveDfInPostgres(Task):
 
     def run(self):
         self.config.database.conn_str = self.db_url
-
+        self.df.na.drop()
         if df_has_rows(self.df):
             save_df_to_table(
                 self.df,

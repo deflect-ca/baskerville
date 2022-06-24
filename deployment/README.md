@@ -124,7 +124,7 @@ rm -r keystore/
 ```
 * Create a pod for ACL commands
 ```commandline
-kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command -- sleep infinity
+kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --env="ALLOW_PLAINTEXT_LISTENER=yes" --namespace default --command -- sleep infinity
 ```
 * login to the `kafka-client` pod
 ```commandline
@@ -408,6 +408,8 @@ kafka:
 ```
 
 ## Install KSQL
+KSQL is performing 5 minute window aggregation over the two topics: `deflect.log` and `banjax.log`
+
 * clone the repo `git@github.com:confluentinc/cp-helm-charts.git`
 ```
 cd baskerville
@@ -435,7 +437,7 @@ kubectl attach ksql-cli -c ksql-cli -i -t
 
 To make sure KSQL is up and running you can list kafka topics inside KSQL:
 ```commandline
-shot topics;
+show topics;
 ```
 
 * create the cstat KSQL queries. Copy the content of `./deployment/ksql/create_queries.sql`
@@ -451,6 +453,12 @@ Locate one of the ksql pods, for example, ksql-cp-ksql-server-5b7466c57f-89vx5
 Get the logs:
 ```commandline
 kubectl logs ksql-cp-ksql-server-5b7466c57f-89vx5 cp-ksql-server --since=5m
+```
+
+* To confirm the output of KSQL (in kafka cli pod):
+```commandline
+kafka-console-consumer.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --topic STATS_WEBLOGS_DICTIONARY_5M 
+kafka-console-consumer.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --topic STATS_BANJAX_DICTIONARY_5M 
 ```
 
 * To change retention policy of cstats topics to 24 hours:
@@ -496,4 +504,39 @@ kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_
 kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX --partitions 3 
 kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_WWW --partitions 3 
 ```
+* Set the maximum message size to 10M:
+```commandline
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_BANJAX_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_BANJAX_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
+```
 
+## KStream
+KStream transformer is correcting the format of KSQL output topics in order to be compatible 
+with the logstash which is is processing the output of KStream. 
+Logstash has a maximum number of fields within a single message. 
+The workaround is to convert the resulting output of KSQL 'HISTOGRAM' from a map of values to a list of values.
+The reference is https://github.com/gwenshap/kafka-streams-stockstats
+>
+
+* To build Java package
+```
+cd deployment/kafka_stream
+mvn compile jib:build
+```
+
+* To deploy KStream
+```
+kubectl create -f ./deployment/kafka_stream/baskerville-streams-deployment.yaml
+```
+
+* To delete KStream
+```
+kubectl delete -f ./deployment/kafka_stream/baskerville-streams-deployment.yaml
+```
+
+* To increase the maximum message size (in kafka cli):
+```
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
+```
