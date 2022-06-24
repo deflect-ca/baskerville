@@ -437,7 +437,7 @@ kubectl attach ksql-cli -c ksql-cli -i -t
 
 To make sure KSQL is up and running you can list kafka topics inside KSQL:
 ```commandline
-shot topics;
+show topics;
 ```
 
 * create the cstat KSQL queries. Copy the content of `./deployment/ksql/create_queries.sql`
@@ -453,6 +453,12 @@ Locate one of the ksql pods, for example, ksql-cp-ksql-server-5b7466c57f-89vx5
 Get the logs:
 ```commandline
 kubectl logs ksql-cp-ksql-server-5b7466c57f-89vx5 cp-ksql-server --since=5m
+```
+
+* To confirm the output of KSQL (in kafka cli pod):
+```commandline
+kafka-console-consumer.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --topic STATS_WEBLOGS_DICTIONARY_5M 
+kafka-console-consumer.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --topic STATS_BANJAX_DICTIONARY_5M 
 ```
 
 * To change retention policy of cstats topics to 24 hours:
@@ -498,6 +504,13 @@ kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_
 kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX --partitions 3 
 kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_WWW --partitions 3 
 ```
+* Set the maximum message size to 10M:
+```commandline
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_BANJAX_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_BANJAX_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
+```
 
 ## KStream
 KStream transformer is correcting the format of KSQL output topics in order to be compatible 
@@ -527,4 +540,3 @@ kubectl delete -f ./deployment/kafka_stream/baskerville-streams-deployment.yaml
 ```
 kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
 ```
-
