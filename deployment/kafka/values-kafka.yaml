@@ -1,5 +1,6 @@
 replicaCount: 3
-logRetentionMinutes: 6
+numPartitions: 3
+logRetentionMinutes: 120
 logRetentionCheckIntervalMs: 60000
 autoCreateTopicsEnable: True
 deleteTopicEnable: True
@@ -19,25 +20,42 @@ extraEnvVars:
  - name: KAFKA_CFG_MAX_REQUEST_SIZE
    value: "10048576"
 
+
+serviceAccount:
+  create: true
+rbac:
+  create: true
 externalAccess:
   enabled: True
+  autoDiscovery:
+    enabled: True
   service:
-    type: NodePort
-    nodePorts: [30001, 30002, 30003]
+    type: LoadBalancer
+    ports:
+      external: 9094
+
+#externalAccess:
+#  enabled: True
+#  service:
+#    type: NodePort
+#    nodePorts: [30003, 30002, 30001]
 
 persistence:
   enabled: False
 
-zookeeper:
-  auth:
-    enabled: False
-  persistence:
-    enabled: False
-
 auth:
-  tls:
-    endpointIdentificationAlgorithm: ""
   clientProtocol: mtls
   interBrokerProtocol: plaintext
-  jksSecret: kafka-jks
-  jksPassword: ""
+  tls:
+    type: jks
+    endpointIdentificationAlgorithm: ""
+    existingSecrets: ["kafka-jks-0","kafka-jks-1","kafka-jks-2"]
+    password: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+  zookeeper:
+    tls:
+      enabled: False
+      verifyHostname : False
+
+zookeeper:
+  persistence:
+    enabled: False

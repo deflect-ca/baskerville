@@ -129,8 +129,6 @@ def main():
         output_file=baskerville_engine.config.engine.logpath
     )
 
-    logger.info(f'Postgres password={baskerville_engine.config.database.password}')
-
     # start simulation if specified
     if args.simulate:
         spark = None

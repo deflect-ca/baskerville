@@ -1263,16 +1263,15 @@ class SaveDfInPostgres(Task):
     def run(self):
         self.config.database.conn_str = self.db_url
         self.df.na.drop()
-        if df_has_rows(self.df):
-            save_df_to_table(
-                self.df,
-                self.table_model.__tablename__,
-                self.config.database.__dict__,
-                json_cols=self.json_cols,
-                storage_level=self.config.spark.storage_level,
-                mode=self.mode,
-                db_driver=self.config.spark.db_driver
-            )
+        save_df_to_table(
+            self.df,
+            self.table_model.__tablename__,
+            self.config.database.__dict__,
+            json_cols=self.json_cols,
+            storage_level=self.config.spark.storage_level,
+            mode=self.mode,
+            db_driver=self.config.spark.db_driver
+        )
         self.df = super().run()
         return self.df
 
@@ -2110,10 +2109,7 @@ class Challenge(Task):
     def send_challenge(self):
         df_ips = self.get_attack_df()
         if self.config.engine.challenge == 'ip':
-            if not df_has_rows(df_ips):
-                self.df = self.df.withColumn('challenged', F.lit(0))
-                self.logger.debug('No attacks to be challenged...')
-                return
+            self.df = self.df.withColumn('challenged', F.lit(0))
 
             # host white listing
             hosts = []
@@ -2128,48 +2124,45 @@ class Challenge(Task):
                 ).persist()
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
 
-            if not df_has_rows(df_ips):
-                self.df = self.df.withColumn('challenged', F.lit(0))
-            else:
-                ips = [(r['ip'], r['target'], r['low_rate_attack']) for r in df_ips.collect()]
-                ips = self.ip_cache.update(ips)
-                num_records = len(ips)
-                if num_records > 0:
-                    # challenged_ips = self.spark.createDataFrame(
-                    #     [[ip, 1] for ip in ips], ['ip', 'challenged']
-                    # )
-                    self.df = self.df.withColumn(
-                        'challenged',
-                        F.when(F.col('ip').isin([f'{ip}' for ip, _, _ in ips]), 1).otherwise(0)
-                    )
-                    # self.df = self.df.join(challenged_ips, on='ip', how='left')
-                    # self.df = self.df.fillna({'challenged': 0})
+            ips = [(r['ip'], r['target'], r['low_rate_attack']) for r in df_ips.collect()]
+            ips = self.ip_cache.update(ips)
+            num_records = len(ips)
+            if num_records > 0:
+                # challenged_ips = self.spark.createDataFrame(
+                #     [[ip, 1] for ip in ips], ['ip', 'challenged']
+                # )
+                self.df = self.df.withColumn(
+                    'challenged',
+                    F.when(F.col('ip').isin([f'{ip}' for ip, _, _ in ips]), 1).otherwise(0)
+                )
+                # self.df = self.df.join(challenged_ips, on='ip', how='left')
+                # self.df = self.df.fillna({'challenged': 0})
 
-                    self.logger.info(
-                        f'Sending {num_records} IP challenge commands to '
-                        f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
-                    null_ips = False
-                    for ip, _, _ in ips:
-                        if ip:
-                            message = json.dumps(
-                                {'name': 'challenge_ip', 'value': ip}
-                            ).encode('utf-8')
-                            self.producer.send(self.config.kafka.banjax_command_topic, message)
-                        else:
-                            null_ips = True
+                self.logger.info(
+                    f'Sending {num_records} IP challenge commands to '
+                    f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+                null_ips = False
+                for ip, _, _ in ips:
+                    if ip:
+                        message = json.dumps(
+                            {'name': 'challenge_ip', 'value': ip}
+                        ).encode('utf-8')
+                        self.producer.send(self.config.kafka.banjax_command_topic, message)
+                    else:
+                        null_ips = True
 
-                    if self.elastic_writer:
-                        with self.elastic_writer as elastic_writer:
-                            for ip, target, low_rate_attack in ips:
-                                if ip:
-                                    elastic_writer.write_challenge(ip, host=target,
-                                                                   reason='low_rate' if low_rate_attack else 'anomaly')
+                if self.elastic_writer:
+                    with self.elastic_writer as elastic_writer:
+                        for ip, target, low_rate_attack in ips:
+                            if ip:
+                                elastic_writer.write_challenge(ip, host=target,
+                                                               reason='low_rate' if low_rate_attack else 'anomaly')
 
-                    if null_ips:
-                        self.logger.info('Null ips')
-                        self.logger.info(f'{ips}')
+                if null_ips:
+                    self.logger.info('Null ips')
+                    self.logger.info(f'{ips}')
 
-                    self.producer.flush()
+                self.producer.flush()
         #
         # return
 
@@ -2251,7 +2244,10 @@ class Challenge(Task):
         #     self.logger.debug('No challenge flag is set, moving on...')
 
     def get_attack_df(self):
-        return self.df.select('ip', 'target', 'low_rate_attack').where(self.attack_filter).cache()
+        return self.df.select('ip', 'target', 'low_rate_attack').where(
+            # self.attack_filter
+            (F.col('prediction') == 1) | (F.col('low_rate_attack') == 1)
+        )
 
     def filter_out_load_test(self):
         if self.config.engine.load_test:
@@ -2268,11 +2264,11 @@ class Challenge(Task):
             ).show()
 
     def run(self):
-        if df_has_rows(self.df):
-            self.df = self.df.withColumn('challenged', F.lit(0))
-            self.filter_out_load_test()
-            self.send_challenge()
-        else:
-            self.logger.info('Nothing to be challenged...')
+        # if df_has_rows(self.df):
+        self.df = self.df.withColumn('challenged', F.lit(0))
+        self.filter_out_load_test()
+        self.send_challenge()
+        # else:
+        #     self.logger.info('Nothing to be challenged...')
         self.df = super().run()
         return self.df

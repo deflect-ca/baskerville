@@ -1,4 +1,4 @@
-prefix = "STATS_"
+prefix = "STATS_LOGSTASH_"
 
 schemas = [
     """
@@ -12,13 +12,14 @@ CREATE STREAM {}WEBLOGS_SCHEMA (
     reply_length_bytes BIGINT,
     geoip STRUCT<country_code2 VARCHAR>,
     cache_result VARCHAR,
-    content_type VARCHAR
+    content_type VARCHAR,
+    disable_logging BIGINT
 ) WITH (
-    kafka_topic = 'deflect.log',
+    kafka_topic = 'logstash_deflect.log',
     partitions = 3,
     value_format = 'json',
     timestamp = 'datestamp',
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss''Z'''
 );
     """,
     """
@@ -29,13 +30,14 @@ CREATE STREAM {}BANJAX_SCHEMA (
     client_url VARCHAR,
     user_agent STRUCT<name VARCHAR>,
     geoip STRUCT<country_code2 VARCHAR>,
-    datestamp VARCHAR
+    datestamp VARCHAR,
+    disable_logging BIGINT
 ) WITH (
-    kafka_topic = 'banjax',
+    kafka_topic = 'logstash_banjax',
     partitions = 3,
     value_format = 'json',
     timestamp = 'datestamp',
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss''Z'''
 );
     """
 ]
@@ -83,7 +85,8 @@ REGEXP_REPLACE(client_url,'/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|js
             THEN 1
          ELSE 0
         END AS cached
-    FROM {}WEBLOGS_SCHEMA;
+    FROM {}WEBLOGS_SCHEMA
+    WHERE disable_logging is NULL or disable_logging <> 1;
     """,
     """
 CREATE STREAM {}WEBLOGS 
@@ -101,7 +104,8 @@ CREATE STREAM {}BANJAX_WWW AS
         user_agent->name as ua_name,
         geoip->country_code2 as country_code
     FROM {}BANJAX_SCHEMA
-    WHERE action = 'banned';   
+    WHERE (action = 'NginxBlock' or action = 'IptablesBlock')
+     and (disable_logging is NULL or disable_logging <> 1);   
     """,
     """
 CREATE STREAM {}BANJAX_PARTITIONED 

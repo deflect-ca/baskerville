@@ -41,7 +41,7 @@ public class StatsFormatter{
 //             props = LoadConfigs.loadConfig();
         Properties props = new Properties();
 
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "baskerville-stats");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "baskerville-logstash-stats");
 //         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 //         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, WeblogSerde.class.getName());
 

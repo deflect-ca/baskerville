@@ -107,17 +107,20 @@ def save_df_to_table(
     if not isinstance(storage_level, StorageLevel):
         storage_level = StorageLevelFactory.get_storage_level(storage_level)
     # df = df.persist(storage_level)
-    for c in json_cols:
-        df = col_to_json(df, c)
-    df.write.format('jdbc').options(
+
+    df_postgres = df.withColumn('features', F.lit('{}'))
+    # for c in json_cols:
+    #     df = col_to_json(df, c)
+
+    df_postgres.write.format('jdbc').options(
         url=db_config['conn_str'],
         driver=db_driver,
         dbtable=table_name,
         user=db_config['user'],
         password=db_config['password'],
         stringtype='unspecified',
-        batchsize=100000,
-        max_connections=1250,
+        batchsize=500,
+        max_connections=10,
         rewriteBatchedStatements=True,
         reWriteBatchedInserts=True,
         useServerPrepStmts=False,

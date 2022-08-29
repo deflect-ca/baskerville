@@ -43,7 +43,10 @@ cd ..
 
 * create Kafka secret:
 ```commandline
-kubectl create secret generic kafka-jks --from-file=./truststore/kafka.truststore.jks --from-file=./kafka-0.keystore.jks --from-file=./kafka-1.keystore.jks --from-file=./kafka-2.keystore.jks
+kubectl create secret generic kafka-jks-0 --from-file=./kafka.truststore.jks --from-file=./kafka.keystore.jks
+kubectl create secret generic kafka-jks-1 --from-file=./kafka.truststore.jks --from-file=./kafka.keystore.jks
+kubectl create secret generic kafka-jks-2 --from-file=./kafka.truststore.jks --from-file=./kafka.keystore.jks
+
 ```
 # Kafka
 
@@ -61,7 +64,7 @@ nodeSelector:
 * deploy kafka
 ```commandline
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install kafka -f deployment/kafka/values-kafka.yaml bitnami/kafka
+helm install kafka -f deployment/kafka/values-kafka.yaml bitnami/kafka --version 18.0.0
 ```
 
 * follow the displayed instruction to get kafka connection string:
@@ -470,9 +473,18 @@ kubectl exec --tty -i kafka-client --namespace default -- bash
 ```
 change the retention policy:
 ```commandline
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_WEBLOGS_5M --config retention.ms=86400000
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_5M --config retention.ms=86400000
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_WEBLOGS_5M --config retention.ms=86400000
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_BANJAX_5M --config retention.ms=86400000
 ```
+
+* To delete KSQL query or table:
+1) get query id from `show queries`
+2) terminate query with `terminate query_id`
+3) drop query or table with the corresponding topic: 
+`drop stream query_name delete topic`
+or
+`drop table table_name delete topic`
+
 
 ## Uninstalling KSQL
 
@@ -492,17 +504,17 @@ kubectl exec --tty -i kafka-client --namespace default -- bash
 ```
 then inside kafka-client pod:
 ```
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --delete --topic '_confluent-ksql-.*'
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --delete --topic 'STATS_.*'
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --delete --topic _schemas
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --delete --topic '_confluent-ksql-.*'
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --delete --topic 'STATS_.*'
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --delete --topic _schemas
 ```
 
 It might be also necessary to re-partition the topics which were auto-created after the previous step.
 ```commandline
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_WEBLOGS_5M --partitions 3 
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_5M --partitions 3 
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX --partitions 3 
-kafka-topics.sh --zookeeper kafka-zookeeper-headless:2181 --alter --topic STATS_BANJAX_WWW --partitions 3 
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_WEBLOGS_5M --partitions 3 
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_BANJAX_5M --partitions 3 
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_BANJAX --partitions 3 
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_BANJAX_WWW --partitions 3 
 ```
 * Set the maximum message size to 10M:
 ```commandline
@@ -528,15 +540,25 @@ mvn compile jib:build
 
 * To deploy KStream
 ```
-kubectl create -f ./deployment/kafka_stream/baskerville-streams-deployment.yaml
+kubectl create -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
 ```
 
 * To delete KStream
 ```
-kubectl delete -f ./deployment/kafka_stream/baskerville-streams-deployment.yaml
+kubectl delete -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
 ```
 
 * To increase the maximum message size (in kafka cli):
 ```
-kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
+```
+
+## Logstash
+
+
+```commandline
+helm install logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.0.0
+
+
 ```
