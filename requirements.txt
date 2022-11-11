@@ -16,7 +16,7 @@ tzwhere==3.0.3
 pytz==2014.10
 sqlalchemy < 1.4.0
 sqlalchemy_utils==0.33.3
-pyspark==2.4.6
+pyspark==3.2.2
 # psutil==5.4.6
 psycopg2==2.7.5
 yellowbrick==0.8
