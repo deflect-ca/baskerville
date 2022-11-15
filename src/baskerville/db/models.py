@@ -101,6 +101,7 @@ class RequestSet(Base, SerializableMixin):
     prediction = Column(Integer)
     prediction_anomaly = Column(Integer)
     prediction_classifier = Column(Integer)
+    prediction_behave = Column(Integer)
     attack_prediction = Column(Integer)
     challenged = Column(Integer)
     challenge_failed = Column(Integer)

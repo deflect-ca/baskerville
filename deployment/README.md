@@ -64,7 +64,9 @@ nodeSelector:
 * deploy kafka
 ```commandline
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install kafka -f deployment/kafka/values-kafka.yaml bitnami/kafka --version 18.0.0
+helm install kafka -f deployment/kafka/values-kafka.yaml ../charts/bitnami/kafka
+
+helm install kafka7 -f deployment/kafka/values-kafka7.yaml ../charts/bitnami/kafka
 ```
 
 * follow the displayed instruction to get kafka connection string:
@@ -272,6 +274,22 @@ Create four argo workflow templates from each file in `deployment/argo'.
 * click on `Wofkflow Templates` on the left vertical bar
 * copy paste the content of the file
 * save the template
+
+
+## TimescaleDB
+```commandline
+helm install timescaledb -f ./deployment/timescaledb/values.yaml timescale/timescaledb-multinode
+```
+
+```commandline
+kubectl get secret --namespace default timescaledb-data -o jsonpath="{.data.password-superuser}" | base64 --decode
+```
+
+```commandline
+kubectl port-forward service/timescaledb 5432:5432
+```
+
+* modify password for `postgres` user manually in `psql`
 
 ## Postgres
 * deploy postgres pod:
@@ -519,9 +537,9 @@ kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.lo
 * Set the maximum message size to 10M:
 ```commandline
 kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
-kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
 kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_BANJAX_5M  --alter --add-config max.message.bytes=10000000
-kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_BANJAX_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_BANJAX_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
 ```
 
 ## KStream
@@ -552,6 +570,18 @@ kubectl delete -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
 ```
 kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
 kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=10000000
+```
+
+* To reduce the retention policy of four filebeat topics:
+```commandline
+filebeat_deflect_access
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name filebeat_deflect_access --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name filebeat_deflect_access_temp --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name filebeat_banjax --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name filebeat_banjax_access_temp --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name logstash_deflect.log --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name logstash_banjax --add-config retention.ms=1200000 
+
 ```
 
 ## Logstash

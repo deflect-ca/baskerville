@@ -16,20 +16,11 @@ input: |-
 
 filter: |-
   mutate {
-    remove_field => [ "disable_logging" ]
-  }
-  mutate {
     gsub => [ "message", " 0*([0-9]+),", " \1," ]
   }
   json {
     source => "message"
     remove_field => [ "message" ]
-  }
-  if [@metadata][kafka][topic] == "filebeat_deflect_access_temp" or [@metadata][kafka][topic] == "filebeat_banjax_access_temp" {
-    mutate {
-      add_field => { "disable_logging" => "1" }
-      convert => { "disable_logging" => "boolean" }
-    }
   }
   if [@metadata][kafka][topic] == "filebeat_deflect_access" or [@metadata][kafka][topic] == "filebeat_deflect_access_temp" {
     mutate{
@@ -132,10 +123,12 @@ output: |-
     acks => "0"
     codec => "json"
   }
-  stdout{
+  kafka {
+    bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+    topic_id => "%{[@metadata][kafka][topic]}"
+    acks => "0"
+    codec => "json"
   }
-
-
 
 
 

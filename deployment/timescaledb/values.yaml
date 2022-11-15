@@ -1,0 +1,32 @@
+dataNodes: 3
+
+postgresql:
+  databases:
+    - postgres
+    - baskerville
+  parameters:
+    max_connections: 100
+    max_prepared_transactions: 150
+    shared_buffers: 2816MB
+    work_mem: 7208kB
+    min_wal_size: 4GB
+    max_wal_size: 16GB
+
+image:
+  repository: timescale/timescaledb-ha
+  tag: pg12.5-ts2.0.0-p0
+credentials:
+  accessNode:
+    superuser: zJJrIQyxW18hCT5uPj6rkrd6Vw/MylrklaKOQsafvpw=
+    admin: zJJrIQyxW18hCT5uPj6rkrd6Vw/MylrklaKOQsafvpw=
+    postgres: zJJrIQyxW18hCT5uPj6rkrd6Vw/MylrklaKOQsafvpw=
+  dataNode:
+    superuser: zJJrIQyxW18hCT5uPj6rkrd6Vw/MylrklaKOQsafvpw=
+    admin: zJJrIQyxW18hCT5uPj6rkrd6Vw/MylrklaKOQsafvpw=
+    postgres: zJJrIQyxW18hCT5uPj6rkrd6Vw/MylrklaKOQsafvpw=
+
+persistentVolume:
+  enabled: true
+  size: 500G
+
+
