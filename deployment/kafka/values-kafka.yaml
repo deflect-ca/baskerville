@@ -55,7 +55,7 @@ auth:
     type: jks
     endpointIdentificationAlgorithm: ""
     existingSecrets: ["kafka-jks-0","kafka-jks-1","kafka-jks-2"]
-    password: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+    password: ""
   zookeeper:
     tls:
       enabled: False
