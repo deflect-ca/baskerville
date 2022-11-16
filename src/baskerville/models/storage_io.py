@@ -41,11 +41,9 @@ class StorageIO(object):
                 self.logger.info('initial batch...')
                 self.batch = df
             else:
-                # self.logger.info(f'before union = {self.batch.count()}')
+                self.logger.info(f'before union = {self.batch.count()}')
                 self.batch = self.batch.union(df)
-                # self.logger.info(f'after union = {self.batch.count()}')
-
-            #self.batch = df if self.batch is None else self.batch.union(df)
+                self.logger.info(f'after union = {self.batch.count()}')
 
             return
 
@@ -106,7 +104,8 @@ class StorageIO(object):
 
                 self.logger.info('1st read')
                 self.logger.info(df.count())
-                df = df.filter(f'stop >= \'{start.strftime("%Y-%m-%d %H:%M:%S")}\' and stop < \'{stop.strftime("%Y-%m-%d %H:%M:%S")}\'')
+                df = df.filter(f'stop >= \'{start.strftime("%Y-%m-%d %H:%M:%S")}\' '
+                               f'and stop < \'{stop.strftime("%Y-%m-%d %H:%M:%S")}\'')
                 self.logger.info('after filter start/stop')
                 self.logger.info(df[['stop']].show())
                 self.logger.info(df.count())
@@ -137,5 +136,3 @@ class StorageIO(object):
                 self.logger.info(dataset.count())
 
         return dataset
-
-

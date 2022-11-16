@@ -36,7 +36,7 @@ from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
 from baskerville.models.config import BaskervilleConfig, TrainingConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
     save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
-    df_has_rows, get_dtype_for_col, \
+    get_dtype_for_col, \
     handle_missing_col
 from baskerville.spark.schemas import features_schema, \
     prediction_schema, get_message_schema, get_data_schema, get_features_schema
