@@ -809,53 +809,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
             mock_feature3.compute.return_value
         )
 
-    @mock.patch('baskerville.spark.helpers.col_to_json')
-    def test_save_df_to_table_diff_params(self, col_to_json):
-        self.spark_conf.storage_level = 'OFF_HEAP'
-        test_table = 'test_table'
-        json_cols = ('a', 'b')
-        mode_param = 'test_mode'
-        df = mock.MagicMock()
-
-        col_to_json.return_value = df
-        persist = df.persist
-        format = df.write.format
-        options = format.return_value.options
-        mode = options.return_value.mode
-        save = mode.return_value.save
-        persist.return_value = df
-        self.spark_pipeline.save_df_to_table(
-            df, test_table, json_cols=json_cols, mode=mode_param
-        )
-
-        # persist.assert_called_once_with(
-        #     StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
-        # format.assert_called_once_with('jdbc')
-        # options.assert_called_once_with(
-        #     url=self.spark_pipeline.db_url,
-        #     driver=self.spark_pipeline.spark_conf.db_driver,
-        #     dbtable=test_table,
-        #     user=self.spark_pipeline.db_conf.user,
-        #     password=self.spark_pipeline.db_conf.password,
-        #     stringtype='unspecified',
-        #     batchsize=100000,
-        #     max_connections=1250,
-        #     rewriteBatchedStatements=True,
-        #     reWriteBatchedInserts=True,
-        #     useServerPrepStmts=False
-        # )
-        # mode.assert_called_once_with(mode_param)
-
-        called_args = []
-        for args in col_to_json.call_args_list:
-            self.assertEqual(args[0][0], df)
-            self.assertTrue(args[0][1] in json_cols)
-            called_args.append(args[0][1])
-
-        self.assertSetEqual(set(called_args), set(json_cols))
-
-        save.assert_called_once()
-
     @mock.patch('baskerville.models.base_spark.instantiate_from_str')
     @mock.patch('baskerville.models.base_spark.bytes')
     def test_filter_columns(self, mock_bytes, mock_instantiate_from_str):
