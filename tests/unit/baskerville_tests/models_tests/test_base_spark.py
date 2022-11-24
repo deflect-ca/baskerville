@@ -844,7 +844,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         #     reWriteBatchedInserts=True,
         #     useServerPrepStmts=False
         # )
-        mode.assert_called_once_with(mode_param)
+        # mode.assert_called_once_with(mode_param)
 
         called_args = []
         for args in col_to_json.call_args_list:
@@ -855,51 +855,6 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
         self.assertSetEqual(set(called_args), set(json_cols))
 
         save.assert_called_once()
-
-    @mock.patch('baskerville.spark.helpers.col_to_json')
-    def test_save_df_to_table_json_cols(self, col_to_json):
-        test_table_name = 'test'
-        test_json_cols = ('a', 'b')
-        df = mock.MagicMock()
-
-        col_to_json.return_value = df
-        persist = df.persist
-        format = df.write.format
-        options = format.return_value.options
-        mode = options.return_value.mode
-        save = mode.return_value.save
-        persist.return_value = df
-
-        self.spark_pipeline.save_df_to_table(
-            df,
-            test_table_name,
-            json_cols=test_json_cols
-        )
-
-        # format.assert_called_once_with('jdbc')
-        options.assert_called_once_with(
-            url=self.spark_pipeline.db_url,
-            driver=self.spark_pipeline.spark_conf.db_driver,
-            dbtable=test_table_name,
-            user=self.spark_pipeline.db_conf.user,
-            password=self.spark_pipeline.db_conf.password,
-            stringtype='unspecified',
-            batchsize=100000,
-            max_connections=1250,
-            rewriteBatchedStatements=True,
-            reWriteBatchedInserts=True,
-            useServerPrepStmts=False
-        )
-        mode.assert_called_once_with('append')
-        save.assert_called_once()
-        self.assertEqual(col_to_json.call_count, 2)
-        actual_json_col = []
-        for call in col_to_json.call_args_list:
-            self.assertTrue(call[0][0] == df)
-            self.assertTrue(call[0][1] in test_json_cols)
-            actual_json_col.append(call[0][1])
-
-        self.assertTupleEqual(tuple(actual_json_col), test_json_cols)
 
     @mock.patch('baskerville.models.base_spark.instantiate_from_str')
     @mock.patch('baskerville.models.base_spark.bytes')
