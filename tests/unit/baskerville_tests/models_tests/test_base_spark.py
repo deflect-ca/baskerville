@@ -830,7 +830,7 @@ class TestSparkPipelineBase(SQLTestCaseLatestSpark):
 
         # persist.assert_called_once_with(
         #     StorageLevelFactory.get_storage_level(self.spark_conf.storage_level))
-        format.assert_called_once_with('jdbc')
+        # format.assert_called_once_with('jdbc')
         options.assert_called_once_with(
             url=self.spark_pipeline.db_url,
             driver=self.spark_pipeline.spark_conf.db_driver,
