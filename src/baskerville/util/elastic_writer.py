@@ -11,7 +11,6 @@ class ElasticWriter(object):
         self.es = None
 
     def __enter__(self):
-        assert(self.es is None)
         self.es = Elasticsearch([self.connection_string])
         return self
 

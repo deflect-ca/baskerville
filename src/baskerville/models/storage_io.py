@@ -7,6 +7,7 @@ import random
 from datetime import timedelta
 
 import os
+from pyspark.sql import functions as F
 
 from baskerville.util.file_manager import FileManager
 
@@ -34,7 +35,16 @@ class StorageIO(object):
 
         if current_minutes == self.prev_minutes:
             self.logger.info(f'appending chunk {timestamp} to {self.prev_minutes}')
-            self.batch = df if self.batch is None else self.batch.union(df)
+            # self.logger.info(f'chunk count = {df.count()}')
+
+            if not self.batch:
+                self.logger.info('initial batch...')
+                self.batch = df
+            else:
+                self.logger.info(f'before union = {self.batch.count()}')
+                self.batch = self.batch.union(df)
+                self.logger.info(f'after union = {self.batch.count()}')
+
             return
 
         path = os.path.join(
@@ -55,7 +65,7 @@ class StorageIO(object):
         self.prev_minutes = current_minutes
         self.prev_time = timestamp
 
-    def load(self, start, end, load_one_random_batch_from_every_hour=True):
+    def load(self, start, stop, host=None, load_one_random_batch_from_every_hour=False):
         minutes = []
         for i in range(60 // self.batch_in_minutes):
             minutes.append(i * self.batch_in_minutes)
@@ -63,14 +73,14 @@ class StorageIO(object):
         file_manager = FileManager(os.path.join(self.storage_path, self.subfolder), self.spark)
 
         hour_chunks = []
-        current_time = start
-        hour_chunks.append(current_time)
-        while current_time < end:
-            current_time += timedelta(hours=1)
+        current_time = start - timedelta(hours=1)
+        while current_time < stop:
             hour_chunks.append(current_time)
+            current_time += timedelta(hours=1)
 
         dataset = None
-        for chunk in hour_chunks:
+        for i in range(len(hour_chunks)):
+            chunk = hour_chunks[i]
             path = os.path.join(
                 self.storage_path, self.subfolder,
                 f'{chunk.year}',
@@ -89,7 +99,40 @@ class StorageIO(object):
                 path_minutes = os.path.join(path, f'{m:02d}')
                 if not file_manager.path_exists(path_minutes):
                     continue
+                self.logger.info(f'Reading from {path_minutes}')
                 df = self.spark.read.parquet(path_minutes)
-                dataset = df if dataset is None else dataset.union(df)
+
+                self.logger.info('1st read')
+                self.logger.info(df.count())
+                df = df.filter(f'stop >= \'{start.strftime("%Y-%m-%d %H:%M:%S")}\' '
+                               f'and stop < \'{stop.strftime("%Y-%m-%d %H:%M:%S")}\'')
+                self.logger.info('after filter start/stop')
+                self.logger.info(df[['stop']].show())
+                self.logger.info(df.count())
+
+                if host:
+                    df = df.filter(F.col('target') == host)
+                    self.logger.info('after filter host')
+                    self.logger.info(df.count())
+
+                if dataset is None:
+                    dataset = df
+                else:
+                    # make sure we have exactly the same feature names before calling unionByName
+                    origin_features = set(dataset.schema['features'].dataType.names)
+                    chunk_features = set(df.schema['features'].dataType.names)
+                    for f in origin_features - chunk_features:
+                        df = df.withColumn('features', F.struct(F.col('features.*'), F.lit('0').alias(f)))
+                    for f in chunk_features - origin_features:
+                        dataset = dataset.withColumn('features', F.struct(F.col('features.*'), F.lit('0').alias(f)))
+
+                    # reorder the features for union(). Note: unionByName() did not work as expected for nested struct
+                    df = df.withColumn('features', F.struct(
+                        [F.col(f'features.{f}') for f in dataset.schema['features'].dataType.names]))
+
+                    dataset = dataset.union(df)
+
+                self.logger.info('after union')
+                self.logger.info(dataset.count())
 
         return dataset

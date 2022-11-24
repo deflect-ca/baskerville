@@ -21,7 +21,7 @@ public class Weblog {
     String WINDOW_END;
 
     public Weblog(
-        String host,
+        String HOST,
         Long ALLBYTES,
         Long CACHEDBYTES,
         Long ALLHITS,

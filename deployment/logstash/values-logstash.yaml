@@ -1,0 +1,135 @@
+replicaCount: 3
+
+image:
+  registry: docker.io
+  repository: bitnami/logstash
+  tag: 8.3.3-debian-11-r5
+
+input: |-
+  kafka {
+    bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+    topics => ["filebeat_deflect_access","filebeat_deflect_access_temp","filebeat_banjax","filebeat_banjax_access_temp"]
+    group_id => "logstash"
+    codec => "json"
+    decorate_events => "basic"
+  }
+
+filter: |-
+  mutate {
+    gsub => [ "message", " 0*([0-9]+),", " \1," ]
+  }
+  json {
+    source => "message"
+    remove_field => [ "message" ]
+  }
+  if [@metadata][kafka][topic] == "filebeat_deflect_access" or [@metadata][kafka][topic] == "filebeat_deflect_access_temp" {
+    mutate{
+      replace => ["[@metadata][kafka][topic]", "logstash_deflect.log"]
+    }
+    date {
+      match => [ "time_local", "dd/MMM/yyyy:HH:mm:ss Z" ]
+      target => "datestamp"
+      remove_field => [ "time_local" ]
+    }
+  }
+  if [@metadata][kafka][topic] == "filebeat_banjax" or [@metadata][kafka][topic] == "filebeat_banjax_access_temp" {
+    mutate{
+      replace => ["[@metadata][kafka][topic]", "logstash_banjax"]
+    }
+    date {
+      match => [ "timestring", "yyyy-MM-dd'T'HH:mm:ss" ]
+      target => "datestamp"
+      remove_field => [ "timestring" ]
+    }
+    if [path] {
+      grok {
+        match => { "path" => "%{URIPATH:client_url}(%{URIPARAM:querystring})?" }
+      }
+    }
+  }
+
+  geoip {
+    source => "client_ip"
+    target => "geoip0"
+    default_database_type => "City"
+    fields => [ "city_name", "continent_code", "country_code2", "country_name", "location" ]
+  }
+  mutate {
+    copy => { "[geoip0][geo][country_iso_code]" => "[geoip][country_code2]" }
+    copy => { "[geoip0][geo][country_name]" => "[geoip][country_name]" }
+  }
+  useragent {
+    source => "client_ua"
+    target => "user_agent"
+  }
+  mutate {
+    remove_field => [
+       "@timestamp",
+       "@version",
+       "geoip0"
+    ]
+  }
+
+  if ";" in [content_type] {
+    mutate {
+      split => { "content_type" => ";" }
+      add_field => { "new_content_type" => "%{[content_type][0]}" }
+    }
+    mutate {
+      rename => { "new_content_type" => "content_type" }
+    }
+  }
+  mutate {
+    remove_field => [
+      "event",
+      "@timestamp",
+      "@version",
+      "type",
+      "upstream_addr",
+      "upstream_status",
+      "upstream_response_time",
+      "upstream_header_time",
+      "upstream_connect_time",
+      "upstream_bytes_sent",
+      "upstream_bytes_received",
+      "client_user",
+      "referer",
+      "refererdomain",
+      "loc_in",
+      "loc_out",
+      "proxy_host",
+      "proxy_port",
+      "forwardedfor",
+      "request_time",
+      "[geoip][as_org]",
+      "filter_start",
+      "rule_type",
+      "banjax_decision",
+      "banjax_error",
+      "request_id",
+      "agent",
+      "log_topic",
+      "log",
+      "fields",
+      "input",
+      "host"
+    ]
+  }
+
+output: |-
+  kafka {
+    bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+    topic_id => "%{[@metadata][kafka][topic]}"
+    acks => "0"
+    codec => "json"
+  }
+  kafka {
+    bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+    topic_id => "%{[@metadata][kafka][topic]}"
+    acks => "0"
+    codec => "json"
+  }
+
+
+
+

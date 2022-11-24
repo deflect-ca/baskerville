@@ -1,11 +1,13 @@
 replicaCount: 3
+numPartitions: 3
 logRetentionMinutes: 6
+logRetentionBytes: _268435456
 logRetentionCheckIntervalMs: 60000
 autoCreateTopicsEnable: True
 deleteTopicEnable: True
 
-nodeSelector:
-  nodepool: workers
+#nodeSelector:
+#  nodepool: workers
 
 extraEnvVars:
  - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
@@ -18,26 +20,47 @@ extraEnvVars:
    value: "100"
  - name: KAFKA_CFG_MAX_REQUEST_SIZE
    value: "10048576"
+ - name: KAFKA_CFG_LOG_CLEANUP_POLICY
+   value: "delete"
 
+serviceAccount:
+  create: true
+rbac:
+  create: true
 externalAccess:
   enabled: True
+  autoDiscovery:
+    enabled: True
   service:
-    type: NodePort
-    nodePorts: [30001, 30002, 30003]
+    type: LoadBalancer
+    useDNS: True
+    loadBalancerDomain: prod.deflect.network
+    loadBalancerBrokerName: kafka
+    ports:
+      external: 9094
+
+#externalAccess:
+#  enabled: True
+#  service:
+#    type: NodePort
+#    nodePorts: [30001, 30002, 30003]
 
 persistence:
   enabled: False
 
-zookeeper:
-  auth:
-    enabled: False
-  persistence:
-    enabled: False
-
 auth:
-  tls:
-    endpointIdentificationAlgorithm: ""
   clientProtocol: mtls
   interBrokerProtocol: plaintext
-  jksSecret: kafka-jks
-  jksPassword: ""
+  tls:
+    type: jks
+    endpointIdentificationAlgorithm: ""
+    existingSecrets: ["kafka-jks-0","kafka-jks-1","kafka-jks-2"]
+    password: ""
+  zookeeper:
+    tls:
+      enabled: False
+      verifyHostname : False
+
+zookeeper:
+  persistence:
+    enabled: False

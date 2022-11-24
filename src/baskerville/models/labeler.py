@@ -12,20 +12,27 @@ import pandas as pd
 from pyspark.sql import functions as F
 from pyspark.sql.types import StringType, StructField, StructType
 
+from baskerville.models.storage_io import StorageIO
+
 
 class Labeler(object):
 
     def __init__(self,
                  db_config,
                  spark,
-                 s3_path,
                  check_interval_in_seconds=120,
                  regular_traffic_before_attack_in_minutes=60,
-                 logger=None):
+                 load_from_storage=True,
+                 logger=None,
+                 storage_path=None,
+                 folder_stream='stream',
+                 folder_attacks='attacks'
+                 ):
         super().__init__()
         self.db_config = db_config
         self.spark = spark
-        self.s3_path = s3_path
+        self.folder_attacks = folder_attacks
+        self.storage_path = storage_path
         self.check_interval_in_seconds = check_interval_in_seconds
         self.regular_traffic_before_attack_in_minutes = regular_traffic_before_attack_in_minutes
         if logger:
@@ -35,6 +42,13 @@ class Labeler(object):
             self.logger.addHandler(logging.StreamHandler(sysdate.stdout))
         self.thread = None
         self.kill = threading.Event()
+        self.load_from_storage = load_from_storage
+        self.storage_io = StorageIO(
+            storage_path=storage_path,
+            spark=self.spark,
+            logger=self.logger,
+            subfolder=folder_stream
+        ) if self.load_from_storage else None
 
     def start(self):
         if self.thread is not None:
@@ -132,7 +146,7 @@ class Labeler(object):
 
     def _save_df_to_s3(self, df, attack_id):
         self.logger.info('writing to parquet...')
-        df.repartition(10).write.parquet(os.path.join(self.s3_path, f'{attack_id}'))
+        df.repartition(10).write.parquet(os.path.join(self.storage_path, self.folder_attacks, f'{attack_id}'))
 
     def _save_attack(self, attack):
         self.logger.info(f'Saving attack {attack.id} to s3...')
@@ -141,15 +155,22 @@ class Labeler(object):
                                                 schema=StructType([StructField("ip_attacker", StringType())]))
 
         regular_start = attack.start - datetime.timedelta(minutes=self.regular_traffic_before_attack_in_minutes)
-        query = f'(select * from request_sets where ' \
-                f'target = \'{attack.target}\' and ' \
-                f'stop >= \'{regular_start.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp ' \
-                f'and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp) as attack1 '
-        self.logger.info(query)
-        df = self._load_request_sets(query)
-        if len(df.head(1)) == 0:
+
+        if self.load_from_storage:
+            self.logger.info(f'Loading from storate target={attack.target}, from {regular_start} to {attack.stop}')
+            df = self.storage_io.load(host=attack.target, start=regular_start, stop=attack.stop)
+        else:
+            query = f'(select * from request_sets where ' \
+                    f'target = \'{attack.target}\' and ' \
+                    f'stop >= \'{regular_start.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp ' \
+                    f'and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp) as attack1 '
+            self.logger.info(query)
+            df = self._load_request_sets(query)
+
+        if not df or len(df.head(1)) == 0:
             print(f'Skipping attack {attack.id}, no records found.')
             return
+
         self.logger.info(f'Total records = {df.count()}')
         self.logger.info(f'Num attacker ips={attack_ips.count()}')
         unique_attackers = attack_ips.groupBy('ip_attacker').count().count()
@@ -168,7 +189,7 @@ class Labeler(object):
         num_positives_unique = df.where(F.col('label') == 1).groupBy('ip').count().count()
         num_negatives_unique = df.where(F.col('label') == 0).groupBy('ip').count().count()
         self.logger.info(f'Positive uniques = {num_positives_unique}')
-        self.logger.info(f'Negativesunique = {num_negatives_unique}')
+        self.logger.info(f'Negatives unique = {num_negatives_unique}')
 
         self._save_df_to_s3(df, attack.id)
 
@@ -181,7 +202,7 @@ class Labeler(object):
                 return
             existing_attack.saved_in_cloud = True
             session.commit()
-            self.logger.info(f'Incident saved in s3, target={attack.target}, id = {attack.id}, path={self.s3_path}')
+            self.logger.info(f'Incident saved in s3, target={attack.target}, id = {attack.id}')
 
         except Exception as e:
             self.logger.error(str(e))
