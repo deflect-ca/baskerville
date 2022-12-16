@@ -640,7 +640,7 @@ Copy the generated passwords.
 ``` 
 kubectl create secret generic elastic-secret \
     --from-literal=username=elastic \
-    --from-literal=password='6SfhNXCQhKEY4j2crC3C'
+    --from-literal=password='xxx'
 
 uncomment extraEnvs section in ./deployment/elsticsearch/values.yaml 
 helm delete elasticsearch
