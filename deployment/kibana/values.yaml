@@ -1,0 +1,26 @@
+replicas: 1
+
+elasticsearchHosts: "https://elasticsearch-master:9200"
+
+secretMounts:
+  - name: kibana-certificates
+    secretName: kibana-certificates
+    path: /usr/share/kibana/config/certs
+  - name: kibana-keystore
+    secretName: kibana-keystore
+    path: /usr/share/kibana/config/keystore
+
+lifecycle:
+  postStart:
+    exec:
+      command: ["bash", "-c", "cp /usr/share/kibana/config/keystore/kibana.keystore /usr/share/kibana/config/"]
+
+service:
+  type: LoadBalancer
+
+kibanaConfig:
+  kibana.yml: |
+    elasticsearch.ssl.certificateAuthorities: [ "/usr/share/kibana/config/certs/elastic-ca.pem" ]
+    elasticsearch.ssl.certificate: "/usr/share/kibana/config/certs/kibana.crt"
+    elasticsearch.ssl.key: "/usr/share/kibana/config/certs/kibana.key"
+    server.publicBaseUrl: "http://kibana.baskerville.equalit.ie:5601"

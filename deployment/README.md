@@ -586,9 +586,135 @@ kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.l
 
 ## Logstash
 
-
 ```commandline
 helm install logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.0.0
 
-
 ```
+
+## Elastic Search
+* Install the basic version
+```
+helm install elasticsearch --version 7.17.3 elastic/elasticsearch -f ./deployment/elasticsearch/values.yaml
+```
+* Create certificates
+```
+kubectl exec -it elasticsearch-master-0 -- /bin/bash
+cd /usr/share/elasticsearch/bin/
+elasticsearch-certutil ca
+CA password:  ca_password
+elasticsearch-certutil cert --ca elastic-stack-ca.p12
+certificate password: certificate_password
+```
+
+* Get the certificates and create secrets
+```
+k cp elasticsearch-master-0:/usr/share/elasticsearch/elastic-certificates.p12 ./deployment/elasticsearch/cert/elastic-certificates.p12
+k cp elasticsearch-master-0:/usr/share/elasticsearch/elastic-stack-ca.p12 ./deployment/elasticsearch/cert/elastic-stack-ca.p12
+
+kubectl create secret generic elastic-certificates --from-file=./deployment/elasticsearch/cert/elastic-certificates.p12 
+kubectl create secret generic elastic-certificates-password --from-literal=password='certificate_password'
+```
+
+* paste certificate password into  ./deployment/elasticsearch/values.yaml
+```
+xpack.security.http.ssl.keystore.password: 
+xpack.security.http.ssl.truststore.password: 
+xpack.security.transport.ssl.keystore.password: 
+xpack.security.transport.ssl.truststore.password: 
+```
+
+* restart Elasticsearch
+```
+helm delete elasticsearch
+helm install elasticsearch --version 7.17.3 elastic/elasticsearch -f ./deployment/elasticsearch/values.yaml
+```
+
+* create users
+```
+kubectl exec -it elasticsearch-master-0 -- /bin/bash
+/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto
+```
+Copy the generated passwords.
+
+* create secret for `elastic` user and restart Elasticsearch
+``` 
+kubectl create secret generic elastic-secret \
+    --from-literal=username=elastic \
+    --from-literal=password='6SfhNXCQhKEY4j2crC3C'
+
+uncomment extraEnvs section in ./deployment/elsticsearch/values.yaml 
+helm delete elasticsearch
+
+helm install elasticsearch elastic/elasticsearch -f ./deployment/elasticsearch/values.yaml
+```
+
+* Install Kibana
+```
+cd ./deployment/kibana/
+mkdir cert
+cd cert
+openssl req -newkey rsa:2048 -nodes -keyout kibana.key -x509 -days 365 -out kibana.crt
+
+cd ./deployment/elasticsearch/cert
+openssl pkcs12 -in elastic-certificates.p12 -cacerts -nokeys -out elastic-ca.pem
+
+cd ../../../
+
+kubectl create secret generic kibana-certificates \
+    --from-file=./deployment/elasticsearch/cert/elastic-ca.pem \
+    --from-file=./deployment/kibana/cert/kibana.crt \
+    --from-file=./deployment/kibana/cert/kibana.key 
+
+helm install kibana --version 7.17.3 elastic/kibana -f ./deployment/kibana/values.yaml
+
+kubectl exec -it kibana-kibana-6bcb76b84-dg7qp -- /bin/bash
+/usr/share/kibana/bin/kibana-keystore create
+/usr/share/kibana/bin/kibana-keystore add elasticsearch.username
+enter 'elastic' 
+/usr/share/kibana/bin/kibana-keystore add elasticsearch.password
+enter the password for 'elastic' 
+exit
+
+cp kibana-kibana-6bcb76b84-dg7qp:/usr/share/kibana/config/kibana.keystore ./deployment/kibana/cert/kibana.keystore
+
+kubectl create secret generic kibana-keystore \
+    --from-file=./deployment/kibana/cert/kibana.keystore
+```
+
+uncomment kibana-keystore in ./deployment/kibana/values.yaml
+
+* delete Kibana
+```
+helm delete kibana
+```
+
+chande in ./deployment/kibana/values.yaml
+```
+service:
+  type: LoadBalancer
+```
+* install Kibana again
+```
+helm install kibana --version 7.17.3 elastic/kibana -f ./deployment/kibana/values.yaml
+```
+
+* port forwarding for Kibana
+```
+kubectl port-forward deployment/kibana-kibana 5601
+```
+
+* port forwarding for Elasticsearch
+```
+kubectl port-forward service/elasticsearch-master 9200
+```
+
+* Test Elasticsearch connection
+```
+curl -u "elastic:$ES_PASS" -k "http://localhost:9200"
+```
+
+* Install logstash for streaming topics to Elasticsearch
+```
+helm install logstash-es elastic/logstash -f ./deployment/logstash_es/values.yaml
+```
+
