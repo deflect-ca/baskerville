@@ -9,7 +9,6 @@ import datetime
 import itertools
 import json
 import os
-import threading
 import traceback
 
 import pyspark
