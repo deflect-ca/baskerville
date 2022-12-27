@@ -9,7 +9,6 @@ import datetime
 import itertools
 import json
 import os
-import threading
 import traceback
 
 import pyspark
@@ -25,17 +24,15 @@ from user_agents import parse
 
 from baskerville.db import get_jdbc_url
 from baskerville.db.models import RequestSet, Model
-from baskerville.models.banjax_report_consumer import BanjaxReportConsumer
 from baskerville.models.classifier_model import ClassifierModel
 from baskerville.models.storage_io import StorageIO
 from baskerville.models.incident_detector import IncidentDetector
 from baskerville.models.ip_cache import IPCache
-from baskerville.models.metrics.registry import metrics_registry
 from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
     CacheTask
 from baskerville.models.config import BaskervilleConfig, TrainingConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
-    save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
+    columns_to_dict, get_window, set_unknown_prediction, \
     get_dtype_for_col, \
     handle_missing_col
 from baskerville.spark.schemas import features_schema, \
@@ -1263,15 +1260,15 @@ class SaveDfInPostgres(Task):
     def run(self):
         self.config.database.conn_str = self.db_url
         self.df.na.drop()
-        save_df_to_table(
-            self.df,
-            self.table_model.__tablename__,
-            self.config.database.__dict__,
-            json_cols=self.json_cols,
-            storage_level=self.config.spark.storage_level,
-            mode=self.mode,
-            db_driver=self.config.spark.db_driver
-        )
+        # save_df_to_table(
+        #     self.df,
+        #     self.table_model.__tablename__,
+        #     self.config.database.__dict__,
+        #     json_cols=self.json_cols,
+        #     storage_level=self.config.spark.storage_level,
+        #     mode=self.mode,
+        #     db_driver=self.config.spark.db_driver
+        # )
         self.df = super().run()
         return self.df
 
@@ -1881,8 +1878,6 @@ class AttackDetection(Task):
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
         self.report_consumer = None
-        self.banjax_thread = None
-        self.register_metrics = config.engine.register_banjax_metrics
         self.low_rate_attack_schema = None
         self.time_filter = None
         self.lra_condition = None
@@ -1913,72 +1908,23 @@ class AttackDetection(Task):
             ((F.col('features.request_total') > lr_attack_period[1]) &
              (self.time_filter > lra_total_req[1]))
         )
-        self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
-        if self.register_metrics:
-            self.register_banjax_metrics()
-        self.banjax_thread = threading.Thread(target=self.report_consumer.run)
-        self.banjax_thread.start()
 
         if self.incident_detector is not None:
             self.incident_detector.start()
-
-    def finish_up(self):
-        if self.banjax_thread:
-            self.banjax_thread.join()
-
-        super().finish_up()
-
-    def register_banjax_metrics(self):
-        from baskerville.util.enums import MetricClassEnum
-
-        def incr_counter_for_ip_failed_challenge(metric, self, return_value):
-            metric.labels(return_value.get('value_ip'), return_value.get('value_site')).inc()
-            return return_value
-
-        consume_ip_failed_challenge_message = metrics_registry.register_action_hook(
-            self.report_consumer.consume_ip_failed_challenge_message,
-            incr_counter_for_ip_failed_challenge,
-            metric_name='ip_failed_challenge_on_website',
-            metric_cls=MetricClassEnum.counter,
-            labelnames=['ip', 'website']
-        )
-
-        setattr(self.report_consumer, 'consume_ip_failed_challenge_message', consume_ip_failed_challenge_message)
-
-        for field_name in self.report_consumer.status_message_fields:
-            target_method = getattr(self.report_consumer, f"consume_{field_name}")
-
-            def setter_for_field(field_name_inner):
-                def label_with_id_and_set(metric, self, return_value):
-                    metric.labels(return_value.get('id')).set(return_value.get(field_name_inner))
-                    return return_value
-
-                return label_with_id_and_set
-
-            patched_method = metrics_registry.register_action_hook(
-                target_method,
-                setter_for_field(field_name),
-                metric_name=field_name.replace('.', '_'),
-                metric_cls=MetricClassEnum.gauge,
-                labelnames=['banjax_id']
-            )
-
-            setattr(self.report_consumer, f"consume_{field_name}", patched_method)
-            self.logger.info(f"Registered metric for {field_name}")
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
         if self.incident_detector:
             self.logger.info('Getting hosts with incidents...')
             hosts = self.incident_detector.get_hosts_with_incidents()
+            self.logger.info(f'Number of hosts under attack {len(hosts)}.')
+
+            self.df = self.df.withColumn('attack_prediction',
+                                         F.when(F.col('target').isin(hosts),
+                                                F.lit(1)).otherwise(F.lit(0)))
         else:
             hosts = []
-
-        self.logger.info(f'Number of hosts under attack {len(hosts)}.')
-
-        self.df = self.df.withColumn('attack_prediction',
-                                     F.when(F.col('target').isin(hosts),
-                                            F.lit(1)).otherwise(F.lit(0)))
+            self.df = self.df.withColumn('attack_prediction', F.lit(1))
 
         self.logger.info('Dynamic thresholds calculation...')
         self.df = self.df.withColumn('prediction_anomaly', F.udf(dynamic_threshold, T.IntegerType())(
@@ -2142,10 +2088,15 @@ class Challenge(Task):
                     f'Sending {num_records} IP challenge commands to '
                     f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
                 null_ips = False
-                for ip, _, _ in ips:
+                for ip, target, _ in ips:
                     if ip:
                         message = json.dumps(
-                            {'name': 'challenge_ip', 'value': ip}
+                            {
+                                'name': 'challenge_ip',
+                                'ip': ip,
+                                'host': target,
+                                'source': 'bask'
+                            }
                         ).encode('utf-8')
                         self.producer.send(self.config.kafka.banjax_command_topic, message)
                     else:

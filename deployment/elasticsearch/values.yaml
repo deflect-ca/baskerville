@@ -1,0 +1,41 @@
+replicas: 3
+
+image: "docker.elastic.co/elasticsearch/elasticsearch"
+imageTag: "7.17.3"
+
+extraEnvs:
+  - name: ELASTIC_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: elastic-secret
+        key: username
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: elastic-secret
+        key: password
+
+secretMounts:
+  - name: elastic-certificates
+    secretName: elastic-certificates
+    path: /usr/share/elasticsearch/config/certs
+
+volumeClaimTemplate:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 500Gi
+
+esConfig:
+  elasticsearch.yml: |
+    cluster.name: "docker-cluster"
+    network.host: 0.0.0.0
+    xpack.security.enabled: true
+    xpack.security.transport.ssl.enabled: true
+    xpack.security.transport.ssl.verification_mode: certificate
+    xpack.security.transport.ssl.client_authentication: required
+    xpack.security.transport.ssl.keystore.path: elastic-certificates.p12
+    xpack.security.transport.ssl.truststore.path: elastic-certificates.p12
+    xpack.security.authc.api_key.enabled: true
+    xpack.security.transport.ssl.keystore.password: xxx
+    xpack.security.transport.ssl.truststore.password: xxx

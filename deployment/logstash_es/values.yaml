@@ -1,0 +1,95 @@
+replicas: 3
+image: "docker.elastic.co/logstash/logstash"
+imageTag: "7.17.3"
+
+extraEnvs:
+  - name: ELASTIC_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: elastic-secret
+        key: username
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: elastic-secret
+        key: password
+  - name: ELASTIC_CERTIFICATE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: elastic-certificates-password
+        key: password
+
+secretMounts:
+  - name: elastic-certificates
+    secretName: elastic-certificates
+    path: /usr/share/logstash/config/certs
+
+logstashConfig:
+  logstash.yml: |
+    xpack.monitoring.enabled: false
+
+logstashPipeline:
+  logstash.conf: |
+    input {
+      kafka {
+        bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+        topics => ["logstash_deflect.log", "banjax_command_topic", "banjax_report_topic"]
+        group_id => "logstash-es"
+        codec => "json"
+        decorate_events => "basic"
+      }
+    }
+    filter {
+      if [@metadata][kafka][topic] == "logstash_deflect.log" {
+        mutate{
+          add_field => { "[@metadata][es_index]" => "weblogs" }
+        }
+        date {
+            match => [ "datestamp", "yyyy-MM-dd'T'HH:mm:ssZ" ]
+        }
+        mutate {
+          rename => {"client_request_method" => "method" }
+          rename => {"client_request_host" => "host" }
+          rename => {"client_url" => "url"}
+          rename => {"cache_result" => "cache"}
+          rename => {"client_ip" => "ip"}
+        }
+        mutate {
+          remove_field => [
+            "[@metadata][kafka][topic]",
+            "http_request_version",
+            "version",
+            "datestamp",
+            "http_request_scheme",
+            "client_ua",
+            "querystring",
+            "reply_length_bytes",
+            "disable_logging",
+            "ecs",
+            "content_type"
+          ]
+        }
+      } else {
+          date {
+              match => [ "[@metadata][timestamp]", "UNIX" ]
+          }
+          if [@metadata][kafka][topic] == "banjax_command_topic" {
+            mutate{
+              add_field => { "[@metadata][es_index]" => "commands" }
+            }
+          } else if [@metadata][kafka][topic] == "banjax_report_topic" {
+            mutate{
+              add_field => { "[@metadata][es_index]" => "reports" }
+            }
+          }
+      }
+    }
+    output {
+      elasticsearch {
+          hosts => "http://elasticsearch-master:9200"
+          ssl => false
+          user => "${ELASTIC_USERNAME}"
+          password => "${ELASTIC_PASSWORD}"
+          index => "b.%{[@metadata][es_index]}-%{+YYYY.ww}"
+      }
+    }
