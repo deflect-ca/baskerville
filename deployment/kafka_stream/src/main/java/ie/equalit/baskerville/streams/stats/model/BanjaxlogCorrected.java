@@ -6,13 +6,13 @@ import java.util.Map;
 import ie.equalit.baskerville.streams.stats.model.Banjaxlog;
 
 public class BanjaxlogCorrected {
-    String HOST;
-    ArrayList<String> CLIENT_IP;
-    Long UNIQUEBOTS;
-    String WINDOW_END;
+    String host;
+    ArrayList<String> client_ip;
+    Long uniquebots;
+    String window_end;
 
-    ArrayList<Object> TARGET_URL;
-    ArrayList<Object> COUNTRY_CODES;
+    ArrayList<Object> target_url;
+    ArrayList<Object> country_codes;
 
     private ArrayList<Object> correct_map(HashMap<String, String> original){
         ArrayList<Object> result = new ArrayList<Object>();
@@ -27,13 +27,13 @@ public class BanjaxlogCorrected {
 
 
     public BanjaxlogCorrected(Banjaxlog original) {
-        this.HOST = original.HOST;
-        this.CLIENT_IP = original.CLIENT_IP;
-        this.UNIQUEBOTS = original.UNIQUEBOTS;
-        this.WINDOW_END = original.WINDOW_END;
+        this.host = original.host;
+        this.client_ip = original.client_ip;
+        this.uniquebots = original.uniquebots;
+        this.window_end = original.window_end;
 
-        this.TARGET_URL = this.correct_map(original.TARGET_URL);
-        this.COUNTRY_CODES = this.correct_map(original.COUNTRY_CODES);
+        this.target_url = this.correct_map(original.target_url);
+        this.country_codes = this.correct_map(original.country_codes);
     }
 
 }

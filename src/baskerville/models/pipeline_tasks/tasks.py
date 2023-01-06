@@ -2098,7 +2098,8 @@ class Challenge(Task):
                                 'source': 'bask'
                             }
                         ).encode('utf-8')
-                        self.producer.send(self.config.kafka.banjax_command_topic, message)
+                        self.producer.send(self.config.kafka.banjax_command_topic, message,
+                                           key=bytearray(target, encoding='utf8'))
                     else:
                         null_ips = True
 

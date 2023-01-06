@@ -6,37 +6,37 @@ import java.util.HashMap;
 
 public class Banjaxlog {
 
-    String HOST;
-    ArrayList<String> CLIENT_IP;
-    HashMap<String, String> COUNTRY_CODES;
-    HashMap<String, String> TARGET_URL;
-    Long UNIQUEBOTS;
-    String WINDOW_END;
+    String host;
+    ArrayList<String> client_ip;
+    HashMap<String, String> country_codes;
+    HashMap<String, String> target_url;
+    Long uniquebots;
+    String window_end;
 
     public Banjaxlog(
-        String HOST,
-        ArrayList<String> CLIENT_IP,
-        HashMap<String, String> COUNTRY_CODES,
-        HashMap<String, String> TARGET_URL,
-        Long UNIQUEBOTS,
-        String WINDOW_END
+        String host,
+        ArrayList<String> client_ip,
+        HashMap<String, String> country_codes,
+        HashMap<String, String> target_url,
+        Long uniquebots,
+        String window_end
     ) {
-        this.HOST = HOST;
-        this.CLIENT_IP = CLIENT_IP;
-        this.UNIQUEBOTS = UNIQUEBOTS;
-        this.COUNTRY_CODES = COUNTRY_CODES;
-        this.TARGET_URL = TARGET_URL;
-        this.WINDOW_END = WINDOW_END;
+        this.host = host;
+        this.client_ip = client_ip;
+        this.uniquebots = uniquebots;
+        this.country_codes = country_codes;
+        this.target_url = target_url;
+        this.window_end = window_end;
     }
 
     @Override
     public String toString() {
         return "BanjaxlogStat {" +
-        "HOST='" + this.HOST  +
-        ", CLIENT_IP='" + this.CLIENT_IP  +
-        ", UNIQUEBOTS='" + this.UNIQUEBOTS  +
-        ", country_codes='" + this.COUNTRY_CODES  +
-        ", TARGET_URL='" + this.TARGET_URL  +
-        ", WINDOW_END='" + this.WINDOW_END;
+        "HOST='" + this.host  +
+        ", CLIENT_IP='" + this.client_ip  +
+        ", UNIQUEBOTS='" + this.uniquebots  +
+        ", country_codes='" + this.country_codes  +
+        ", TARGET_URL='" + this.target_url  +
+        ", WINDOW_END='" + this.window_end;
     }
 }

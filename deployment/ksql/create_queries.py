@@ -1,4 +1,5 @@
-prefix = "STATS_LOGSTASH_"
+# prefix = "STATS_LOGSTASH_"
+prefix = "ANTON_"
 
 schemas = [
     """
@@ -6,6 +7,7 @@ CREATE STREAM {}WEBLOGS_SCHEMA (
     client_request_host VARCHAR,
     client_ip VARCHAR,
     client_url VARCHAR,
+    querystring VARCHAR,
     user_agent STRUCT<name VARCHAR>,
     http_response_code VARCHAR,
     datestamp VARCHAR,
@@ -48,6 +50,22 @@ CREATE STREAM {}WEBLOGS_WWW AS
     SELECT
         REPLACE(client_request_host, 'www.', '') as host_no_www,
         client_url,
+        REGEXP_REPLACE(content_type, ';.*', '') as content_type,
+        CASE WHEN (querystring like  '%utm_source=%') then 
+            REGEXP_REPLACE(REGEXP_REPLACE(querystring, '.*(?=utm_source=)utm_source=', ''), '&.*', '')
+        ELSE 
+            ''
+        END AS utm_source,
+        CASE WHEN (querystring like  '%utm_campaign=%') then 
+            REGEXP_REPLACE(REGEXP_REPLACE(querystring, '.*(?=utm_campaign=)utm_campaign=', ''), '&.*', '')
+        ELSE 
+            ''
+        END AS utm_campaign,
+        CASE WHEN (querystring like  '%utm_medium=%') then 
+            REGEXP_REPLACE(REGEXP_REPLACE(querystring, '.*(?=utm_medium=)utm_medium=', ''), '&.*', '')
+        ELSE 
+            ''
+        END AS utm_medium,    
         CASE
          WHEN (http_response_code = '200' or http_response_code = '304')
                 and (
@@ -108,11 +126,11 @@ CREATE STREAM {}BANJAX_WWW AS
      and (disable_logging is NULL or disable_logging <> 1);   
     """,
     """
-CREATE STREAM {}BANJAX_PARTITIONED 
-  WITH (PARTITIONS=3) AS 
-  SELECT * 
+CREATE STREAM {}BANJAX_PARTITIONED
+  WITH (PARTITIONS=3) AS
+  SELECT *
    FROM {}BANJAX_WWW
-   PARTITION BY host_no_www;      
+   PARTITION BY host_no_www;
     """,
     # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ UNIQUE @@@@@@@@@@@@@@@@@@
     """
@@ -133,7 +151,7 @@ CREATE TABLE {}BANJAX_UNIQUE_TABLE AS
    GROUP BY host_no_www, country_code, client_ip, client_url;      
     """,
     """
-    CREATE STREAM {}BANJAX_UNIQUE_SCHEMA 
+    CREATE STREAM {}BANJAX_UNIQUE_SCHEMA
      (
     host2 VARCHAR,
     client_ip2 VARCHAR,
@@ -153,7 +171,7 @@ CREATE TABLE {}BANJAX_UNIQUE_TABLE AS
         client_ip2,
         country_code2,
         client_url2
-    FROM {}BANJAX_UNIQUE_SCHEMA 
+    FROM {}BANJAX_UNIQUE_SCHEMA
     WHERE IP_COUNT = 1
     PARTITION BY host2;
     """
@@ -162,34 +180,38 @@ CREATE TABLE {}BANJAX_UNIQUE_TABLE AS
 minimum_queries = [
     """
  CREATE TABLE {}WEBLOGS_DICTIONARY_5M  AS
- SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as host,
- sum (reply_length_bytes) as allbytes,
- sum (cached*reply_length_bytes) as cachedbytes,
- count (*) as allhits,
- sum(cached) as cachedhits,
- COLLECT_SET (client_ip) as client_ip,
- HISTOGRAM (country_code) as country_codes,
- HISTOGRAM (client_url) as client_url,
- HISTOGRAM (client_url_filtered) as viewed_pages,
- COUNT(client_url_filtered) as viewed_page_count,
- HISTOGRAM (client_ua) as ua,
- HISTOGRAM (http_response_code) as http_code,
- TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
+ SELECT host_no_www, EARLIEST_BY_OFFSET(host_no_www) as `host`,
+ sum (reply_length_bytes) as `allbytes`,
+ sum (cached*reply_length_bytes) as `cachedbytes`,
+ count (*) as `allhits`,
+ sum(cached) as `cachedhits`,
+ COLLECT_SET (client_ip) as `client_ip`,
+ HISTOGRAM (country_code) as `country_codes`,
+ HISTOGRAM (client_url) as `client_url`,
+ HISTOGRAM (client_url_filtered) as `viewed_pages`,
+ COUNT(client_url_filtered) as `viewed_page_count`,
+ HISTOGRAM (client_ua) as `ua`,
+ HISTOGRAM (http_response_code) as `http_code`,
+ HISTOGRAM (content_type) as `content_type`,
+ HISTOGRAM (utm_source) as `utm_source`,
+ HISTOGRAM (utm_campaign) as `utm_campaign`,
+ HISTOGRAM (utm_medium) as `utm_medium`,
+ TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as `window_end`
   FROM {}WEBLOGS
   WINDOW TUMBLING (SIZE 5 MINUTES)
   GROUP BY host_no_www;
     """,
     """
  CREATE TABLE {}BANJAX_DICTIONARY_5M AS
- SELECT host2, EARLIEST_BY_OFFSET(host2) as host,
- COLLECT_SET (client_ip2) as client_ip,
- HISTOGRAM (country_code2) as country_codes,
- HISTOGRAM (client_url2) as target_url,
- COUNT_DISTINCT (client_ip2) as uniquebots,
- TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as window_end
+ SELECT host2, EARLIEST_BY_OFFSET(host2) as `host`,
+ COLLECT_SET (client_ip2) as `client_ip`,
+ HISTOGRAM (country_code2) as `country_codes`,
+ HISTOGRAM (client_url2) as `target_url`,
+ COUNT_DISTINCT (client_ip2) as `uniquebots`,
+ TIMESTAMPTOSTRING(WINDOWEND, 'yyy-MM-dd HH:mm:ss', 'UTC') as `window_end`
   FROM {}BANJAX_UNIQUE
   WINDOW TUMBLING (SIZE 5 MINUTES)
-  GROUP BY host2;     
+  GROUP BY host2;
   """
 ]
 

@@ -6,20 +6,24 @@ import java.util.Map;
 import ie.equalit.baskerville.streams.stats.model.Weblog;
 
 public class WeblogCorrected {
-    String HOST;
-    Long ALLBYTES;
-    Long CACHEDBYTES;
-    Long ALLHITS;
-    Long CACHEDHITS;
-    ArrayList<String> CLIENT_IP;
-    Long VIEWED_PAGE_COUNT;
-    String WINDOW_END;
+    String host;
+    Long allbytes;
+    Long cachedbytes;
+    Long allhits;
+    Long cachedhits;
+    ArrayList<String> client_ip;
+    Long viewed_page_count;
+    String window_end;
 
-    ArrayList<Object> UA;
-    ArrayList<Object> COUNTRY_CODES;
-    ArrayList<Object> CLIENT_URL;
-    ArrayList<Object> VIEWED_PAGES;
-    ArrayList<Object> HTTP_CODE;
+    ArrayList<Object> ua;
+    ArrayList<Object> country_codes;
+    ArrayList<Object> client_url;
+    ArrayList<Object> viewed_pages;
+    ArrayList<Object> http_code;
+    ArrayList<Object> content_type;
+    ArrayList<Object> utm_source;
+    ArrayList<Object> utm_medium;
+    ArrayList<Object> utm_campaign;
 
     private ArrayList<Object> correct_map(HashMap<String, String> original){
         ArrayList<Object> result = new ArrayList<Object>();
@@ -36,20 +40,25 @@ public class WeblogCorrected {
 
 
     public WeblogCorrected(Weblog original) {
-        this.HOST = original.HOST;
-        this.ALLBYTES = original.ALLBYTES;
-        this.CACHEDBYTES = original.CACHEDBYTES;
-        this.ALLHITS = original.ALLHITS;
-        this.CACHEDHITS= original.CACHEDHITS;
-        this.CLIENT_IP = original.CLIENT_IP;
-        this.VIEWED_PAGE_COUNT = original.VIEWED_PAGE_COUNT;
-        this.WINDOW_END = original.WINDOW_END;
+        this.host = original.host;
+        this.allbytes = original.allbytes;
+        this.cachedbytes = original.cachedbytes;
+        this.allhits = original.allhits;
+        this.cachedhits= original.cachedhits;
+        this.client_ip = original.client_ip;
+        this.viewed_page_count = original.viewed_page_count;
+        this.window_end = original.window_end;
 
-        this.UA = this.correct_map(original.UA);
-        this.COUNTRY_CODES = this.correct_map(original.COUNTRY_CODES);
-        this.CLIENT_URL = this.correct_map(original.CLIENT_URL);
-        this.VIEWED_PAGES = this.correct_map(original.VIEWED_PAGES);
-        this.HTTP_CODE = this.correct_map(original.HTTP_CODE);
+        this.ua = this.correct_map(original.ua);
+        this.country_codes = this.correct_map(original.country_codes);
+        this.client_url = this.correct_map(original.client_url);
+        this.viewed_pages = this.correct_map(original.viewed_pages);
+        this.http_code = this.correct_map(original.http_code);
+
+        this.content_type = this.correct_map(original.content_type);
+        this.utm_source = this.correct_map(original.utm_source);
+        this.utm_medium = this.correct_map(original.utm_medium);
+        this.utm_campaign = this.correct_map(original.utm_campaign);
     }
 
 }
