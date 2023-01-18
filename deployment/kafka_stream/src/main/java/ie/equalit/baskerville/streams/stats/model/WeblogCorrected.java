@@ -6,7 +6,7 @@ import java.util.Map;
 import ie.equalit.baskerville.streams.stats.model.Weblog;
 
 public class WeblogCorrected {
-    String host;
+    String hostname;
     Long allbytes;
     Long cachedbytes;
     Long allhits;
@@ -40,7 +40,7 @@ public class WeblogCorrected {
 
 
     public WeblogCorrected(Weblog original) {
-        this.host = original.host;
+        this.hostname = original.host;
         this.allbytes = original.allbytes;
         this.cachedbytes = original.cachedbytes;
         this.allhits = original.allhits;

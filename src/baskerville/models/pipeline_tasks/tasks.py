@@ -2092,8 +2092,8 @@ class Challenge(Task):
                     if ip:
                         message = json.dumps(
                             {
-                                'name': 'challenge_ip',
-                                'ip': ip,
+                                'Name': 'challenge_ip',
+                                'Value': ip,
                                 'host': target,
                                 'source': 'bask'
                             }

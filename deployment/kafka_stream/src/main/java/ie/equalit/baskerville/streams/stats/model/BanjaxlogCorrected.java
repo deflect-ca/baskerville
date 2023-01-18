@@ -6,7 +6,7 @@ import java.util.Map;
 import ie.equalit.baskerville.streams.stats.model.Banjaxlog;
 
 public class BanjaxlogCorrected {
-    String host;
+    String hostname;
     ArrayList<String> client_ip;
     Long uniquebots;
     String window_end;
@@ -27,7 +27,7 @@ public class BanjaxlogCorrected {
 
 
     public BanjaxlogCorrected(Banjaxlog original) {
-        this.host = original.host;
+        this.hostname = original.host;
         this.client_ip = original.client_ip;
         this.uniquebots = original.uniquebots;
         this.window_end = original.window_end;

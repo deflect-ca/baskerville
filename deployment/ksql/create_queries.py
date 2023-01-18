@@ -1,5 +1,4 @@
-# prefix = "STATS_LOGSTASH_"
-prefix = "ANTON_"
+prefix = "STATS_LOGSTASH_"
 
 schemas = [
     """
