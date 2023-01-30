@@ -716,5 +716,6 @@ curl -u "elastic:$ES_PASS" -k "http://localhost:9200"
 * Install logstash for streaming topics to Elasticsearch
 ```
 helm install logstash-es elastic/logstash -f ./deployment/logstash_es/values.yaml
+helm install logstash-es-dev elastic/logstash -f ./deployment/logstash_es/values_dev.yaml
 ```
 
