@@ -20,7 +20,7 @@ CREATE STREAM {}WEBLOGS_SCHEMA (
     partitions = 3,
     value_format = 'json',
     timestamp = 'datestamp',
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss''Z'''
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
 );
     """,
     """
@@ -38,7 +38,7 @@ CREATE STREAM {}BANJAX_SCHEMA (
     partitions = 3,
     value_format = 'json',
     timestamp = 'datestamp',
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss''Z'''
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
 );
     """
 ]

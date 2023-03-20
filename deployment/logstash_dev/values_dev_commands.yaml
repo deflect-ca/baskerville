@@ -1,0 +1,40 @@
+replicas: 1
+image: "docker.elastic.co/logstash/logstash"
+imageTag: "8.5.2"
+
+livenessProbe: null
+
+logstashConfig:
+  logstash.yml: |
+    xpack.monitoring.enabled: false
+
+logstashPipeline:
+  logstash.conf: |
+    input {
+      kafka {
+        bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+        topics => ["banjax_command_topic"]
+        group_id => "logstash-dev"
+        codec => "json"
+        decorate_events => "basic"
+        consumer_threads => 3
+      }
+    }
+    filter {
+      mutate {
+        remove_field => [
+          "event",
+          "@timestamp",
+          "@version"
+        ]
+      }
+    }
+    output {
+      kafka {
+        bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+        topic_id => "banjax_command_topic"
+        acks => "0"
+        codec => "json"
+        message_key => "%{[host]}"
+      }
+    }

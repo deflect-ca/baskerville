@@ -3,7 +3,7 @@ replicaCount: 3
 image:
   registry: docker.io
   repository: bitnami/logstash
-  tag: 8.3.3-debian-11-r5
+#  tag: 8.3.3-debian-11-r5
 
 input: |-
   kafka {
@@ -15,13 +15,15 @@ input: |-
   }
 
 filter: |-
-  mutate {
-    gsub => [ "message", " 0*([0-9]+),", " \1," ]
+  ruby {
+      code => '
+          event.get("json").each { |k, v|
+              event.set(k,v)
+          }
+          event.remove("json")
+      '
   }
-  json {
-    source => "message"
-    remove_field => [ "message" ]
-  }
+
   if [@metadata][kafka][topic] == "filebeat_deflect_access" or [@metadata][kafka][topic] == "filebeat_deflect_access_temp" {
     mutate{
       replace => ["[@metadata][kafka][topic]", "logstash_deflect.log"]
@@ -54,6 +56,12 @@ filter: |-
     default_database_type => "City"
     fields => [ "city_name", "continent_code", "country_code2", "country_name", "location" ]
   }
+
+  mutate {
+    copy => {"client_request_host" => "client_request_host_original"}
+    gsub => [ "client_request_host", "^www\.", "" ]
+  }
+
   mutate {
     copy => { "[geoip0][geo][country_iso_code]" => "[geoip][country_code2]" }
     copy => { "[geoip0][geo][country_name]" => "[geoip][country_name]" }
@@ -122,12 +130,16 @@ output: |-
     topic_id => "%{[@metadata][kafka][topic]}"
     acks => "0"
     codec => "json"
+    partitioner => "default"
+    message_key => "%{client_request_host}"
   }
   kafka {
     bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
     topic_id => "%{[@metadata][kafka][topic]}"
     acks => "0"
     codec => "json"
+    partitioner => "default"
+    message_key => "%{client_request_host}"
   }
 
 

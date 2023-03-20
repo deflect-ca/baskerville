@@ -587,7 +587,7 @@ kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.l
 ## Logstash
 
 ```commandline
-helm install logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.0.0
+helm install logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.1.15
 
 ```
 
@@ -716,6 +716,12 @@ curl -u "elastic:$ES_PASS" -k "http://localhost:9200"
 * Install logstash for streaming topics to Elasticsearch
 ```
 helm install logstash-es elastic/logstash -f ./deployment/logstash_es/values.yaml
-helm install logstash-es-dev elastic/logstash -f ./deployment/logstash_es/values_dev.yaml
+```
+
+* Install logstash for forwarding to/from dev Kafka
+```
+helm install logstash-dev-commands elastic/logstash -f ./deployment/logstash_dev/values_dev_commands.yaml
+helm install logstash-dev-reports elastic/logstash -f ./deployment/logstash_dev/values_dev_reports.yaml
+
 ```
 

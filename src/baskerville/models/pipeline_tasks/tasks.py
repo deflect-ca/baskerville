@@ -9,6 +9,7 @@ import datetime
 import itertools
 import json
 import os
+import threading
 import traceback
 
 import pyspark
@@ -41,6 +42,7 @@ from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
 # broadcasts
+from baskerville.util.banjax_report_consumer import BanjaxReportConsumer
 from baskerville.util.elastic_writer import ElasticWriter
 from baskerville.util.helpers import parse_config, get_default_data_path
 from baskerville.util.helpers import instantiate_from_str, get_model_path
@@ -1877,7 +1879,7 @@ class AttackDetection(Task):
 
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
-        self.report_consumer = None
+        self.report_consumer = BanjaxReportConsumer(config, self.logger)
         self.low_rate_attack_schema = None
         self.time_filter = None
         self.lra_condition = None
@@ -1911,6 +1913,9 @@ class AttackDetection(Task):
 
         if self.incident_detector is not None:
             self.incident_detector.start()
+
+        consumer_thread = threading.Thread(target=self.report_consumer.run)
+        consumer_thread.start()
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')

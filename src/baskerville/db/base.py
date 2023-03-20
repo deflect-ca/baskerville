@@ -74,7 +74,7 @@ class TableTools(object):
         if new:
             new_prefix = 'NEW.'
 
-        start = start.strftime("%Y-%m-%d %H:%M:%S")
+            start = start.strftime("%Y-%m-%d %H:%M:%S")
         end = end.strftime("%Y-%m-%d %H:%M:%S.%f")
 
         if start > end:
