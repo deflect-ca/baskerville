@@ -281,7 +281,7 @@ class EngineConfig(Config):
     low_rate_attack_enabled = True
     low_rate_attack_period = [600, 3600]
     low_rate_attack_total_request = [400, 2000]
-    ip_cache_passed_challenge_ttl = 60 * 60 * 24 * 3 # 24h
+    ip_cache_passed_challenge_ttl = 60 * 60 * 24 * 3
     ip_cache_passed_challenge_size = 1000000
     ip_cache_pending_ttl = 60 * 60 * 1  # 1h
     ip_cache_pending_size = 100000

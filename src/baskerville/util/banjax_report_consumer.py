@@ -53,7 +53,7 @@ class BanjaxReportConsumer(object):
         self.ip_cache.ip_failed_challenge(message['value_ip'])
 
     def consume_ip_passed_challenge_message(self, message):
-        self.ip_cache.ip_passed_challenge( message['value_ip'])
+        self.ip_cache.ip_passed_challenge(message['value_ip'])
 
     def consume_ip_banned_message(self, message):
         pass
