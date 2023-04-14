@@ -1,6 +1,6 @@
 replicaCount: 3
 numPartitions: 3
-logRetentionMinutes: 6
+logRetentionMinutes: 120
 logRetentionBytes: _268435456
 logRetentionCheckIntervalMs: 60000
 autoCreateTopicsEnable: True
@@ -47,6 +47,7 @@ externalAccess:
 
 persistence:
   enabled: False
+  size: 80Gi
 
 auth:
   clientProtocol: mtls
@@ -55,7 +56,7 @@ auth:
     type: jks
     endpointIdentificationAlgorithm: ""
     existingSecrets: ["kafka-jks-0","kafka-jks-1","kafka-jks-2"]
-    password: ""
+    password: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
   zookeeper:
     tls:
       enabled: False

@@ -89,9 +89,21 @@ REGEXP_REPLACE(client_url,'/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|js
 
         datestamp,
         reply_length_bytes,
-        geoip->country_code2 as country_code,
+        
+        CASE WHEN (geoip is not NULL) then 
+            geoip->country_code2
+        ELSE 
+            ''
+        END AS country_code, 
+        
         client_ip,
-        user_agent->name as client_ua,
+        
+        CASE WHEN (user_agent is not NULL) then 
+            user_agent->name
+        ELSE 
+            ''
+        END AS client_ua, 
+        
         http_response_code,
         CASE
             WHEN

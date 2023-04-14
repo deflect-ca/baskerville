@@ -1,0 +1,36 @@
+replicas: 1
+image: "docker.elastic.co/logstash/logstash"
+imageTag: "8.5.2"
+
+logstashPipeline:
+  logstash.conf: |
+    input {
+      kafka {
+        bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+        topics => ["STATS_WEBLOGS_5M", "STATS_BANJAX_5M"]
+        group_id => "logstash-x-backup"
+        codec => "json"
+        decorate_events => "basic"
+        consumer_threads => 3
+      }
+    }
+    filter {
+      if [@metadata][kafka][topic] == "STATS_WEBLOGS_5M" {
+        mutate{
+          replace => ["[@metadata][kafka][topic]", "STATS_WEBLOG_BACKUP"]
+        }
+      } else {
+        mutate{
+          replace => ["[@metadata][kafka][topic]", "STATS_BANJAX_BACKUP"]
+        }
+      }
+    }
+    output {
+      kafka {
+        bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+        topic_id => "%{[@metadata][kafka][topic]}"
+        acks => "0"
+        codec => "json"
+        message_key => "%{[hostname]}"
+      }
+    }
