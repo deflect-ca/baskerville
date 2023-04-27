@@ -813,7 +813,8 @@ class GenerateFeatures(MLTask):
 
         # filter out only the exact domain match
         if len(domains) > 0:
-            self.df = self.df.filter(~F.col('target_original').isin(domains))
+            for domain in domains:
+                self.df = self.df.filter(~F.col('target_original').contains(domain))
 
         # concatenate the full path URL
         self.df = self.df.withColumn('url', F.concat(F.col('target_original'), F.col('client_url')))
