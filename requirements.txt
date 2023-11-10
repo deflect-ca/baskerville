@@ -1,7 +1,7 @@
 jinja2==2.10
 # numpy==1.14.3
 PyYAML==3.12
-cryptography==2.2.2
+cryptography==3.3.2
 python-geoip==1.2
 python-geoip-geolite2==2015.303
 certifi==2018.4.16
