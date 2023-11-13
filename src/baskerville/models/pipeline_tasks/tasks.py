@@ -798,6 +798,8 @@ class GenerateFeatures(MLTask):
         prefixes = []
         matches = []
         stars = []
+        double_stars = []
+
         for url in urls:
             if url.find('/') < 0:
                 domains.append(url)
@@ -809,7 +811,11 @@ class GenerateFeatures(MLTask):
                     if star_pos == len(url) - 1:
                         prefixes.append(url[:-1])
                     else:
-                        stars.append((url[:star_pos], url[star_pos + 1:]))
+                        star_pos2 = url.rfind('*')
+                        if star_pos == star_pos2:
+                            stars.append((url[:star_pos], url[star_pos + 1:]))
+                        else:
+                            double_stars.append((url[:star_pos], url[star_pos + 1:-1]))
 
         # filter out only the exact domain match
         if len(domains) > 0:
@@ -838,6 +844,9 @@ class GenerateFeatures(MLTask):
         def filter_stars(url):
             for star in stars:
                 if url and url.startswith(star[0]) and url.endswith(star[1]):
+                    return False
+            for star in double_stars:
+                if url and url.startswith(star[0]) and star[1] in url[len(star[0]):]:
                     return False
             return True
 

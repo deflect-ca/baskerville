@@ -115,7 +115,7 @@ REGEXP_REPLACE(client_url,'/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|js
          ELSE 0
         END AS cached
     FROM {}WEBLOGS_SCHEMA
-    WHERE disable_logging is NULL or disable_logging <> 1;
+    WHERE disable_logging <> 1;
     """,
     """
 CREATE STREAM {}WEBLOGS 

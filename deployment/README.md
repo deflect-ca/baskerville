@@ -67,6 +67,8 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install kafka -f deployment/kafka/values-kafka.yaml ../charts/bitnami/kafka
 
 helm install kafka7 -f deployment/kafka/values-kafka7.yaml ../charts/bitnami/kafka
+
+helm install kafkab -f deployment/kafka/values-kafkab.yaml ../charts/bitnami/kafka
 ```
 
 * follow the displayed instruction to get kafka connection string:
@@ -491,8 +493,8 @@ kubectl exec --tty -i kafka-client --namespace default -- bash
 ```
 change the retention policy:
 ```commandline
-kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_WEBLOGS_5M --config retention.ms=86400000
-kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_BANJAX_5M --config retention.ms=86400000
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name STATS_WEBLOGS_5M --add-config retention.ms=86400000
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name STATS_BANJAX_5M --add-config retention.ms=86400000
 ```
 
 * To delete KSQL query or table:
@@ -527,13 +529,6 @@ kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.lo
 kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --delete --topic _schemas
 ```
 
-It might be also necessary to re-partition the topics which were auto-created after the previous step.
-```commandline
-kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_WEBLOGS_5M --partitions 3 
-kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_BANJAX_5M --partitions 3 
-kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_BANJAX --partitions 3 
-kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --topic STATS_BANJAX_WWW --partitions 3 
-```
 * Set the maximum message size to 10M:
 ```commandline
 kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=20000000
@@ -568,8 +563,8 @@ kubectl delete -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
 
 * To increase the maximum message size (in kafka cli):
 ```
-kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=20000000
-kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=20000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=30000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=30000000
 ```
 
 * To reduce the retention policy of four filebeat topics:
@@ -711,6 +706,11 @@ kubectl port-forward service/elasticsearch-master 9200
 * Test Elasticsearch connection
 ```
 curl -u "elastic:$ES_PASS" -k "http://localhost:9200"
+```
+
+* Deleting all the indexes in Elasticsearch:
+```commandline
+curl -u "elastic:$ES_PASS" -X DELETE 'http://localhost:9200/_all'
 ```
 
 * Install logstash for streaming topics to Elasticsearch

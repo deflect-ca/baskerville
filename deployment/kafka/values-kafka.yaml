@@ -10,12 +10,12 @@ deleteTopicEnable: True
 #  nodepool: workers
 
 extraEnvVars:
- - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
-   value: "kafka.security.authorizer.AclAuthorizer"
- - name: KAFKA_CFG_SUPER_USERS
-   value: "User:CN=admin,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown;User:CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown"
- - name: KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND
-   value: "true"
+# - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
+#   value: "kafka.security.authorizer.AclAuthorizer"
+# - name: KAFKA_CFG_SUPER_USERS
+#   value: "User:CN=admin,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown;User:CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown"
+# - name: KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND
+#   value: "true"
  - name: KAFKA_CFG_MAX_POLL_RECORDS
    value: "100"
  - name: KAFKA_CFG_MAX_REQUEST_SIZE
@@ -56,7 +56,7 @@ auth:
     type: jks
     endpointIdentificationAlgorithm: ""
     existingSecrets: ["kafka-jks-0","kafka-jks-1","kafka-jks-2"]
-    password: "!"
+    password: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
   zookeeper:
     tls:
       enabled: False
@@ -64,4 +64,5 @@ auth:
 
 zookeeper:
   persistence:
-    enabled: False
+    enabled: True
+    size: 20Gi

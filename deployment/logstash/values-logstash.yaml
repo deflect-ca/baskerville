@@ -7,7 +7,7 @@ image:
 
 input: |-
   kafka {
-    bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+    bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
     topics => ["filebeat_deflect_access","filebeat_deflect_access_temp","filebeat_banjax","filebeat_banjax_access_temp"]
     group_id => "logstash"
     codec => "json"
@@ -15,15 +15,6 @@ input: |-
   }
 
 filter: |-
-  ruby {
-      code => '
-          event.get("json").each { |k, v|
-              event.set(k,v)
-          }
-          event.remove("json")
-      '
-  }
-
   if [@metadata][kafka][topic] == "filebeat_deflect_access" or [@metadata][kafka][topic] == "filebeat_deflect_access_temp" {
     mutate{
       replace => ["[@metadata][kafka][topic]", "logstash_deflect.log"]
@@ -126,7 +117,7 @@ filter: |-
 
 output: |-
   kafka {
-    bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+    bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
     topic_id => "%{[@metadata][kafka][topic]}"
     acks => "0"
     codec => "json"

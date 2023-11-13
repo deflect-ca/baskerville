@@ -31,7 +31,7 @@ logstashPipeline:
     }
     output {
       kafka {
-        bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
+        bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
         topic_id => "banjax_command_topic"
         acks => "0"
         codec => "json"
