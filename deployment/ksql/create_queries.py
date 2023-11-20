@@ -20,7 +20,7 @@ CREATE STREAM {}WEBLOGS_SCHEMA (
     partitions = 3,
     value_format = 'json',
     timestamp = 'datestamp',
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss''Z'''
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
 );
     """,
     """
@@ -38,7 +38,7 @@ CREATE STREAM {}BANJAX_SCHEMA (
     partitions = 3,
     value_format = 'json',
     timestamp = 'datestamp',
-    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss''Z'''
+    timestamp_format = 'yyyy-MM-dd''T''HH:mm:ss.SSS''Z'''
 );
     """
 ]
@@ -89,9 +89,21 @@ REGEXP_REPLACE(client_url,'/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|js
 
         datestamp,
         reply_length_bytes,
-        geoip->country_code2 as country_code,
+        
+        CASE WHEN (geoip is not NULL) then 
+            geoip->country_code2
+        ELSE 
+            ''
+        END AS country_code, 
+        
         client_ip,
-        user_agent->name as client_ua,
+        
+        CASE WHEN (user_agent is not NULL) then 
+            user_agent->name
+        ELSE 
+            ''
+        END AS client_ua, 
+        
         http_response_code,
         CASE
             WHEN
@@ -103,7 +115,7 @@ REGEXP_REPLACE(client_url,'/(robots.txt|xmlrpc.php|10k|.*(jpeg|js|jpg|ico|css|js
          ELSE 0
         END AS cached
     FROM {}WEBLOGS_SCHEMA
-    WHERE disable_logging is NULL or disable_logging <> 1;
+    WHERE disable_logging <> 1;
     """,
     """
 CREATE STREAM {}WEBLOGS 

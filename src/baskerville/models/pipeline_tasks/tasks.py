@@ -9,6 +9,7 @@ import datetime
 import itertools
 import json
 import os
+import threading
 import traceback
 
 import pyspark
@@ -41,6 +42,7 @@ from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
 # broadcasts
+from baskerville.util.banjax_report_consumer import BanjaxReportConsumer
 from baskerville.util.elastic_writer import ElasticWriter
 from baskerville.util.helpers import parse_config, get_default_data_path
 from baskerville.util.helpers import instantiate_from_str, get_model_path
@@ -796,6 +798,8 @@ class GenerateFeatures(MLTask):
         prefixes = []
         matches = []
         stars = []
+        double_stars = []
+
         for url in urls:
             if url.find('/') < 0:
                 domains.append(url)
@@ -807,11 +811,16 @@ class GenerateFeatures(MLTask):
                     if star_pos == len(url) - 1:
                         prefixes.append(url[:-1])
                     else:
-                        stars.append((url[:star_pos], url[star_pos + 1:]))
+                        star_pos2 = url.rfind('*')
+                        if star_pos == star_pos2:
+                            stars.append((url[:star_pos], url[star_pos + 1:]))
+                        else:
+                            double_stars.append((url[:star_pos], url[star_pos + 1:-1]))
 
         # filter out only the exact domain match
         if len(domains) > 0:
-            self.df = self.df.filter(~F.col('target_original').isin(domains))
+            for domain in domains:
+                self.df = self.df.filter(~F.col('target_original').contains(domain))
 
         # concatenate the full path URL
         self.df = self.df.withColumn('url', F.concat(F.col('target_original'), F.col('client_url')))
@@ -835,6 +844,9 @@ class GenerateFeatures(MLTask):
         def filter_stars(url):
             for star in stars:
                 if url and url.startswith(star[0]) and url.endswith(star[1]):
+                    return False
+            for star in double_stars:
+                if url and url.startswith(star[0]) and star[1] in url[len(star[0]):]:
                     return False
             return True
 
@@ -1877,7 +1889,7 @@ class AttackDetection(Task):
 
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
-        self.report_consumer = None
+        self.report_consumer = BanjaxReportConsumer(config, self.logger)
         self.low_rate_attack_schema = None
         self.time_filter = None
         self.lra_condition = None
@@ -1911,6 +1923,9 @@ class AttackDetection(Task):
 
         if self.incident_detector is not None:
             self.incident_detector.start()
+
+        consumer_thread = threading.Thread(target=self.report_consumer.run)
+        consumer_thread.start()
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')

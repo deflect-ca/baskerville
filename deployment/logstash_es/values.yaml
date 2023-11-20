@@ -34,8 +34,8 @@ logstashPipeline:
   logstash.conf: |
     input {
       kafka {
-        bootstrap_servers => "kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093"
-        topics => ["logstash_deflect.log", "banjax_command_topic"]
+        bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
+        topics => ["logstash_deflect.log", "banjax_command_topic", "banjax_report_topic"]
         group_id => "logstash-es"
         codec => "json"
         decorate_events => "basic"
