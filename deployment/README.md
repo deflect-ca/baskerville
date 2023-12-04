@@ -309,6 +309,40 @@ kubectl apply -f deployment/postgres/postgres_lb.yaml
 kubectl port-forward service/postgres-db-lb 5432:5432
 ```
 
+## Install Ingress
+
+* Repo
+```commandline
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+```
+
+* Choose version based on k8s cluster version in [https://github.com/kubernetes/ingress-nginx/]
+and update the version tag in `./ingress/congroller/nginx/values/yaml`
+
+* Deploy Ingress-Nginx
+```commandline
+helm -n ingress-nginx install ingress-nginx \
+ingress-nginx/ingress-nginx --create-namespace \
+--version 4.2.5 \
+-f ./ingress-nginx/values.yaml
+```
+## Install Certificate Manager
+```commandline
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.crds.yaml
+
+helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.13.2
+
+k apply -f deployment/cert/issuer.yaml
+```
+
+
 
 ## Grafana
 * set your postgres password in the datasource `deployment/grafana/datasources/postgres.yaml`
@@ -332,6 +366,11 @@ kubectl create configmap dashboard-trafficlight --from-file=deployment/grafana/d
 * deploy grafana:
 ```commandline
 helm install grafana -f deployment/grafana/values-grafana.yaml bitnami/grafana
+```
+
+* deploy grafana ingress:
+```commandline
+k apply -f deployment/grafana/ingress-grafana.yaml
 ```
 
 ## Baskerville images
