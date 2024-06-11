@@ -66,7 +66,7 @@ nodeSelector:
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install kafka -f deployment/kafka/values-kafka.yaml ../charts/bitnami/kafka
 
-helm install kafka7 -f deployment/kafka/values-kafka7.yaml ../charts/bitnami/kafka
+helm install kafka9 -f deployment/kafka/values-kafka9.yaml ../charts/bitnami/kafka
 
 helm install kafkab -f deployment/kafka/values-kafkab.yaml ../charts/bitnami/kafka
 ```
@@ -722,7 +722,7 @@ uncomment kibana-keystore in ./deployment/kibana/values.yaml
 helm delete kibana
 ```
 
-chande in ./deployment/kibana/values.yaml
+change in ./deployment/kibana/values.yaml
 ```
 service:
   type: LoadBalancer
@@ -764,3 +764,8 @@ helm install logstash-dev-reports elastic/logstash -f ./deployment/logstash_dev/
 
 ```
 
+* Install logstash for forwarding from clearinghouse topics
+```
+helm install logstash-ch elastic/logstash -f ./deployment/logstash_ch/values_ch.yaml
+
+```

@@ -47,7 +47,7 @@ externalAccess:
 
 persistence:
   enabled: False
-  size: 80Gi
+  size: 300Gi
 
 auth:
   clientProtocol: mtls

@@ -17,7 +17,7 @@ dashboardsProvider:
   enabled: true
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
 
 datasources:
   secretName: datasource-secret
