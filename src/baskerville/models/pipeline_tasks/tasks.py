@@ -501,7 +501,7 @@ class GetDataLog(Task):
             self.logger.info('No data in to process.')
         else:
             for window_df in get_window(
-                    self.df, self.time_bucket, self.config.spark.storage_level, self.logger
+              self.df, self.time_bucket, self.config.spark.storage_level, self.logger
             ):
                 self.df = window_df.repartition(
                     *self.group_by_cols
