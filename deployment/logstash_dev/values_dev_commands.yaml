@@ -25,7 +25,8 @@ logstashPipeline:
         remove_field => [
           "event",
           "@timestamp",
-          "@version"
+          "@version",
+          "session"
         ]
       }
     }

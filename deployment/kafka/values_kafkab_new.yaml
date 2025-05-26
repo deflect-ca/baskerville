@@ -1,0 +1,56 @@
+replicaCount: 3
+
+persistence:
+  enabled: true
+  storageClass: csi-cinder-high-speed
+  size: 800Gi
+
+externalAccess:
+  enabled: true
+  autoDiscovery:
+    enabled: false
+  service:
+    type: ClusterIP
+    ports:
+      external: 9094
+  external:
+    broker:
+      - name: kafkab0.prod.deflect.network
+      - name: kafkab1.prod.deflect.network
+      - name: kafkab2.prod.deflect.network
+
+listeners:
+  client:
+    protocol: SSL     # Required for mTLS external clients
+  external:
+    protocol: SSL
+    port: 9094
+
+auth:
+  clientProtocol: mtls         # external clients must present a client cert
+  interBrokerProtocol: plaintext
+  tls:
+    type: jks
+    existingSecrets:
+      - kafka-jks-0
+      - kafka-jks-1
+      - kafka-jks-2
+    password: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+    endpointIdentificationAlgorithm: ""
+
+  zookeeper:
+    tls:
+      enabled: false
+      verifyHostname: false
+
+# Custom Kafka config via env variables
+extraEnvVars:
+  - name: KAFKA_CFG_MAX_POLL_RECORDS
+    value: "100"
+  - name: KAFKA_CFG_MAX_REQUEST_SIZE
+    value: "10048576"
+  - name: KAFKA_CFG_LOG_CLEANUP_POLICY
+    value: "delete"
+
+verticalPodAutoscaler:
+  enabled: false

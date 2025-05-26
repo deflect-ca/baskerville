@@ -5,19 +5,109 @@ image:
   repository: bitnami/logstash
 #  tag: 8.3.3-debian-11-r5
 
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: kubernetes.io/hostname
+        operator: NotIn
+        values:
+        - workers-node-eac0c8
+        - workers-node-c83aa9
+
+extraVolumes:
+  - name: geoip-dir
+    emptyDir: {}
+  - name: logstash-certs
+    secret:
+      secretName: logstash-tls-secret
+
+extraVolumeMounts:
+  - name: geoip-dir
+    mountPath: /mnt/geoip
+  - name: logstash-certs
+    mountPath: /usr/share/logstash/config/certs
+    readOnly: true
+
+initContainers:
+  - name: copy-geoip
+    image: equalitie/baskerville_geoip:latest
+    command: ["sh", "-c", "cp /data/GeoLite2-ASN.mmdb /mnt/geoip/"]
+    volumeMounts:
+      - name: geoip-dir
+        mountPath: /mnt/geoip
+
 input: |-
-  kafka {
-    bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
-    topics => ["filebeat_deflect_access","filebeat_deflect_access_temp","filebeat_banjax","filebeat_banjax_access_temp"]
-    group_id => "logstash"
-    codec => "json"
-    decorate_events => "basic"
+  beats {
+    port => 5044
+    ssl => true
+    ssl_certificate => "/usr/share/logstash/config/certs/certificate.pem"
+    ssl_key => "/usr/share/logstash/config/certs/key.pem"
+    ssl_verify_mode => "none"
+    ssl_certificate_authorities => ["/usr/share/logstash/config/certs/caroot.pem"]
   }
 
+output: |-
+  if "farmal.in" in [message] {
+    stdout {
+      codec => line {
+        format => "@@@ RAW match: %{message}"
+      }
+    }
+  }
+  if ![client_request_host] {
+    stdout {
+      codec => line {
+        format => "@@@ Missing client_request_host! Event: %{message}"
+      }
+    }
+  }
+  if ![kafka_topic] {
+    stdout {
+      codec => line {
+        format => "@@@ Missing [kafka_topic]! Event: %{message}"
+      }
+    }
+  }
+  kafka {
+    bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
+    topic_id => "%{[kafka_topic]}"
+    acks => "1"
+    codec => "json"
+    partitioner => "default"
+    message_key => "%{client_request_host}"
+  }
+  kafka {
+    bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+    topic_id => "%{[kafka_topic]}"
+    acks => "1"
+    codec => "json"
+    partitioner => "default"
+    message_key => "%{client_request_host}"
+  }
+
+
+
+
 filter: |-
-  if [@metadata][kafka][topic] == "filebeat_deflect_access" or [@metadata][kafka][topic] == "filebeat_deflect_access_temp" {
+  mutate {
+    gsub => [ "message", '"http_response_code":\s*000', '"http_response_code":"000"' ]
+  }
+  if [http_response_code] == "000" {
+    mutate {
+      replace => { "http_response_code" => "200" }
+    }
+    mutate {
+      convert => { "http_response_code" => "integer" }
+    }
+  }
+  
+  if [@metadata][kafka][topic] == "filebeat_deflect_access" or 
+   [@metadata][kafka][topic] == "filebeat_deflect_access_temp" or
+   [fields][log_topic] == "filebeat_deflect_access" or 
+   [fields][log_topic] == "filebeat_deflect_access_temp" {
     mutate{
-      replace => ["[@metadata][kafka][topic]", "logstash_deflect.log"]
+      add_field => { "kafka_topic" => "logstash_deflect.log" }
     }
     date {
       match => [ "time_local", "dd/MMM/yyyy:HH:mm:ss Z" ]
@@ -25,9 +115,13 @@ filter: |-
       remove_field => [ "time_local" ]
     }
   }
-  if [@metadata][kafka][topic] == "filebeat_banjax" or [@metadata][kafka][topic] == "filebeat_banjax_access_temp" {
+
+  if [@metadata][kafka][topic] == "filebeat_banjax" or 
+    [@metadata][kafka][topic] == "filebeat_banjax_access_temp" or
+    [fields][log_topic] == "filebeat_banjax" or
+    [fields][log_topic] == "filebeat_banjax_access_temp" {
     mutate{
-      replace => ["[@metadata][kafka][topic]", "logstash_banjax"]
+      add_field => { "kafka_topic" => "logstash_banjax" }
     }
     date {
       match => [ "timestring", "yyyy-MM-dd'T'HH:mm:ss" ]
@@ -41,11 +135,14 @@ filter: |-
     }
   }
 
-  geoip {
-    source => "client_ip"
-    target => "geoip0"
-    default_database_type => "City"
-    fields => [ "city_name", "continent_code", "country_code2", "country_name", "location" ]
+  if [client_request_host] {
+    mutate {
+      add_field => { "message_key_safe" => "%{client_request_host}" }
+    }
+  } else {
+    mutate {
+      add_field => { "message_key_safe" => "unknown" }
+    }
   }
 
   mutate {
@@ -53,10 +150,27 @@ filter: |-
     gsub => [ "client_request_host", "^www\.", "" ]
   }
 
+  geoip {
+    source => "client_ip"
+    target => "geoip0"
+    default_database_type => "City"
+    fields => [ "city_name", "continent_code", "country_code2", "country_name", "location", "timezone" ]
+  }
+
+  geoip {
+    source => "client_ip"
+    target => "geoip_asn"
+    database => "/mnt/geoip/GeoLite2-ASN.mmdb"
+    fields => ["AUTONOMOUS_SYSTEM_NUMBER", "AUTONOMOUS_SYSTEM_ORGANIZATION"]
+  }
+
   mutate {
     copy => { "[geoip0][geo][country_iso_code]" => "[geoip][country_code2]" }
     copy => { "[geoip0][geo][country_name]" => "[geoip][country_name]" }
+    copy => { "[geoip0][geo][timezone]" => "[geoip][timezone]" }
+    copy => { "[agent][name]" => "[edge]" }
   }
+
   useragent {
     source => "client_ua"
     target => "user_agent"
@@ -94,45 +208,19 @@ filter: |-
       "client_user",
       "referer",
       "refererdomain",
-      "loc_in",
       "loc_out",
       "proxy_host",
       "proxy_port",
       "forwardedfor",
       "request_time",
-      "[geoip][as_org]",
       "filter_start",
       "rule_type",
-      "banjax_decision",
       "banjax_error",
       "request_id",
-      "agent",
-      "log_topic",
       "log",
       "fields",
       "input",
       "host"
     ]
   }
-
-output: |-
-  kafka {
-    bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
-    topic_id => "%{[@metadata][kafka][topic]}"
-    acks => "0"
-    codec => "json"
-    partitioner => "default"
-    message_key => "%{client_request_host}"
-  }
-  kafka {
-    bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
-    topic_id => "%{[@metadata][kafka][topic]}"
-    acks => "0"
-    codec => "json"
-    partitioner => "default"
-    message_key => "%{client_request_host}"
-  }
-
-
-
 

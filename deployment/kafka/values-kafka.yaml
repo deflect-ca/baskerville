@@ -1,6 +1,6 @@
 replicaCount: 3
 numPartitions: 3
-logRetentionMinutes: 120
+logRetentionMinutes: 30
 logRetentionBytes: _268435456
 logRetentionCheckIntervalMs: 60000
 autoCreateTopicsEnable: True
@@ -47,7 +47,8 @@ externalAccess:
 
 persistence:
   enabled: False
-  size: 300Gi
+  size: 700Gi
+  storageClass: csi-cinder-high-speed
 
 auth:
   clientProtocol: mtls

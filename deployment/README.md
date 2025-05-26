@@ -68,7 +68,10 @@ helm install kafka -f deployment/kafka/values-kafka.yaml ../charts/bitnami/kafka
 
 helm install kafka9 -f deployment/kafka/values-kafka9.yaml ../charts/bitnami/kafka
 
-helm install kafkab -f deployment/kafka/values-kafkab.yaml ../charts/bitnami/kafka
+helm install kafkab ../charts/bitnami/kafka -f deployment/kafka/values-kafkab.yaml
+kubectl apply -f deployment/kafka/kafkab-loadbalancers.yaml
+kubectl delete svc kafkab-0-external kafkab-1-external kafkab-2-external
+
 ```
 
 * follow the displayed instruction to get kafka connection string:
@@ -555,7 +558,15 @@ helm delete ksql-schema-registry
 
 * delete kafka topics:
 ```commandline
-kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command -- 
+kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command --
+
+kubectl run kafka-client \
+  --restart='Never' \
+  --image=docker.io/bitnami/kafka:2.8.0-debian-10-r43 \
+  --namespace default \
+  --env="ALLOW_PLAINTEXT_LISTENER=yes" \
+  --command -- sleep infinity
+ 
 ```
 or
 ```
@@ -597,7 +608,7 @@ kubectl create -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
 
 * To delete KStream
 ```
-kubectl delete -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
+    kubectl delete -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
 ```
 
 * To increase the maximum message size (in kafka cli):
@@ -620,11 +631,34 @@ kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.l
 
 ## Logstash
 
+### download a fresh asn database and put it to
 ```commandline
-helm install logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.1.15
-
+/deployment/logstash/GeoLite2-ASN.mmdb
+```
+### create database image
+```commandline
+cd deployment/logstash
+docker build -t equalitie/baskerville_geoip:latest .
+docker push equalitie/baskerville_geoip:latest
+cd ../..
 ```
 
+### create logstash certificates secret
+kubectl create secret generic logstash-tls-secret \
+  --from-file=caroot.pem \
+  --from-file=certificate.pem \
+  --from-file=key.pem
+
+###
+```commandline
+
+helm install logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.1.15
+```
+
+### Logstash loadbalancer
+```commandline
+kubectl apply -f ./deployment/logstash/logstash-lb.yaml
+```
 ## Elastic Search
 * Install the basic version
 ```

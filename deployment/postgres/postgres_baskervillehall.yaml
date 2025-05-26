@@ -1,0 +1,42 @@
+# PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-baskervillehall
+spec:
+  serviceName: db-baskervillehall-service
+  selector:
+    matchLabels:
+      app: db-baskervillehall
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db-baskervillehall
+    spec:
+      nodeSelector:
+        nodepool: postgres
+      containers:
+        - name: db-baskervillehall
+          image: 'postgres:14'
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: db-baskervillehall-disk
+              mountPath: /data
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: baskerville-secrets
+                  key: postgres_password
+            - name: PGDATA
+              value: /data/pgdata
+  # Volume Claim
+  volumeClaimTemplates:
+    - metadata:
+        name: db-baskervillehall-disk
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1000Gi

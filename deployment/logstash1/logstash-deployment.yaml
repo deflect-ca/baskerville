@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  labels:
+    app: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+        - name: logstash
+          image: equalitie/baskerville_logstash_oss:7.16.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5044  # if you want beats input later
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/share/logstash/pipeline
+            - name: geoip-db
+              mountPath: /mnt/geoip
+      volumes:
+        - name: config-volume
+          configMap:
+            name: logstash-pipeline
+        - name: geoip-db
+          emptyDir: {}
+      initContainers:
+        - name: copy-geoip
+          image: equalitie/baskerville_geoip:latest
+          command: ["sh", "-c", "cp /data/GeoLite2-ASN.mmdb /mnt/geoip/"]
+          volumeMounts:
+            - name: geoip-db
+              mountPath: /mnt/geoip
