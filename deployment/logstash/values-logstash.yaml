@@ -5,15 +5,11 @@ image:
   repository: bitnami/logstash
 #  tag: 8.3.3-debian-11-r5
 
-nodeAffinity:
-  requiredDuringSchedulingIgnoredDuringExecution:
-    nodeSelectorTerms:
-    - matchExpressions:
-      - key: kubernetes.io/hostname
-        operator: NotIn
-        values:
-        - workers-node-eac0c8
-        - workers-node-c83aa9
+nodeAffinityPreset:
+  type: hard
+  key: nodepool
+  values:
+    - postgres
 
 extraVolumes:
   - name: geoip-dir
@@ -73,8 +69,11 @@ output: |-
     bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
     topic_id => "%{[kafka_topic]}"
     acks => "1"
+    linger_ms => 10
     codec => "json"
+    compression_type => "gzip"
     partitioner => "default"
+    security_protocol => "PLAINTEXT"
     message_key => "%{client_request_host}"
   }
   kafka {
@@ -82,7 +81,9 @@ output: |-
     topic_id => "%{[kafka_topic]}"
     acks => "1"
     codec => "json"
+    compression_type => "gzip"
     partitioner => "default"
+    security_protocol => "PLAINTEXT"
     message_key => "%{client_request_host}"
   }
 
@@ -114,6 +115,10 @@ filter: |-
       target => "datestamp"
       remove_field => [ "time_local" ]
     }
+  }
+  
+  mutate{
+      copy => { "[fields][dnet]" => "dnet" }
   }
 
   if [@metadata][kafka][topic] == "filebeat_banjax" or 
@@ -192,6 +197,8 @@ filter: |-
       rename => { "new_content_type" => "content_type" }
     }
   }
+  
+  
   mutate {
     remove_field => [
       "event",

@@ -65,12 +65,32 @@ nodeSelector:
 ```commandline
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install kafka -f deployment/kafka/values-kafka.yaml ../charts/bitnami/kafka
+helm install kafka -f deployment/kafka/values-kafka_new.yaml ../charts/bitnami/kafka
 
 helm install kafka9 -f deployment/kafka/values-kafka9.yaml ../charts/bitnami/kafka
 
 helm install kafkab ../charts/bitnami/kafka -f deployment/kafka/values-kafkab.yaml
+
+helm upgrade kafkab ../charts/bitnami/kafka -f deployment/kafka/values_kafkab_new.yaml
+
 kubectl apply -f deployment/kafka/kafkab-loadbalancers.yaml
 kubectl delete svc kafkab-0-external kafkab-1-external kafkab-2-external
+
+helm -n default upgrade kafkab ../charts/bitnami/kafka \
+  --reuse-values \
+  --set image.repository=docker.io/bitnamilegacy/kafka
+
+
+
+helm upgrade --install kafkab oci://registry-1.docker.io/bitnamicharts/kafka:32.3.10 \
+  -n $NS -f /tmp/kafkab-jks.yaml --wait --timeout 30m
+  
+helm upgrade --install kafkab oci://registry-1.docker.io/bitnamicharts/kafka \
+  -f deployment/kafka/values-kafkab.yaml \
+  --version 32.3.10 \
+  --set existingKraftSecret=kafkab-kraft \
+  --wait 
+
 
 ```
 

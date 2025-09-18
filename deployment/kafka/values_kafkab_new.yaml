@@ -5,6 +5,10 @@ persistence:
   storageClass: csi-cinder-high-speed
   size: 800Gi
 
+image:
+  repository: docker.io/bitnamilegacy/kafka
+  pullPolicy: IfNotPresent
+
 externalAccess:
   enabled: true
   autoDiscovery:
