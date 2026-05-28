@@ -71,7 +71,7 @@ helm install kafka9 -f deployment/kafka/values-kafka9.yaml ../charts/bitnami/kaf
 
 helm install kafkab ../charts/bitnami/kafka -f deployment/kafka/values-kafkab.yaml
 
-helm upgrade kafkab ../charts/bitnami/kafka -f deployment/kafka/values_kafkab_new.yaml
+helm upgrade kafkab ../charts/bitnami/kafka -f deployment/kafka/values_kafkab.yaml
 
 kubectl apply -f deployment/kafka/kafkab-loadbalancers.yaml
 kubectl delete svc kafkab-0-external kafkab-1-external kafkab-2-external
@@ -386,6 +386,13 @@ kubectl create configmap dashboard-attack --from-file=deployment/grafana/dashboa
 kubectl create configmap dashboard-trafficlight --from-file=deployment/grafana/dashboards/TrafficLight.json
 ```
 
+* admin secret
+```commandline
+kubectl create secret generic grafana-admin \
+  --from-literal=admin-user=admin \
+  --from-literal=admin-password='...'
+
+```
 * deploy grafana:
 ```commandline
 helm install grafana -f deployment/grafana/values-grafana.yaml bitnami/grafana
@@ -658,7 +665,7 @@ kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.l
 ### create database image
 ```commandline
 cd deployment/logstash
-docker build -t equalitie/baskerville_geoip:latest .
+docker buildx build --platform linux/amd64 --no-cache -t equalitie/baskerville_geoip:latest --push .
 docker push equalitie/baskerville_geoip:latest
 cd ../..
 ```
@@ -673,6 +680,11 @@ kubectl create secret generic logstash-tls-secret \
 ```commandline
 
 helm install logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.1.15
+
+kubectl apply -f deployment/logstash/maxmind-secret.yaml
+kubectl apply -f deployment/logstash/geoip-updater-rbac.yaml
+kubectl apply -f deployment/logstash/geoip-update-cronjob.yaml
+helm upgrade logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.1.15
 ```
 
 ### Logstash loadbalancer

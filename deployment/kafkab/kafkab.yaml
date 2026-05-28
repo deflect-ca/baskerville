@@ -30,7 +30,7 @@ spec:
     metadata:
       labels: { app: kafkab }
     spec:
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 150
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
@@ -100,12 +100,14 @@ spec:
               # --- MINIMAL file for kafka-storage.sh (controller-only) ---
               cat > /config/storage.properties <<EOF
               process.roles=controller,broker
-              controller.listener.names=CONTROLLER
-              listener.security.protocol.map=CONTROLLER:PLAINTEXT
-              listeners=CONTROLLER://:9091
-              controller.quorum.voters=0@kafkab-0.kafkab-headless.default.svc.cluster.local:9091,1@kafkab-1.kafkab-headless.default.svc.cluster.local:9091,2@kafkab-2.kafkab-headless.default.svc.cluster.local:9091
               node.id=${ORD}
-              log.dir=/bitnami/kafka/data
+              controller.listener.names=CONTROLLER
+              listeners=CONTROLLER://:9091,INTERNAL://:9092
+              listener.security.protocol.map=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT
+              controller.quorum.voters=0@kafkab-0.kafkab-headless.default.svc.cluster.local:9091,1@kafkab-1.kafkab-headless.default.svc.cluster.local:9091,2@kafkab-2.kafkab-headless.default.svc.cluster.local:9091
+              inter.broker.listener.name=INTERNAL
+              advertised.listeners=INTERNAL://${FQDN_BASE}:9092
+              log.dirs=/bitnami/kafka/data
               EOF
               
               # --- FULL runtime server.properties ---
@@ -117,6 +119,13 @@ spec:
               listeners=CLIENT://:9093,INTERNAL://:9092,EXTERNAL://:9094,CONTROLLER://:9091
               listener.security.protocol.map=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,CLIENT:PLAINTEXT,EXTERNAL:SSL
               inter.broker.listener.name=INTERNAL
+              
+              controller.quorum.request.timeout.ms=12000
+              controller.quorum.fetch.timeout.ms=12000
+              controller.quorum.retry.backoff.ms=1000
+              controller.quorum.election.timeout.ms=10000
+              connections.max.idle.ms=60000
+              request.timeout.ms=12000
               
               num.partitions=3
               default.replication.factor=1
@@ -138,7 +147,7 @@ spec:
               listener.name.external.ssl.client.auth=required
               
               # dirs & misc
-              log.dir=/bitnami/kafka/data
+              log.dirs=/bitnami/kafka/data
               EOF
           env:
             - name: MY_POD_NAME
@@ -164,17 +173,8 @@ spec:
           args:
             - |
               set -euo pipefail
-              ORD="${HOSTNAME##*-}"
-              cat >/tmp/format.properties <<EOF
-              process.roles=controller
-              node.id=${ORD}
-              controller.listener.names=CONTROLLER
-              listeners=CONTROLLER://:9091
-              controller.quorum.voters=0@kafkab-0.kafkab-headless.default.svc.cluster.local:9091,1@kafkab-1.kafkab-headless.default.svc.cluster.local:9091,2@kafkab-2.kafkab-headless.default.svc.cluster.local:9091
-              log.dirs=/bitnami/kafka/data
-              EOF
               if [ ! -f /bitnami/kafka/data/meta.properties ]; then
-                /opt/bitnami/kafka/bin/kafka-storage.sh format -t "${CLUSTER_ID}" -c /tmp/format.properties
+                /opt/bitnami/kafka/bin/kafka-storage.sh format -t "${CLUSTER_ID}" -c /config/storage.properties
               fi
           env:
             - name: MY_POD_NAME
@@ -184,13 +184,14 @@ spec:
             - name: CLUSTER_ID
               valueFrom: { secretKeyRef: { name: kafkab-kraft, key: cluster-id } }
           volumeMounts:
-            - { name: data, mountPath: /bitnami/kafka }
+            - { name: data,   mountPath: /bitnami/kafka }
+            - { name: config, mountPath: /config }
       containers:
         - name: kafka
           resources:
             requests:
               cpu: "500m"
-              memory: "4Gi"
+              memory: "1Gi"
             limits:
               cpu: "4"
               memory: "15Gi"
@@ -200,14 +201,33 @@ spec:
             - { name: internal,   containerPort: 9092 }
             - { name: client,     containerPort: 9093 }
             - { name: external,   containerPort: 9094 }
+          startupProbe:
+            exec:
+              command:
+                - bash
+                - -ec
+                - 'pgrep -x java >/dev/null'
+            periodSeconds: 10
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 60
           livenessProbe:
-            exec: { command: ["bash","-ec","pgrep -f kafka"] }
+            exec:
+              command:
+                - bash
+                - -ec
+                - 'pgrep -x java >/dev/null'
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 9092
             initialDelaySeconds: 20
             periodSeconds: 10
-          readinessProbe:
-            tcpSocket: { port: 9093 }
-            initialDelaySeconds: 10
-            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 12
           env:
             - name: MY_POD_NAME
               valueFrom: { fieldRef: { fieldPath: metadata.name } }
@@ -242,6 +262,13 @@ spec:
         - name: logs
           emptyDir: {}
       affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nodepool
+                    operator: In
+                    values: [ "postgres" ]
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
@@ -255,5 +282,5 @@ spec:
         labels: { app: kafkab }
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: csi-cinder-high-speed
+        storageClassName: csi-cinder-high-speed-gen2
         resources: { requests: { storage: 800Gi } }
