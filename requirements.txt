@@ -16,6 +16,7 @@ tzwhere==3.0.3
 pytz==2014.10
 sqlalchemy < 1.4.0
 sqlalchemy_utils==0.33.3
+pypandoc
 pyspark==2.4.6
 # psutil==5.4.6
 psycopg2==2.7.5
@@ -34,3 +35,7 @@ cachetools==4.1.1
 spark-testing-base==0.10.0
 passlib==1.7.4
 elasticsearch==7.13.4
+pyyaml
+ua-parser
+user-agents
+geoip2

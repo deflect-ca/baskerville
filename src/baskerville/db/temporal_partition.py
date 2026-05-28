@@ -12,7 +12,60 @@ from dateutil.tz import tzutc
 from baskerville.util.enums import PartitionByEnum
 from baskerville.util.helpers import get_days_in_year, get_days_in_month
 from baskerville.db.base import PartitionedTable, Partition, TableTools, Index
-from es_retriever.helpers.time_period import TimePeriod as TP
+
+ENDCOLOR = '\033[0m'
+
+
+class TP(object):
+    """
+    Represents a time period, with helper functions
+    """
+
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+    def __str__(self):
+        return 'TimePeriod from {} to {}'.format(self.start, self.end)
+
+    def __repr__(self):
+        return '<{}>'.format(self)
+
+    def __eq__(self, other):
+        return self.start == other.start and self.end == other.end
+
+    def __ne__(self, other):
+        return self.start != other.start or self.end != other.end
+
+    def split_per_day(self, full_day=False):
+        """
+        Splits the time period in days
+        :rtype: list[TimePeriod]
+        :return: a list that contains time periods that when combined together
+        they amount to the initial / current period of time
+        """
+        days = []
+
+        start = self.start
+        end = (start + timedelta(days=1)).replace(
+            hour=00, minute=00, second=00, microsecond=00
+        )
+        if full_day:
+            end = end - timedelta(seconds=1)
+
+        while True:
+            if end >= self.end or full_day and (end.date() == self.end.date()):
+                days.append(TimePeriod(start, self.end))
+                return days
+            days.append(TimePeriod(start, end))
+            start = end
+            if full_day:
+                start = start + timedelta(seconds=1)
+            end = (start + timedelta(days=1)).replace(
+                hour=00, minute=00, second=00, microsecond=00
+            )
+            if full_day:
+                end = end - timedelta(seconds=1)
 
 
 class TimePeriod(TP):
@@ -293,7 +346,7 @@ class TemporalPartitionedTable(PartitionedTable):
     @property
     def field_value(self) -> str:
         return f'cast(extract({self.partitioned_by} ' \
-            f'from NEW.{self.partition_field}) AS TEXT)'
+               f'from NEW.{self.partition_field}) AS TEXT)'
 
     def get_partition_prefix(self) -> str:
         """

@@ -43,7 +43,10 @@ cd ..
 
 * create Kafka secret:
 ```commandline
-kubectl create secret generic kafka-jks --from-file=./truststore/kafka.truststore.jks --from-file=./kafka-0.keystore.jks --from-file=./kafka-1.keystore.jks --from-file=./kafka-2.keystore.jks
+kubectl create secret generic kafka-jks-0 --from-file=./kafka.truststore.jks --from-file=./kafka.keystore.jks
+kubectl create secret generic kafka-jks-1 --from-file=./kafka.truststore.jks --from-file=./kafka.keystore.jks
+kubectl create secret generic kafka-jks-2 --from-file=./kafka.truststore.jks --from-file=./kafka.keystore.jks
+
 ```
 # Kafka
 
@@ -61,7 +64,34 @@ nodeSelector:
 * deploy kafka
 ```commandline
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install kafka -f deployment/kafka/values-kafka.yaml bitnami/kafka
+helm install kafka -f deployment/kafka/values-kafka.yaml ../charts/bitnami/kafka
+helm install kafka -f deployment/kafka/values-kafka_new.yaml ../charts/bitnami/kafka
+
+helm install kafka9 -f deployment/kafka/values-kafka9.yaml ../charts/bitnami/kafka
+
+helm install kafkab ../charts/bitnami/kafka -f deployment/kafka/values-kafkab.yaml
+
+helm upgrade kafkab ../charts/bitnami/kafka -f deployment/kafka/values_kafkab.yaml
+
+kubectl apply -f deployment/kafka/kafkab-loadbalancers.yaml
+kubectl delete svc kafkab-0-external kafkab-1-external kafkab-2-external
+
+helm -n default upgrade kafkab ../charts/bitnami/kafka \
+  --reuse-values \
+  --set image.repository=docker.io/bitnamilegacy/kafka
+
+
+
+helm upgrade --install kafkab oci://registry-1.docker.io/bitnamicharts/kafka:32.3.10 \
+  -n $NS -f /tmp/kafkab-jks.yaml --wait --timeout 30m
+  
+helm upgrade --install kafkab oci://registry-1.docker.io/bitnamicharts/kafka \
+  -f deployment/kafka/values-kafkab.yaml \
+  --version 32.3.10 \
+  --set existingKraftSecret=kafkab-kraft \
+  --wait 
+
+
 ```
 
 * follow the displayed instruction to get kafka connection string:
@@ -124,7 +154,7 @@ rm -r keystore/
 ```
 * Create a pod for ACL commands
 ```commandline
-kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command -- sleep infinity
+kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --env="ALLOW_PLAINTEXT_LISTENER=yes" --namespace default --command -- sleep infinity
 ```
 * login to the `kafka-client` pod
 ```commandline
@@ -270,6 +300,22 @@ Create four argo workflow templates from each file in `deployment/argo'.
 * copy paste the content of the file
 * save the template
 
+
+## TimescaleDB
+```commandline
+helm install timescaledb -f ./deployment/timescaledb/values.yaml timescale/timescaledb-multinode
+```
+
+```commandline
+kubectl get secret --namespace default timescaledb-data -o jsonpath="{.data.password-superuser}" | base64 --decode
+```
+
+```commandline
+kubectl port-forward service/timescaledb 5432:5432
+```
+
+* modify password for `postgres` user manually in `psql`
+
 ## Postgres
 * deploy postgres pod:
 ```
@@ -280,6 +326,46 @@ kubectl apply -f deployment/postgres/postgres.yaml
 ```
 kubectl apply -f deployment/postgres/postgres_lb.yaml
 ```
+
+* port forwarding
+```
+kubectl port-forward service/postgres-db-lb 5432:5432
+```
+
+## Install Ingress
+
+* Repo
+```commandline
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+```
+
+* Choose version based on k8s cluster version in [https://github.com/kubernetes/ingress-nginx/]
+and update the version tag in `./ingress/congroller/nginx/values/yaml`
+
+* Deploy Ingress-Nginx
+```commandline
+helm -n ingress-nginx install ingress-nginx \
+ingress-nginx/ingress-nginx --create-namespace \
+--version 4.2.5 \
+-f ./ingress-nginx/values.yaml
+```
+## Install Certificate Manager
+```commandline
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.crds.yaml
+
+helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.13.2
+
+k apply -f deployment/cert/issuer.yaml
+```
+
+
 
 ## Grafana
 * set your postgres password in the datasource `deployment/grafana/datasources/postgres.yaml`
@@ -300,9 +386,21 @@ kubectl create configmap dashboard-attack --from-file=deployment/grafana/dashboa
 kubectl create configmap dashboard-trafficlight --from-file=deployment/grafana/dashboards/TrafficLight.json
 ```
 
+* admin secret
+```commandline
+kubectl create secret generic grafana-admin \
+  --from-literal=admin-user=admin \
+  --from-literal=admin-password='...'
+
+```
 * deploy grafana:
 ```commandline
 helm install grafana -f deployment/grafana/values-grafana.yaml bitnami/grafana
+```
+
+* deploy grafana ingress:
+```commandline
+k apply -f deployment/grafana/ingress-grafana.yaml
 ```
 
 ## Baskerville images
@@ -399,4 +497,341 @@ kafka:
       ssl_certfile: '/usr/local/baskerville/kafka/admin.certificate.pem'
       ssl_keyfile: '/usr/local/baskerville/kafka/admin.key.pem'
       api_version: '0.11.5'
+```
+
+## Install KSQL
+KSQL is performing 5 minute window aggregation over the two topics: `deflect.log` and `banjax.log`
+
+* clone the repo `git@github.com:confluentinc/cp-helm-charts.git`
+```
+cd baskerville
+cd ..
+git clone git@github.com:confluentinc/cp-helm-charts.git
+```
+* install schema registry
+```commandline
+helm install ksql-schema-registry -f deployment/ksql/values-ksql-registry.yaml ../cp-helm-charts/charts/cp-schema-registry
+```
+
+* install `ksql`
+```commandline
+helm install ksql -f deployment/ksql/values-ksql.yaml ../cp-helm-charts/charts/cp-ksql-server
+```
+
+* connect to ksql cli to confirm the deployment
+```commandline
+kubectl run ksql-cli --rm -i --tty --image confluentinc/cp-ksql-cli:5.2.1 http://ksql-cp-ksql-server:8088
+```
+or 
+```commandline
+kubectl attach ksql-cli -c ksql-cli -i -t
+```
+
+To make sure KSQL is up and running you can list kafka topics inside KSQL:
+```commandline
+show topics;
+```
+
+* create the cstat KSQL queries. Copy the content of `./deployment/ksql/create_queries.sql`
+and paste it inside KSQL cli pod.
+Make sure you don't have any errors.
+
+* to check KSQL logs:
+List the pods:
+```commandline
+kubectl get pods
+```
+Locate one of the ksql pods, for example, ksql-cp-ksql-server-5b7466c57f-89vx5
+Get the logs:
+```commandline
+kubectl logs ksql-cp-ksql-server-5b7466c57f-89vx5 cp-ksql-server --since=5m
+```
+
+* To confirm the output of KSQL (in kafka cli pod):
+```commandline
+kafka-console-consumer.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --topic STATS_WEBLOGS_DICTIONARY_5M 
+kafka-console-consumer.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --topic STATS_BANJAX_DICTIONARY_5M 
+```
+
+* To change retention policy of cstats topics to 24 hours:
+login go kafka-client pod:
+```commandline
+kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command -- 
+or
+kubectl exec --tty -i kafka-client --namespace default -- bash
+```
+change the retention policy:
+```commandline
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name STATS_WEBLOGS_5M --add-config retention.ms=86400000
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name STATS_BANJAX_5M --add-config retention.ms=86400000
+```
+
+* To delete KSQL query or table:
+1) get query id from `show queries`
+2) terminate query with `terminate query_id`
+3) drop query or table with the corresponding topic: 
+`drop stream query_name delete topic`
+or
+`drop table table_name delete topic`
+
+
+## Uninstalling KSQL
+
+* stop the helm charts:
+```commandline
+helm delete ksql
+helm delete ksql-schema-registry
+```
+
+* delete kafka topics:
+```commandline
+kubectl run kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.8.0-debian-10-r43 --namespace default --command --
+
+kubectl run kafka-client \
+  --restart='Never' \
+  --image=docker.io/bitnami/kafka:2.8.0-debian-10-r43 \
+  --namespace default \
+  --env="ALLOW_PLAINTEXT_LISTENER=yes" \
+  --command -- sleep infinity
+ 
+```
+or
+```
+kubectl exec --tty -i kafka-client --namespace default -- bash
+```
+then inside kafka-client pod:
+```
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --delete --topic '_confluent-ksql-.*'
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --delete --topic 'STATS_.*'
+kafka-topics.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --delete --topic _schemas
+```
+
+* Set the maximum message size to 10M:
+```commandline
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=20000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=20000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_BANJAX_5M  --alter --add-config max.message.bytes=10000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093,kafka-1.kafka-headless.default.svc.cluster.local:9093,kafka-2.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_BANJAX_DICTIONARY_5M  --alter --add-config max.message.bytes=10000000
+```
+
+## KStream
+KStream transformer is correcting the format of KSQL output topics in order to be compatible 
+with the logstash which is is processing the output of KStream. 
+Logstash has a maximum number of fields within a single message. 
+The workaround is to convert the resulting output of KSQL 'HISTOGRAM' from a map of values to a list of values.
+The reference is https://github.com/gwenshap/kafka-streams-stockstats
+>
+
+* To build Java package
+```
+cd deployment/kafka_stream
+mvn compile jib:build
+```
+
+* To deploy KStream
+```
+kubectl create -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
+```
+
+* To delete KStream
+```
+    kubectl delete -f ./deployment/kafka_stream/baskerville-cstats-deployment.yaml
+```
+
+* To increase the maximum message size (in kafka cli):
+```
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_LOGSTASH_WEBLOGS_DICTIONARY_5M  --alter --add-config max.message.bytes=30000000
+kafka-configs.sh --bootstrap-server 'kafka-0.kafka-headless.default.svc.cluster.local:9093' --entity-type topics --entity-name STATS_WEBLOGS_5M  --alter --add-config max.message.bytes=30000000
+```
+
+* To reduce the retention policy of four filebeat topics:
+```commandline
+filebeat_deflect_access
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name filebeat_deflect_access --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name filebeat_deflect_access_temp --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name filebeat_banjax --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name filebeat_banjax_access_temp --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name logstash_deflect.log --add-config retention.ms=1200000 
+kafka-configs.sh --bootstrap-server kafka-0.kafka-headless.default.svc.cluster.local:9093 --alter --entity-type topics --entity-name logstash_banjax --add-config retention.ms=1200000 
+
+```
+
+## Logstash
+
+### download a fresh asn database and put it to
+```commandline
+/deployment/logstash/GeoLite2-ASN.mmdb
+```
+### create database image
+```commandline
+cd deployment/logstash
+docker buildx build --platform linux/amd64 --no-cache -t equalitie/baskerville_geoip:latest --push .
+docker push equalitie/baskerville_geoip:latest
+cd ../..
+```
+
+### create logstash certificates secret
+kubectl create secret generic logstash-tls-secret \
+  --from-file=caroot.pem \
+  --from-file=certificate.pem \
+  --from-file=key.pem
+
+###
+```commandline
+
+helm install logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.1.15
+
+kubectl apply -f deployment/logstash/maxmind-secret.yaml
+kubectl apply -f deployment/logstash/geoip-updater-rbac.yaml
+kubectl apply -f deployment/logstash/geoip-update-cronjob.yaml
+helm upgrade logstash -f deployment/logstash/values-logstash.yaml bitnami/logstash --version 5.1.15
+```
+
+### Logstash loadbalancer
+```commandline
+kubectl apply -f ./deployment/logstash/logstash-lb.yaml
+```
+## Elastic Search
+* Install the basic version
+```
+helm install elasticsearch --version 7.17.3 elastic/elasticsearch -f ./deployment/elasticsearch/values.yaml
+```
+* Create certificates
+```
+kubectl exec -it elasticsearch-master-0 -- /bin/bash
+cd /usr/share/elasticsearch/bin/
+elasticsearch-certutil ca
+CA password:  ca_password
+elasticsearch-certutil cert --ca elastic-stack-ca.p12
+certificate password: certificate_password
+```
+
+* Get the certificates and create secrets
+```
+k cp elasticsearch-master-0:/usr/share/elasticsearch/elastic-certificates.p12 ./deployment/elasticsearch/cert/elastic-certificates.p12
+k cp elasticsearch-master-0:/usr/share/elasticsearch/elastic-stack-ca.p12 ./deployment/elasticsearch/cert/elastic-stack-ca.p12
+
+kubectl create secret generic elastic-certificates --from-file=./deployment/elasticsearch/cert/elastic-certificates.p12 
+kubectl create secret generic elastic-certificates-password --from-literal=password='certificate_password'
+```
+
+* paste certificate password into  ./deployment/elasticsearch/values.yaml
+```
+xpack.security.http.ssl.keystore.password: 
+xpack.security.http.ssl.truststore.password: 
+xpack.security.transport.ssl.keystore.password: 
+xpack.security.transport.ssl.truststore.password: 
+```
+
+* restart Elasticsearch
+```
+helm delete elasticsearch
+helm install elasticsearch --version 7.17.3 elastic/elasticsearch -f ./deployment/elasticsearch/values.yaml
+```
+
+* create users
+```
+kubectl exec -it elasticsearch-master-0 -- /bin/bash
+/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto
+```
+Copy the generated passwords.
+
+* create secret for `elastic` user and restart Elasticsearch
+``` 
+kubectl create secret generic elastic-secret \
+    --from-literal=username=elastic \
+    --from-literal=password='xxx'
+
+uncomment extraEnvs section in ./deployment/elsticsearch/values.yaml 
+helm delete elasticsearch
+
+helm install elasticsearch elastic/elasticsearch -f ./deployment/elasticsearch/values.yaml
+```
+
+* Install Kibana
+```
+cd ./deployment/kibana/
+mkdir cert
+cd cert
+openssl req -newkey rsa:2048 -nodes -keyout kibana.key -x509 -days 365 -out kibana.crt
+
+cd ./deployment/elasticsearch/cert
+openssl pkcs12 -in elastic-certificates.p12 -cacerts -nokeys -out elastic-ca.pem
+
+cd ../../../
+
+kubectl create secret generic kibana-certificates \
+    --from-file=./deployment/elasticsearch/cert/elastic-ca.pem \
+    --from-file=./deployment/kibana/cert/kibana.crt \
+    --from-file=./deployment/kibana/cert/kibana.key 
+
+helm install kibana --version 7.17.3 elastic/kibana -f ./deployment/kibana/values.yaml
+
+kubectl exec -it kibana-kibana-6bcb76b84-dg7qp -- /bin/bash
+/usr/share/kibana/bin/kibana-keystore create
+/usr/share/kibana/bin/kibana-keystore add elasticsearch.username
+enter 'elastic' 
+/usr/share/kibana/bin/kibana-keystore add elasticsearch.password
+enter the password for 'elastic' 
+exit
+
+cp kibana-kibana-6bcb76b84-dg7qp:/usr/share/kibana/config/kibana.keystore ./deployment/kibana/cert/kibana.keystore
+
+kubectl create secret generic kibana-keystore \
+    --from-file=./deployment/kibana/cert/kibana.keystore
+```
+
+uncomment kibana-keystore in ./deployment/kibana/values.yaml
+
+* delete Kibana
+```
+helm delete kibana
+```
+
+change in ./deployment/kibana/values.yaml
+```
+service:
+  type: LoadBalancer
+```
+* install Kibana again
+```
+helm install kibana --version 7.17.3 elastic/kibana -f ./deployment/kibana/values.yaml
+```
+
+* port forwarding for Kibana
+```
+kubectl port-forward deployment/kibana-kibana 5601
+```
+
+* port forwarding for Elasticsearch
+```
+kubectl port-forward service/elasticsearch-master 9200
+```
+
+* Test Elasticsearch connection
+```
+curl -u "elastic:$ES_PASS" -k "http://localhost:9200"
+```
+
+* Deleting all the indexes in Elasticsearch:
+```commandline
+curl -u "elastic:$ES_PASS" -X DELETE 'http://localhost:9200/_all'
+```
+
+* Install logstash for streaming topics to Elasticsearch
+```
+helm install logstash-es elastic/logstash -f ./deployment/logstash_es/values.yaml
+```
+
+* Install logstash for forwarding to/from dev Kafka
+```
+helm install logstash-dev-commands elastic/logstash -f ./deployment/logstash_dev/values_dev_commands.yaml
+helm install logstash-dev-reports elastic/logstash -f ./deployment/logstash_dev/values_dev_reports.yaml
+
+```
+
+* Install logstash for forwarding from clearinghouse topics
+```
+helm install logstash-ch elastic/logstash -f ./deployment/logstash_ch/values_ch.yaml
+
 ```

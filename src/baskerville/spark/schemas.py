@@ -22,7 +22,8 @@ prediction_schema = T.StructType([
     T.StructField("id_client", T.StringType(), False),
     T.StructField("uuid_request_set", T.StringType(), False),
     T.StructField("prediction", T.FloatType(), False),
-    T.StructField("score", T.FloatType(), False)
+    T.StructField("score", T.FloatType(), False),
+    T.StructField("classifier_score", T.FloatType(), False)
 ])
 
 feature_vectors_schema = T.StructField(
@@ -88,24 +89,22 @@ def get_feedback_context_schema() -> T.StructType:
 
 
 def get_submitted_feedback_schema() -> T.ArrayType:
-    return T.ArrayType(
-            T.StructType([
-                T.StructField('id', T.IntegerType()),
-                T.StructField('id_context', T.IntegerType()),
-                T.StructField('uuid_organization', T.StringType()),
-                T.StructField('uuid_request_set', T.StringType()),
-                T.StructField('prediction', T.IntegerType()),
-                T.StructField('score', T.FloatType()),
-                T.StructField('attack_prediction', T.FloatType()),
-                T.StructField('low_rate', T.BooleanType()),
-                feature_vectors_schema,
-                T.StructField('feedback', T.StringType()),
-                T.StructField('start', T.StringType()),
-                T.StructField('submitted_at', T.StringType()),
-                T.StructField('created_at', T.StringType()),
-                T.StructField('updated_at', T.StringType())
-            ])
-        )
+    return T.ArrayType(T.StructType([
+        T.StructField('id', T.IntegerType()),
+        T.StructField('id_context', T.IntegerType()),
+        T.StructField('uuid_organization', T.StringType()),
+        T.StructField('uuid_request_set', T.StringType()),
+        T.StructField('prediction', T.IntegerType()),
+        T.StructField('score', T.FloatType()),
+        T.StructField('attack_prediction', T.FloatType()),
+        T.StructField('low_rate', T.BooleanType()),
+        feature_vectors_schema,
+        T.StructField('feedback', T.StringType()),
+        T.StructField('start', T.StringType()),
+        T.StructField('submitted_at', T.StringType()),
+        T.StructField('created_at', T.StringType()),
+        T.StructField('updated_at', T.StringType())
+    ]))
 
 
 NAME_TO_SCHEMA = {

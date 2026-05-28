@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-test-config
+data:
+  test.log: |
+    {"time_local": "18/May/2023:21:59:15 +0000","request_id": "867cbb2c7e3be106085c039024a9dca3","client_user": "",
+    "client_ip": "85.10.195.146","http_request_scheme": "http","client_request_method": "GET","client_request_host"
+    : "testnewsite2.com","http_response_code": 444,"reply_length_bytes": 0,"cache_result": "","http_request_version
+    ": "HTTP/1.1","referer": "","client_ua": "python-requests/2.20.0","client_url": "/","querystring": "","proxy_ho
+    st": "","proxy_port": "","content_type": "","request_time": 0.000,"forwardedfor": "","loc_in": "","loc_out": ""
+    ,"upstream_addr": "","upstream_status": "","upstream_response_time": "","upstream_header_time": "","upstream_co
+    nnect_time": "","upstream_bytes_sent": "","upstream_bytes_received": "","banjax_decision": "-","banjax_error":
+    "-","disable_logging": 0,"cookie_deflect_challenge2": "","cookie_deflect_password2": ""}

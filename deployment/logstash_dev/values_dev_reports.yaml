@@ -1,0 +1,33 @@
+image: "docker.elastic.co/logstash/logstash"
+replicas: 1
+imageTag: "8.5.2"
+
+logstashPipeline:
+  logstash.conf: |
+    input {
+      kafka {
+        bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
+        topics => ["banjax_report_topic"]
+        group_id => "logstash-solved-challenge"
+        codec => "json"
+        decorate_events => "basic"
+        consumer_threads => 3
+      }
+    }
+    filter {
+      mutate {
+        remove_field => [
+          "event",
+          "@timestamp",
+          "@version"
+        ]
+      }
+    }
+    output {
+      kafka {
+        bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+        topic_id => "banjax_report_topic"
+        acks => "0"
+        codec => "json"
+      }
+    }

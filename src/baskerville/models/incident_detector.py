@@ -14,6 +14,7 @@ from baskerville.db.models import Attack
 from baskerville.util.db_reader import DBReader
 import datetime
 import pandas as pd
+import numpy as np
 
 
 class IncidentDetector:
@@ -21,18 +22,19 @@ class IncidentDetector:
     def __init__(self,
                  db_config,
                  time_bucket_in_seconds=120,
-                 time_horizon_in_seconds=600,
+                 time_horizon_in_seconds=400,
                  check_interval_in_seconds=120,
-                 stat_refresh_period_in_minutes=30,
+                 stat_refresh_period_in_minutes=60,
                  stat_window_in_hours=1,
                  min_traffic=3,
                  min_traffic_incident=50,
-                 min_challenged_portion_incident=0.5,
+                 min_anomaly_portion_incident=0.5,
                  sigma_score=2.5,
                  sigma_traffic=2.5,
                  dashboard_url_prefix=None,
                  dashboard_minutes_before=60,
                  dashboard_minutes_after=120,
+                 stop_delay_in_seconds=300,
                  logger=None,
                  mail_sender=None,
                  emails=None):
@@ -45,7 +47,7 @@ class IncidentDetector:
         self.sigma_traffic = sigma_traffic
         self.min_traffic = min_traffic
         self.min_traffic_incident = min_traffic_incident
-        self.min_challenged_portion_incident = min_challenged_portion_incident
+        self.min_anomaly_portion_incident = min_anomaly_portion_incident
         self.db_config = db_config
 
         if logger:
@@ -67,6 +69,7 @@ class IncidentDetector:
         self.dashboard_url_prefix = dashboard_url_prefix
         self.dashboard_minutes_before = dashboard_minutes_before
         self.dashboard_minutes_after = dashboard_minutes_after
+        self.stop_delay_in_seconds = stop_delay_in_seconds
         self.lock = threading.Lock()
 
     def _run(self):
@@ -75,6 +78,7 @@ class IncidentDetector:
             self._detect()
             is_killed = self.kill.wait(self.check_interval_in_seconds)
             if is_killed:
+                self.logger.info('is_killed is True. Incident detector stopped.')
                 break
 
     def start(self):
@@ -107,7 +111,7 @@ class IncidentDetector:
                 seconds=self.time_horizon_in_seconds)).strftime("%Y-%m-%d %H:%M:%S %z")
             query = f'SELECT floor(extract(epoch from stop)/{self.time_bucket_in_seconds})*' \
                     f'{self.time_bucket_in_seconds} AS "time", target, ' \
-                    f'count(distinct ip) as traffic, (sum(prediction*1.0) / count(ip)) as challenged_portion ' \
+                    f'count(ip) as traffic, (sum(prediction_anomaly*1.0) / count(ip)) as anomaly_portion ' \
                     f'FROM request_sets WHERE stop > \'{stop}\' ' \
                     f'and floor(extract(epoch from stop)/{self.time_bucket_in_seconds})*' \
                     f'{self.time_bucket_in_seconds} in ' \
@@ -162,6 +166,7 @@ class IncidentDetector:
         new_incidents['id'] = 0
         new_incidents['start'] = pd.to_datetime(new_incidents['time'], unit='s', utc=True)
         new_incidents = new_incidents.drop('time', 1)
+        new_incidents['first_stop'] = None
 
         session, engine = set_up_db(self.db_config.__dict__)
 
@@ -172,7 +177,7 @@ class IncidentDetector:
                 attack.start = start
                 attack.target = row['target']
                 attack.detected_traffic = row['traffic']
-                attack.anomaly_traffic_portion = row['challenged_portion']
+                attack.anomaly_traffic_portion = row['anomaly_portion']
                 dashboard_url = self._get_dashboard_url(row['start'], row['target'])
                 attack.dashboard_url = dashboard_url
                 session.add(attack)
@@ -182,8 +187,8 @@ class IncidentDetector:
                 target = row['target']
                 self.logger.info(f'New incident, target={target}, id={attack.id}, '
                                  f'traffic={row["traffic"]:.0f} ({row["avg_traffic"]:.0f}) '
-                                 f'anomaly_portion={row["challenged_portion"]:.2f} '
-                                 f'({row["avg_challenged_portion"]:.2f}) '
+                                 f'anomaly_portion={row["anomaly_portion"]:.2f} '
+                                 f'({row["avg_anomaly_portion"]:.2f}) '
                                  f'url="{dashboard_url}" '
                                  )
                 if self.mail_sender and self.emails:
@@ -215,7 +220,19 @@ class IncidentDetector:
         if self.incidents is None or self.incidents.empty:
             return
 
-        stopped_incidents = pd.merge(self.incidents, regulars[['target', 'time']], how='inner', on='target')
+        # update first_stop column
+        self.incidents = pd.merge(self.incidents, regulars[['target', 'time']], how='left', on='target')
+        self.incidents['first_stop'] = np.where(
+            self.incidents['first_stop'].isnull() & ~(self.incidents['time'].isnull()),
+            self.incidents['time'], self.incidents['first_stop'])
+        stopped_incidents = self.incidents[~self.incidents['time'].isnull()
+                                           & ~self.incidents['first_stop'].isnull()].copy()
+        self.incidents = self.incidents.drop('time', 1)
+
+        # filter only the incidents which stopped more then self.stop_delay_in_seconds ago
+        stopped_incidents['diff'] = stopped_incidents['time'] - stopped_incidents['first_stop']
+        stopped_incidents = stopped_incidents[stopped_incidents['diff'] > self.stop_delay_in_seconds]
+
         if len(stopped_incidents) == 0:
             return
 
@@ -255,11 +272,11 @@ class IncidentDetector:
 
         self.stats_reader.set_query(
             f'select target, avg(traffic) as avg_traffic, stddev(traffic) as stddev_traffic, '
-            f'avg(challenged_portion) as avg_challenged_portion, '
-            f'stddev(challenged_portion) as stddev_challenged_portion from'
+            f'avg(anomaly_portion) as avg_anomaly_portion, '
+            f'stddev(anomaly_portion) as stddev_anomaly_portion from'
             f'('
             f'SELECT floor(extract(epoch from stop)/120)*120 AS "time", target, count(ip) as traffic, '
-            f'(sum(prediction*1.0) / count(ip)) as challenged_portion '
+            f'(sum(prediction_anomaly*1.0) / count(ip)) as anomaly_portion '
             f'FROM request_sets WHERE stop > \'{stop}\' '
             f'group by 1, 2'
             f') a '
@@ -268,28 +285,29 @@ class IncidentDetector:
         stats = self.stats_reader.get()
 
         if stats is None:
+            self.logger.info('No stats')
             return
 
         stats = stats[(~stats['avg_traffic'].isnull()) & (~stats['stddev_traffic'].isnull())
-                      & (~stats['avg_challenged_portion'].isnull()) & (~stats['stddev_challenged_portion'].isnull())
+                      & (~stats['avg_anomaly_portion'].isnull()) & (~stats['stddev_anomaly_portion'].isnull())
                       & (stats['avg_traffic'] > self.min_traffic)
-                      & (stats['avg_challenged_portion'] > 0)
-                      & (stats['avg_challenged_portion'] < 0.6)]
+                      & (stats['avg_anomaly_portion'] > 0)
+                      & (stats['avg_anomaly_portion'] < 0.6)]
 
         sample = self._read_sample()
         if sample is None:
+            self.logger.info('No sample')
             return
 
         batch = pd.merge(sample, stats, how='left', on='target')
 
-        condition = (batch['challenged_portion'] > (batch['avg_challenged_portion'] +
-                                                    self.sigma_score * batch['stddev_challenged_portion'])) & \
+        condition = (batch['anomaly_portion'] > (batch['avg_anomaly_portion'] +
+                                                 self.sigma_score * batch['stddev_anomaly_portion'])) & \
                     (batch['traffic'] > (batch['avg_traffic'] + self.sigma_traffic * batch['stddev_traffic'])) & \
-                    (batch['challenged_portion'] > self.min_challenged_portion_incident)
+                    (batch['anomaly_portion'] > self.min_anomaly_portion_incident)
 
         anomalies = batch[condition]
         regulars = batch[~condition]
-
         with self.lock:
             self._stop_incidents(regulars)
             self._start_incidents(anomalies)

@@ -4,15 +4,15 @@ import datetime
 import os
 import threading
 
-from sklearn.ensemble import GradientBoostingClassifier
 from sqlalchemy.sql.functions import sysdate
 
 from baskerville.db import set_up_db, get_jdbc_url
 from baskerville.db.models import Attack, Attribute
 import pandas as pd
-import numpy as np
 from pyspark.sql import functions as F
-from pyspark.sql.types import StringType, StructField, StructType, DoubleType
+from pyspark.sql.types import StringType, StructField, StructType
+
+from baskerville.models.storage_io import StorageIO
 
 
 class Labeler(object):
@@ -20,14 +20,19 @@ class Labeler(object):
     def __init__(self,
                  db_config,
                  spark,
-                 s3_path,
                  check_interval_in_seconds=120,
                  regular_traffic_before_attack_in_minutes=60,
-                 logger=None):
+                 load_from_storage=True,
+                 logger=None,
+                 storage_path=None,
+                 folder_stream='stream',
+                 folder_attacks='attacks'
+                 ):
         super().__init__()
         self.db_config = db_config
         self.spark = spark
-        self.s3_path = s3_path
+        self.folder_attacks = folder_attacks
+        self.storage_path = storage_path
         self.check_interval_in_seconds = check_interval_in_seconds
         self.regular_traffic_before_attack_in_minutes = regular_traffic_before_attack_in_minutes
         if logger:
@@ -37,6 +42,13 @@ class Labeler(object):
             self.logger.addHandler(logging.StreamHandler(sysdate.stdout))
         self.thread = None
         self.kill = threading.Event()
+        self.load_from_storage = load_from_storage
+        self.storage_io = StorageIO(
+            storage_path=storage_path,
+            spark=self.spark,
+            logger=self.logger,
+            subfolder=folder_stream
+        ) if self.load_from_storage else None
 
     def start(self):
         if self.thread is not None:
@@ -61,16 +73,6 @@ class Labeler(object):
         self.logger.info(f'{len(df)} records retrieved.')
         num_ips = len(df['ip'].unique())
         self.logger.info(f'{num_ips} unique IPs')
-        self.logger.info(f'Unwrapping features...')
-        if len(df) > 0:
-            ff = df['features'].apply(pd.Series).columns.to_list()
-            df[ff] = df['features'].apply(pd.Series)
-            df.drop('features', axis=1, inplace=True)
-            df.drop('host', axis=1, inplace=True)
-            # df.drop('country', axis=1, inplace=True)
-            df.drop('request_total', axis=1, inplace=True)
-            df.drop('minutes_total', axis=1, inplace=True)
-        self.logger.info(f'Unwrapping features complete.')
         df = df.fillna(0)
         return df
 
@@ -78,76 +80,20 @@ class Labeler(object):
         self.logger.info(f'Labeling incident id = {attack.id}, target={attack.target} ...')
 
         regular_start = attack.start - datetime.timedelta(minutes=self.regular_traffic_before_attack_in_minutes)
-        df_regular = self._load_dataset(f'select * from request_sets where target=\'{attack.target}\' and '
+        df_regular = self._load_dataset(f'select distinct ip from request_sets where target=\'{attack.target}\' and '
                                         f'stop >= \'{regular_start.strftime("%Y-%m-%d %H:%M:%S")}Z\' and '
                                         f'stop < \'{attack.start.strftime("%Y-%m-%d %H:%M:%S")}Z\'', engine)
+        self.logger.info(f'unique regular = {len(df_regular)}')
 
-        df_attack = self._load_dataset(f'select * from request_sets where target=\'{attack.target}\' and '
+        df_attack = self._load_dataset(f'select distinct ip from request_sets where target=\'{attack.target}\' and '
                                        f'stop >= \'{attack.start.strftime("%Y-%m-%d %H:%M:%S")}Z\' and '
                                        f'stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'', engine)
 
-        regular_ips = df_regular[['ip']].drop_duplicates()
-        df_attack = df_attack.merge(regular_ips[['ip']], on=['ip'], how='outer', indicator=True)
+        self.logger.info(f'unique attackers = {len(df_attack)}')
+
+        df_attack = df_attack.merge(df_regular, on=['ip'], how='outer', indicator=True)
         df_attack = df_attack[df_attack['_merge'] == 'left_only']
-
-        features = [
-            'request_rate',
-            'css_to_html_ratio',
-            'image_to_html_ratio',
-            'js_to_html_ratio',
-            'path_depth_average',
-            'path_depth_variance',
-            'payload_size_average',
-            'payload_size_log_average',
-            'request_interval_average',
-            'request_interval_variance',
-            'response4xx_to_request_ratio',
-            'top_page_to_request_ratio',
-            'unique_path_rate',
-            'unique_path_to_request_ratio',
-            'unique_query_rate',
-            'unique_query_to_unique_path_ratio',
-            'unique_ua_rate'
-        ]
-
-        labels = np.ones(len(df_regular), dtype=int)
-        labels = np.append(labels, np.zeros(len(df_attack), dtype=int))
-        dataset = pd.concat([df_regular[features], df_attack[features]])
-
-        # scaler = StandardScaler()
-        # dataset = scaler.fit_transform(dataset[features].values)
-
-        model = GradientBoostingClassifier(
-            n_estimators=500, random_state=777,
-            max_depth=12,
-            max_features='auto',
-            learning_rate=0.05)
-        model.fit(dataset, labels)
-
-        predictions = model.predict(df_attack[features])
-
-        incident = df_attack[['ip']].copy()
-        incident['predictions'] = predictions
-        attackers_predicted = incident[incident['predictions'] == 0][['ip']].drop_duplicates()
-
-        incident_ips = incident[['ip']].drop_duplicates()
-        regular_ips = df_regular[['ip']].drop_duplicates()
-
-        attackers_vs_regular_traffic = pd.merge(regular_ips, attackers_predicted, how='inner', on=['ip'])
-        regulars_vs_incident = pd.merge(regular_ips, incident_ips, how='inner', on=['ip'])
-
-        self.logger.info(f'Number of unique IPs in the incident = {len(incident_ips)}')
-        self.logger.info(f'Number of predicted attackers = {len(attackers_predicted)}')
-        self.logger.info(f'Number of predicted regulars = {len(incident_ips) - len(attackers_predicted)}')
-        self.logger.info(
-            f'Intersection predicted attackers in regular traffic = {len(attackers_vs_regular_traffic)}, {len(attackers_vs_regular_traffic) / len(regular_ips) * 100:2.1f}%')
-        self.logger.info(f'Intersection regular traffic in incident = {len(regulars_vs_incident)}')
-
-        # filter out the IPs from regular traffic
-        attackers = pd.merge(attackers_predicted, regulars_vs_incident, how='outer', on=['ip'], indicator=True)
-        attackers = attackers[attackers['_merge'] == 'left_only'][['ip']]
-
-        self.logger.info(f'Final number of attackers IP: {len(attackers)}')
+        self.logger.info(f'df_attack after merge = {len(df_attack)}')
 
         # update ips in the database
         session, engine = set_up_db(self.db_config.__dict__)
@@ -158,7 +104,7 @@ class Labeler(object):
                 return
 
             attributes = []
-            for ip in attackers['ip']:
+            for ip in df_attack['ip']:
                 a = Attribute()
                 a.value = ip
                 a.attacks.append(existing_attack)
@@ -167,7 +113,7 @@ class Labeler(object):
             session.add_all(attributes)
             existing_attack.labeled = True
             session.commit()
-            self.logger.info(f'Incident labeled, target={attack.target}, id = {attack.id}, num ips = {len(attackers)}')
+            self.logger.info(f'Incident labeled, target={attack.target}, id = {attack.id}, num ips = {len(df_attack)}')
 
         except Exception as e:
             self.logger.error(str(e))
@@ -200,25 +146,50 @@ class Labeler(object):
 
     def _save_df_to_s3(self, df, attack_id):
         self.logger.info('writing to parquet...')
-        df.repartition(10).write.parquet(os.path.join(self.s3_path, f'{attack_id}'))
+        df.repartition(10).write.parquet(os.path.join(self.storage_path, self.folder_attacks, f'{attack_id}'))
 
     def _save_attack(self, attack):
         self.logger.info(f'Saving attack {attack.id} to s3...')
         attack_ips = [a.value for a in attack.attributes]
-        attack_ips = self.spark.createDataFrame(data=[[a] for a in attack_ips],
+        attack_ips = self.spark.createDataFrame(data=[[a] for a in set(attack_ips)],
                                                 schema=StructType([StructField("ip_attacker", StringType())]))
 
-        query = f'(select * from request_sets where ' \
-                f'target = \'{attack.target}\' and ' \
-                f'stop > \'{attack.start.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp) as attack1 '
-        df = self._load_request_sets(query)
-        if len(df.head(1)) == 0:
+        regular_start = attack.start - datetime.timedelta(minutes=self.regular_traffic_before_attack_in_minutes)
+
+        if self.load_from_storage:
+            self.logger.info(f'Loading from storate target={attack.target}, from {regular_start} to {attack.stop}')
+            df = self.storage_io.load(host=attack.target, start=regular_start, stop=attack.stop)
+        else:
+            query = f'(select * from request_sets where ' \
+                    f'target = \'{attack.target}\' and ' \
+                    f'stop >= \'{regular_start.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp ' \
+                    f'and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\'::timestamp) as attack1 '
+            self.logger.info(query)
+            df = self._load_request_sets(query)
+
+        if not df or len(df.head(1)) == 0:
             print(f'Skipping attack {attack.id}, no records found.')
             return
 
+        self.logger.info(f'Total records = {df.count()}')
+        self.logger.info(f'Num attacker ips={attack_ips.count()}')
+        unique_attackers = attack_ips.groupBy('ip_attacker').count().count()
+        self.logger.info(f'Unique attackers={unique_attackers}')
+
         self.logger.info('Joining the labels...')
-        df = df.join(attack_ips, df.ip == attack_ips.ip_attacker, how='left')
+        df = df.join(attack_ips, F.col('ip') == F.col('ip_attacker'), how='left')
+        self.logger.info(f'After join = {df.count()}')
         df = df.withColumn('label', F.when(F.col('ip_attacker').isNull(), 0.0).otherwise(1.0))
+
+        num_positives = df.where(F.col('label') == 1).count()
+        num_negatives = df.where(F.col('label') == 0).count()
+        self.logger.info(f'Positives= {num_positives}')
+        self.logger.info(f'Negatives= {num_negatives}')
+
+        num_positives_unique = df.where(F.col('label') == 1).groupBy('ip').count().count()
+        num_negatives_unique = df.where(F.col('label') == 0).groupBy('ip').count().count()
+        self.logger.info(f'Positive uniques = {num_positives_unique}')
+        self.logger.info(f'Negatives unique = {num_negatives_unique}')
 
         self._save_df_to_s3(df, attack.id)
 
@@ -231,7 +202,7 @@ class Labeler(object):
                 return
             existing_attack.saved_in_cloud = True
             session.commit()
-            self.logger.info(f'Incident saved in s3, target={attack.target}, id = {attack.id}, path={self.s3_path}')
+            self.logger.info(f'Incident saved in s3, target={attack.target}, id = {attack.id}')
 
         except Exception as e:
             self.logger.error(str(e))

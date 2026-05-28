@@ -40,13 +40,13 @@ class LogType(Enum):
 
 
 class RunType(BaseStrEnum):
-    es = 'es'
     rawlog = 'rawlog'
     kafka = 'kafka'
     training_old = 'training_old'
     irawlog = 'irawlog'
     ikafka = 'ikafka'
     training = 'training'
+    training_classifier = 'training_classifier'
     preprocessing = 'preprocessing'
     postprocessing = 'postprocessing'
     predicting = 'predicting'

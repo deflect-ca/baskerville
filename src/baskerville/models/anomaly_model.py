@@ -94,7 +94,7 @@ class AnomalyModel(ModelInterface):
             categorical_features.append(feature)
         return categorical_features
 
-    def _create_feature_columns(self, df):
+    def _create_categorical_feature_columns(self, df):
         for feature in self.categorical_features():
             df = df.withColumn(f'{self.prefix_feature}{feature}', F.col(f'{self.feature_map_column}.{feature}'))
         return df
@@ -148,14 +148,17 @@ class AnomalyModel(ModelInterface):
 
         df = df.persist(StorageLevelFactory.get_storage_level(self.storage_level))
 
-        self.logger.info('Creating feature columns...')
-        df = self._create_feature_columns(df)
+        self.logger.info('Creating categorical feature columns...')
+        df = self._create_categorical_feature_columns(df)
 
         self.logger.info('Fitting string indexes...')
         self._create_indexes(df)
         self.logger.info('Adding categorical features...')
         df = self._add_categorical_features(df, self.features_vector_scaled)
         df = self._drop_feature_columns(df)
+
+        if self.prediction_column in df.columns:
+            df = df.drop(self.prediction_column)
 
         self.logger.info('Fitting Isolation Forest model...')
         iforest = IForest(
@@ -190,7 +193,7 @@ class AnomalyModel(ModelInterface):
             df = df.withColumnRenamed(self.features_vector, self.features_vector_scaled)
 
         self.logger.info('Adding categorical features...')
-        df = self._create_feature_columns(df).persist()
+        df = self._create_categorical_feature_columns(df).persist()
         df = self._add_categorical_features(df, self.features_vector_scaled)
         df = self._drop_feature_columns(df)
         self.is_prepared = True

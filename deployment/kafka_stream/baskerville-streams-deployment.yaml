@@ -1,0 +1,35 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "baskerville-streams"
+  namespace: "default"
+  labels:
+    app: "baskerville-streams"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "baskerville-streams"
+  template:
+    metadata:
+      labels:
+        app: "baskerville-streams"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - "baskerville-streams"
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: "baskerville-streams"
+        image: "equalitie/baskerville_streams:latest"
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: -DLOGLEVEL=INFO
+

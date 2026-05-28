@@ -4,7 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-
 import json
 import os
 import warnings
@@ -255,10 +254,12 @@ class EngineConfig(Config):
     cache_path = None
     save_cache_to_storage = False
     storage_path = None
+    incidents_path = None
     cache_expire_time = None
     cache_load_past = False
     cross_reference = False
     model_path = None
+    classifier_model_path = None
     model_id = None
     extra_features = None
     verbose = False
@@ -272,14 +273,16 @@ class EngineConfig(Config):
     trigger_challenge = True
     anomaly_threshold = 0.45
     anomaly_threshold_during_incident = 0.35
+    classifier_threshold = 0.95
+    classifier_threshold_during_incident = 0.8
     challenge = 'ip'  # supported values : 'ip', 'host'
     training = None
     ttl = 500
     low_rate_attack_enabled = True
     low_rate_attack_period = [600, 3600]
     low_rate_attack_total_request = [400, 2000]
-    ip_cache_passed_challenge_ttl = 60 * 60 * 24  # 24h
-    ip_cache_passed_challenge_size = 100000
+    ip_cache_passed_challenge_ttl = 60 * 60 * 24 * 3
+    ip_cache_passed_challenge_size = 1000000
     ip_cache_pending_ttl = 60 * 60 * 1  # 1h
     ip_cache_pending_size = 100000
     save_to_storage = True
@@ -303,6 +306,8 @@ class EngineConfig(Config):
     kafka_topic_sensitive = 'sensitive'
 
     client_mode = False
+    input_is_weblogs = False
+    input_timestamp_column = 'datestamp'
 
     def __init__(self, config, parent=None):
         super(EngineConfig, self).__init__(config, parent)
@@ -502,6 +507,9 @@ class TrainingConfig(Config):
         -
     """
     model_parameters = dict
+    classifier_model = 'baskerville.models.classifier_model.ClassifierModel'
+    incidents_folder = 'attacks'
+    load_from_storage = True
 
     def __init__(self, config, parent=None):
         super(TrainingConfig, self).__init__(config, parent)
@@ -698,6 +706,7 @@ class DatabaseConfig(Config):
     port = None
     type = 'postgres'
     maintenance = None
+    create_organization = True
 
     def __init__(self, config, parent=None):
         super(DatabaseConfig, self).__init__(config, parent)
@@ -742,7 +751,7 @@ class KafkaConfig(Config):
     Configuration for access to a Kafka instance for the kafka pipeline.
     """
     bootstrap_servers = '0.0.0.0:9092'
-    data_topic = 'deflect.logs'
+    data_topic = 'deflect.log'
     features_topic = 'features'
     feedback_topic = 'feedback'
     feedback_response_topic = ''
@@ -1038,20 +1047,19 @@ class UserDetailsConfig(Config):
         logger.debug('Validating UserDetailsConfig...')
         if not self.username:
             self.add_error(ConfigError(
-                f'Please, provide a username',
+                'Please, provide a username',
                 ['username'],
                 exception_type=ValueError
             ))
         if not self.password:
             self.add_error(ConfigError(
-                f'Please, provide a password',
+                'Please, provide a password',
                 ['password'],
                 exception_type=ValueError
             ))
         if not self.organization_uuid:
             self.add_error(ConfigError(
-                f'Please, provide an organization_uuid',
+                'Please, provide an organization_uuid',
                 ['organization_uuid'],
                 exception_type=ValueError
             ))
-

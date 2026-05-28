@@ -47,4 +47,3 @@ class WhitelistIPs(object):
                 else:
                     host_ips[k] = ips
         return host_ips
-

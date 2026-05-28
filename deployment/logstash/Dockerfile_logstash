@@ -1,0 +1,4 @@
+FROM docker.elastic.co/logstash/logstash-oss:7.16.3
+
+# Optional: copy GeoIP DB if needed
+# COPY GeoLite2-ASN.mmdb /usr/share/logstash/geoip/GeoLite2-ASN.mmdb

@@ -1,10 +1,13 @@
 image:
-  tag: "7.3.4"
+  registry: docker.io
+  repository: bitnamilegacy/grafana
+#  tag: "7.3.4"
+  tag: 12.1.1-debian-12-r0
 
 admin:
-  user: "admin"
-  existingSecret: "baskerville-secrets"
-  existingSecretPasswordKey: "postgres_password"
+  existingSecret: grafana-admin
+  existingSecretUserKey: admin-user
+  existingSecretPasswordKey: admin-password
 
 nodeSelector:
   nodepool: "postgres"
@@ -17,7 +20,7 @@ dashboardsProvider:
   enabled: true
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
 
 datasources:
   secretName: datasource-secret

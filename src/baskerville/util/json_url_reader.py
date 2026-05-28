@@ -56,5 +56,3 @@ class JsonUrlReader(object):
 
         self.refresh()
         return self.data
-
-

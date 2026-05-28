@@ -1,0 +1,101 @@
+fullnameOverride: kafkab
+
+kraft:
+  enabled: true
+
+global:
+  security:
+    allowInsecureImages: true
+
+image:
+  registry: docker.io
+  repository: bitnamilegacy/kafka
+  tag: 4.0.0-debian-12-r10
+  pullPolicy: IfNotPresent
+  # Turn on Bitnami's verbose startup in BOTH containers (main + init)
+  debug: true
+
+controller:
+  replicaCount: 3
+  persistence:
+    enabled: true
+    storageClass: csi-cinder-high-speed
+    size: 20Gi
+  # (optional but helpful) more time before probes during first boot/format
+  readinessProbe:
+    initialDelaySeconds: 60
+  livenessProbe:
+    initialDelaySeconds: 120
+
+broker:
+  replicaCount: 3
+  persistence:
+    enabled: true
+    storageClass: csi-cinder-high-speed
+    size: 800Gi
+  extraEnvVars:
+    - name: KAFKA_CFG_MAX_POLL_RECORDS
+      value: "100"
+    - name: KAFKA_CFG_MAX_REQUEST_SIZE
+      value: "10048576"
+    - name: KAFKA_CFG_LOG_CLEANUP_POLICY
+      value: "delete"
+
+listeners:
+  client:
+    protocol: SSL
+    containerPort: 9093
+  controller:
+    protocol: PLAINTEXT
+    containerPort: 9091
+  interbroker:
+    protocol: PLAINTEXT
+    containerPort: 9092
+  external:
+    protocol: SSL
+    containerPort: 9094
+    sslClientAuth: required
+  # IMPORTANT: INTERNAL (not INTERBROKER)
+  advertisedListeners: >-
+    CLIENT://advertised-address-placeholder:9093,
+    INTERNAL://advertised-address-placeholder:9092
+
+tls:
+  type: PEM
+  existingSecret: kafka-pem2
+  pemKeyPassword: ""
+  keystorePassword: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+  truststorePassword: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+  endpointIdentificationAlgorithm: ""
+
+service:
+  type: ClusterIP
+  ports:
+    client: 9093
+    controller: 9091
+    interbroker: 9092
+    external: 9094
+
+externalAccess:
+  enabled: true
+  autoDiscovery:
+    enabled: false
+
+  controller:
+    service:
+      type: ClusterIP
+      domain: default.svc.cluster.local
+
+  broker:
+    service:
+      type: LoadBalancer
+      externalTrafficPolicy: Local
+      ports: { external: 9094 }
+      loadBalancerIPs:
+        - 57.128.91.45
+        - 57.128.91.229
+        - 57.128.91.4
+      loadBalancerNames:
+        - kafkab0.prod.deflect.network
+        - kafkab1.prod.deflect.network
+        - kafkab2.prod.deflect.network

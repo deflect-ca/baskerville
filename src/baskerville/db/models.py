@@ -67,7 +67,8 @@ class Runtime(Base, SerializableMixin):
     # runtimes * - 1 users
     try:
         from baskerville.db.dashboard_models import User
-    except:
+    except Exception as exp:
+        print(exp)
         pass
     user = relationship(
         'User',
@@ -98,6 +99,9 @@ class RequestSet(Base, SerializableMixin):
     id_banjax = Column(Integer, ForeignKey('banjax_bans.id'), nullable=True)
     process_flag = Column(Boolean, default=True)
     prediction = Column(Integer)
+    prediction_anomaly = Column(Integer)
+    prediction_classifier = Column(Integer)
+    prediction_behave = Column(Integer)
     attack_prediction = Column(Integer)
     challenged = Column(Integer)
     challenge_failed = Column(Integer)
@@ -105,6 +109,7 @@ class RequestSet(Base, SerializableMixin):
     banned = Column(Integer)
     low_rate_attack = Column(Integer)
     score = Column(Float)
+    classifier_score = Column(Float)
     features = Column(JSON)
     created_at = Column(DateTime(timezone=True), server_default=utcnow())
     updated_at = Column(
@@ -145,10 +150,13 @@ class RequestSet(Base, SerializableMixin):
         'start',
         'stop',
         'prediction',
+        'prediction_anomaly',
+        'prediction_classifier',
         'attack_prediction',
         'low_rate_attack',
         'challenged',
         'score',
+        'classifier_score',
         'label',
         'id_attribute',
         'features',

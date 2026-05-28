@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: geoip-updater
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: geoip-updater
+  namespace: default
+rules:
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: geoip-updater
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: geoip-updater
+    namespace: default
+roleRef:
+  kind: Role
+  name: geoip-updater
+  apiGroup: rbac.authorization.k8s.io

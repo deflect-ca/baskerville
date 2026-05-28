@@ -18,7 +18,7 @@ spec:
         nodepool: postgres
       containers:
         - name: postgresql-db
-          image: timescale/pg_prometheus:latest-pg10
+          image: timescale/pg_prometheus:latest-pg11
           volumeMounts:
             - name: postgresql-db-disk
               mountPath: /data
@@ -38,4 +38,4 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 1500Gi
+            storage: 2000Gi

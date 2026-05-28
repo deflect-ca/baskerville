@@ -6,21 +6,13 @@
 
 
 from baskerville.models.pipeline_training import TrainingPipeline
-from baskerville.models.pipelines import RawLogPipeline, \
-    ElasticsearchPipeline, KafkaPipeline
+from baskerville.models.pipelines import RawLogPipeline, KafkaPipeline
 from baskerville.util.enums import RunType
 
 
 class PipelineFactory(object):
     def get_pipeline(self, run_type, config):
-        if run_type == RunType.es:
-            return ElasticsearchPipeline(
-                config.database,
-                config.elastic,
-                config.engine,
-                config.spark
-            )
-        elif run_type == RunType.rawlog:
+        if run_type == RunType.rawlog:
             return RawLogPipeline(
                 config.database,
                 config.engine,
@@ -63,6 +55,10 @@ class PipelineFactory(object):
             from baskerville.models.pipeline_tasks.training_pipeline \
                 import set_up_training_pipeline
             return set_up_training_pipeline(config)
+        elif run_type == RunType.training_classifier:
+            from baskerville.models.pipeline_tasks.training_pipeline \
+                import set_up_classifier_training_pipeline
+            return set_up_classifier_training_pipeline(config)
         # elif run_type == RunType.dashboard_preprocessing:
         #     from baskerville.models.pipeline_tasks.dashboard_pipeline import \
         #         set_up_dashboard_preprocessing_pipeline

@@ -20,11 +20,13 @@ from baskerville.util.helpers import get_logger, TimeBucket
 class Task(object, metaclass=abc.ABCMeta):
     name: str
     df: pyspark.sql.DataFrame
+    df_time: datetime
     steps: List['Task']
     config: BaskervilleConfig
 
     def __init__(self, config: BaskervilleConfig, steps: list = ()):
         self.df = None
+        self.df_time = None
         self.config = config
         self.steps = steps
         self.step_to_action = OrderedDict({
@@ -83,6 +85,10 @@ class Task(object, metaclass=abc.ABCMeta):
         self.df = df
         return self
 
+    def set_df_time(self, time):
+        self.df_time = time
+        return self
+
     def initialize(self):
         self.service_provider.initialize_db_tools_service()
         self.service_provider.initialize_spark_service()
@@ -99,7 +105,9 @@ class Task(object, metaclass=abc.ABCMeta):
         self.remaining_steps = list(self.step_to_action.keys())
         for descr, task in self.step_to_action.items():
             self.logger.info('Starting step {}'.format(descr))
-            self.df = task.set_df(self.df).run()
+            task.set_df(self.df)
+            task.set_df_time(self.df_time)
+            self.df = task.run()
             self.logger.info('Completed step {}'.format(descr))
             self.remaining_steps.remove(descr)
         return self.df

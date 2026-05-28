@@ -124,29 +124,29 @@ def node_to_str(node, featureNames, categoryNames, classNames, numClasses,
         # For continuous split:
         if node["splitType"] == "continuous":
             label = """ label="Node ID %s\\n%s <= %.4f\\nImpurity = %.4f\\nGain = %.4f\\nPrediction = %s" """ % (
-            node["id"],
-            feature_name_str,
-            node["threshold"],
-            node["impurity"],
-            node["gain"],
-            class_name_str
+                node["id"],
+                feature_name_str,
+                node["threshold"],
+                node["impurity"],
+                node["gain"],
+                class_name_str
             )
         # For categorical split:
         else:
             label = """ label="Node ID %s\\n%s in %s\\nImpurity = %.4f\\nGain = %.4f\\nPrediction = %s" """ % (
-            node["id"],
-            feature_name_str,
-            categories,
-            node["impurity"],
-            node["gain"],
-            class_name_str
+                node["id"],
+                feature_name_str,
+                categories,
+                node["impurity"],
+                node["gain"],
+                class_name_str
             )
     # Leaf node:
     else:
         label = """ label="Node ID %s\\nImpurity = %.4f\\nPrediction = %s" """ % (
-        node["id"],
-        node["impurity"],
-        class_name_str
+            node["id"],
+            node["impurity"],
+            class_name_str
         )
         if round_leaves is True:
             attributes.append("shape=ellipse")
@@ -403,13 +403,17 @@ def export_graphviz(DecisionTreeClassificationModel, featureNames=None,
                     %s
                     %s}
                     }""" % (
-    ",".join(filled_and_rounded), "".join(graph), node_properties)
+        ",".join(filled_and_rounded), "".join(graph), node_properties)
     return dot_string
 
 
-def plot_tree(DecisionTreeClassificationModel, featureNames=None,
-              categoryNames=None, classNames=None,
-              filled=True, roundedCorners=True, roundLeaves=True):
+def plot_tree(DecisionTreeClassificationModel,
+              featureNames=None,
+              categoryNames=None,
+              classNames=None,
+              filled=True,
+              roundedCorners=True,
+              roundLeaves=True):
     """
     Draws a Spark's fitted DecisionTreeClassificationModel in png format. If you are
     using Jupyter, this function can be easily used alongside Ipython.display in order
@@ -472,7 +476,7 @@ def plot_tree(DecisionTreeClassificationModel, featureNames=None,
                         roundedCorners=roundedCorners,
                         roundLeaves=roundLeaves
                         )
-        )
+    )
     if type(graph) is list:
         plot = graph[0].create_png()
     else:

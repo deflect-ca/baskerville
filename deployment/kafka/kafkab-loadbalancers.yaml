@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafkab-lb-0
+spec:
+  type: LoadBalancer
+  ports:
+    - name: kafka
+      port: 9094
+      targetPort: kafka
+  selector:
+    statefulset.kubernetes.io/pod-name: kafkab-0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafkab-lb-1
+spec:
+  type: LoadBalancer
+  ports:
+    - name: kafka
+      port: 9094
+      targetPort: kafka
+  selector:
+    statefulset.kubernetes.io/pod-name: kafkab-1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafkab-lb-2
+spec:
+  type: LoadBalancer
+  ports:
+    - name: kafka
+      port: 9094
+      targetPort: kafka
+  selector:
+    statefulset.kubernetes.io/pod-name: kafkab-2

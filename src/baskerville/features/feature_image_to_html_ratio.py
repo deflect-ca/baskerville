@@ -33,7 +33,8 @@ class FeatureImageToHtmlRatio(UpdaterRatio):
             )
         }
         self.pre_group_by_calcs = {
-            'is_html': F.col('content_type') == 'text/html',
+            'is_html': (F.col('content_type') == 'text/html') | (F.col('content_type') == 'text/html; charset=UTF-8') |
+                       (F.col('content_type') == 'text/html; charset=utf-8'),
             'is_image': F.array_contains(
                 F.split(F.col('content_type'), '/'),
                 'image')

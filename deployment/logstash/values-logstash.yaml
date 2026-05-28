@@ -1,0 +1,237 @@
+replicaCount: 3
+
+image:
+  registry: docker.io
+  repository: bitnamilegacy/logstash
+  tag: 9.1.2-debian-12-r0
+
+nodeAffinityPreset:
+  type: hard
+  key: nodepool
+  values:
+    - postgres
+
+extraEnvVars:
+  - name: LS_JAVA_OPTS
+    value: "-Djdk.tls.maxProtocolVersion=TLSv1.2"
+
+extraVolumes:
+  - name: geoip-dir
+    emptyDir: {}
+  - name: logstash-certs
+    secret:
+      secretName: logstash-tls-secret
+
+extraVolumeMounts:
+  - name: geoip-dir
+    mountPath: /mnt/geoip
+  - name: logstash-certs
+    mountPath: /usr/share/logstash/config/certs
+    readOnly: true
+
+initContainers:
+  - name: download-geoip
+    image: ghcr.io/maxmind/geoipupdate:latest
+    env:
+      - name: GEOIPUPDATE_ACCOUNT_ID
+        valueFrom:
+          secretKeyRef:
+            name: maxmind-credentials
+            key: account_id
+      - name: GEOIPUPDATE_LICENSE_KEY
+        valueFrom:
+          secretKeyRef:
+            name: maxmind-credentials
+            key: license_key
+      - name: GEOIPUPDATE_EDITION_IDS
+        value: "GeoLite2-ASN GeoLite2-Country"
+      - name: GEOIPUPDATE_DB_DIR
+        value: /mnt/geoip
+    volumeMounts:
+      - name: geoip-dir
+        mountPath: /mnt/geoip
+
+input: |-
+  beats {
+    port => 5044
+    ssl_enabled => true
+    ssl_certificate => "/usr/share/logstash/config/certs/certificate.pem"
+    ssl_key => "/usr/share/logstash/config/certs/key.pem"
+    ssl_client_authentication => "none"
+  }
+
+output: |-
+  kafka {
+    bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
+    topic_id => "%{[kafka_topic]}"
+    acks => "1"
+    linger_ms => 10
+    codec => "json"
+    compression_type => "gzip"
+    partitioner => "default"
+    security_protocol => "PLAINTEXT"
+    message_key => "%{client_request_host}"
+  }
+  kafka {
+    bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+    topic_id => "%{[kafka_topic]}"
+    acks => "1"
+    codec => "json"
+    compression_type => "gzip"
+    partitioner => "default"
+    security_protocol => "PLAINTEXT"
+    message_key => "%{client_request_host}"
+  }
+
+filter: |-
+  json {
+    source => "message"
+    skip_on_invalid_json => true
+  }
+
+  mutate {
+    gsub => [ "message", '"http_response_code":\s*000', '"http_response_code":"000"' ]
+  }
+
+  if [http_response_code] == "000" {
+    mutate {
+      replace => { "http_response_code" => "200" }
+    }
+    mutate {
+      convert => { "http_response_code" => "integer" }
+    }
+  }
+
+  if [@metadata][kafka][topic] == "filebeat_deflect_access" or
+     [@metadata][kafka][topic] == "filebeat_deflect_access_temp" or
+     [fields][log_topic] == "filebeat_deflect_access" or
+     [fields][log_topic] == "filebeat_deflect_access_temp" {
+    mutate {
+      add_field => { "kafka_topic" => "logstash_deflect.log" }
+    }
+    date {
+      match => [ "time_local", "dd/MMM/yyyy:HH:mm:ss Z" ]
+      target => "datestamp"
+      remove_field => [ "time_local" ]
+    }
+  }
+
+  mutate {
+    copy => { "[fields][dnet]" => "dnet" }
+  }
+
+  if [@metadata][kafka][topic] == "filebeat_banjax" or
+     [@metadata][kafka][topic] == "filebeat_banjax_access_temp" or
+     [fields][log_topic] == "filebeat_banjax" or
+     [fields][log_topic] == "filebeat_banjax_access_temp" {
+    mutate {
+      add_field => { "kafka_topic" => "logstash_banjax" }
+    }
+    date {
+      match => [ "timestring", "yyyy-MM-dd'T'HH:mm:ss" ]
+      target => "datestamp"
+      remove_field => [ "timestring" ]
+    }
+    if [path] {
+      grok {
+        match => { "path" => "%{URIPATH:client_url}(%{URIPARAM:querystring})?" }
+      }
+    }
+  }
+
+  if ![kafka_topic] {
+    if [client_request_host] and "antijob" in [client_request_host] {
+      mutate {
+        add_tag => ["no_kafka_topic"]
+        add_field => { "kafka_topic" => "debug_antijob" }
+      }
+    } else {
+      drop {}
+    }
+  }
+
+  if [client_request_host] {
+    mutate {
+      add_field => { "message_key_safe" => "%{client_request_host}" }
+    }
+  } else {
+    mutate {
+      add_field => { "message_key_safe" => "unknown" }
+    }
+  }
+
+  mutate {
+    copy => { "client_request_host" => "client_request_host_original" }
+    gsub => [ "client_request_host", "^www\.", "" ]
+  }
+
+  geoip {
+    source => "client_ip"
+    target => "geoip0"
+    database => "/mnt/geoip/GeoLite2-Country.mmdb"
+    fields => [ "continent_code", "country_code2", "country_name" ]
+  }
+
+  geoip {
+    source => "client_ip"
+    target => "geoip_asn"
+    database => "/mnt/geoip/GeoLite2-ASN.mmdb"
+    fields => [ "AUTONOMOUS_SYSTEM_NUMBER", "AUTONOMOUS_SYSTEM_ORGANIZATION" ]
+  }
+
+  mutate {
+    copy => { "[geoip0][geo][country_iso_code]" => "[geoip][country_code2]" }
+    copy => { "[geoip0][geo][country_name]" => "[geoip][country_name]" }
+    copy => { "[agent][name]" => "[edge]" }
+  }
+
+  useragent {
+    source => "client_ua"
+    target => "user_agent"
+  }
+
+  mutate {
+    remove_field => [ "geoip0" ]
+  }
+
+  if ";" in [content_type] {
+    mutate {
+      split => { "content_type" => ";" }
+      add_field => { "new_content_type" => "%{[content_type][0]}" }
+    }
+    mutate {
+      rename => { "new_content_type" => "content_type" }
+    }
+  }
+
+  mutate {
+    remove_field => [
+      "event",
+      "@timestamp",
+      "@version",
+      "type",
+      "upstream_addr",
+      "upstream_status",
+      "upstream_response_time",
+      "upstream_header_time",
+      "upstream_connect_time",
+      "upstream_bytes_sent",
+      "upstream_bytes_received",
+      "client_user",
+      "referer",
+      "refererdomain",
+      "loc_out",
+      "proxy_host",
+      "proxy_port",
+      "forwardedfor",
+      "request_time",
+      "filter_start",
+      "rule_type",
+      "banjax_error",
+      "request_id",
+      "log",
+      "fields",
+      "input",
+      "host"
+    ]
+  }

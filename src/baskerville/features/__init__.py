@@ -28,6 +28,4 @@ FEATURES = set(
         ]
     ))
 )
-FEATURE_NAME_TO_CLASS = dict(
-        (f.feature_name_from_class(), f) for f in FEATURES
-    )
+FEATURE_NAME_TO_CLASS = dict((f.feature_name_from_class(), f) for f in FEATURES)

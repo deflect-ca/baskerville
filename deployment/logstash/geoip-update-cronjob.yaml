@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: geoip-weekly-restart
+  namespace: default
+spec:
+  schedule: "0 6 * * 3"  # every Wednesday at 06:00 UTC (day after MaxMind Tuesday release)
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: geoip-updater
+          restartPolicy: OnFailure
+          containers:
+            - name: restarter
+              image: bitnami/kubectl:latest
+              command:
+                - kubectl
+                - rollout
+                - restart
+                - statefulset/logstash

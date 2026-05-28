@@ -1,0 +1,52 @@
+replicas: 1
+image: "docker.elastic.co/logstash/logstash"
+imageTag: "8.5.2"
+
+livenessProbe: null
+
+logstashConfig:
+  logstash.yml: |
+    xpack.monitoring.enabled: false
+
+logstashPipeline:
+  logstash.conf: |
+    input {
+      kafka {
+        bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+        topics => ["clearinghouse_logs", "clearinghouse_commands"]
+        group_id => "logstash-ch"
+        codec => "json"
+        decorate_events => "basic"
+        consumer_threads => 3
+      }
+    }
+    filter {
+      if [@metadata][kafka][topic] == "clearinghouse_logs" {
+        mutate{
+          add_field => { "[@metadata][topic]" => "logstash_deflect.log" }
+          add_field => { "[@metadata][key]" => "%{[client_request_host]}" }
+        }
+      }
+      if [@metadata][kafka][topic] == "clearinghouse_commands" {
+        mutate{
+          add_field => { "[@metadata][topic]" => "banjax_command_topic" }
+          add_field => { "[@metadata][key]" => "%{[host]}" }
+        }
+      }    
+      mutate {
+        remove_field => [
+          "event",
+          "@timestamp",
+          "@version"
+        ]
+      }
+    }
+    output {
+      kafka {
+        bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
+        topic_id => "%{[@metadata][topic]}"
+        acks => "0"
+        codec => "json"
+        message_key => "%{[@metadata][key]}"
+      }
+    }

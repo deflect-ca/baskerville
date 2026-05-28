@@ -114,7 +114,8 @@ class TestRequestSetSparkCache(SQLTestCaseLatestSpark):
             self.test_cache_config,
             self.test_table_name,
             self.test_columns_to_keep,
-            group_by_fields=self.test_groupby_fields
+            group_by_fields=self.test_groupby_fields,
+            use_storage=True
         )
 
         rsc.session_getter = mock.MagicMock()

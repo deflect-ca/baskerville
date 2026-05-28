@@ -11,11 +11,10 @@ import pyspark
 
 from baskerville.spark import get_spark_session
 from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import TimeBucket, get_logger
+from baskerville.util.helpers import TimeBucket
 from pyspark import AccumulatorParam
 from pyspark import StorageLevel
 from pyspark.sql import functions as F
-
 
 # OFF-HEAP by default
 StorageLevel.CUSTOM = StorageLevel(True, True, True, False, 1)
@@ -107,18 +106,21 @@ def save_df_to_table(
     """
     if not isinstance(storage_level, StorageLevel):
         storage_level = StorageLevelFactory.get_storage_level(storage_level)
-    #df = df.persist(storage_level)
-    for c in json_cols:
-        df = col_to_json(df, c)
-    df.write.format('jdbc').options(
+    # df = df.persist(storage_level)
+
+    df_postgres = df.withColumn('features', F.lit('{}'))
+    # for c in json_cols:
+    #     df = col_to_json(df, c)
+
+    df_postgres.write.format('jdbc').options(
         url=db_config['conn_str'],
         driver=db_driver,
         dbtable=table_name,
         user=db_config['user'],
         password=db_config['password'],
         stringtype='unspecified',
-        batchsize=100000,
-        max_connections=1250,
+        batchsize=500,
+        max_connections=10,
         rewriteBatchedStatements=True,
         reWriteBatchedInserts=True,
         useServerPrepStmts=False,
@@ -280,7 +282,7 @@ def get_window(df, time_bucket: TimeBucket, storage_level: str, logger):
             (F.col('timestamp') >= current_window_start) &
             (F.col('timestamp') < current_end)
         )
-        window_df = df.where(filter_) #.persist(storage_level)
+        window_df = df.where(filter_)  # .persist(storage_level)
         if not window_df.rdd.isEmpty():
             logger.info(f'# Request sets = {window_df.count()}')
             yield window_df

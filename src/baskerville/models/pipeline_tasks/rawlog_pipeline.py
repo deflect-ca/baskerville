@@ -8,8 +8,7 @@
 from baskerville.models.pipeline_tasks.tasks_base import Task
 from baskerville.models.config import BaskervilleConfig
 from baskerville.models.pipeline_tasks.tasks import GenerateFeatures, \
-    Save, \
-    Predict, GetDataLog, AttackDetection, RefreshCache, Challenge
+    Save, Predict, GetDataLog, AttackDetection, Challenge
 
 
 def set_up_isac_rawlog_pipeline(config: BaskervilleConfig):

@@ -1,0 +1,286 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafkab-headless
+  namespace: default
+  labels: { app: kafkab }
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector: { app: kafkab }
+  ports:
+    - { name: controller, port: 9091, targetPort: 9091 }
+    - { name: internal,   port: 9092, targetPort: 9092 }
+    - { name: client,     port: 9093, targetPort: 9093 }
+    - { name: external,   port: 9094, targetPort: 9094 }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafkab
+  namespace: default
+  labels: { app: kafkab }
+spec:
+  serviceName: kafkab-headless
+  replicas: 3
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels: { app: kafkab }
+  template:
+    metadata:
+      labels: { app: kafkab }
+    spec:
+      terminationGracePeriodSeconds: 150
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        fsGroupChangePolicy: "OnRootMismatch"
+      initContainers:
+        - name: fix-perms
+          image: busybox:1.36
+          securityContext:
+            runAsUser: 0
+          command: ["sh","-c"]
+          args:
+            - |
+              mkdir -p /bitnami/kafka/data
+              chown -R 1001:1001 /bitnami/kafka
+              chmod -R g+rwX /bitnami/kafka
+          volumeMounts:
+            - { name: data, mountPath: /bitnami/kafka }
+        # 1) Convert your PEMs -> JKS into /certs
+        - name: pem-to-jks
+          image: docker.io/bitnamilegacy/kafka:4.0.0-debian-12-r10
+          command: ["/bin/bash","-ec"]
+          args:
+            - |
+              set -euo pipefail
+              test -f /mounted-certs/tls.crt
+              test -f /mounted-certs/tls.key
+              test -f /mounted-certs/ca.crt
+              openssl pkcs12 -export \
+                -in /mounted-certs/tls.crt \
+                -inkey /mounted-certs/tls.key \
+                -name kafka \
+                -out /certs/kafka.p12 \
+                -passout pass:${KEYPASS}
+              keytool -importkeystore -noprompt \
+                -srckeystore /certs/kafka.p12 -srcstoretype PKCS12 -srcstorepass "${KEYPASS}" \
+                -destkeystore /certs/kafka.keystore.jks -deststorepass "${KEYPASS}"
+              keytool -import -noprompt -alias CARoot \
+                -file /mounted-certs/ca.crt \
+                -keystore /certs/kafka.truststore.jks -storepass "${KEYPASS}"
+              rm -f /certs/kafka.p12
+          env:
+            - name: KEYPASS
+              valueFrom: { secretKeyRef: { name: kafkab-tls-passwords, key: keystore-password } }
+          volumeMounts:
+            - { name: pem,   mountPath: /mounted-certs, readOnly: true }
+            - { name: certs, mountPath: /certs }
+        # 2) Write a complete server.properties the broker will use
+        - name: render-config
+          image: docker.io/bitnamilegacy/kafka:4.0.0-debian-12-r10
+          command: ["/bin/bash","-ec"]
+          args:
+            - |
+              set -euo pipefail
+              
+              # derive ordinal and per-pod hostnames
+              ORD="${MY_POD_NAME##*-}"
+              FQDN_BASE="kafkab-${ORD}.kafkab-headless.default.svc.cluster.local"
+              EXTERNAL_HOSTS="kafkab0.prod.deflect.network kafkab1.prod.deflect.network kafkab2.prod.deflect.network"
+              set -- $EXTERNAL_HOSTS
+              case "$ORD" in
+                0) EXT="$1" ;;
+                1) EXT="$2" ;;
+                2) EXT="$3" ;;
+              esac
+              
+              # --- MINIMAL file for kafka-storage.sh (controller-only) ---
+              cat > /config/storage.properties <<EOF
+              process.roles=controller,broker
+              node.id=${ORD}
+              controller.listener.names=CONTROLLER
+              listeners=CONTROLLER://:9091,INTERNAL://:9092
+              listener.security.protocol.map=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT
+              controller.quorum.voters=0@kafkab-0.kafkab-headless.default.svc.cluster.local:9091,1@kafkab-1.kafkab-headless.default.svc.cluster.local:9091,2@kafkab-2.kafkab-headless.default.svc.cluster.local:9091
+              inter.broker.listener.name=INTERNAL
+              advertised.listeners=INTERNAL://${FQDN_BASE}:9092
+              log.dirs=/bitnami/kafka/data
+              EOF
+              
+              # --- FULL runtime server.properties ---
+              cat > /config/server.properties <<EOF
+              process.roles=controller,broker
+              controller.listener.names=CONTROLLER
+              controller.quorum.voters=0@kafkab-0.kafkab-headless.default.svc.cluster.local:9091,1@kafkab-1.kafkab-headless.default.svc.cluster.local:9091,2@kafkab-2.kafkab-headless.default.svc.cluster.local:9091
+              node.id=${ORD}
+              listeners=CLIENT://:9093,INTERNAL://:9092,EXTERNAL://:9094,CONTROLLER://:9091
+              listener.security.protocol.map=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,CLIENT:PLAINTEXT,EXTERNAL:SSL
+              inter.broker.listener.name=INTERNAL
+              
+              controller.quorum.request.timeout.ms=12000
+              controller.quorum.fetch.timeout.ms=12000
+              controller.quorum.retry.backoff.ms=1000
+              controller.quorum.election.timeout.ms=10000
+              connections.max.idle.ms=60000
+              request.timeout.ms=12000
+              
+              num.partitions=3
+              default.replication.factor=1
+              min.insync.replicas=1
+              auto.create.topics.enable=true
+              
+              # advertise: internal (headless) + external FQDN
+              advertised.listeners=CLIENT://${FQDN_BASE}:9093,INTERNAL://${FQDN_BASE}:9092,EXTERNAL://${EXT}:9094
+              
+              # external TLS (mTLS required), internal plaintext
+              ssl.keystore.type=JKS
+              ssl.truststore.type=JKS
+              ssl.keystore.location=/opt/bitnami/kafka/config/certs/kafka.keystore.jks
+              ssl.truststore.location=/opt/bitnami/kafka/config/certs/kafka.truststore.jks
+              ssl.keystore.password=${KEYPASS}
+              ssl.truststore.password=${KEYPASS}
+              ssl.client.auth=none
+              listener.name.client.ssl.client.auth=none
+              listener.name.external.ssl.client.auth=required
+              
+              # dirs & misc
+              log.dirs=/bitnami/kafka/data
+              EOF
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: EXTERNAL_FQDNS
+              value: "kafkab0.prod.deflect.network,kafkab1.prod.deflect.network,kafkab2.prod.deflect.network"
+            - name: KEYPASS
+              valueFrom: { secretKeyRef: { name: kafkab-tls-passwords, key: keystore-password } }
+            - name: TRUSTPASS
+              valueFrom: { secretKeyRef: { name: kafkab-tls-passwords, key: truststore-password } }
+          volumeMounts:
+            - { name: config, mountPath: /config }
+        # 3) Format KRaft storage with a minimal, valid controller-only config
+        - name: format-storage
+          image: docker.io/bitnamilegacy/kafka:4.0.0-debian-12-r10
+          command: ["/bin/bash","-ec"]
+          args:
+            - |
+              set -euo pipefail
+              if [ ! -f /bitnami/kafka/data/meta.properties ]; then
+                /opt/bitnami/kafka/bin/kafka-storage.sh format -t "${CLUSTER_ID}" -c /config/storage.properties
+              fi
+          env:
+            - name: MY_POD_NAME
+              valueFrom: { fieldRef: { fieldPath: metadata.name } }
+            - name: MY_POD_NAMESPACE
+              valueFrom: { fieldRef: { fieldPath: metadata.namespace } }
+            - name: CLUSTER_ID
+              valueFrom: { secretKeyRef: { name: kafkab-kraft, key: cluster-id } }
+          volumeMounts:
+            - { name: data,   mountPath: /bitnami/kafka }
+            - { name: config, mountPath: /config }
+      containers:
+        - name: kafka
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "4"
+              memory: "15Gi"
+          image: docker.io/bitnamilegacy/kafka:4.0.0-debian-12-r10
+          ports:
+            - { name: controller, containerPort: 9091 }
+            - { name: internal,   containerPort: 9092 }
+            - { name: client,     containerPort: 9093 }
+            - { name: external,   containerPort: 9094 }
+          startupProbe:
+            exec:
+              command:
+                - bash
+                - -ec
+                - 'pgrep -x java >/dev/null'
+            periodSeconds: 10
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -ec
+                - 'pgrep -x java >/dev/null'
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 12
+          env:
+            - name: MY_POD_NAME
+              valueFrom: { fieldRef: { fieldPath: metadata.name } }
+            - name: MY_POD_NAMESPACE
+              valueFrom: { fieldRef: { fieldPath: metadata.namespace } }
+            - name: BITNAMI_DEBUG
+              value: "true"
+            - name: KAFKA_KRAFT_CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: kafkab-kraft
+                  key: cluster-id
+            - name: KAFKA_HEAP_OPTS
+              value: "-XX:InitialRAMPercentage=75 -XX:MaxRAMPercentage=75"
+          volumeMounts:
+            - { name: data,   mountPath: /bitnami/kafka }
+            - { name: certs,  mountPath: /opt/bitnami/kafka/config/certs, readOnly: true }
+            - { name: config, mountPath: /opt/bitnami/kafka/config/server.properties, subPath: server.properties }
+            - { name: logs,   mountPath: /opt/bitnami/kafka/logs }
+      volumes:
+        - name: pem
+          secret:
+            secretName: kafka-pem2
+            items:
+              - { key: tls.crt, path: tls.crt }
+              - { key: tls.key, path: tls.key }
+              - { key: ca.crt,  path: ca.crt }
+        - name: certs
+          emptyDir: {}
+        - name: config
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nodepool
+                    operator: In
+                    values: [ "postgres" ]
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels: { app: kafkab }
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels: { app: kafkab }
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: csi-cinder-high-speed-gen2
+        resources: { requests: { storage: 800Gi } }

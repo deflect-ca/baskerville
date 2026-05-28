@@ -4,9 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-
 import datetime
-from collections import defaultdict
 
 import itertools
 import json
@@ -16,52 +14,99 @@ import traceback
 
 import pyspark
 from kafka.errors import TopicAlreadyExistsError
+from pyspark.files import SparkFiles
 
 from baskerville.db.dashboard_models import FeedbackContext
 from pyspark.sql import functions as F, types as T
-from pyspark.sql.types import StringType, StructField, StructType, DoubleType
+from pyspark.sql.types import StringType, StructField, StructType, BooleanType
 from pyspark.streaming import StreamingContext
-from functools import reduce
-from pyspark.sql import DataFrame
 from sqlalchemy.exc import SQLAlchemyError
+from user_agents import parse
 
 from baskerville.db import get_jdbc_url
-from baskerville.db.models import RequestSet, Model, Attack
-from baskerville.models.banjax_report_consumer import BanjaxReportConsumer
+from baskerville.db.models import RequestSet, Model
+from baskerville.models.classifier_model import ClassifierModel
+from baskerville.models.storage_io import StorageIO
 from baskerville.models.incident_detector import IncidentDetector
 from baskerville.models.ip_cache import IPCache
-from baskerville.models.metrics.registry import metrics_registry
 from baskerville.models.pipeline_tasks.tasks_base import Task, MLTask, \
     CacheTask
 from baskerville.models.config import BaskervilleConfig, TrainingConfig
 from baskerville.spark.helpers import map_to_array, load_test, \
-    save_df_to_table, columns_to_dict, get_window, set_unknown_prediction, \
-    df_has_rows, get_dtype_for_col, \
+    columns_to_dict, get_window, set_unknown_prediction, \
+    get_dtype_for_col, \
     handle_missing_col
 from baskerville.spark.schemas import features_schema, \
-    prediction_schema, get_message_schema, get_data_schema, \
-    get_feedback_context_schema, get_features_schema
+    prediction_schema, get_message_schema, get_data_schema, get_features_schema
 from kafka import KafkaProducer
 from dateutil.tz import tzutc
 
 # broadcasts
+from baskerville.util.banjax_report_consumer import BanjaxReportConsumer
 from baskerville.util.elastic_writer import ElasticWriter
-from baskerville.util.enums import LabelEnum
-from baskerville.util.helpers import instantiate_from_str, get_model_path, \
-    parse_config
+from baskerville.util.helpers import parse_config, get_default_data_path
 from baskerville.util.helpers import instantiate_from_str, get_model_path
 from baskerville.util.kafka_helpers import send_to_kafka, read_from_kafka_from_the_beginning
 from baskerville.util.mail_sender import MailSender
 from baskerville.util.whitelist_ips import WhitelistIPs
-from baskerville.util.whitelist_hosts import WhitelistHosts
 from baskerville.util.whitelist_urls import WhitelistURLs
-from pyspark.sql.functions import broadcast
+from pyspark.sql.functions import broadcast, udf
+
+from geoip2 import database
+from geoip2.errors import AddressNotFoundError
 
 TOPIC_BC = None
 KAFKA_URL_BC = None
 CLIENT_MODE_BC = None
 OUTPUT_COLS_BC = None
 IP_ACC = None
+
+
+def parse_ua(ua_string):
+    # parse library cannot parse None
+    if ua_string is None:
+        ua_string = ""
+
+    parsed_string = parse(ua_string)
+
+    output = [
+        parsed_string.device.brand,
+        parsed_string.device.family,
+        parsed_string.device.model,
+
+        parsed_string.os.family,
+        parsed_string.os.version_string,
+
+        parsed_string.browser.family,
+        parsed_string.browser.version_string,
+
+        (parsed_string.is_mobile or parsed_string.is_tablet),
+        parsed_string.is_bot
+    ]
+    # If any of the column have None value it doesn't comply with schema
+    # and thus throw Null Pointer Exception
+    for i in range(len(output)):
+        if output[i] is None:
+            output[i] = 'Unknown'
+    return output
+
+
+geoip_schema = StructType([
+    StructField('country_name', StringType(), True),
+])
+
+
+@udf(returnType=geoip_schema)
+def geoip(ip):
+    geo = database.Reader(SparkFiles.get('GeoLite2-Country.mmdb'))
+
+    try:
+        result = geo.country(ip)
+        pass
+    except AddressNotFoundError:
+        return {'country': None}
+
+    return {'country': result.names['en']}
 
 
 class GetDataKafka(Task):
@@ -115,10 +160,61 @@ class GetDataKafka(Task):
             kafkaParams=self.kafka_params,
         )
 
+        if self.config.engine.input_is_weblogs:
+            self.spark.sparkContext.addFile(os.path.join(get_default_data_path(), 'geoip2', 'GeoLite2-Country.mmdb'))
+
     def get_data(self):
-        self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
-            self.data_parser.schema
-        ).persist(self.spark_conf.storage_level)
+        if self.config.engine.input_is_weblogs:
+            self.df = self.df.map(lambda l: json.loads(l[1]))
+
+            schema = T.StructType([
+                T.StructField("message", T.StringType(), True)
+            ])
+            self.df = self.df.map(lambda x: [x['message']]).toDF(schema=schema)
+
+            regex = '([(\d\.)]+) - \[(.*?)\] "(.*?)" (.*) (.*) (\d+) (\d+) "(.*?)" (.*?) (.*?) (.*?) (.*?) "(.*?)" "(.*?)"'
+
+            self.df = self.df.withColumn('client_ip', F.regexp_extract(F.col('message'), regex, 1))
+            self.df = self.df.withColumn('@timestamp', F.regexp_extract(F.col('message'), regex, 2))
+            self.df = self.df.withColumn('@timestamp', F.to_timestamp(F.col('@timestamp'), 'dd/MMM/yyyy:HH:mm:ss Z'))
+
+            self.df = self.df.withColumn('request', F.regexp_extract(F.col('message'), regex, 3))
+            self.df = self.df.withColumn('client_url', F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 2))
+            self.df = self.df.withColumn('client_request_method',
+                                         F.regexp_extract(F.col('request'), '(.*) (.*) (.*)', 1))
+            self.df = self.df.drop('request')
+
+            self.df = self.df.withColumn('client_request_host', F.regexp_extract(F.col('message'), regex, 5))
+            self.df = self.df.withColumn('http_response_code', F.regexp_extract(F.col('message'), regex, 6))
+            self.df = self.df.withColumn('reply_length_bytes', F.regexp_extract(F.col('message'), regex, 7))
+
+            self.df = self.df.withColumn('client_ua', F.regexp_extract(F.col('message'), regex, 8))
+            ua_parser_udf = F.udf(lambda z: parse_ua(z), StructType([
+                StructField("device_brand", StringType(), False),
+                StructField("device_family", StringType(), False),
+                StructField("device_model", StringType(), False),
+
+                StructField("os_family", StringType(), False),
+                StructField("os_version", StringType(), False),
+
+                StructField("browser_family", StringType(), False),
+                StructField("browser_version", StringType(), False),
+
+                StructField("is_mobile", BooleanType(), False),
+                StructField("is_bot", BooleanType(), False),
+            ]))
+            self.df = self.df.withColumn('ua', ua_parser_udf('client_ua'))
+
+            self.df = self.df.withColumn('content_type', F.regexp_extract(F.col('message'), regex, 10))
+            self.df = self.df.withColumn('querystring', F.regexp_extract(F.col('message'), regex, 13))
+
+            self.df = self.df.withColumn('geoip', geoip('client_ip'))
+
+            self.df = self.df.drop('message')
+        else:
+            self.df = self.df.map(lambda l: json.loads(l[1])).toDF(
+                self.data_parser.schema
+            ).persist(self.spark_conf.storage_level)
 
         self.df = load_test(
             self.df,
@@ -130,6 +226,7 @@ class GetDataKafka(Task):
         self.create_runtime()
 
         def process_subsets(time, rdd):
+            self.df_time = time
             self.logger.info(f'Data until {time} from kafka topic \'{self.consume_topic}\'')
             if rdd and not rdd.isEmpty():
                 try:
@@ -404,7 +501,7 @@ class GetDataLog(Task):
             self.logger.info('No data in to process.')
         else:
             for window_df in get_window(
-                    df_original, self.time_bucket, self.config.spark.storage_level, self.logger
+              self.df, self.time_bucket, self.config.spark.storage_level, self.logger
             ):
                 self.df = window_df.repartition(
                     *self.group_by_cols
@@ -424,6 +521,35 @@ class GetDataLog(Task):
             self.reset()
 
             self.batch_i += 1
+
+
+class GetDataFromStorage(Task):
+    def __init__(
+            self,
+            config: BaskervilleConfig,
+            from_date=None,
+            to_date=None,
+            load_one_random_batch_from_every_hour=True,
+            steps: list = ()
+    ):
+        super().__init__(config, steps)
+        self.storage_io = None
+        self.from_date = from_date
+        self.to_date = to_date
+        self.load_one_random_batch_from_every_hour = load_one_random_batch_from_every_hour
+
+    def initialize(self):
+        self.storage_io = StorageIO(
+            storage_path=self.config.engine.storage_path,
+            spark=self.spark,
+            logger=self.logger
+        )
+
+    def run(self):
+        self.df = self.storage_io.load(self.from_date, self.to_date,
+                                       load_one_random_batch_from_every_hour=self.load_one_random_batch_from_every_hour)
+        self.df = super().run()
+        return self.df
 
 
 class GetDataPostgres(Task):
@@ -672,6 +798,8 @@ class GenerateFeatures(MLTask):
         prefixes = []
         matches = []
         stars = []
+        double_stars = []
+
         for url in urls:
             if url.find('/') < 0:
                 domains.append(url)
@@ -683,11 +811,16 @@ class GenerateFeatures(MLTask):
                     if star_pos == len(url) - 1:
                         prefixes.append(url[:-1])
                     else:
-                        stars.append((url[:star_pos], url[star_pos + 1:]))
+                        star_pos2 = url.rfind('*')
+                        if star_pos == star_pos2:
+                            stars.append((url[:star_pos], url[star_pos + 1:]))
+                        else:
+                            double_stars.append((url[:star_pos], url[star_pos + 1:-1]))
 
         # filter out only the exact domain match
         if len(domains) > 0:
-            self.df = self.df.filter(~F.col('target_original').isin(domains))
+            for domain in domains:
+                self.df = self.df.filter(~F.col('target_original').contains(domain))
 
         # concatenate the full path URL
         self.df = self.df.withColumn('url', F.concat(F.col('target_original'), F.col('client_url')))
@@ -711,6 +844,9 @@ class GenerateFeatures(MLTask):
         def filter_stars(url):
             for star in stars:
                 if url and url.startswith(star[0]) and url.endswith(star[1]):
+                    return False
+            for star in double_stars:
+                if url and url.startswith(star[0]) and star[1] in url[len(star[0]):]:
                     return False
             return True
 
@@ -1025,8 +1161,13 @@ class GenerateFeatures(MLTask):
         #  the current batch, this will cause conflicts with caching - use
         # e.g. the timestamp too to avoid this
 
+    def rename_timestamp_column(self):
+        if self.config.engine.input_timestamp_column != '@timestamp':
+            self.df = self.df.withColumn('@timestamp', F.col(self.config.engine.input_timestamp_column))
+
     def run(self):
         self.handle_missing_columns()
+        self.rename_timestamp_column()
         self.normalize_host_names()
         # self.df = self.df.repartition('target_original')
         self.white_list_ips()
@@ -1051,6 +1192,14 @@ class Predict(MLTask):
     def __init__(self, config: BaskervilleConfig, steps=()):
         super().__init__(config, steps)
         self._is_initialized = False
+        self.classifier_model = None
+
+    def initialize(self):
+        super().initialize()
+
+        if self.config.engine.classifier_model_path:
+            self.classifier_model = ClassifierModel()
+            self.classifier_model.load(self.config.engine.classifier_model_path, spark_session=self.spark)
 
     def handle_missing_features(self):
         """
@@ -1070,6 +1219,12 @@ class Predict(MLTask):
             self.df = self.df.fillna(default_value, subset=[feat_dict_col])
 
     def predict(self):
+        if self.classifier_model:
+            self.logger.info('Classifier predicting...')
+            self.df = self.classifier_model.predict(self.df)
+        else:
+            self.logger.info('Classifier model is not used')
+
         if self.model:
             self.df = self.model.predict(self.df)
         else:
@@ -1116,17 +1271,16 @@ class SaveDfInPostgres(Task):
 
     def run(self):
         self.config.database.conn_str = self.db_url
-
-        if df_has_rows(self.df):
-            save_df_to_table(
-                self.df,
-                self.table_model.__tablename__,
-                self.config.database.__dict__,
-                json_cols=self.json_cols,
-                storage_level=self.config.spark.storage_level,
-                mode=self.mode,
-                db_driver=self.config.spark.db_driver
-            )
+        self.df.na.drop()
+        # save_df_to_table(
+        #     self.df,
+        #     self.table_model.__tablename__,
+        #     self.config.database.__dict__,
+        #     json_cols=self.json_cols,
+        #     storage_level=self.config.spark.storage_level,
+        #     mode=self.mode,
+        #     db_driver=self.config.spark.db_driver
+        # )
         self.df = super().run()
         return self.df
 
@@ -1142,11 +1296,13 @@ class Save(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                         'prediction',
-                         'model_version',
-                         'label',
-                         'id_attribute',
-                         'updated_at')
+                     'prediction',
+                     'prediction_anomaly',
+                     'prediction_classifier',
+                     'model_version',
+                     'label',
+                     'id_attribute',
+                     'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1180,6 +1336,26 @@ class Save(SaveDfInPostgres):
         return self.df
 
 
+class SaveToStorage(Task):
+    def __init__(
+            self,
+            config,
+            steps=()
+    ):
+        super().__init__(config, steps)
+        self.storage_io = None
+
+    def initialize(self):
+        self.storage_io = StorageIO(self.config.engine.storage_path, spark=self.spark, logger=self.logger)
+
+    def run(self):
+        if not self.config.engine.save_to_storage:
+            return self.df
+
+        self.storage_io.save(self.df, self.df_time)
+        return self.df
+
+
 class SaveFeedback(SaveDfInPostgres):
     def __init__(self, config,
                  steps=(),
@@ -1187,11 +1363,11 @@ class SaveFeedback(SaveDfInPostgres):
                  json_cols=('features',),
                  mode='append',
                  not_common=(
-                         'prediction',
-                         'model_version',
-                         'label',
-                         'id_attribute',
-                         'updated_at')
+                     'prediction',
+                     'model_version',
+                     'label',
+                     'id_attribute',
+                     'updated_at')
                  ):
         self.not_common = set(not_common)
         super().__init__(config, steps, table_model, json_cols, mode)
@@ -1270,7 +1446,8 @@ class SaveFeedback(SaveDfInPostgres):
                 self.df = SaveDfInPostgres.run(self)
             self.df = self.df.groupBy('uuid_organization', 'id_context').count().toDF()
             self.df = self.df.withColumn('success', F.lit(True))
-        except:
+        except Exception as exp:
+            self.logger.error(exp)
             self.df = self.df.withColumn('success', F.lit(False))
 
     def run(self):
@@ -1403,10 +1580,10 @@ class MergeWithSensitiveData(Task):
             self.df_sensitive, on=['id_client', 'uuid_request_set'], how='inner'
         ).drop('df.id_client', 'df.uuid_request_set')
 
-        if self.df and self.df.head(1):
+        if self.df:
             merge_count = self.df.count()
 
-            if count != merge_count:
+            if (merge_count > 0) and (count != merge_count):
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 self.logger.warning('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
@@ -1462,7 +1639,8 @@ class SendToKafka(Task):
             cc_to_client=self.cc_to_client,
             client_topic=self.client_topic,
             client_connections=self.client_connections,
-            use_partitions=self.config.engine.kafka_send_by_partition
+            use_partitions=self.config.engine.kafka_send_by_partition,
+            logger=self.logger
         )
 
         return self.df
@@ -1474,11 +1652,13 @@ class Train(Task):
             self,
             config: BaskervilleConfig,
             steps: list = (),
+            convert_features_from_json=False
     ):
         super().__init__(config, steps)
         self.model = None
         self.training_conf = self.config.engine.training
         self.engine_conf = self.config.engine
+        self.convert_features_from_json = convert_features_from_json
 
     def initialize(self):
         super().initialize()
@@ -1498,7 +1678,7 @@ class Train(Task):
                     fractions[key] = 1.0
             dataset = dataset.sampleBy('target', fractions, 777)
 
-        self.logger.debug(f'Unwrapping features from json...')
+        self.logger.debug('Unwrapping features from json...')
         schema = StructType([])
         for feature in features:
             schema.add(StructField(
@@ -1557,7 +1737,7 @@ class Train(Task):
         self.model.set_params(**params)
         self.model.set_logger(self.logger)
 
-        dataset = self.load_dataset(self.df, self.model.features)
+        dataset = self.load_dataset(self.df, self.model.features) if self.convert_features_from_json else self.df
 
         self.model.train(dataset)
         dataset.unpersist()
@@ -1673,6 +1853,35 @@ class SaveFeaturesHive(MLTask):
         return self.df
 
 
+def dynamic_threshold(score, attack_prediction, threshold, threshold_attack):
+    if not score:
+        return 0
+
+    if attack_prediction == 1:
+        if score > threshold_attack:
+            return 1
+        else:
+            return 0
+    else:
+        if score > threshold:
+            return 1
+        else:
+            return 0
+
+
+def prediction(prediction_anomaly, prediction_classifier, attack_prediction):
+    if attack_prediction == 1:
+        if (prediction_anomaly == 1) or (prediction_classifier == 1):
+            return 1
+        else:
+            return 0
+    else:
+        if (prediction_anomaly == 1) and (prediction_classifier == 1):
+            return 1
+        else:
+            return 0
+
+
 class AttackDetection(Task):
     """
     Calculates prediction per IP, attack_score per Target, regular vs anomaly counts, attack_prediction
@@ -1680,9 +1889,7 @@ class AttackDetection(Task):
 
     def __init__(self, config, steps=()):
         super().__init__(config, steps)
-        self.report_consumer = None
-        self.banjax_thread = None
-        self.register_metrics = config.engine.register_banjax_metrics
+        self.report_consumer = BanjaxReportConsumer(config, self.logger)
         self.low_rate_attack_schema = None
         self.time_filter = None
         self.lra_condition = None
@@ -1705,93 +1912,51 @@ class AttackDetection(Task):
             name='request_total', dataType=StringType(), nullable=True
         )])
         self.time_filter = (
-                F.abs(F.unix_timestamp(F.col('stop'))) -
-                F.abs(F.unix_timestamp(F.col('start')))
+            F.abs(F.unix_timestamp(F.col('stop'))) - F.abs(F.unix_timestamp(F.col('start')))
         )
         self.lra_condition = (
-                ((F.col('features.request_total') > lr_attack_period[0]) &
-                 (self.time_filter > lra_total_req[0])) |
-                ((F.col('features.request_total') > lr_attack_period[1]) &
-                 (self.time_filter > lra_total_req[1]))
+            ((F.col('features.request_total') > lr_attack_period[0]) &
+             (self.time_filter > lra_total_req[0])) |
+            ((F.col('features.request_total') > lr_attack_period[1]) &
+             (self.time_filter > lra_total_req[1]))
         )
-        self.report_consumer = BanjaxReportConsumer(self.config, self.logger)
-        if self.register_metrics:
-            self.register_banjax_metrics()
-        self.banjax_thread = threading.Thread(target=self.report_consumer.run)
-        self.banjax_thread.start()
 
         if self.incident_detector is not None:
             self.incident_detector.start()
 
-    def finish_up(self):
-        if self.banjax_thread:
-            self.banjax_thread.join()
-
-        super().finish_up()
-
-    def register_banjax_metrics(self):
-        from baskerville.util.enums import MetricClassEnum
-
-        def incr_counter_for_ip_failed_challenge(metric, self, return_value):
-            metric.labels(return_value.get('value_ip'), return_value.get('value_site')).inc()
-            return return_value
-
-        consume_ip_failed_challenge_message = metrics_registry.register_action_hook(
-            self.report_consumer.consume_ip_failed_challenge_message,
-            incr_counter_for_ip_failed_challenge,
-            metric_name='ip_failed_challenge_on_website',
-            metric_cls=MetricClassEnum.counter,
-            labelnames=['ip', 'website']
-        )
-
-        setattr(self.report_consumer, 'consume_ip_failed_challenge_message', consume_ip_failed_challenge_message)
-
-        for field_name in self.report_consumer.status_message_fields:
-            target_method = getattr(self.report_consumer, f"consume_{field_name}")
-
-            def setter_for_field(field_name_inner):
-                def label_with_id_and_set(metric, self, return_value):
-                    metric.labels(return_value.get('id')).set(return_value.get(field_name_inner))
-                    return return_value
-
-                return label_with_id_and_set
-
-            patched_method = metrics_registry.register_action_hook(
-                target_method,
-                setter_for_field(field_name),
-                metric_name=field_name.replace('.', '_'),
-                metric_cls=MetricClassEnum.gauge,
-                labelnames=['banjax_id']
-            )
-
-            setattr(self.report_consumer, f"consume_{field_name}", patched_method)
-            self.logger.info(f"Registered metric for {field_name}")
+        consumer_thread = threading.Thread(target=self.report_consumer.run)
+        consumer_thread.start()
 
     def classify_anomalies(self):
         self.logger.info('Anomaly thresholding...')
         if self.incident_detector:
             self.logger.info('Getting hosts with incidents...')
             hosts = self.incident_detector.get_hosts_with_incidents()
+            self.logger.info(f'Number of hosts under attack {len(hosts)}.')
+
+            self.df = self.df.withColumn('attack_prediction',
+                                         F.when(F.col('target').isin(hosts),
+                                                F.lit(1)).otherwise(F.lit(0)))
         else:
             hosts = []
+            self.df = self.df.withColumn('attack_prediction', F.lit(1))
 
-        self.logger.info(f'Number of hosts under attack {len(hosts)}.')
+        self.logger.info('Dynamic thresholds calculation...')
+        self.df = self.df.withColumn('prediction_anomaly', F.udf(dynamic_threshold, T.IntegerType())(
+            'score', 'attack_prediction',
+            F.lit(self.config.engine.anomaly_threshold),
+            F.lit(self.config.engine.anomaly_threshold_during_incident)
+        ))
 
-        self.df = self.df.withColumn('attack_prediction',
-                                     F.when(F.col('target').isin(hosts),
-                                            F.lit(1)).otherwise(F.lit(0)))
+        self.df = self.df.withColumn('prediction_classifier', F.udf(dynamic_threshold, T.IntegerType())(
+            'classifier_score', 'attack_prediction',
+            F.lit(self.config.engine.classifier_threshold),
+            F.lit(self.config.engine.classifier_threshold_during_incident)
+        ))
 
-        self.logger.info(f'Dynamic thresholds calculation...')
-        self.df = self.df.withColumn('threshold',
-                                     F.when(F.col('target').isin(hosts),
-                                            F.lit(self.config.engine.anomaly_threshold_during_incident)).otherwise(
-                                         F.lit(self.config.engine.anomaly_threshold)))
-        self.logger.info(f'Dynamic thresholding...')
-        self.df = self.df.withColumn(
-            'prediction',
-            F.when(F.col('score') > F.col('threshold'), F.lit(1)).otherwise(F.lit(0)))
-
-        self.df = self.df.drop('threshold')
+        self.df = self.df.withColumn('prediction', F.udf(prediction, T.IntegerType())(
+            'prediction_anomaly', 'prediction_classifier', 'attack_prediction'
+        ))
 
     def detect_low_rate_attack(self):
         if not self.config.engine.low_rate_attack_enabled:
@@ -1845,11 +2010,6 @@ class Challenge(Task):
         self.attack_filter = None
         self.producer = None
         self.ip_cache = IPCache(config, self.logger)
-        self.whitelist_hosts = WhitelistHosts(
-            url=config.engine.url_whitelist_hosts,
-            logger=self.logger,
-            refresh_period_in_seconds=config.engine.dashboard_config_refresh_period_in_seconds
-        )
         if config.elastic:
             self.elastic_writer = ElasticWriter(host=config.elastic.host,
                                                 port=config.elastic.port,
@@ -1910,17 +2070,12 @@ class Challenge(Task):
     def send_challenge(self):
         df_ips = self.get_attack_df()
         if self.config.engine.challenge == 'ip':
-            if not df_has_rows(df_ips):
-                self.logger.debug('No attacks to be challenged...')
-                return
+            self.df = self.df.withColumn('challenged', F.lit(0))
 
             # host white listing
             hosts = []
             if self.config.engine.white_list_hosts:
                 hosts = self.config.engine.white_list_hosts
-
-            if self.whitelist_hosts.get():
-                hosts += self.whitelist_hosts.get()
 
             if len(hosts):
                 df_white_list_hosts = self.spark.createDataFrame(
@@ -1930,46 +2085,51 @@ class Challenge(Task):
                 ).persist()
                 df_ips = df_ips.where(F.col('white_list_host').isNull())
 
-            if df_has_rows(df_ips):
-                ips = [(r['ip'], r['target'], r['low_rate_attack']) for r in df_ips.collect()]
-                ips = self.ip_cache.update(ips)
-                num_records = len(ips)
-                if num_records > 0:
-                    # challenged_ips = self.spark.createDataFrame(
-                    #     [[ip, 1] for ip in ips], ['ip', 'challenged']
-                    # )
-                    self.df = self.df.withColumn(
-                        'challenged',
-                        F.when(F.col('ip').isin([f'{ip}' for ip, _, _ in ips]), 1).otherwise(0)
-                    )
-                    # self.df = self.df.join(challenged_ips, on='ip', how='left')
-                    # self.df = self.df.fillna({'challenged': 0})
+            ips = [(r['ip'], r['target'], r['low_rate_attack']) for r in df_ips.collect()]
+            ips = self.ip_cache.update(ips)
+            num_records = len(ips)
+            if num_records > 0:
+                # challenged_ips = self.spark.createDataFrame(
+                #     [[ip, 1] for ip in ips], ['ip', 'challenged']
+                # )
+                self.df = self.df.withColumn(
+                    'challenged',
+                    F.when(F.col('ip').isin([f'{ip}' for ip, _, _ in ips]), 1).otherwise(0)
+                )
+                # self.df = self.df.join(challenged_ips, on='ip', how='left')
+                # self.df = self.df.fillna({'challenged': 0})
 
-                    self.logger.info(
-                        f'Sending {num_records} IP challenge commands to '
-                        f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
-                    null_ips = False
-                    for ip, _, _ in ips:
-                        if ip:
-                            message = json.dumps(
-                                {'name': 'challenge_ip', 'value': ip}
-                            ).encode('utf-8')
-                            self.producer.send(self.config.kafka.banjax_command_topic, message)
-                        else:
-                            null_ips = True
+                self.logger.info(
+                    f'Sending {num_records} IP challenge commands to '
+                    f'kafka topic \'{self.config.kafka.banjax_command_topic}\'...')
+                null_ips = False
+                for ip, target, _ in ips:
+                    if ip:
+                        message = json.dumps(
+                            {
+                                'Name': 'challenge_ip',
+                                'Value': ip,
+                                'host': target,
+                                'source': 'bask'
+                            }
+                        ).encode('utf-8')
+                        self.producer.send(self.config.kafka.banjax_command_topic, message,
+                                           key=bytearray(target, encoding='utf8'))
+                    else:
+                        null_ips = True
 
-                    if self.elastic_writer:
-                        with self.elastic_writer as elastic_writer:
-                            for ip, target, low_rate_attack in ips:
-                                if ip:
-                                    elastic_writer.write_challenge(ip, host=target,
-                                                                   reason='low_rate' if low_rate_attack else 'anomaly')
+                if self.elastic_writer:
+                    with self.elastic_writer as elastic_writer:
+                        for ip, target, low_rate_attack in ips:
+                            if ip:
+                                elastic_writer.write_challenge(ip, host=target,
+                                                               reason='low_rate' if low_rate_attack else 'anomaly')
 
-                    if null_ips:
-                        self.logger.info('Null ips')
-                        self.logger.info(f'{ips}')
+                if null_ips:
+                    self.logger.info('Null ips')
+                    self.logger.info(f'{ips}')
 
-                    self.producer.flush()
+                self.producer.flush()
         #
         # return
 
@@ -1994,7 +2154,8 @@ class Challenge(Task):
         #
         #     elif self.config.engine.challenge == 'ip':
         #         col_of_interest = 'ip'
-        #         df_to_challenge = self.df.select('ip', 'target').where( # this does not look right. Why (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)?
+        #         df_to_challenge = self.df.select('ip', 'target').
+        #         where( # this does not look right. Why (F.col('attack_prediction') == 1) & (F.col('prediction') == 1)?
         #             (F.col('attack_prediction') == 1) &
         #             (F.col('prediction') == 1) |
         #             (F.col('low_rate_attack') == 1)
@@ -2050,7 +2211,10 @@ class Challenge(Task):
         #     self.logger.debug('No challenge flag is set, moving on...')
 
     def get_attack_df(self):
-        return self.df.select('ip', 'target', 'low_rate_attack').where(self.attack_filter).cache()
+        return self.df.select('ip', 'target', 'low_rate_attack').where(
+            # self.attack_filter
+            (F.col('prediction') == 1) | (F.col('low_rate_attack') == 1)
+        )
 
     def filter_out_load_test(self):
         if self.config.engine.load_test:
@@ -2067,11 +2231,11 @@ class Challenge(Task):
             ).show()
 
     def run(self):
-        if df_has_rows(self.df):
-            self.df = self.df.withColumn('challenged', F.lit(0))
-            self.filter_out_load_test()
-            self.send_challenge()
-        else:
-            self.logger.info('Nothing to be challenged...')
+        # if df_has_rows(self.df):
+        self.df = self.df.withColumn('challenged', F.lit(0))
+        self.filter_out_load_test()
+        self.send_challenge()
+        # else:
+        #     self.logger.info('Nothing to be challenged...')
         self.df = super().run()
         return self.df

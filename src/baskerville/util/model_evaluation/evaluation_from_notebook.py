@@ -5,7 +5,7 @@ import itertools
 from pyspark import SparkConf
 from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
-from pyspark.sql.types import *
+from pyspark.sql.types import (StructType, StructField, StringType)
 from pyspark.mllib.evaluation import BinaryClassificationMetrics
 from baskerville.db import get_jdbc_url
 
@@ -66,8 +66,7 @@ def load_dataset(query, spark, db_config):
     df = df.withColumn('features', F.create_map(
         *list(itertools.chain(
             *[(F.lit(f), F.col('features').getItem(f)) for f in
-              json_schema.__dict__['names']])
-        )))
+              json_schema.__dict__['names']]))))
     return df
 
 
@@ -91,11 +90,10 @@ def evaluate_model(models, spark, db_config):
                                                "ip_attacker", StringType())]))
 
         print('Querying database...')
-        query = f'(select ip, target, created_at, features, stop ' \
-                f'from request_sets where '
-        f'stop > \'{attack.start.strftime("%Y-%m-%d %H:%M:%S")}Z\' ' \
-        f'and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\') ' \
-        f'as attack1 '
+        query = '(select ip, target, created_at, features, stop ' \
+                'from request_sets where ' \
+                f'stop > \'{attack.start.strftime("%Y-%m-%d %H:%M:%S")}Z\' ' \
+                f'and stop < \'{attack.stop.strftime("%Y-%m-%d %H:%M:%S")}Z\') as attack1 '
 
         rs = load_dataset(query, spark, db_config)
         num_records = rs.count()

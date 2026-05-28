@@ -1,38 +1,69 @@
 replicaCount: 3
-logRetentionMinutes: 6
+numPartitions: 3
+logRetentionMinutes: 30
+logRetentionBytes: _268435456
 logRetentionCheckIntervalMs: 60000
 autoCreateTopicsEnable: True
+deleteTopicEnable: True
 
-nodeSelector:
-  nodepool: workers
+#nodeSelector:
+#  nodepool: workers
 
 extraEnvVars:
- - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
-   value: "kafka.security.authorizer.AclAuthorizer"
- - name: KAFKA_CFG_SUPER_USERS
-   value: "User:CN=admin,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown;User:CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown"
- - name: KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND
-   value: "true"
+# - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
+#   value: "kafka.security.authorizer.AclAuthorizer"
+# - name: KAFKA_CFG_SUPER_USERS
+#   value: "User:CN=admin,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown;User:CN=Unknown,OU=Unknown,O=Unknown,L=Unknown,ST=Unknown,C=Unknown"
+# - name: KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND
+#   value: "true"
+ - name: KAFKA_CFG_MAX_POLL_RECORDS
+   value: "100"
+ - name: KAFKA_CFG_MAX_REQUEST_SIZE
+   value: "10048576"
+ - name: KAFKA_CFG_LOG_CLEANUP_POLICY
+   value: "delete"
 
+serviceAccount:
+  create: true
+rbac:
+  create: true
 externalAccess:
   enabled: True
+  autoDiscovery:
+    enabled: True
   service:
-    type: NodePort
-    nodePorts: [30001, 30002, 30003]
+    type: LoadBalancer
+    useDNS: True
+    loadBalancerDomain: prod.deflect.network
+    loadBalancerBrokerName: kafka
+    ports:
+      external: 9094
+
+#externalAccess:
+#  enabled: True
+#  service:
+#    type: NodePort
+#    nodePorts: [30001, 30002, 30003]
 
 persistence:
   enabled: False
-
-zookeeper:
-  auth:
-    enabled: False
-  persistence:
-    enabled: False
+  size: 700Gi
+  storageClass: csi-cinder-high-speed
 
 auth:
-  tls:
-    endpointIdentificationAlgorithm: ""
   clientProtocol: mtls
   interBrokerProtocol: plaintext
-  jksSecret: kafka-jks
-  jksPassword: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+  tls:
+    type: jks
+    endpointIdentificationAlgorithm: ""
+    existingSecrets: ["kafka-jks-0","kafka-jks-1","kafka-jks-2"]
+    password: "B1^ZRUUVoIuKND7t2HiJ8fwRg0kdMo4zdh8m8eRzgXw!"
+  zookeeper:
+    tls:
+      enabled: False
+      verifyHostname : False
+
+zookeeper:
+  persistence:
+    enabled: True
+    size: 20Gi

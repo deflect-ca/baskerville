@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+data:
+  pipeline.conf: |
+    input {
+      kafka {
+        bootstrap_servers => "kafkab-0.kafkab-headless.default.svc.cluster.local:9093,kafkab-1.kafkab-headless.default.svc.cluster.local:9093,kafkab-2.kafkab-headless.default.svc.cluster.local:9093"
+        topics => ["filebeat_deflect_access","filebeat_deflect_access_temp","filebeat_banjax","filebeat_banjax_access_temp"]
+        group_id => "logstash"
+        codec => "json"
+        decorate_events => "basic"
+      }
+    }
+  
+    filter {
+      if [@metadata][kafka][topic] == "filebeat_deflect_access" or [@metadata][kafka][topic] == "filebeat_deflect_access_temp" {
+        mutate{
+          replace => ["[@metadata][kafka][topic]", "logstash_deflect.log"]
+        }
+        date {
+          match => [ "time_local", "dd/MMM/yyyy:HH:mm:ss Z" ]
+          target => "datestamp"
+          remove_field => [ "time_local" ]
+        }
+      }
+      if [@metadata][kafka][topic] == "filebeat_banjax" or [@metadata][kafka][topic] == "filebeat_banjax_access_temp" {
+        mutate{
+          replace => ["[@metadata][kafka][topic]", "logstash_banjax"]
+        }
+        date {
+          match => [ "timestring", "yyyy-MM-dd'T'HH:mm:ss" ]
+          target => "datestamp"
+          remove_field => [ "timestring" ]
+        }
+        if [path] {
+          grok {
+            match => { "path" => "%{URIPATH:client_url}(%{URIPARAM:querystring})?" }
+          }
+        }
+      }
+
+      mutate {
+        copy => {"client_request_host" => "client_request_host_original"}
+        gsub => [ "client_request_host", "^www\.", "" ]
+        copy => {"client_ip" => "client.ip"}
+      }
+
+      geoip {
+        source => "client.ip"
+        target => "geoip0"
+        default_database_type => "City"
+        fields => [ "city_name", "continent_code", "country_code2", "country_name", "location" ]
+      }
+
+      geoip {
+        source => "client.ip"
+        target => "geoip_asn"
+        database => "/mnt/geoip/GeoLite2-ASN.mmdb"
+        fields => ["AUTONOMOUS_SYSTEM_NUMBER", "AUTONOMOUS_SYSTEM_ORGANIZATION"]
+      }
+
+      useragent {
+        source => "client_ua"
+        target => "user_agent"
+      }
+
+      mutate {
+        remove_field => [
+          "@timestamp", "@version", "geoip0", "client.ip",
+          "event", "type", "log_topic", "log", "fields", "host"
+        ]
+      }
+    }
+
+    output {
+      kafka {
+        bootstrap_servers => "kafka9-0.kafka9-headless.default.svc.cluster.local:9093,kafka9-1.kafka9-headless.default.svc.cluster.local:9093,kafka9-2.kafka9-headless.default.svc.cluster.local:9093"
+        topic_id => "%{[@metadata][kafka][topic]}"
+        acks => "0"
+        codec => "json"
+        partitioner => "default"
+        message_key => "%{client_request_host}"
+      }
+    }
