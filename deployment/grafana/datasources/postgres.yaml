@@ -51,7 +51,7 @@ datasources:
 #      tlsClientCert: '...'
 #      tlsClientKey: '...'
 #      # <string> database password, if used
-      password: "zUXtnClLrDHgSQ4KK6iiT3"
+      password: ""   # set via GF env / secret, never commit
 #      # <string> basic auth password
 #      basicAuthPassword:
     version: 1
