@@ -145,9 +145,17 @@ spec:
               ssl.client.auth=none
               listener.name.client.ssl.client.auth=none
               listener.name.external.ssl.client.auth=required
+              # ACL: everything inside the cluster is PLAINTEXT (User:ANONYMOUS, super user). The only SSL
+              # principal is the shared edge certificate on EXTERNAL; its rights are the ACLs (README.md).
+              authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
+              super.users=User:ANONYMOUS
+              allow.everyone.if.no.acl.found=true
               
               # dirs & misc
               log.dirs=/bitnami/kafka/data
+              auto.leader.rebalance.enable=true
+              leader.imbalance.check.interval.seconds=300
+              leader.imbalance.per.broker.percentage=10
               EOF
           env:
             - name: MY_POD_NAME
@@ -268,7 +276,7 @@ spec:
               - matchExpressions:
                   - key: nodepool
                     operator: In
-                    values: [ "postgres" ]
+                    values: [ "postgres", "baskerville" ]
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
@@ -276,6 +284,11 @@ spec:
                 topologyKey: kubernetes.io/hostname
                 labelSelector:
                   matchLabels: { app: kafkab }
+            - weight: 80
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels: { app: kafka9 }
   volumeClaimTemplates:
     - metadata:
         name: data

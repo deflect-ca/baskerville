@@ -13,9 +13,9 @@ export BASKERVILLE_ROOT=/home/maria/baskerville
 export KAFKA_HOST=kafka-dev.localdomain
 export POSTGRES_HOST=127.0.0.1
 export POSTGRES_USER=baskerville_online
-export POSTGRES_PASS=b@skervi11e
+export POSTGRES_PASS=""  # set locally, never commit
 export BASKERVILLE_DB=test_baskerville_spark_machine
-export GIT_DEPLOY_TOKEN=qw-RniByPwk5JAwUrXDq
+export GIT_DEPLOY_TOKEN=""  # set locally, never commit
 export GIT_DEPLOY_USER=gitlab+deploy-token-2
 
 # get spark

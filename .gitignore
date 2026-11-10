@@ -130,3 +130,8 @@ dmypy.json
 
 ip_cache/
 deployment/logstash/maxmind-secret.yaml
+
+# keys and certificates: never commit
+*.pem
+*.p12
+*.jks
