@@ -97,9 +97,10 @@ filter: |-
     mutate {
       replace => { "http_response_code" => "200" }
     }
-    mutate {
-      convert => { "http_response_code" => "integer" }
-    }
+  }
+
+  mutate {
+    convert => { "http_response_code" => "integer" }
   }
 
   if [@metadata][kafka][topic] == "filebeat_deflect_access" or
@@ -212,19 +213,15 @@ filter: |-
       "type",
       "upstream_addr",
       "upstream_status",
-      "upstream_response_time",
       "upstream_header_time",
       "upstream_connect_time",
       "upstream_bytes_sent",
       "upstream_bytes_received",
       "client_user",
-      "referer",
-      "refererdomain",
       "loc_out",
       "proxy_host",
       "proxy_port",
       "forwardedfor",
-      "request_time",
       "filter_start",
       "rule_type",
       "banjax_error",
