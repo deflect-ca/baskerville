@@ -1,0 +1,43 @@
+# Broker logging for kafka9: stdout only (kubelet rotates it), no files in /opt/bitnami/kafka/logs.
+# The stock log4j2.yaml writes server.log and friends there with time-based rolling and no size or
+# count limit: on Nov 18 2026 each broker had ~145 GiB of logs in that emptyDir and filled its node,
+# mostly kafka.network.SocketServer WARNs about a client sending METADATA to the SASL listener.
+# Used through KAFKA_LOG4J_OPTS in kafka9.yaml.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka9-log4j2
+  namespace: default
+data:
+  log4j2.yaml: |
+    Configuration:
+      Appenders:
+        Console:
+          name: STDOUT
+          PatternLayout:
+            pattern: "[%d] %p %m (%c)%n"
+      Loggers:
+        Root:
+          level: INFO
+          AppenderRef:
+            - ref: STDOUT
+        Logger:
+          - name: kafka
+            level: INFO
+          - name: org.apache.kafka
+            level: INFO
+          # One WARN per bad client connection (wrong security protocol), many per second
+          - name: kafka.network.SocketServer
+            level: ERROR
+          - name: org.apache.kafka.common.network.Selector
+            level: ERROR
+          - name: kafka.request.logger
+            level: WARN
+          - name: kafka.network.RequestChannel$
+            level: WARN
+          - name: kafka.log.LogCleaner
+            level: INFO
+          - name: state.change.logger
+            level: INFO
+          - name: kafka.authorizer.logger
+            level: WARN

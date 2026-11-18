@@ -235,11 +235,15 @@ spec:
                   key: cluster-id
             - name: KAFKA_HEAP_OPTS
               value: "-XX:InitialRAMPercentage=75 -XX:MaxRAMPercentage=75"
+            # stdout-only logging (kafka9-log4j2.yaml)
+            - name: KAFKA_LOG4J_OPTS
+              value: "-Dlog4j2.configurationFile=/opt/bitnami/kafka/config/log4j2-stdout/log4j2.yaml"
           volumeMounts:
             - { name: data,   mountPath: /bitnami/kafka }
             - { name: certs,  mountPath: /opt/bitnami/kafka/config/certs, readOnly: true }
             - { name: config, mountPath: /opt/bitnami/kafka/config/server.properties, subPath: server.properties }
             - { name: logs,   mountPath: /opt/bitnami/kafka/logs }
+            - { name: log4j2, mountPath: /opt/bitnami/kafka/config/log4j2-stdout, readOnly: true }
       volumes:
         - name: pem
           secret:
@@ -252,8 +256,14 @@ spec:
           emptyDir: {}
         - name: config
           emptyDir: {}
+        # Only GC logs land here now (rotated by the JVM); the limit evicts the pod instead of
+        # filling the node if something starts writing files again
         - name: logs
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 2Gi
+        - name: log4j2
+          configMap:
+            name: kafka9-log4j2
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -261,7 +271,7 @@ spec:
               - matchExpressions:
                   - key: nodepool
                     operator: In
-                    values: [ "postgres" ]
+                    values: [ "postgres", "baskerville" ]
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
@@ -269,6 +279,11 @@ spec:
                 topologyKey: kubernetes.io/hostname
                 labelSelector:
                   matchLabels: { app: kafka9 }
+            - weight: 80
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels: { app: kafkab }
   volumeClaimTemplates:
     - metadata:
         name: data
