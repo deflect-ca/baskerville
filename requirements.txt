@@ -4,7 +4,7 @@ PyYAML==3.12
 cryptography==2.2.2
 python-geoip==1.2
 python-geoip-geolite2==2015.303
-certifi==2018.4.16
+certifi==2022.12.7
 ua-parser==0.8.0
 # bokeh==0.12.16
 # pandas==0.23.0
